@@ -150,12 +150,35 @@ test.describe('confidential work', () => {
 
   test('renders only sanitized, unlinked summaries', async ({ page }) => {
     await page.goto('/en')
-    const section = page.getByRole('region', { name: 'Selected Confidential Work' })
+    const section = page.getByRole('region', { name: 'Restricted Work' })
     await expect(section.getByRole('heading', { level: 3 })).toHaveCount(2)
     await expect(section.getByRole('link')).toHaveCount(0)
     await expect(section.getByText('03', { exact: true })).toBeVisible()
     await expect(section.getByText('04', { exact: true })).toBeVisible()
     await expect(section.locator('img, video, picture, iframe')).toHaveCount(0)
+  })
+
+  test('is framed as restricted work, truthfully, in both locales', async ({ page }) => {
+    for (const [path, title] of [
+      ['/en', 'Restricted Work'],
+      ['/he', 'עבודות מוגבלות לחשיפה'],
+    ] as const) {
+      await page.goto(path)
+      const section = page.getByRole('region', { name: title })
+      await expect(section).toBeVisible()
+      // Not interactive: nothing inside takes focus.
+      await expect(section.locator('a, button, input, [tabindex]')).toHaveCount(0)
+      // No pretend access control or classified language.
+      const text = (await section.innerText()).toLowerCase()
+      for (const term of ['classified', 'top secret', 'clearance', 'access denied', 'סודי'])
+        expect(text).not.toContain(term)
+    }
+    await page.goto('/en')
+    const titles = page.locator('#confidential h3')
+    await expect(titles).toHaveText([
+      'Confidential Operational System',
+      'Confidential Operational Platform',
+    ])
   })
 
   test('continues the project numbering after routed work', async ({ page }) => {

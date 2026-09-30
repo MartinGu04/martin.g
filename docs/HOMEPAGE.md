@@ -28,7 +28,7 @@ Composition: `src/app/[locale]/page.tsx`; scenes: `src/components/home/`.
 | 02  | Index of the work (`WorkBridge`) | quiet bridge    | lighter graphite | cut       |           |
 | 03  | ON (`OnWorld`)                   | warm, intimate  | ON cream         | soft wipe |           |
 | 04  | mi-ma-mo                         | technical peak  | mi-ma-mo         | split     | split     |
-| 05  | Confidential                     | deliberate drop | soft neutral     | cut       |           |
+| 05  | Restricted Work                  | controlled drop | deep graphite    | cut       |           |
 | 06  | How I work                       | rhythmic        | MARTIN.G dark    | dissolve  |           |
 | 07  | Capabilities                     | calm, daylight  | bone             | cut       |           |
 | 08  | About                            | calm, warm      | warm             | cut       |           |
@@ -80,9 +80,18 @@ reflowing layout.
   operational board (lanes on a time axis, a day's load rhythm) that fills in along the axis.
   On exit its grid, dots and marks fade and its accent drains (`--world-signal`, 1 to 0), so
   the frame is near-monochrome before the confidential scene.
-- **Confidential**: soft flat neutral grey, no light, no texture, flat generated geometry,
-  clear type, almost no motion. Sanitized summaries only; no links, routes, media or identifying
-  detail.
+- **Restricted Work** (the confidential projects): a premium restricted archive, quieter than
+  ON and mi-ma-mo. A slightly deeper, faintly cool graphite; the work sits in one framed
+  archive (a lighter inner surface, a hairline boundary, restrained corner marks), with a
+  technical header (title, rule, index range 03–04) and the truthful note that identifying
+  details are withheld by design. Each cover's generated geometry fades out before its own
+  frame ends, with a second sheet just behind it: there is more here than is shown. The
+  entrance is short and scroll-driven: the corner marks settle, then the boundary draws from
+  the corners to the midpoints. Pointer hover reveals a little more geometry and brightens the
+  index rule; the items are not interactive, so nothing takes focus. Never classified,
+  military or access-control language (no stamps, locks, clearance, censorship bars): the page
+  is not access controlled and does not pretend to be. Sanitized summaries only; no links,
+  routes, media or identifying detail.
 
 ON and mi-ma-mo palettes are provisional (`src/content/worlds.ts`) until the brand values are
 supplied. The public name of mi-ma-mo becomes המחלבה in Phase 4; the id and slug stay

@@ -54,19 +54,19 @@ export const worlds = {
     atmosphere: { light: 'side', grid: 'visible', texture: 'dots', marks: true, vignette: true },
   },
   /**
-   * Confidential work: restrained, monochrome and abstract. A soft, flat neutral grey with
-   * no light, no texture and only a fading trace of the grid. No classified or military
-   * visual language.
+   * Restricted Work: a premium restricted archive. A slightly deeper, faintly cool graphite
+   * than the brand's own, flat and monochrome: no light, no texture, a fading trace of the
+   * grid and a soft vignette for depth. No classified or military visual language.
    */
   confidential: {
     scheme: 'dark',
     colors: {
-      surface0: '#222222',
-      surface1: '#2a2a2a',
-      text: '#ededed',
-      textMuted: '#b4b4b4',
+      surface0: '#111214',
+      surface1: '#17181b',
+      text: '#ecebe8',
+      textMuted: '#a9a8a4',
     },
-    atmosphere: { light: 'none', grid: 'fade', texture: 'none', marks: false, vignette: false },
+    atmosphere: { light: 'none', grid: 'fade', texture: 'none', marks: false, vignette: true },
   },
 
   /*

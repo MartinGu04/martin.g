@@ -194,7 +194,7 @@ server-rendered: the first paint already shows the right world.
 | MARTIN.G     | cinematic dark, warm key light, grain, depth type            | production        |
 | ON           | cream, bordeaux, olive, warm black; photography; paper; soft | demo, provisional |
 | mi-ma-mo     | darker, cooler, structured; drawn grid, dots, marks, data    | demo, provisional |
-| Confidential | restrained monochrome graphite; no light, no texture         | production        |
+| Confidential | deeper graphite restricted archive; no light, no texture     | production        |
 
 ON and mi-ma-mo palettes are provisional stand-ins (`system/world-themes.ts`) until each
 project's brand values are supplied; they are not attached to content yet. Industrial

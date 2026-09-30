@@ -23,7 +23,7 @@ export const en = {
   },
   work: {
     selectedTitle: 'Selected Work',
-    confidentialTitle: 'Selected Confidential Work',
+    confidentialTitle: 'Restricted Work',
     confidentialNote: 'Identifying details are withheld by design.',
     viewProject: 'View project',
   },
