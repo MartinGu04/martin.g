@@ -1,19 +1,25 @@
 /*
- * MARTIN.G design tokens. Components read semantic tokens only; palette constants (--mg-*)
- * exist to feed them. Full rationale in docs/DESIGN-SYSTEM.md.
+ * MARTIN.G design tokens: the common grammar (scale, type hierarchy, spacing, grid,
+ * motion, pacing) plus the brand world's palette and atmosphere. Components read semantic
+ * tokens only; palette constants (--mg-*) exist to feed them. Project worlds override the
+ * semantic color and atmosphere tokens through ThemeScope, never the grammar.
+ * Full rationale in docs/DESIGN-SYSTEM.md.
  */
 @layer tokens {
   :root {
     /* ---------------------------------------------------------------- */
     /* Palette (brand constants)                                        */
     /* ---------------------------------------------------------------- */
-    --mg-black: #0b0b0b;
-    --mg-graphite: #111111;
-    --mg-bone: #f1f0ec;
-    --mg-ash: #949494;
-    /* Structural lines: white at 7% (resolves to about #1c1c1c on --mg-black). */
-    --mg-line: rgb(255 255 255 / 0.07);
-    --mg-line-strong: rgb(255 255 255 / 0.14);
+    --mg-black: #060606;
+    --mg-graphite: #121212;
+    --mg-bone: #f5f3ee;
+    --mg-ash: #b3b1ac;
+    /* Warm light that falls into the brand world; black that it falls off into. */
+    --mg-light: #fff4e6;
+    --mg-shade: #000000;
+    /* Structural lines: white at 10% (resolves to about #1f1f1f on --mg-black). */
+    --mg-line: rgb(255 255 255 / 0.1);
+    --mg-line-strong: rgb(255 255 255 / 0.2);
     /* >= 3:1 on both surfaces: form borders and other UI boundaries (WCAG 1.4.11). */
     --mg-control: #6b6b6b;
 
@@ -35,45 +41,69 @@
     --selection-text: var(--surface-0);
     color-scheme: dark;
 
+    /* Atmosphere (read by <Atmosphere>). Worlds set the colors; the scheme sets the rest. */
+    --light: var(--mg-light);
+    --shade: var(--mg-shade);
+    --light-strength: 16%;
+    --vignette-strength: 78%;
+    --grain-opacity: 0.06;
+    --grain-blend: screen;
+
     /* ---------------------------------------------------------------- */
     /* Type scale. Fluid between 320px and 1600px viewports.            */
     /* Body sizes stay rem-dominant so they scale fully with zoom.       */
+    /* Display roles are heavy and expanded (font-stretch drives the     */
+    /* width axis); text roles stay at normal width.                     */
     /* ---------------------------------------------------------------- */
     --step--2: 0.6875rem;
     --step--1: clamp(0.8125rem, 0.7969rem + 0.0781vw, 0.875rem);
     --step-0: clamp(1rem, 0.9844rem + 0.0781vw, 1.0625rem);
-    --step-1: clamp(1.125rem, 1.0625rem + 0.3125vw, 1.375rem);
-    --step-2: clamp(1.375rem, 1.2188rem + 0.7812vw, 2rem);
-    --step-3: clamp(1.75rem, 1.4375rem + 1.5625vw, 3rem);
-    --step-4: clamp(2.25rem, 1.6875rem + 2.8125vw, 4.5rem);
-    --step-5: clamp(2.75rem, 1.6875rem + 5.3125vw, 7rem);
-    --step-6: clamp(3.25rem, 1.4375rem + 9.0625vw, 10.5rem);
+    --step-1: clamp(1.125rem, 1rem + 0.625vw, 1.5rem);
+    --step-2: clamp(1.25rem, 1.0938rem + 0.7812vw, 1.875rem);
+    --step-3: clamp(1.5rem, 1.0625rem + 2.1875vw, 3.25rem);
+    --step-4: clamp(2rem, 1.3125rem + 3.4375vw, 4.75rem);
+    --step-5: clamp(2.5rem, 1.25rem + 6.25vw, 7.5rem);
+    --step-6: clamp(3rem, 0.875rem + 10.625vw, 11.5rem);
 
-    /* Type roles: size / leading / tracking / weight. Hebrew overrides below. */
+    /* Hero: the monumental statement. Sized per tier below so the longest line stays
+       near the edge of the frame at every width. */
+    --hero-size: clamp(3.25rem, 0.5rem + 13.4vw, 5.5rem);
+    --hero-leading: 0.88;
+    --hero-tracking: -0.045em;
+    --hero-weight: 800;
+    --hero-stretch: 125%;
+
+    /* Type roles: size / leading / tracking / weight / width. Hebrew overrides below. */
     --display-xl-size: var(--step-6);
-    --display-xl-leading: 0.96;
-    --display-xl-tracking: -0.035em;
+    --display-xl-leading: 0.86;
+    --display-xl-tracking: -0.045em;
+    --display-xl-weight: 800;
+    --display-xl-stretch: 122%;
     --display-size: var(--step-5);
-    --display-leading: 1;
-    --display-tracking: -0.03em;
-    --display-weight: 300;
+    --display-leading: 0.9;
+    --display-tracking: -0.04em;
+    --display-weight: 800;
+    --display-stretch: 120%;
 
     --heading-1-size: var(--step-4);
-    --heading-1-leading: 1.04;
-    --heading-1-tracking: -0.025em;
-    --heading-1-weight: 300;
+    --heading-1-leading: 1;
+    --heading-1-tracking: -0.03em;
+    --heading-1-weight: 700;
+    --heading-1-stretch: 112%;
     --heading-2-size: var(--step-3);
-    --heading-2-leading: 1.1;
-    --heading-2-tracking: -0.018em;
-    --heading-2-weight: 300;
+    --heading-2-leading: 1.06;
+    --heading-2-tracking: -0.02em;
+    --heading-2-weight: 650;
+    --heading-2-stretch: 108%;
     --heading-3-size: var(--step-2);
     --heading-3-leading: 1.2;
     --heading-3-tracking: -0.01em;
-    --heading-3-weight: 400;
+    --heading-3-weight: 600;
+    --heading-3-stretch: 104%;
 
     --lead-size: var(--step-1);
-    --lead-leading: 1.45;
-    --lead-weight: 300;
+    --lead-leading: 1.4;
+    --lead-weight: 500;
     --body-size: var(--step-0);
     --body-leading: 1.6;
     --body-weight: 400;
@@ -84,10 +114,15 @@
     --label-size: 0.75rem;
     --label-leading: 1.3;
     --label-transform: uppercase;
-    --label-tracking: 0.14em;
-    --label-weight: 500;
+    --label-tracking: 0.16em;
+    --label-weight: 600;
+    --label-stretch: 112%;
     --micro-size: var(--step--2);
-    --micro-tracking: 0.12em;
+    --micro-tracking: 0.18em;
+
+    /* Depth type: decorative, cropped, behind the content (<DepthType>). */
+    --depth-line-size: clamp(8rem, 26vw, 30rem);
+    --depth-index-size: clamp(16rem, 62vw, 60rem);
 
     /* ---------------------------------------------------------------- */
     /* Space and rhythm (4px base)                                      */
@@ -107,12 +142,16 @@
     --section-space-sm: clamp(3rem, 2rem + 5vw, 7rem);
     /* Between a section heading and its content. */
     --heading-gap: clamp(2rem, 1.5rem + 2.5vw, 4rem);
+    /* Scenes: a viewport-tall frame below the header, and how far an entering scene
+       slides over the tail of the previous one (always within its bottom padding). */
+    --scene-min: calc(100svh - var(--header-block-size));
+    --scene-overlap: clamp(3rem, 1.5rem + 6vw, 6rem);
 
     /* ---------------------------------------------------------------- */
     /* Measures: editorial line lengths, independent of the grid.       */
     /* ---------------------------------------------------------------- */
     --measure-text: 38rem; /* body copy: about 65 to 75 characters */
-    --measure-lead: 34rem;
+    --measure-lead: 32rem;
     --measure-narrow: 24rem;
     /* Headings wrap into short, balanced lines. em rather than ch: ch is measured from the
        '0' glyph, which the Hebrew face does not contain. */
@@ -140,9 +179,11 @@
     --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
     --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
     --ease-mask: cubic-bezier(0.77, 0, 0.18, 1);
+    --ease-scene: cubic-bezier(0.7, 0, 0.2, 1);
     --dur-micro: 200ms;
     --dur-standard: 600ms;
     --dur-cinematic: 1100ms;
+    --dur-atmosphere: 48s;
     --distance-sm: 0.5rem;
     --distance-md: 1.5rem;
     --scale-from: 0.98;
@@ -164,25 +205,35 @@
     --dir: -1;
   }
 
-  /* Hebrew: no negative tracking, taller leading, no uppercase, slightly larger labels. */
+  /* Hebrew: heavier display weights (equal authority beside expanded Latin), no negative
+     tracking, taller leading, no uppercase, slightly larger labels. */
   :root:lang(he) {
-    --display-xl-leading: 1.06;
+    --hero-size: clamp(4rem, 0.5rem + 21vw, 7rem);
+    --hero-leading: 1;
+    --hero-tracking: 0;
+    --hero-weight: 900;
+    --display-xl-leading: 0.98;
     --display-xl-tracking: 0;
-    --display-leading: 1.08;
+    --display-xl-weight: 900;
+    --display-leading: 1.02;
     --display-tracking: 0;
-    --heading-1-leading: 1.14;
+    --display-weight: 900;
+    --heading-1-leading: 1.1;
     --heading-1-tracking: 0;
-    --heading-2-leading: 1.2;
+    --heading-1-weight: 800;
+    --heading-2-leading: 1.18;
     --heading-2-tracking: 0;
+    --heading-2-weight: 700;
     --heading-3-leading: 1.3;
     --heading-3-tracking: 0;
-    --lead-leading: 1.6;
+    --heading-3-weight: 700;
+    --lead-leading: 1.55;
     --body-leading: 1.75;
     --small-leading: 1.65;
     --label-size: 0.875rem;
     --label-transform: none;
     --label-tracking: 0;
-    --label-weight: 500;
+    --label-weight: 600;
     --micro-size: 0.8125rem;
     --micro-tracking: 0;
     --measure-heading: 13em;
@@ -197,6 +248,11 @@
       --margin: clamp(2rem, 4vw, 3rem);
       --parallax: 0.5;
       --header-block-size: 4.5rem;
+      --hero-size: clamp(5.5rem, 0.2rem + 11.2vw, 13.5rem);
+    }
+
+    :root:lang(he) {
+      --hero-size: clamp(7rem, 0.2rem + 12.6vw, 15rem);
     }
   }
 

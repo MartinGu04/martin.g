@@ -1,15 +1,28 @@
 /*
- * Type roles. Apply one class per text element; sizes, leading, tracking and weight come
- * from tokens.css, with Hebrew overrides there. Use the semantic element that matches the
- * document outline and the class that matches the visual role (they are independent).
+ * Type roles. Apply one class per text element; sizes, leading, tracking, weight and width
+ * come from tokens.css, with Hebrew overrides there. Use the semantic element that matches
+ * the document outline and the class that matches the visual role (they are independent).
+ *
+ * Contrast is the point: the wordmark is the only refined, high-contrast letterform; every
+ * display role is heavy, expanded and extremely confident.
  */
 @layer base {
+  .t-hero {
+    font-family: var(--font-display);
+    font-size: var(--hero-size);
+    line-height: var(--hero-leading);
+    letter-spacing: var(--hero-tracking);
+    font-weight: var(--hero-weight);
+    font-stretch: var(--hero-stretch);
+  }
+
   .t-display-xl {
     font-family: var(--font-display);
     font-size: var(--display-xl-size);
     line-height: var(--display-xl-leading);
     letter-spacing: var(--display-xl-tracking);
-    font-weight: var(--display-weight);
+    font-weight: var(--display-xl-weight);
+    font-stretch: var(--display-xl-stretch);
   }
 
   .t-display {
@@ -18,6 +31,7 @@
     line-height: var(--display-leading);
     letter-spacing: var(--display-tracking);
     font-weight: var(--display-weight);
+    font-stretch: var(--display-stretch);
   }
 
   .t-heading-1 {
@@ -26,6 +40,7 @@
     line-height: var(--heading-1-leading);
     letter-spacing: var(--heading-1-tracking);
     font-weight: var(--heading-1-weight);
+    font-stretch: var(--heading-1-stretch);
   }
 
   .t-heading-2 {
@@ -34,6 +49,7 @@
     line-height: var(--heading-2-leading);
     letter-spacing: var(--heading-2-tracking);
     font-weight: var(--heading-2-weight);
+    font-stretch: var(--heading-2-stretch);
   }
 
   .t-heading-3 {
@@ -42,6 +58,7 @@
     line-height: var(--heading-3-leading);
     letter-spacing: var(--heading-3-tracking);
     font-weight: var(--heading-3-weight);
+    font-stretch: var(--heading-3-stretch);
   }
 
   .t-lead {
@@ -68,6 +85,7 @@
     text-transform: var(--label-transform);
     letter-spacing: var(--label-tracking);
     font-weight: var(--label-weight);
+    font-stretch: var(--label-stretch);
   }
 
   .t-micro {
@@ -76,10 +94,11 @@
     text-transform: var(--label-transform);
     letter-spacing: var(--micro-tracking);
     font-weight: var(--label-weight);
+    font-stretch: var(--label-stretch);
   }
 
-  /* Numerals: tabular lining figures (Hanken Grotesk's default), always from the Latin
-     family so they match in both locales. Pair with <Ltr> for bidi isolation. */
+  /* Numerals: tabular lining figures, always from the Latin family so they match in both
+     locales. Pair with <Ltr> for bidi isolation. */
   .t-numeric {
     font-family: var(--font-latin), var(--font-fallback);
     font-variant-numeric: tabular-nums lining-nums;

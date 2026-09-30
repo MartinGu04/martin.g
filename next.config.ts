@@ -35,6 +35,9 @@ const nextConfig: NextConfig = {
   productionBrowserSourceMaps: false,
   poweredByHeader: false,
   reactStrictMode: true,
+  // `next dev` would otherwise append generated agent rules to CLAUDE.md (a public file
+  // with its own reviewed working rules).
+  agentRules: false,
   typedRoutes: true,
   experimental: {
     // The root layout lives under [locale]; this handles URLs outside it.

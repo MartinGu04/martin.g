@@ -91,7 +91,7 @@
     color: var(--text);
   }
 
-  /* Tablet: numeral in its own column, title beside it, details under the title. */
+  /* Tablet: numeral in its own column, the title across the rest, details under it. */
   @media (width >= 48rem) {
     .number {
       grid-column: 1 / span 1;
@@ -103,7 +103,7 @@
     }
 
     .meta {
-      grid-column: 2 / span 5;
+      grid-column: 4 / span 4;
     }
 
     .arrow {
@@ -114,31 +114,31 @@
     }
   }
 
-  /* Desktop: numeral, title and details on one line of the 12-column grid. */
+  /* Desktop: a monumental title across the frame; details offset under it. */
   @media (width >= 75rem) {
     .row {
-      align-items: start;
-    }
-
-    .title {
-      grid-column: 2 / span 6;
-    }
-
-    .meta {
-      grid-column: 8 / span 4;
-      grid-row: 1;
-      padding-block-start: var(--space-3);
+      row-gap: var(--space-6);
+      padding-block: var(--space-7) var(--space-8);
     }
 
     .number {
       grid-row: 1;
     }
 
+    .title {
+      grid-column: 2 / -1;
+      grid-row: 1;
+    }
+
+    .meta {
+      grid-column: 8 / span 4;
+      grid-row: 2;
+    }
+
     .arrow {
       grid-column: 12 / span 1;
-      grid-row: 1;
+      grid-row: 2;
       align-self: start;
-      padding-block-start: var(--space-4);
     }
   }
 }

@@ -1,78 +1,71 @@
 @layer components {
+  /* A film frame: wordmark at the top, the statement anchored low, running to the edge. */
   .hero {
-    position: relative;
-    display: grid;
-    grid-template-rows: 1fr auto;
-    min-block-size: calc(100svh - var(--header-block-size));
-    overflow: clip;
-  }
-
-  .lines {
-    --grid-opacity: 0.55;
+    --scene-pad-start: var(--space-8);
+    --scene-pad-end: var(--space-7);
+    --scene-align: stretch;
   }
 
   .grid {
-    position: relative;
-    align-content: end;
-    row-gap: var(--space-7);
-    padding-block: var(--space-9) var(--space-7);
+    grid-template-rows: auto 1fr auto auto;
+    row-gap: var(--space-6);
   }
 
   .title {
     grid-column: 1 / -1;
+    inline-size: clamp(15rem, 34vw, 34rem);
     line-height: 0;
     color: var(--text);
   }
 
+  /* Monumental and edge to edge: allowed into the inline-end page margin, so the longest
+     line nearly touches the frame. Sized by --hero-size per tier (tokens.css). */
   .statement {
     grid-column: 1 / -1;
-    display: grid;
-    gap: var(--space-1);
+    align-self: end;
+    margin-inline-end: calc(var(--margin) * -1);
+    text-wrap: balance;
   }
 
-  /* Measured on the lines themselves (em of the heading size). em, not ch: ch comes from
-     the '0' glyph, which the Hebrew face does not contain. */
-  .statement > p {
-    max-inline-size: 16em;
+  .support {
+    grid-column: 1 / -1;
+    max-inline-size: 18em;
+    color: var(--text);
   }
 
-  .scroll {
-    position: relative;
+  .cue {
+    grid-column: 1 / -1;
     display: flex;
     align-items: center;
     gap: var(--space-3);
-    padding-block: var(--space-5);
+    padding-block-start: var(--space-4);
   }
 
-  .scrollLine {
-    inline-size: var(--space-7);
-    block-size: 0;
-    border-block-start: var(--hairline) solid var(--line-strong);
+  .cueLine {
+    inline-size: var(--space-8);
+    block-size: var(--hairline);
+    background: linear-gradient(to right, var(--text), transparent);
   }
 
-  /* Tablet: the wordmark takes 7 of 8 columns, the statement steps in by two. */
+  :root[dir='rtl'] .cueLine {
+    background: linear-gradient(to left, var(--text), transparent);
+  }
+
   @media (width >= 48rem) {
-    .title {
-      grid-column: 1 / span 7;
+    .grid {
+      row-gap: var(--space-7);
     }
 
-    .statement {
-      grid-column: 3 / span 6;
+    .support,
+    .cue {
+      grid-column: 5 / span 4;
     }
   }
 
-  /* Desktop: wordmark across 9 columns, statement offset to the main column. */
   @media (width >= 75rem) {
-    .grid {
-      padding-block-end: var(--space-8);
-    }
-
-    .title {
-      grid-column: 1 / span 9;
-    }
-
-    .statement {
-      grid-column: 5 / span 7;
+    .support,
+    .cue {
+      grid-column: 8 / span 5;
     }
   }
 }

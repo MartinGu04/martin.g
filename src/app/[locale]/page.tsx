@@ -11,12 +11,15 @@ import { HeroPlaceholder } from '@/components/hero/HeroPlaceholder'
 import { ProjectIndex } from '@/components/project/ProjectIndex'
 import { AbstractCover } from '@/components/project/AbstractCover'
 import { Reveal } from '@/components/motion/Reveal'
+import { Scene } from '@/components/scene/Scene'
+import { DepthType } from '@/components/scene/DepthType'
+import { confidentialWorld } from '@/content/worlds'
 import styles from './page.module.css'
 
 /**
- * Foundation home, upgraded to the Phase 2 design system: a living specimen of real,
- * approved content. Not the final home experience (hero, showcases and transitions come
- * in later phases).
+ * Foundation home in the Cinematic Hybrid+ language: a sequence of scenes built from real,
+ * approved content. Not the final home experience (hero motion, project showcases and
+ * their worlds come in later phases).
  */
 export default async function HomePage({ params }: PageProps<'/[locale]'>) {
   const { locale } = await params
@@ -38,35 +41,45 @@ export default async function HomePage({ params }: PageProps<'/[locale]'>) {
     <>
       <HeroPlaceholder dict={dict} />
 
-      <Grid as="section" id="work" aria-labelledby="work-title" className="section">
-        <SectionHeading id="work-title" index="01" label={dict.work.selectedTitle} />
-        <ProjectIndex projects={work} />
-      </Grid>
+      <Scene
+        id="work"
+        aria-labelledby="work-title"
+        atmosphere={{ light: 'pool', grid: 'fade', texture: 'grain' }}
+      >
+        <DepthType variant="index">01</DepthType>
+        <Grid>
+          <SectionHeading id="work-title" index="01" label={dict.work.selectedTitle} />
+          <ProjectIndex projects={work} />
+        </Grid>
+      </Scene>
 
-      <Grid as="section" aria-labelledby="confidential-title" className="section">
-        <SectionHeading id="confidential-title" label={dict.work.confidentialTitle} />
-        <p className={`col-aside t-small muted ${styles.note}`}>{dict.work.confidentialNote}</p>
-        {/* No links, no media, no routes: sanitized summaries only. */}
-        <ul role="list" className={`col-main ${styles.confidential}`}>
-          {confidential.map((project, i) => (
-            <Reveal as="li" key={project.id} order={i} className={styles.item}>
-              <AbstractCover pattern={project.pattern} />
-              <IndexNumber value={project.number} className="t-label muted" />
-              <h3 className="t-heading-3">{project.title}</h3>
-              <p className="t-body">{project.summary}</p>
-              <p className="t-small muted">
-                {project.disciplines.join(' · ')}
-                {project.years ? (
-                  <>
-                    {' · '}
-                    <Ltr>{project.years}</Ltr>
-                  </>
-                ) : null}
-              </p>
-            </Reveal>
-          ))}
-        </ul>
-      </Grid>
+      {/* Confidential work is its own restrained, monochrome world: a hard cut, no light. */}
+      <Scene theme={confidentialWorld} aria-labelledby="confidential-title">
+        <Grid>
+          <SectionHeading id="confidential-title" label={dict.work.confidentialTitle} />
+          <p className={`col-aside t-small muted ${styles.note}`}>{dict.work.confidentialNote}</p>
+          {/* No links, no media, no routes: sanitized summaries only. */}
+          <ul role="list" className={`col-main ${styles.confidential}`}>
+            {confidential.map((project, i) => (
+              <Reveal as="li" key={project.id} order={i} className={styles.item}>
+                <AbstractCover pattern={project.pattern} />
+                <IndexNumber value={project.number} className="t-label muted" />
+                <h3 className="t-heading-3">{project.title}</h3>
+                <p className="t-body">{project.summary}</p>
+                <p className="t-small muted">
+                  {project.disciplines.join(' · ')}
+                  {project.years ? (
+                    <>
+                      {' · '}
+                      <Ltr>{project.years}</Ltr>
+                    </>
+                  ) : null}
+                </p>
+              </Reveal>
+            ))}
+          </ul>
+        </Grid>
+      </Scene>
     </>
   )
 }

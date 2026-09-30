@@ -14,17 +14,22 @@ import localFont from 'next/font/local'
  * fonts.css end in system fonts instead.
  */
 
-/** Hanken Grotesk: neutral, slightly open grotesk; Latin text, display and all numerals. */
+/**
+ * Archivo: an engineered grotesk with a width axis. Display roles set it expanded and
+ * heavy; text roles use its normal width. The file is instanced to the ranges the system
+ * uses (width 100 to 125%, weight 300 to 900) to keep it small.
+ */
 export const latinFont = localFont({
-  src: '../fonts/hanken-grotesk-latin-wght.woff2',
+  src: '../fonts/archivo-latin-wdth-wght.woff2',
   variable: '--font-latin',
-  weight: '100 900',
+  weight: '300 900',
   style: 'normal',
   display: 'swap',
   adjustFontFallback: false,
   fallback: [],
-  // next/font reads options statically: the range must be a literal.
+  // next/font reads options statically: every value must be a literal.
   declarations: [
+    { prop: 'font-stretch', value: '100% 125%' },
     {
       prop: 'unicode-range',
       value:
@@ -33,7 +38,10 @@ export const latinFont = localFont({
   ],
 })
 
-/** Noto Sans Hebrew: matched stroke and color to Hanken Grotesk at the same weights. */
+/**
+ * Noto Sans Hebrew: carries equal authority at 900 beside Archivo expanded 800 (compared
+ * against Rubik and Secular One at display scale), and stays calm at 400 for text.
+ */
 export const hebrewFont = localFont({
   src: '../fonts/noto-sans-hebrew-hebrew-wght.woff2',
   variable: '--font-hebrew',

@@ -15,8 +15,10 @@ export function themeVars(theme: ProjectTheme): StyleWithVars {
     '--accent-2': colors.accent2 ?? colors.accent ?? colors.text,
     colorScheme: theme.scheme,
   }
-  // Explicit lines win over the derived default in ThemeScope.module.css.
+  // Explicit values win over the derived defaults (ThemeScope.module.css, tokens.css).
   if (colors.line) vars['--line'] = colors.line
+  if (colors.light) vars['--light'] = colors.light
+  if (colors.shade) vars['--shade'] = colors.shade
   return vars
 }
 
@@ -26,6 +28,8 @@ interface ThemeScopeProps {
   className?: string
   id?: string
   'aria-labelledby'?: string
+  /** Data attributes pass through (used by <Scene> for transitions). */
+  [data: `data-${string}`]: string | undefined
   children: ReactNode
 }
 

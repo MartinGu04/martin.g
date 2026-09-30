@@ -25,13 +25,13 @@ export function ProjectIndex({ projects, titleLevel = 3 }: ProjectIndexProps) {
       {projects.map((project, i) => (
         <Reveal as="li" key={project.id} order={i} className={styles.row}>
           <IndexNumber value={project.number} className={`t-label muted ${styles.number}`} />
-          <Title className={`t-display ${styles.title}`}>
+          <Title className={`t-display-xl ${styles.title}`}>
             <Link href={project.href} className={styles.link}>
               <Ltr>{project.title}</Ltr>
             </Link>
           </Title>
           <div className={styles.meta}>
-            <p className="t-body">{project.summary}</p>
+            <p className="t-lead">{project.summary}</p>
             <p className="t-small muted">{project.disciplines.join(' · ')}</p>
           </div>
           <Arrow className={styles.arrow} />

@@ -1,7 +1,15 @@
-import AxeBuilder from '@axe-core/playwright'
 import { expect, test, type Page } from '@playwright/test'
 
-const localePages = ['/en', '/he', '/en/work/on', '/he/work/on', '/en/system', '/he/system']
+const localePages = [
+  '/en',
+  '/he',
+  '/en/work/on',
+  '/he/work/on',
+  '/en/system',
+  '/he/system',
+  '/en/system/scenes',
+  '/he/system/scenes',
+]
 
 async function horizontalOverflow(page: Page) {
   return page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)
@@ -151,6 +159,30 @@ test.describe('motion', () => {
     expect(opacity).toBe('1')
   })
 
+  test('scene transitions never clip content without scripting or with reduced motion', async ({
+    browser,
+  }) => {
+    for (const options of [{ javaScriptEnabled: false }, { reducedMotion: 'reduce' as const }]) {
+      const context = await browser.newContext(options)
+      const page = await context.newPage()
+      await page.goto('/en/system/scenes')
+      const clips = await page
+        .locator('[data-enter="wipe"], [data-enter="split"]')
+        .evaluateAll((els) => els.map((el) => getComputedStyle(el).clipPath))
+      expect(clips.length).toBeGreaterThan(0)
+      expect(new Set(clips)).toEqual(new Set(['none']))
+      await context.close()
+    }
+  })
+
+  test('a project world takes over its scene from the first paint', async ({ page }) => {
+    await page.goto('/en/system/scenes')
+    const on = page.locator('[data-scene][data-theme-scheme="light"]').first()
+    const background = await on.evaluate((el) => getComputedStyle(el).backgroundColor)
+    const root = await page.evaluate(() => getComputedStyle(document.body).backgroundColor)
+    expect(background).not.toBe(root)
+  })
+
   test('reduced motion disables parallax and transitions', async ({ browser }) => {
     const context = await browser.newContext({ reducedMotion: 'reduce' })
     const page = await context.newPage()
@@ -218,28 +250,4 @@ test.describe('typography and specimen', () => {
     const sitemap = await (await request.get('/sitemap.xml')).text()
     expect(sitemap).not.toContain('/system')
   })
-})
-
-// TEMPORARY: art-direction concepts under review. Remove with the concept routes.
-test.describe('art-direction concepts', () => {
-  const conceptPages = ['a', 'b', 'c'].flatMap((key) => [
-    `/en/system/concepts/${key}`,
-    `/he/system/concepts/${key}`,
-  ])
-
-  for (const url of conceptPages) {
-    test(`concept is accessible, noindex and reflows: ${url}`, async ({ page }) => {
-      await page.goto(url)
-      await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/)
-      await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1)
-      const results = await new AxeBuilder({ page })
-        .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
-        .analyze()
-      expect(results.violations.map((v) => `${v.id}: ${v.help}`)).toEqual([])
-      for (const width of [1920, 1440, 820, 390, 320]) {
-        await page.setViewportSize({ width, height: 900 })
-        expect(await horizontalOverflow(page), `${url} at ${width}px`).toBeLessThanOrEqual(0)
-      }
-    })
-  }
 })

@@ -1,33 +1,38 @@
 import type { Dictionary } from '@/i18n/dictionaries'
 import { Wordmark } from '@/components/brand/BrandMark'
 import { Grid } from '@/components/layout/Grid'
-import { GridLines } from '@/components/layout/GridLines'
+import { Scene } from '@/components/scene/Scene'
+import { DepthType } from '@/components/scene/DepthType'
 import styles from './HeroPlaceholder.module.css'
 
 /**
- * ARCHITECTURAL PLACEHOLDER, not the cinematic hero (a later phase). It is the static,
- * composed end state on the production grid and type system: no motion, no scroll
- * choreography. Rules the real hero must keep: the h1 is real text, nothing is hidden
+ * STATIC HERO FRAME, not the final cinematic hero (its motion comes in a later phase).
+ * It fixes the composition and scale the real hero keeps: a refined wordmark against a
+ * monumental, heavy statement that runs to the edge of the frame, inside the brand
+ * world's light. Rules the real hero must keep: the h1 is real text, nothing is hidden
  * behind JavaScript, and the wordmark is never rendered below its legible size.
  */
 export function HeroPlaceholder({ dict }: { dict: Dictionary }) {
   return (
-    <section className={styles.hero} aria-labelledby="hero-title">
-      <GridLines className={styles.lines} />
+    <Scene
+      size="frame"
+      atmosphere={{ light: 'shaft', grid: 'light', texture: 'grain', marks: true }}
+      aria-labelledby="hero-title"
+      className={styles.hero}
+    >
+      <DepthType variant="line">{dict.site.principle}</DepthType>
       <Grid className={styles.grid}>
         <h1 id="hero-title" className={styles.title}>
           <span className="visually-hidden">{dict.site.name}</span>
           <Wordmark decorative width="100%" />
         </h1>
-        <div className={styles.statement}>
-          <p className="t-heading-2">{dict.site.positioning}</p>
-          <p className="t-heading-2 muted">{dict.site.principle}</p>
-        </div>
+        <p className={`t-hero ${styles.statement}`}>{dict.site.principle}</p>
+        <p className={`t-lead ${styles.support}`}>{dict.site.positioning}</p>
+        <p className={`t-micro muted ${styles.cue}`} aria-hidden="true">
+          <span className={styles.cueLine} />
+          {dict.a11y.scrollHint}
+        </p>
       </Grid>
-      <div className={`container ${styles.scroll}`} aria-hidden="true">
-        <span className={styles.scrollLine} />
-        <span className="t-micro muted">{dict.a11y.scrollHint}</span>
-      </div>
-    </section>
+    </Scene>
   )
 }

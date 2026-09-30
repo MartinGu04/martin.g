@@ -16,8 +16,12 @@ import { Monogram, Wordmark } from '@/components/brand/BrandMark'
 import { ThemeScope } from '@/components/theme/ThemeScope'
 import { Reveal } from '@/components/motion/Reveal'
 import { ProjectIndex } from '@/components/project/ProjectIndex'
+import { Atmosphere } from '@/components/scene/Atmosphere'
+import { confidentialWorld } from '@/content/worlds'
+import type { AtmosphereSpec, ProjectTheme } from '@/content/schema'
 import { specimenCopy as copy } from './specimen-copy'
 import { qaThemes } from './qa-themes'
+import { demoWorlds } from './world-themes'
 import styles from './page.module.css'
 
 export const metadata: Metadata = {
@@ -25,18 +29,44 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 }
 
-function TypeRow({ role, sample, locale }: { role: string; sample: string; locale: Locale }) {
+interface TypeRowProps {
+  role: string
+  sample: string
+  locale: Locale
+  /** Monumental roles are shown across the full frame, where they are used. */
+  wide?: boolean
+}
+
+function TypeRow({ role, sample, locale, wide = false }: TypeRowProps) {
   return (
     <div className={styles.typeRow}>
       <p className={`col-aside t-micro muted ${styles.roleName}`} dir="ltr">
         {role}
       </p>
-      <p className={`col-main ${role}`} lang={locale}>
+      <p className={`${wide ? 'col-full' : 'col-main'} ${role}`} lang={locale}>
         {sample}
       </p>
     </div>
   )
 }
+
+const weights = [300, 400, 500, 600, 700, 800, 900] as const
+
+/** Every atmosphere layer on its own, in the brand world and in a light world. */
+const atmosphereTiles: readonly [string, AtmosphereSpec][] = [
+  ['light: shaft', { light: 'shaft', texture: 'none', vignette: false }],
+  ['light: pool', { light: 'pool', texture: 'none', vignette: false }],
+  ['light: side', { light: 'side', texture: 'none', vignette: false }],
+  ['grid: light', { light: 'shaft', grid: 'light', texture: 'none', vignette: false }],
+  ['grid: fade', { light: 'none', grid: 'fade', texture: 'none', vignette: false }],
+  ['grid: visible', { light: 'none', grid: 'visible', texture: 'none', vignette: false }],
+  ['texture: grain', { light: 'none', texture: 'grain', vignette: false }],
+  ['texture: paper', { light: 'none', texture: 'paper', vignette: false }],
+  ['texture: dots', { light: 'none', texture: 'dots', vignette: false }],
+  ['vignette', { light: 'none', texture: 'none', vignette: true }],
+  ['marks', { light: 'none', texture: 'none', vignette: false, marks: true }],
+  ['brand default', {}],
+]
 
 export default async function SystemSpecimenPage({ params }: PageProps<'/[locale]/system'>) {
   const { locale } = await params
@@ -44,6 +74,15 @@ export default async function SystemSpecimenPage({ params }: PageProps<'/[locale
   const dict = getDictionary(locale)
   const t = (value: { en: string; he: string }) => value[locale]
   const s = copy.sample
+  const worldBands: [ProjectTheme | undefined, string][] = [
+    [undefined, t(copy.worlds.brand)],
+    [demoWorlds.on, t(copy.worlds.on)],
+    [demoWorlds.onBordeaux, t(copy.worlds.onBordeaux)],
+    [demoWorlds.miMaMo, t(copy.worlds.miMaMo)],
+    [confidentialWorld, t(copy.worlds.confidential)],
+    [qaThemes.inverse, t(copy.themes.inverse)],
+    [qaThemes.tinted, t(copy.themes.tinted)],
+  ]
 
   return (
     <div className={styles.page}>
@@ -55,7 +94,8 @@ export default async function SystemSpecimenPage({ params }: PageProps<'/[locale
       {/* Typography */}
       <Grid as="section" aria-labelledby="type-title" className="section-sm">
         <SectionHeading id="type-title" index="01" label={t(copy.sections.type)} />
-        <TypeRow role="t-display-xl" sample={t(s.display)} locale={locale} />
+        <TypeRow role="t-hero" sample={t(s.display)} locale={locale} wide />
+        <TypeRow role="t-display-xl" sample={t(s.display)} locale={locale} wide />
         <TypeRow role="t-display" sample={t(s.display)} locale={locale} />
         <TypeRow role="t-heading-1" sample={t(s.heading)} locale={locale} />
         <TypeRow role="t-heading-2" sample={t(s.heading)} locale={locale} />
@@ -72,6 +112,22 @@ export default async function SystemSpecimenPage({ params }: PageProps<'/[locale
           <p className="col-main t-heading-1 t-numeric">
             <Ltr>01 02 03 04 · 2024–2026 · 12 / 8 / 4</Ltr>
           </p>
+        </div>
+        <div className={styles.typeRow}>
+          <p className={`col-aside t-micro muted ${styles.roleName}`}>{t(copy.weights)}</p>
+          <div className={`col-main ${styles.weights}`}>
+            {weights.map((weight) => (
+              <p key={weight} className={styles.weight} style={{ fontWeight: weight }}>
+                <span lang="en" dir="ltr">
+                  Aa
+                </span>
+                <span lang="he" dir="rtl">
+                  אב
+                </span>
+                <span className="t-micro muted t-numeric">{weight}</span>
+              </p>
+            ))}
+          </div>
         </div>
       </Grid>
 
@@ -143,19 +199,44 @@ export default async function SystemSpecimenPage({ params }: PageProps<'/[locale
         </div>
       </Grid>
 
-      {/* Themes */}
+      {/* Atmosphere */}
+      <Grid as="section" aria-labelledby="atmosphere-title" className="section-sm">
+        <SectionHeading id="atmosphere-title" index="05" label={t(copy.sections.atmosphere)} />
+        {([undefined, demoWorlds.on] as const).map((theme, row) => (
+          <ThemeScope key={row} theme={theme} className={`col-full ${styles.tileRow}`}>
+            <ul role="list" className={styles.tiles}>
+              {atmosphereTiles.map(([name, spec]) => (
+                <li key={name} className={styles.tile}>
+                  <div className={styles.tileArt}>
+                    <Atmosphere {...spec} />
+                  </div>
+                  <p className="t-micro" dir="ltr">
+                    {name}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </ThemeScope>
+        ))}
+      </Grid>
+
+      {/* Worlds */}
       <section aria-labelledby="themes-title" className="section-sm">
         <Grid>
-          <SectionHeading id="themes-title" index="05" label={t(copy.sections.themes)} />
+          <SectionHeading id="themes-title" index="06" label={t(copy.sections.themes)} />
+          <p className="col-main t-body">
+            <a href={`/${locale}/system/scenes`}>{t(copy.worlds.scenesLink)}</a>
+          </p>
         </Grid>
-        {(['inverse', 'tinted'] as const).map((key) => (
-          <ThemeScope key={key} theme={qaThemes[key]} className={styles.themeBand}>
+        {worldBands.map(([theme, name], i) => (
+          <ThemeScope key={name} theme={theme} className={styles.themeBand}>
+            <Atmosphere {...theme?.atmosphere} />
             <Grid className={styles.themeGrid}>
-              <Eyebrow className="col-aside" index={key === 'inverse' ? '01' : '02'}>
-                {t(copy.themes[key])}
+              <Eyebrow className="col-aside" index={String(i + 1).padStart(2, '0')}>
+                {name}
               </Eyebrow>
               <div className="col-main stack stack-sm">
-                <p className="t-heading-2">{t(s.heading)}</p>
+                <p className="t-display">{t(s.display)}</p>
                 <p className="t-body muted measure-text">{t(s.body)}</p>
                 <p className={`t-label ${styles.accents}`}>
                   <span style={{ color: 'var(--accent)' }}>accent</span>
@@ -163,7 +244,6 @@ export default async function SystemSpecimenPage({ params }: PageProps<'/[locale
                   <a href={`/${locale}`}>{dict.site.name}</a>
                 </p>
               </div>
-              <Rule className="col-full" decorative />
             </Grid>
           </ThemeScope>
         ))}
@@ -171,7 +251,7 @@ export default async function SystemSpecimenPage({ params }: PageProps<'/[locale
 
       {/* Motion */}
       <Grid as="section" aria-labelledby="motion-title" className="section-sm">
-        <SectionHeading id="motion-title" index="06" label={t(copy.sections.motion)} />
+        <SectionHeading id="motion-title" index="07" label={t(copy.sections.motion)} />
         {(['fade', 'rise', 'scale', 'mask'] as const).map((variant, i) => (
           <Reveal
             key={variant}
@@ -193,7 +273,7 @@ export default async function SystemSpecimenPage({ params }: PageProps<'/[locale
       <Grid as="section" aria-labelledby="stress-title" className="section-sm">
         <SectionHeading
           id="stress-title"
-          index="07"
+          index="08"
           label={t(copy.sections.stress)}
           title={t(copy.stress.longTitle)}
         />

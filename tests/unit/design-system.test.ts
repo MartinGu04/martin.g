@@ -7,6 +7,8 @@ import { primaryNav } from '@/lib/navigation'
 import { isSpecimenEnabled } from '@/lib/specimen'
 import { themeIssues } from '@/lib/theme'
 import { qaThemes } from '@/app/[locale]/system/qa-themes'
+import { demoWorlds } from '@/app/[locale]/system/world-themes'
+import { confidentialWorld } from '@/content/worlds'
 
 const read = (path: string) => readFileSync(new URL(`../../${path}`, import.meta.url), 'utf8')
 
@@ -45,14 +47,14 @@ describe('brand marks', () => {
 describe('typography', () => {
   it('self-hosts both families with their licenses', () => {
     for (const file of [
-      'src/fonts/hanken-grotesk-latin-wght.woff2',
+      'src/fonts/archivo-latin-wdth-wght.woff2',
       'src/fonts/noto-sans-hebrew-hebrew-wght.woff2',
-      'src/fonts/OFL-HankenGrotesk.txt',
+      'src/fonts/OFL-Archivo.txt',
       'src/fonts/OFL-NotoSansHebrew.txt',
     ]) {
       expect(existsSync(new URL(`../../${file}`, import.meta.url)), file).toBe(true)
     }
-    expect(read('src/fonts/OFL-HankenGrotesk.txt')).toContain('SIL Open Font License')
+    expect(read('src/fonts/OFL-Archivo.txt')).toContain('SIL Open Font License')
     expect(read('src/fonts/OFL-NotoSansHebrew.txt')).toContain('SIL Open Font License')
   })
 
@@ -79,10 +81,19 @@ describe('themes', () => {
     colors: { surface0: '#0b0b0b', surface1: '#111111', text: '#f1f0ec', textMuted: '#949494' },
   }
 
-  it('accepts the brand palette and the QA palettes', () => {
+  it('accepts the brand palette, the QA palettes and every world', () => {
     expect(themeIssues(brand)).toEqual([])
     expect(themeIssues(qaThemes.inverse)).toEqual([])
     expect(themeIssues(qaThemes.tinted)).toEqual([])
+    expect(themeIssues(confidentialWorld)).toEqual([])
+    for (const [name, world] of Object.entries(demoWorlds)) {
+      expect(themeIssues(world), name).toEqual([])
+    }
+  })
+
+  it('validates light and shade colors like every other color', () => {
+    const bad: ProjectTheme = { ...brand, colors: { ...brand.colors, light: '#fff' } }
+    expect(themeIssues(bad)).toContain('light must be #rrggbb')
   })
 
   it('rejects low contrast, weak accents, a wrong scheme and non-hex colors', () => {
@@ -102,8 +113,17 @@ describe('themes', () => {
     const scope = read('src/components/theme/ThemeScope.tsx')
     const vars = [...scope.matchAll(/'(--[a-z0-9-]+)'/g)].map((m) => m[1])
     for (const name of vars) {
-      expect(name).toMatch(/^--(surface-[01]|text|text-muted|line|accent|accent-2)$/)
+      expect(name).toMatch(/^--(surface-[01]|text|text-muted|line|accent|accent-2|light|shade)$/)
     }
+  })
+
+  it('project worlds carry no grammar: no spacing, type, grid or motion keys', () => {
+    const schema = read('src/content/schema.ts')
+    const theme = schema.slice(
+      schema.indexOf('export interface ProjectTheme'),
+      schema.indexOf('/* Case-study blocks'),
+    )
+    expect(theme).not.toMatch(/space|size|font|radius|column|duration|easing|motion/i)
   })
 })
 

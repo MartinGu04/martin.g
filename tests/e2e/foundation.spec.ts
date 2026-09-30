@@ -1,7 +1,16 @@
 import AxeBuilder from '@axe-core/playwright'
 import { expect, test } from '@playwright/test'
 
-const pages = ['/en', '/he', '/en/work/on', '/he/work/mi-ma-mo', '/en/system', '/he/system']
+const pages = [
+  '/en',
+  '/he',
+  '/en/work/on',
+  '/he/work/mi-ma-mo',
+  '/en/system',
+  '/he/system',
+  '/en/system/scenes',
+  '/he/system/scenes',
+]
 
 test.describe('locale routing', () => {
   test('redirects unprefixed URLs using Accept-Language', async ({ browser }) => {

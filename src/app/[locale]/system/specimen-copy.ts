@@ -17,7 +17,8 @@ export const specimenCopy = {
     grid: { en: 'Grid and placements', he: 'גריד ומיקומים' },
     primitives: { en: 'Primitives', he: 'רכיבי בסיס' },
     marks: { en: 'Brand marks', he: 'סימני המותג' },
-    themes: { en: 'Theme scopes', he: 'תחומי ערכות נושא' },
+    themes: { en: 'Worlds', he: 'עולמות' },
+    atmosphere: { en: 'Atmosphere', he: 'אווירה' },
     motion: { en: 'Motion', he: 'תנועה' },
     stress: { en: 'Long strings', he: 'מחרוזות ארוכות' },
   },
@@ -42,6 +43,21 @@ export const specimenCopy = {
     inverse: { en: 'QA palette: light inverse', he: 'פלטת בדיקה: בהירה הפוכה' },
     tinted: { en: 'QA palette: tinted dark with accents', he: 'פלטת בדיקה: כהה עם הדגשות' },
   },
+  worlds: {
+    brand: { en: 'MARTIN.G world', he: 'העולם של MARTIN.G' },
+    on: { en: 'ON world (provisional palette)', he: 'העולם של ON (פלטה זמנית)' },
+    onBordeaux: {
+      en: 'ON world, bordeaux register (provisional)',
+      he: 'העולם של ON, משלב בורדו (זמני)',
+    },
+    miMaMo: { en: 'mi-ma-mo world (provisional palette)', he: 'העולם של mi-ma-mo (פלטה זמנית)' },
+    confidential: { en: 'Confidential world', he: 'העולם החסוי' },
+    scenesLink: {
+      en: 'See the worlds in sequence, with their transitions',
+      he: 'צפייה בעולמות ברצף, עם המעברים ביניהם',
+    },
+  },
+  weights: { en: 'Weights', he: 'משקלים' },
   motion: {
     fade: { en: 'Fade', he: 'דהייה' },
     rise: { en: 'Rise', he: 'עלייה' },

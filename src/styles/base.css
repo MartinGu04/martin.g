@@ -23,7 +23,7 @@
   h3,
   h4 {
     font-family: var(--font-display);
-    font-weight: 400;
+    font-weight: 700;
     line-height: var(--heading-3-leading);
     text-wrap: balance;
   }

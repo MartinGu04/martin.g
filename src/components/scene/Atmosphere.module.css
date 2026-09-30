@@ -1,0 +1,226 @@
+/*
+ * Atmosphere layers. Colors come only from the enclosing scope: --surface-0/1 (base tone),
+ * --light (light fields), --shade (vignette), --text (grid, dots). Strength, blend and
+ * grain amount come from the scheme (tokens.css for the brand world, ThemeScope for
+ * project worlds). No purple or blue gradients, blobs, neon or glass: light is a single
+ * warm or neutral source, falling off into shade.
+ */
+@layer components {
+  .atmosphere {
+    --shaft-angle: 102deg;
+    --light-x: 80%;
+    --side-x: 0%;
+    --noise-fine: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0.33 0.33 0.33 0 0 0.33 0.33 0.33 0 0 0.33 0.33 0.33 0 0 0 0 0 0 1'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    --noise-paper: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='360' height='360'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.55' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0.33 0.33 0.33 0 0 0.33 0.33 0.33 0 0 0.33 0.33 0.33 0 0 0 0 0 0 1'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    overflow: clip;
+    pointer-events: none;
+  }
+
+  /* Light travels the other way in RTL. */
+  :root[dir='rtl'] .atmosphere {
+    --shaft-angle: 258deg;
+    --light-x: 20%;
+    --side-x: 100%;
+  }
+
+  .atmosphere > * {
+    position: absolute;
+    inset: 0;
+  }
+
+  .base {
+    background: radial-gradient(
+      120% 90% at var(--light-x) 0%,
+      var(--surface-1),
+      var(--surface-0) 60%
+    );
+  }
+
+  /* A directional shaft from a high corner: the cinematic key light. */
+  .shaft {
+    inset: -20% -10%;
+    background:
+      radial-gradient(
+        40% 38% at var(--light-x) 8%,
+        color-mix(in srgb, var(--light) var(--light-strength), transparent),
+        transparent 70%
+      ),
+      linear-gradient(
+        var(--shaft-angle),
+        transparent 34%,
+        color-mix(in srgb, var(--light) calc(var(--light-strength) * 0.8), transparent) 50%,
+        color-mix(in srgb, var(--light) calc(var(--light-strength) * 0.25), transparent) 60%,
+        transparent 72%
+      );
+    filter: blur(28px);
+  }
+
+  /* An overhead pool, like a stage light. */
+  .pool {
+    background: radial-gradient(
+      60% 55% at 50% -8%,
+      color-mix(in srgb, var(--light) var(--light-strength), transparent),
+      transparent 70%
+    );
+  }
+
+  /* A raking light from the inline-start edge. */
+  .side {
+    background: radial-gradient(
+      70% 90% at var(--side-x) 35%,
+      color-mix(in srgb, var(--light) calc(var(--light-strength) * 0.8), transparent),
+      transparent 65%
+    );
+  }
+
+  .haze {
+    inset: -25%;
+    background:
+      radial-gradient(
+        30% 25% at 30% 60%,
+        color-mix(in srgb, var(--light) calc(var(--light-strength) * 0.25), transparent),
+        transparent 70%
+      ),
+      radial-gradient(
+        35% 30% at 70% 35%,
+        color-mix(in srgb, var(--light) calc(var(--light-strength) * 0.3), transparent),
+        transparent 70%
+      );
+  }
+
+  /* The grid, drawn only as much as the scene wants. */
+  .grid {
+    --line: color-mix(in srgb, var(--text) 11%, transparent);
+  }
+
+  .grid_light {
+    -webkit-mask-image: linear-gradient(
+      var(--shaft-angle),
+      transparent 30%,
+      black 50%,
+      transparent 74%
+    );
+    mask-image: linear-gradient(var(--shaft-angle), transparent 30%, black 50%, transparent 74%);
+  }
+
+  .grid_fade {
+    -webkit-mask-image: linear-gradient(to bottom, black, transparent 75%);
+    mask-image: linear-gradient(to bottom, black, transparent 75%);
+  }
+
+  .grid_visible {
+    --line: color-mix(in srgb, var(--text) 14%, transparent);
+  }
+
+  .grain {
+    background-image: var(--noise-fine);
+    background-size: 220px 220px;
+    opacity: var(--grain-opacity);
+    mix-blend-mode: var(--grain-blend);
+  }
+
+  /* Softer, larger-grained material for warm, tactile worlds. */
+  .paper {
+    background-image: var(--noise-paper);
+    background-size: 360px 360px;
+    opacity: calc(var(--grain-opacity) * 1.4);
+    mix-blend-mode: var(--grain-blend);
+  }
+
+  /* A technical dot field, fading in and out along the block axis. */
+  .dots {
+    background-image: radial-gradient(
+      circle,
+      color-mix(in srgb, var(--text) 24%, transparent) 0.8px,
+      transparent 1.3px
+    );
+    background-size: 16px 16px;
+    -webkit-mask-image: linear-gradient(to bottom, transparent, black 30%, black 60%, transparent);
+    mask-image: linear-gradient(to bottom, transparent, black 30%, black 60%, transparent);
+  }
+
+  .vignette {
+    background: radial-gradient(
+      ellipse 90% 80% at 55% 40%,
+      transparent 45%,
+      color-mix(in srgb, var(--shade) var(--vignette-strength), transparent)
+    );
+  }
+
+  /* Registration marks on the page margins, aligned with the grid frame. */
+  .atmosphere > .marks {
+    inset-block: var(--space-6);
+    inset-inline: 0;
+    margin-inline: auto;
+    max-inline-size: var(--page-max);
+    color: var(--line-strong);
+  }
+
+  .marks > i {
+    position: absolute;
+    inline-size: 0.875rem;
+    block-size: 0.875rem;
+    background:
+      linear-gradient(currentColor, currentColor) center / 100% var(--hairline) no-repeat,
+      linear-gradient(currentColor, currentColor) center / var(--hairline) 100% no-repeat;
+  }
+
+  .marks > i:nth-child(odd) {
+    inset-inline-start: calc(var(--margin) - 0.4375rem);
+  }
+
+  .marks > i:nth-child(even) {
+    inset-inline-end: calc(var(--margin) - 0.4375rem);
+  }
+
+  .marks > i:nth-child(-n + 2) {
+    inset-block-start: 0;
+  }
+
+  .marks > i:nth-child(n + 3) {
+    inset-block-end: 0;
+  }
+
+  /* Atmospheric movement: slow, continuous, and only when motion is welcome. */
+  @media (prefers-reduced-motion: no-preference) {
+    .haze {
+      animation: atmosphere-drift var(--dur-atmosphere) ease-in-out infinite alternate;
+    }
+
+    @supports (animation-timeline: view()) {
+      /* The drawn grid builds from the top edge as the scene arrives. */
+      .grid_visible > span {
+        transform-origin: 50% 0;
+        animation: atmosphere-draw linear both;
+        animation-timeline: view();
+        animation-range: entry 0% entry 100%;
+      }
+    }
+  }
+
+  @keyframes atmosphere-drift {
+    from {
+      transform: translate3d(calc(-3% * var(--dir)), 0, 0);
+    }
+
+    to {
+      transform: translate3d(calc(4% * var(--dir)), -2%, 0);
+    }
+  }
+
+  @keyframes atmosphere-draw {
+    from {
+      transform: scaleY(0.15);
+    }
+  }
+
+  /* Decorative only: nothing to translate into system colors. */
+  @media (forced-colors: active) {
+    .atmosphere {
+      display: none;
+    }
+  }
+}

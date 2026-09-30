@@ -20,6 +20,57 @@
     padding-block-start: var(--space-2);
   }
 
+  .weights {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-5) var(--space-7);
+  }
+
+  .weight {
+    display: grid;
+    justify-items: start;
+    gap: var(--space-1);
+    font-size: var(--step-4);
+    font-stretch: 125%;
+    line-height: 1.05;
+  }
+
+  .tileRow {
+    padding: var(--space-5);
+    margin-block-end: var(--gutter);
+  }
+
+  .tiles {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-5) var(--gutter);
+  }
+
+  .tile {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .tileArt {
+    position: relative;
+    isolation: isolate;
+    aspect-ratio: 4 / 5;
+    overflow: clip;
+    box-shadow: inset 0 0 0 var(--hairline) var(--line);
+  }
+
+  @media (width >= 48rem) {
+    .tiles {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  @media (width >= 75rem) {
+    .tiles {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+  }
+
   .gridDemo {
     position: relative;
   }
@@ -63,7 +114,10 @@
   }
 
   .themeBand {
-    padding-block: var(--section-space-sm) 0;
+    position: relative;
+    isolation: isolate;
+    overflow: clip;
+    padding-block: var(--section-space-sm);
   }
 
   .themeGrid {

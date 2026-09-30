@@ -49,18 +49,21 @@ tests/e2e                  Playwright (routing, direction, axe, confidential, br
 
 ## Design system
 
-Phase 2 established the production visual system; see
-[DESIGN-SYSTEM.md](DESIGN-SYSTEM.md) for tokens, typography (Hanken Grotesk + Noto Sans
-Hebrew, self-hosted, script-limited with `unicode-range`), the 4/8/12 grid and named
-placements, primitives, brand-mark sizing and clear space, header/footer rules, motion,
-themes and the accessibility baseline. The QA specimen lives at `/[locale]/system` in local
-and preview builds only.
+Phase 2 established the production visual system, revised to the Cinematic Hybrid+
+language; see [DESIGN-SYSTEM.md](DESIGN-SYSTEM.md) for tokens, typography (Archivo + Noto
+Sans Hebrew, self-hosted, script-limited with `unicode-range`), the 4/8/12 grid and named
+placements, scenes, atmosphere and project worlds, primitives, brand-mark sizing and clear
+space, header/footer rules, motion and the accessibility baseline. The QA specimen lives at
+`/[locale]/system` (and the scene demonstration at `/[locale]/system/scenes`) in local and
+preview builds only.
 
 - Grid lines follow the inline direction, so layouts mirror in RTL without extra code.
   Physical `left`/`right` CSS is rejected by `lint-policy`.
-- `ThemeScope` (server) lets a section control background, foreground, muted text, lines
-  and up to two accents; derived tokens are re-declared inside the scope; `themeIssues()`
-  validates contrast. Spacing, grid, type and motion are never themeable.
+- `ThemeScope` (server) lets a section control background, foreground, muted text, lines,
+  up to two accents, and the color of light and shade; `<Scene>` adds the world's
+  atmosphere (light, grid visibility, texture). Derived tokens are re-declared inside the
+  scope; `themeIssues()` validates contrast. Spacing, grid, type and motion are never
+  themeable.
 - Brand marks are provisional masks with CSS-enforced minimum sizes per pixel density
   (the hairlines are ~2% of mark height, a property of the design). Production SVGs replace
   the masks without API changes; small-size legibility needs a brand-owned optical cut.
