@@ -27,7 +27,7 @@ export const he: Dictionary = {
   },
   work: {
     selectedTitle: 'עבודות נבחרות',
-    confidentialTitle: 'עבודות מוגבלות לחשיפה',
+    confidentialTitle: 'פרויקטים בחשיפה מוגבלת',
     confidentialNote: 'פרטים מזהים הושמטו במכוון.',
     viewProject: 'לפרויקט',
   },

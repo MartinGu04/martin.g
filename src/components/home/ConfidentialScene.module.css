@@ -102,8 +102,9 @@
     align-content: start;
   }
 
+  /* Stacked (mobile): 90px between the two projects, the gap plus this padding. */
   .item + .item {
-    padding-block-start: var(--space-7);
+    padding-block-start: calc(var(--space-7) * 0.875);
     border-block-start: var(--hairline) solid var(--line);
   }
 

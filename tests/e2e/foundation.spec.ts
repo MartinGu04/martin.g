@@ -161,7 +161,7 @@ test.describe('confidential work', () => {
   test('is framed as restricted work, truthfully, in both locales', async ({ page }) => {
     for (const [path, title] of [
       ['/en', 'Restricted Work'],
-      ['/he', 'עבודות מוגבלות לחשיפה'],
+      ['/he', 'פרויקטים בחשיפה מוגבלת'],
     ] as const) {
       await page.goto(path)
       const section = page.getByRole('region', { name: title })
