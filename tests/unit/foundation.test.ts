@@ -62,18 +62,22 @@ describe('metadata', () => {
 describe('release gate', () => {
   afterEach(() => vi.unstubAllEnvs())
 
-  it('lists draft copy', () => {
-    expect(findDraftCopy()).toContain('dictionary:he')
+  it('has no draft copy in the approved Phase 1 content', () => {
+    expect(findDraftCopy()).toEqual([])
   })
 
-  it('refuses draft copy in Vercel production builds only', () => {
+  it('refuses synthetic draft copy in Vercel production builds only', () => {
+    const drafts = ['dictionary:synthetic']
+
     vi.stubEnv('VERCEL_ENV', 'preview')
-    expect(() => assertReleasableCopy()).not.toThrow()
+    expect(() => assertReleasableCopy(drafts)).not.toThrow()
+
     vi.stubEnv('VERCEL_ENV', 'production')
-    expect(() => assertReleasableCopy()).toThrow(/Draft copy awaiting review/)
+    expect(() => assertReleasableCopy(drafts)).toThrow(/Draft copy awaiting review/)
+
     vi.stubEnv('ALLOW_DRAFT_COPY_IN_PRODUCTION', '1')
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
-    expect(() => assertReleasableCopy()).not.toThrow()
+    expect(() => assertReleasableCopy(drafts)).not.toThrow()
     expect(warn).toHaveBeenCalled()
   })
 })

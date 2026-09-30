@@ -6,7 +6,7 @@ export const on: PublicProject = {
   visibility: 'public',
   order: 1,
   status: 'published',
-  review: { en: 'draft', he: 'draft' },
+  review: { en: 'approved', he: 'approved' },
   title: { en: 'ON', he: 'ON' },
   summary: {
     en: 'A premium dating retreat brand and digital experience.',

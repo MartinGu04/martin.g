@@ -11,7 +11,7 @@ export const confidential01: ConfidentialProject = {
   visibility: 'confidential',
   order: 3,
   status: 'published',
-  review: { en: 'draft', he: 'draft' },
+  review: { en: 'approved', he: 'approved' },
   title: { en: 'Confidential Operational System', he: 'מערכת תפעולית חסויה' },
   summary: {
     en: 'Operational software developed for a security environment.',
@@ -26,7 +26,7 @@ export const confidential02: ConfidentialProject = {
   visibility: 'confidential',
   order: 4,
   status: 'published',
-  review: { en: 'draft', he: 'draft' },
+  review: { en: 'approved', he: 'approved' },
   title: { en: 'Confidential Operational Platform', he: 'פלטפורמה תפעולית חסויה' },
   summary: {
     en: 'Operational tooling developed for a security environment.',

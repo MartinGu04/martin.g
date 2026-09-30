@@ -2,11 +2,11 @@ import type { ReviewStatus } from '../config'
 import type { Dictionary } from './en'
 
 /**
- * DRAFT Hebrew copy written only to exercise RTL layout during development.
+ * Hebrew production copy reviewed and approved by Martin.
  * It is not approved production copy: Martin reviews and approves all Hebrew,
  * and production builds refuse draft copy (src/i18n/release-gate.ts).
  */
-export const heReview: ReviewStatus = 'draft'
+export const heReview: ReviewStatus = 'approved'
 
 export const he: Dictionary = {
   site: {

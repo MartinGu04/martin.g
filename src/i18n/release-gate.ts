@@ -25,8 +25,7 @@ export function findDraftCopy(): string[] {
  * fails while any published copy is marked 'draft'. Preview and local builds only warn.
  * ALLOW_DRAFT_COPY_IN_PRODUCTION=1 is an explicit, logged escape hatch.
  */
-export function assertReleasableCopy(): void {
-  const drafts = findDraftCopy()
+export function assertReleasableCopy(drafts = findDraftCopy()): void {
   if (drafts.length === 0) return
   const summary = `Draft copy awaiting review: ${drafts.join(', ')}`
   const isProduction = process.env.VERCEL_ENV === 'production'

@@ -1,7 +1,7 @@
 import type { ReviewStatus } from '../config'
 
 /** English is the key source of truth. Every other dictionary must match this shape. */
-export const enReview: ReviewStatus = 'draft'
+export const enReview: ReviewStatus = 'approved'
 
 export const en = {
   site: {

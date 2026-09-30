@@ -6,7 +6,7 @@ export const miMaMo: PublicProject = {
   visibility: 'public',
   order: 2,
   status: 'published',
-  review: { en: 'draft', he: 'draft' },
+  review: { en: 'approved', he: 'approved' },
   title: { en: 'mi-ma-mo', he: 'mi-ma-mo' },
   summary: {
     en: 'An operational workforce product for scheduling, management workflows and day-to-day operations.',

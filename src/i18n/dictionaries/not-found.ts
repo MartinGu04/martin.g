@@ -3,9 +3,12 @@ import type { Localized, ReviewStatus } from '../config'
 /**
  * Kept separate from the main dictionaries because the not-found boundary is a client
  * component (it has no route params) and must not pull whole dictionaries into the bundle.
- * Hebrew is DRAFT pending review.
+ * Both locales are reviewed production copy.
  */
-export const notFoundReview: Localized<ReviewStatus> = { en: 'draft', he: 'draft' }
+export const notFoundReview: Localized<ReviewStatus> = {
+  en: 'approved',
+  he: 'approved',
+}
 
 export const notFoundCopy: Localized<{ title: string; body: string; back: string }> = {
   en: {
