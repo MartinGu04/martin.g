@@ -1,0 +1,245 @@
+@layer components {
+  /* Restricted Work: a framed archive inside a deeper graphite register. */
+  .archive {
+    --corner: 0.875rem;
+    --archive-pad: var(--space-5);
+    position: relative;
+    padding: var(--archive-pad);
+    background: var(--surface-1);
+  }
+
+  /* The boundary: a hairline frame in eight segments, each from a corner to a midpoint,
+     so on arrival it can draw closed from the corners. */
+  .boundary,
+  .corners {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-repeat: no-repeat;
+  }
+
+  .boundary {
+    --b: linear-gradient(var(--line-strong), var(--line-strong));
+    background-image:
+      var(--b), var(--b), var(--b), var(--b), var(--b), var(--b), var(--b), var(--b);
+    background-position:
+      left top,
+      right top,
+      left bottom,
+      right bottom,
+      left top,
+      left bottom,
+      right top,
+      right bottom;
+    background-size:
+      50% var(--hairline),
+      50% var(--hairline),
+      50% var(--hairline),
+      50% var(--hairline),
+      var(--hairline) 50%,
+      var(--hairline) 50%,
+      var(--hairline) 50%,
+      var(--hairline) 50%;
+  }
+
+  /* Restrained corner marks: short, fine, a little brighter than the boundary. */
+  .corners {
+    --m: linear-gradient(var(--text-muted), var(--text-muted));
+    background-image:
+      var(--m), var(--m), var(--m), var(--m), var(--m), var(--m), var(--m), var(--m);
+    background-position:
+      left top,
+      left top,
+      right top,
+      right top,
+      left bottom,
+      left bottom,
+      right bottom,
+      right bottom;
+    background-size:
+      var(--corner) var(--hairline),
+      var(--hairline) var(--corner),
+      var(--corner) var(--hairline),
+      var(--hairline) var(--corner),
+      var(--corner) var(--hairline),
+      var(--hairline) var(--corner),
+      var(--corner) var(--hairline),
+      var(--hairline) var(--corner);
+  }
+
+  /* Title, a rule, the index range; the note beneath. Technical, not theatrical. */
+  .head {
+    display: grid;
+    grid-template-columns: auto minmax(var(--space-5), 1fr) auto;
+    align-items: center;
+    column-gap: var(--space-4);
+    row-gap: var(--space-3);
+    margin-block-end: var(--space-7);
+  }
+
+  .rule {
+    display: block;
+    block-size: var(--hairline);
+    background: var(--line-strong);
+  }
+
+  .range {
+    white-space: nowrap;
+  }
+
+  .note {
+    grid-column: 1 / -1;
+  }
+
+  .list {
+    display: grid;
+    gap: var(--space-7);
+  }
+
+  .item {
+    display: grid;
+    gap: var(--space-4);
+    align-content: start;
+  }
+
+  /* Stacked (mobile): 90px between the two projects, the gap plus this padding. */
+  .item + .item {
+    padding-block-start: calc(var(--space-7) * 0.875);
+    border-block-start: var(--hairline) solid var(--line);
+  }
+
+  .index {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .index .rule {
+    flex: 1;
+    transition: background-color var(--dur-standard) var(--ease-out);
+  }
+
+  .name {
+    max-inline-size: 9em;
+  }
+
+  /*
+   * Masked geometry: the abstract pattern keeps its full frame but fades out before the
+   * frame ends, and a second sheet sits just behind it. There is more here than is shown;
+   * nothing is hidden (the geometry is generated and carries no information).
+   */
+  .cover {
+    --parallax-shift: 1rem;
+    position: relative;
+    isolation: isolate;
+    margin-block-end: var(--space-3);
+  }
+
+  .cover > :first-child {
+    aspect-ratio: 16 / 7;
+  }
+
+  .cover::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    inset-block: var(--space-2) calc(var(--space-2) * -1);
+    inset-inline: var(--space-2) calc(var(--space-2) * -1);
+    border: var(--hairline) solid var(--line);
+  }
+
+  .cover::after {
+    content: '';
+    position: absolute;
+    inset: var(--hairline);
+    background: linear-gradient(to right, transparent 38%, var(--surface-1) 86%) left top / 100%
+      100% no-repeat;
+    transition: background-size var(--dur-cinematic) var(--ease-out);
+  }
+
+  :root[dir='rtl'] .cover::after {
+    background-image: linear-gradient(to left, transparent 38%, var(--surface-1) 86%);
+    background-position: right top;
+  }
+
+  /* A quiet response to the pointer: a little more geometry, a brighter index rule. */
+  @media (hover: hover) {
+    .item:hover .cover::after {
+      background-size: 150% 100%;
+    }
+
+    .item:hover .index .rule {
+      background-color: var(--text-muted);
+    }
+  }
+
+  @media (width >= 48rem) {
+    .archive {
+      --corner: 1.125rem;
+      --archive-pad: var(--space-7);
+    }
+
+    .head {
+      margin-block-end: var(--space-8);
+    }
+
+    /* Two equal columns either side of a hairline divider. */
+    .list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: 0;
+    }
+
+    .item:first-child {
+      padding-inline-end: var(--space-7);
+    }
+
+    .item + .item {
+      padding-block-start: 0;
+      padding-inline-start: var(--space-7);
+      border-block-start: 0;
+      border-inline-start: var(--hairline) solid var(--line);
+    }
+  }
+
+  /*
+   * A short, controlled entrance: the corner marks settle first, then the boundary draws
+   * from them toward the midpoints, over well under a viewport of scrolling. Only the
+   * decoration moves; the text is never hidden.
+   */
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .corners {
+        animation: restricted-marks linear both;
+        animation-timeline: view();
+        animation-range: entry 0% entry 25%;
+      }
+
+      .boundary {
+        animation: restricted-draw var(--ease-out) both;
+        animation-timeline: view();
+        animation-range: entry 10% entry 55%;
+      }
+    }
+  }
+
+  @keyframes restricted-marks {
+    from {
+      opacity: 0;
+      scale: 1.015;
+    }
+  }
+
+  @keyframes restricted-draw {
+    from {
+      background-size:
+        0 var(--hairline),
+        0 var(--hairline),
+        0 var(--hairline),
+        0 var(--hairline),
+        var(--hairline) 0,
+        var(--hairline) 0,
+        var(--hairline) 0,
+        var(--hairline) 0;
+    }
+  }
+}

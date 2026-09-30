@@ -17,11 +17,10 @@ import { ThemeScope } from '@/components/theme/ThemeScope'
 import { Reveal } from '@/components/motion/Reveal'
 import { ProjectIndex } from '@/components/project/ProjectIndex'
 import { Atmosphere } from '@/components/scene/Atmosphere'
-import { confidentialWorld } from '@/content/worlds'
 import type { AtmosphereSpec, ProjectTheme } from '@/content/schema'
 import { specimenCopy as copy } from './specimen-copy'
 import { qaThemes } from './qa-themes'
-import { demoWorlds } from './world-themes'
+import { worlds } from '@/content/worlds'
 import styles from './page.module.css'
 
 export const metadata: Metadata = {
@@ -76,10 +75,10 @@ export default async function SystemSpecimenPage({ params }: PageProps<'/[locale
   const s = copy.sample
   const worldBands: [ProjectTheme | undefined, string][] = [
     [undefined, t(copy.worlds.brand)],
-    [demoWorlds.on, t(copy.worlds.on)],
-    [demoWorlds.onBordeaux, t(copy.worlds.onBordeaux)],
-    [demoWorlds.miMaMo, t(copy.worlds.miMaMo)],
-    [confidentialWorld, t(copy.worlds.confidential)],
+    [worlds.on, t(copy.worlds.on)],
+    [worlds.onBordeaux, t(copy.worlds.onBordeaux)],
+    [worlds.miMaMo, t(copy.worlds.miMaMo)],
+    [worlds.confidential, t(copy.worlds.confidential)],
     [qaThemes.inverse, t(copy.themes.inverse)],
     [qaThemes.tinted, t(copy.themes.tinted)],
   ]
@@ -202,7 +201,7 @@ export default async function SystemSpecimenPage({ params }: PageProps<'/[locale
       {/* Atmosphere */}
       <Grid as="section" aria-labelledby="atmosphere-title" className="section-sm">
         <SectionHeading id="atmosphere-title" index="05" label={t(copy.sections.atmosphere)} />
-        {([undefined, demoWorlds.on] as const).map((theme, row) => (
+        {([undefined, worlds.on] as const).map((theme, row) => (
           <ThemeScope key={row} theme={theme} className={`col-full ${styles.tileRow}`}>
             <ul role="list" className={styles.tiles}>
               {atmosphereTiles.map(([name, spec]) => (

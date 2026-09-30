@@ -60,7 +60,7 @@ describe('metadata', () => {
   it('builds canonical and hreflang alternates', () => {
     expect(localeAlternates('he', '/work/on')).toEqual({
       canonical: '/he/work/on',
-      languages: { en: '/en/work/on', he: '/he/work/on', 'x-default': '/en/work/on' },
+      languages: { en: '/en/work/on', he: '/he/work/on', 'x-default': '/he/work/on' },
     })
   })
 })
@@ -68,7 +68,7 @@ describe('metadata', () => {
 describe('release gate', () => {
   afterEach(() => vi.unstubAllEnvs())
 
-  it('has no draft copy in the approved Phase 1 content', () => {
+  it('finds no draft copy: everything published is approved', () => {
     expect(findDraftCopy()).toEqual([])
   })
 

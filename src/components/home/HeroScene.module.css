@@ -1,0 +1,157 @@
+@layer components {
+  /* One frame: identity at the top, the proposition and the principle anchored low. */
+  .hero {
+    --scene-pad-start: var(--space-8);
+    --scene-pad-end: var(--space-7);
+    --scene-align: stretch;
+  }
+
+  .grid {
+    grid-template-rows: auto auto 1fr auto auto auto;
+    row-gap: var(--space-5);
+  }
+
+  .title {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    inline-size: clamp(14rem, 26vw, 24rem);
+    line-height: 0;
+    color: var(--text);
+  }
+
+  .mark {
+    display: block;
+  }
+
+  /* Martin Gusin, Product Builder: readable at once, a signature beside the mark. */
+  .identity {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    display: grid;
+    gap: var(--space-1);
+  }
+
+  /* The name a quarter above heading 3: clearly the person, still below mark and principle. */
+  .name {
+    --heading-3-size: calc(var(--step-2) * 1.25);
+  }
+
+  .positioning {
+    grid-column: 1 / -1;
+    grid-row: 4;
+    max-inline-size: 14em;
+  }
+
+  /* The peak, but no longer the whole frame: about 70% of the previous hero scale. */
+  .statement {
+    --display-xl-size: clamp(2.75rem, 0.9rem + 7.4vw, 8.75rem);
+    grid-column: 1 / -1;
+    grid-row: 5;
+    margin-block-start: var(--space-4);
+    text-wrap: balance;
+  }
+
+  .cue {
+    grid-column: 1 / -1;
+    grid-row: 6;
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding-block-start: var(--space-4);
+  }
+
+  .cueLine {
+    inline-size: var(--space-8);
+    block-size: var(--hairline);
+    background: linear-gradient(to right, var(--text), transparent);
+  }
+
+  :root[dir='rtl'] .cueLine {
+    background: linear-gradient(to left, var(--text), transparent);
+  }
+
+  @media (width >= 48rem) {
+    .grid {
+      row-gap: var(--space-6);
+    }
+
+    .identity {
+      grid-column: 6 / -1;
+      grid-row: 1;
+      align-self: center;
+      justify-self: end;
+      text-align: end;
+    }
+
+    .cue {
+      grid-column: 5 / span 4;
+    }
+  }
+
+  @media (width >= 75rem) {
+    .identity {
+      grid-column: 9 / span 4;
+    }
+
+    .cue {
+      grid-column: 8 / span 5;
+    }
+  }
+
+  /*
+   * Arrival in three short beats (about two seconds in all), timed rather than scrolled.
+   * Each beat is a mask rise that fills backwards only: once it has played, nothing is
+   * clipped. Without scripting or with reduced motion everything is simply present.
+   */
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    .hero [data-layer='light'] {
+      animation: hero-fade 1.6s var(--ease-out) backwards;
+    }
+
+    .mark {
+      animation: hero-mark 1.2s var(--ease-out) backwards;
+    }
+
+    .identity {
+      animation: hero-rise 0.9s var(--ease-mask) 0.35s backwards;
+    }
+
+    .positioning {
+      animation: hero-rise 1s var(--ease-mask) 0.7s backwards;
+    }
+
+    .statement {
+      animation: hero-rise 1.2s var(--ease-mask) 1.05s backwards;
+    }
+
+    .cue {
+      animation: hero-fade 0.8s var(--ease-out) 1.8s backwards;
+    }
+  }
+
+  @keyframes hero-fade {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes hero-mark {
+    from {
+      opacity: 0;
+      scale: 0.97;
+      filter: blur(4px);
+    }
+  }
+
+  @keyframes hero-rise {
+    from {
+      clip-path: inset(0 -5% 100% -5%);
+      translate: 0 0.35em;
+    }
+
+    to {
+      clip-path: inset(-20% -5% -30% -5%);
+      translate: 0 0;
+    }
+  }
+}

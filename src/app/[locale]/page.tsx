@@ -1,31 +1,50 @@
 import { notFound } from 'next/navigation'
 import { isLocale } from '@/i18n/config'
 import { getDictionary } from '@/i18n/get-dictionary'
+import { homeCopy } from '@/i18n/dictionaries/home'
+import type { DisciplineKey } from '@/i18n/dictionaries'
 import { getProjectSequence } from '@/content/registry'
 import { resolveConfidentialSummary, resolvePublicSummary } from '@/content/resolve'
-import { Grid } from '@/components/layout/Grid'
-import { SectionHeading } from '@/components/type/SectionHeading'
-import { IndexNumber } from '@/components/type/IndexNumber'
-import { Ltr } from '@/components/type/Ltr'
-import { HeroPlaceholder } from '@/components/hero/HeroPlaceholder'
-import { ProjectIndex } from '@/components/project/ProjectIndex'
-import { AbstractCover } from '@/components/project/AbstractCover'
-import { Reveal } from '@/components/motion/Reveal'
-import { Scene } from '@/components/scene/Scene'
-import { DepthType } from '@/components/scene/DepthType'
-import { confidentialWorld } from '@/content/worlds'
-import styles from './page.module.css'
+import { HeroScene } from '@/components/home/HeroScene'
+import { WorkBridge, type WorkIndexEntry } from '@/components/home/WorkBridge'
+import { OnWorld } from '@/components/home/OnWorld'
+import { MiMaMoWorld } from '@/components/home/MiMaMoWorld'
+import { ConfidentialScene } from '@/components/home/ConfidentialScene'
+import { ProcessStage } from '@/components/home/ProcessStage'
+import { Capabilities, type Capability } from '@/components/home/Capabilities'
+import { AboutScene } from '@/components/home/AboutScene'
+import { ContactScene } from '@/components/home/ContactScene'
+
+/** The capabilities shown, in order; each is proven by the projects that list it. */
+const capabilityKeys: readonly DisciplineKey[] = [
+  'product-strategy',
+  'product-design',
+  'system-design',
+  'engineering',
+  'operational-workflows',
+  'brand-experience',
+]
 
 /**
- * Foundation home in the Cinematic Hybrid+ language: a sequence of scenes built from real,
- * approved content. Not the final home experience (hero motion, project showcases and
- * their worlds come in later phases).
+ * The homepage as one continuous sequence of scenes (docs/HOMEPAGE.md): identity, then
+ * proposition, then proof, quickly; the deeper storytelling happens inside the worlds.
+ *
+ *   identity and principle (dark graphite)     one frame, timed beats
+ *   index of the work (lighter graphite)       cut
+ *   ON (cream, editorial)                      soft wipe
+ *   mi-ma-mo (technical dark)                  split in, split out
+ *   confidential work (soft neutral)           cut
+ *   how I work (dark)                          dissolve
+ *   capabilities (bone), about (warm)          cut
+ *   the closing call to action (graphite)      cut
  */
 export default async function HomePage({ params }: PageProps<'/[locale]'>) {
   const { locale } = await params
   if (!isLocale(locale)) notFound()
   const dict = getDictionary(locale)
+  const copy = homeCopy[locale]
   const sequence = getProjectSequence()
+
   const work = sequence.flatMap(({ project, number }) =>
     project.visibility === 'public'
       ? [{ number, ...resolvePublicSummary(project, locale, dict) }]
@@ -36,50 +55,43 @@ export default async function HomePage({ params }: PageProps<'/[locale]'>) {
       ? [{ number, ...resolveConfidentialSummary(project, locale, dict) }]
       : [],
   )
+  const on = work.find((project) => project.id === 'on')
+  const miMaMo = work.find((project) => project.id === 'mi-ma-mo')
+  if (!on || !miMaMo) throw new Error('The homepage expects the ON and mi-ma-mo entries.')
+
+  const index: WorkIndexEntry[] = [
+    { href: '#on', number: on.number, title: on.title },
+    { href: '#mi-ma-mo', number: miMaMo.number, title: miMaMo.title },
+    {
+      href: '#confidential',
+      number: confidential.map((item) => item.number).join('–'),
+      title: dict.work.confidentialTitle,
+    },
+  ]
+
+  const capabilities: Capability[] = capabilityKeys.map((key) => ({
+    key,
+    label: dict.disciplines[key],
+    proof: sequence
+      .filter(({ project }) => project.disciplines.includes(key))
+      .map(({ project }) => project.title[locale]),
+  }))
 
   return (
     <>
-      <HeroPlaceholder dict={dict} />
+      <HeroScene dict={dict} name={copy.about.name} role={copy.about.role} />
 
-      <Scene
-        id="work"
-        aria-labelledby="work-title"
-        atmosphere={{ light: 'pool', grid: 'fade', texture: 'grain' }}
-      >
-        <DepthType variant="index">01</DepthType>
-        <Grid>
-          <SectionHeading id="work-title" index="01" label={dict.work.selectedTitle} />
-          <ProjectIndex projects={work} />
-        </Grid>
-      </Scene>
+      <section id="work" aria-labelledby="work-title">
+        <WorkBridge dict={dict} entries={index} />
+        <OnWorld project={on} dict={dict} />
+        <MiMaMoWorld project={miMaMo} dict={dict} />
+      </section>
 
-      {/* Confidential work is its own restrained, monochrome world: a hard cut, no light. */}
-      <Scene theme={confidentialWorld} aria-labelledby="confidential-title">
-        <Grid>
-          <SectionHeading id="confidential-title" label={dict.work.confidentialTitle} />
-          <p className={`col-aside t-small muted ${styles.note}`}>{dict.work.confidentialNote}</p>
-          {/* No links, no media, no routes: sanitized summaries only. */}
-          <ul role="list" className={`col-main ${styles.confidential}`}>
-            {confidential.map((project, i) => (
-              <Reveal as="li" key={project.id} order={i} className={styles.item}>
-                <AbstractCover pattern={project.pattern} />
-                <IndexNumber value={project.number} className="t-label muted" />
-                <h3 className="t-heading-3">{project.title}</h3>
-                <p className="t-body">{project.summary}</p>
-                <p className="t-small muted">
-                  {project.disciplines.join(' · ')}
-                  {project.years ? (
-                    <>
-                      {' · '}
-                      <Ltr>{project.years}</Ltr>
-                    </>
-                  ) : null}
-                </p>
-              </Reveal>
-            ))}
-          </ul>
-        </Grid>
-      </Scene>
+      <ConfidentialScene items={confidential} dict={dict} />
+      <ProcessStage copy={copy.process} />
+      <Capabilities copy={copy.capabilities} items={capabilities} />
+      <AboutScene copy={copy.about} />
+      <ContactScene copy={copy.contact} />
     </>
   )
 }

@@ -1,0 +1,136 @@
+@layer components {
+  /* A softer takeover than the grammar's default: the panel starts just inside the page
+     margins, so the change reads as a mood, not a slam. */
+  .scene {
+    --wipe-inset: var(--margin);
+    --scene-pad-start: var(--section-space);
+    --scene-pad-end: var(--section-space);
+  }
+
+  .grid {
+    row-gap: var(--space-8);
+    align-items: center;
+  }
+
+  .text {
+    grid-column: 1 / -1;
+    display: grid;
+    justify-items: start;
+    gap: var(--space-5);
+  }
+
+  .eyebrow {
+    color: var(--accent-2);
+    max-inline-size: 26em;
+  }
+
+  .title {
+    color: var(--accent);
+  }
+
+  .titleLink {
+    color: inherit;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .titleLink:hover {
+      text-decoration-line: none;
+    }
+  }
+
+  /* A short olive rule: the detail color. */
+  .rule {
+    inline-size: var(--space-8);
+    block-size: 2px;
+    background: var(--accent-2);
+  }
+
+  .summary {
+    display: grid;
+    justify-items: start;
+    gap: var(--space-5);
+    max-inline-size: 20em;
+  }
+
+  /* Editorial pair: a tall print and a smaller one set on a bordeaux mat. */
+  .gallery {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    align-items: end;
+  }
+
+  .photoMain {
+    --parallax-shift: 1.5rem;
+    grid-column: 2 / -1;
+    grid-row: 1;
+  }
+
+  .photoSecond {
+    --parallax-shift: 3rem;
+    grid-column: 1 / span 3;
+    grid-row: 1;
+    z-index: 1;
+    margin-block-end: -12%;
+    box-shadow: calc(-0.875rem * var(--dir)) 0.875rem 0 0 var(--accent);
+  }
+
+  /* Photograph stand-ins: warm exposures in the world's own light and accents. */
+  .exposure {
+    position: absolute;
+    inset: 0;
+  }
+
+  .wine {
+    background:
+      radial-gradient(
+        70% 60% at 32% 24%,
+        color-mix(in srgb, var(--light) 80%, transparent),
+        transparent 70%
+      ),
+      radial-gradient(
+        55% 45% at 78% 88%,
+        color-mix(in srgb, var(--accent) 45%, transparent),
+        transparent 75%
+      ),
+      linear-gradient(
+        165deg,
+        color-mix(in srgb, var(--surface-1) 70%, var(--accent-2)),
+        color-mix(in srgb, var(--accent) 28%, var(--surface-1))
+      );
+  }
+
+  .olive {
+    background:
+      radial-gradient(
+        60% 70% at 70% 30%,
+        color-mix(in srgb, var(--light) 70%, transparent),
+        transparent 70%
+      ),
+      linear-gradient(
+        200deg,
+        color-mix(in srgb, var(--accent-2) 50%, var(--surface-1)),
+        color-mix(in srgb, var(--accent-2) 20%, var(--surface-0))
+      );
+  }
+
+  @media (width >= 48rem) {
+    .text {
+      grid-column: 1 / span 4;
+    }
+
+    .gallery {
+      grid-column: 5 / -1;
+    }
+  }
+
+  @media (width >= 75rem) {
+    .text {
+      grid-column: 1 / span 5;
+    }
+
+    .gallery {
+      grid-column: 7 / -1;
+    }
+  }
+}

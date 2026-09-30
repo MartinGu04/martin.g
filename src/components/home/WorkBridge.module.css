@@ -1,0 +1,84 @@
+@layer components {
+  .bridge {
+    --scene-pad-start: var(--section-space-sm);
+    --scene-pad-end: var(--section-space);
+  }
+
+  .grid {
+    row-gap: var(--space-7);
+  }
+
+  /* "01 / Selected Work" and a framing line that draws in from the inline start. */
+  .entry {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: var(--space-5);
+  }
+
+  .label {
+    white-space: nowrap;
+  }
+
+  .rule {
+    block-size: var(--hairline);
+    background: var(--line-strong);
+    transform-origin: 0 50%;
+  }
+
+  :root[dir='rtl'] .rule {
+    transform-origin: 100% 50%;
+  }
+
+  /* The compact index: what was built, at a glance. */
+  .index {
+    grid-column: 1 / -1;
+    display: grid;
+    gap: var(--space-2) var(--gutter);
+  }
+
+  .link {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-4);
+    min-block-size: 2.75rem;
+    padding-block: var(--space-3);
+    border-block-end: var(--hairline) solid var(--line);
+    color: var(--text);
+    transition: border-color var(--dur-micro) var(--ease-out);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .link:hover {
+      text-decoration-line: none;
+      border-block-end-color: var(--text);
+    }
+  }
+
+  .link:focus-visible {
+    border-block-end-color: var(--text);
+  }
+
+  @media (width >= 48rem) {
+    .index {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .rule {
+        animation: bridge-rule linear both;
+        animation-timeline: view();
+        animation-range: entry 10% cover 40%;
+      }
+    }
+  }
+
+  @keyframes bridge-rule {
+    from {
+      scale: 0 1;
+    }
+  }
+}

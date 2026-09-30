@@ -1,0 +1,92 @@
+/* The accent of a world, as a number the world can drain as it leaves (1 to 0). */
+@property --world-signal {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
+
+@layer components {
+  .scene {
+    view-timeline: --mi-ma-mo block;
+  }
+
+  .grid {
+    row-gap: var(--space-6);
+  }
+
+  .eyebrow {
+    grid-column: 1 / -1;
+    color: var(--accent);
+  }
+
+  .title {
+    grid-column: 1 / -1;
+  }
+
+  .titleLink {
+    color: inherit;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .titleLink:hover {
+      text-decoration-line: none;
+    }
+  }
+
+  .text {
+    grid-column: 1 / -1;
+    display: grid;
+    justify-items: start;
+    gap: var(--space-5);
+    max-inline-size: var(--measure-lead);
+  }
+
+  .board {
+    grid-column: 1 / -1;
+  }
+
+  @media (width >= 75rem) {
+    .text {
+      grid-column: 1 / span 4;
+      align-self: start;
+    }
+
+    .board {
+      grid-column: 6 / span 7;
+    }
+
+    .text,
+    .board {
+      grid-row: 3;
+    }
+  }
+
+  /* Leaving: structure fades and the accent drains while the world contracts. */
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    @supports (view-timeline-name: --a) {
+      .grid {
+        animation: mm-signal linear both;
+        animation-timeline: --mi-ma-mo;
+        animation-range: exit 0% exit 45%;
+      }
+
+      .scene :is([data-layer='grid'], [data-layer='texture'], [data-layer='marks']) {
+        animation: mm-structure linear both;
+        animation-timeline: --mi-ma-mo;
+        animation-range: exit 0% exit 55%;
+      }
+    }
+  }
+
+  @keyframes mm-signal {
+    to {
+      --world-signal: 0;
+    }
+  }
+
+  @keyframes mm-structure {
+    to {
+      opacity: 0;
+    }
+  }
+}

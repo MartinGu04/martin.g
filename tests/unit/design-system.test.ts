@@ -7,8 +7,7 @@ import { primaryNav } from '@/lib/navigation'
 import { isSpecimenEnabled } from '@/lib/specimen'
 import { themeIssues } from '@/lib/theme'
 import { qaThemes } from '@/app/[locale]/system/qa-themes'
-import { demoWorlds } from '@/app/[locale]/system/world-themes'
-import { confidentialWorld } from '@/content/worlds'
+import { worlds } from '@/content/worlds'
 
 const read = (path: string) => readFileSync(new URL(`../../${path}`, import.meta.url), 'utf8')
 
@@ -85,8 +84,8 @@ describe('themes', () => {
     expect(themeIssues(brand)).toEqual([])
     expect(themeIssues(qaThemes.inverse)).toEqual([])
     expect(themeIssues(qaThemes.tinted)).toEqual([])
-    expect(themeIssues(confidentialWorld)).toEqual([])
-    for (const [name, world] of Object.entries(demoWorlds)) {
+
+    for (const [name, world] of Object.entries(worlds)) {
       expect(themeIssues(world), name).toEqual([])
     }
   })

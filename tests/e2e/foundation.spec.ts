@@ -13,29 +13,91 @@ const pages = [
 ]
 
 test.describe('locale routing', () => {
-  test('redirects unprefixed URLs using Accept-Language', async ({ browser }) => {
-    const he = await browser.newContext({ locale: 'he-IL' })
-    const hePage = await he.newPage()
-    await hePage.goto('/')
-    await expect(hePage).toHaveURL(/\/he$/)
-    await he.close()
+  test('/ opens the Hebrew site with one server-side redirect, whatever the browser language', async ({
+    browser,
+  }) => {
+    for (const locale of ['en-US', 'he-IL', 'fr-FR']) {
+      const context = await browser.newContext({ locale })
 
-    const fr = await browser.newContext({ locale: 'fr-FR' })
-    const frPage = await fr.newPage()
-    await frPage.goto('/work/on')
-    await expect(frPage).toHaveURL(/\/en\/work\/on$/)
-    await fr.close()
+      // The server answers / with a redirect and no document: nothing renders in English first.
+      const direct = await context.request.get('/', { maxRedirects: 0 })
+      expect(direct.status()).toBe(307)
+      expect(new URL(direct.headers()['location']!, 'http://x').pathname).toBe('/he')
+      expect(direct.headers()['vary']).toContain('Cookie')
+
+      const page = await context.newPage()
+      const response = await page.goto('/')
+      await expect(page).toHaveURL(/\/he$/)
+      expect(response?.status()).toBe(200)
+      expect(response?.request().redirectedFrom()?.redirectedFrom()).toBeNull()
+      await expect(page.locator('html')).toHaveAttribute('lang', 'he')
+      await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
+
+      await page.goto('/work/on')
+      await expect(page).toHaveURL(/\/he\/work\/on$/)
+      await context.close()
+    }
   })
 
-  test('an explicit locale cookie wins over the browser language', async ({ browser }) => {
-    const context = await browser.newContext({ locale: 'en-US' })
+  test('direct visits to prefixed routes render without any redirect', async ({ page }) => {
+    const routes = [
+      ['/he', 'he'],
+      ['/en', 'en'],
+      ['/he/work/on', 'he'],
+      ['/en/work/on', 'en'],
+      ['/he/work/mi-ma-mo', 'he'],
+      ['/en/work/mi-ma-mo', 'en'],
+    ] as const
+    for (const [path, lang] of routes) {
+      const direct = await page.request.get(path, { maxRedirects: 0 })
+      expect(direct.status(), path).toBe(200)
+
+      const response = await page.goto(path)
+      expect(response?.request().redirectedFrom(), path).toBeNull()
+      await expect(page).toHaveURL(new RegExp(`${path}$`))
+      await expect(page.locator('html')).toHaveAttribute('lang', lang)
+      await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+        'href',
+        new RegExp(`${path}$`),
+      )
+    }
+  })
+
+  test('an explicit locale cookie wins over the Hebrew default', async ({ browser }) => {
+    const context = await browser.newContext({ locale: 'he-IL' })
     await context.addCookies([
-      { name: 'NEXT_LOCALE', value: 'he', url: test.info().project.use.baseURL! },
+      { name: 'NEXT_LOCALE', value: 'en', url: test.info().project.use.baseURL! },
     ])
     const page = await context.newPage()
     await page.goto('/')
-    await expect(page).toHaveURL(/\/he$/)
+    await expect(page).toHaveURL(/\/en$/)
+    await page.goto('/work/mi-ma-mo')
+    await expect(page).toHaveURL(/\/en\/work\/mi-ma-mo$/)
     await context.close()
+  })
+
+  test('switching language works both ways and is remembered for /', async ({ page }) => {
+    const switchTo = (code: 'EN' | 'HE') =>
+      page
+        .getByRole('banner')
+        .getByRole('group')
+        .getByRole('link', { name: new RegExp(`^${code}`) })
+        .click()
+
+    await page.goto('/')
+    await expect(page).toHaveURL(/\/he$/)
+
+    await switchTo('EN')
+    await expect(page).toHaveURL(/\/en$/)
+    await expect(page.locator('html')).toHaveAttribute('dir', 'ltr')
+    await page.goto('/')
+    await expect(page).toHaveURL(/\/en$/)
+
+    await switchTo('HE')
+    await expect(page).toHaveURL(/\/he$/)
+    await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
+    await page.goto('/')
+    await expect(page).toHaveURL(/\/he$/)
   })
 
   test('sets document language and direction', async ({ page }) => {
@@ -66,7 +128,7 @@ test.describe('locale routing', () => {
     )
     await expect(page.locator('link[rel="alternate"][hreflang="x-default"]')).toHaveAttribute(
       'href',
-      /\/en\/work\/on$/,
+      /\/he\/work\/on$/,
     )
   })
 
@@ -88,7 +150,7 @@ test.describe('confidential work', () => {
 
   test('renders only sanitized, unlinked summaries', async ({ page }) => {
     await page.goto('/en')
-    const section = page.getByRole('region', { name: 'Selected Confidential Work' })
+    const section = page.getByRole('region', { name: 'Restricted Work' })
     await expect(section.getByRole('heading', { level: 3 })).toHaveCount(2)
     await expect(section.getByRole('link')).toHaveCount(0)
     await expect(section.getByText('03', { exact: true })).toBeVisible()
@@ -96,17 +158,41 @@ test.describe('confidential work', () => {
     await expect(section.locator('img, video, picture, iframe')).toHaveCount(0)
   })
 
+  test('is framed as restricted work, truthfully, in both locales', async ({ page }) => {
+    for (const [path, title] of [
+      ['/en', 'Restricted Work'],
+      ['/he', 'פרויקטים בחשיפה מוגבלת'],
+    ] as const) {
+      await page.goto(path)
+      const section = page.getByRole('region', { name: title })
+      await expect(section).toBeVisible()
+      // Not interactive: nothing inside takes focus.
+      await expect(section.locator('a, button, input, [tabindex]')).toHaveCount(0)
+      // No pretend access control or classified language.
+      const text = (await section.innerText()).toLowerCase()
+      for (const term of ['classified', 'top secret', 'clearance', 'access denied', 'סודי'])
+        expect(text).not.toContain(term)
+    }
+    await page.goto('/en')
+    const titles = page.locator('#confidential h3')
+    await expect(titles).toHaveText([
+      'Confidential Operational System',
+      'Confidential Operational Platform',
+    ])
+  })
+
   test('continues the project numbering after routed work', async ({ page }) => {
     await page.goto('/he')
-    const items = page.locator('#work').getByRole('listitem')
-    await expect(items).toHaveCount(2)
-    await expect(items.nth(0).getByText('01', { exact: true })).toBeVisible()
-    await expect(items.nth(1).getByText('02', { exact: true })).toBeVisible()
+    const projects = page.locator('#work').getByRole('article')
+    await expect(projects).toHaveCount(2)
+    await expect(projects.nth(0).getByText('01', { exact: true }).first()).toBeVisible()
+    await expect(projects.nth(1).getByText('02', { exact: true }).first()).toBeVisible()
   })
 
   test('is absent from the sitemap', async ({ request }) => {
     const body = await (await request.get('/sitemap.xml')).text()
     expect(body).toContain('/en/work/on')
+    expect(body).toMatch(/hreflang="x-default"\s+href="[^"]*\/he\/work\/on"/)
     expect(body).not.toContain('confidential')
   })
 })

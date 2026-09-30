@@ -5,6 +5,7 @@ import { primaryNav } from '@/lib/navigation'
 import { Monogram, Wordmark } from '@/components/brand/BrandMark'
 import { LocaleSwitch } from '@/components/nav/LocaleSwitch'
 import { Grid } from './Grid'
+import { HeaderWorld } from './HeaderWorld'
 import styles from './SiteHeader.module.css'
 
 interface SiteHeaderProps {
@@ -13,14 +14,15 @@ interface SiteHeaderProps {
 }
 
 /**
- * Global header: quiet, architectural, aligned to the page grid. Neutral by default;
- * project themes may recolor it later through the semantic tokens only.
+ * Global header: quiet, architectural, aligned to the page grid, sticky. Neutral MARTIN.G
+ * colors by default; while scrolling it takes on the semantic colors of the scene beneath
+ * it (HeaderWorld), so it belongs to each world and never becomes unreadable.
  *   compact (< 768px): MG monogram, minimal navigation, no menu drawer
  *   tablet/desktop:    MARTIN.G wordmark at or above its legible minimum size
  */
 export function SiteHeader({ locale, dict }: SiteHeaderProps) {
   return (
-    <header className={styles.header}>
+    <header className={styles.header} data-header="">
       <Grid className={styles.bar}>
         <div className={styles.brand}>
           <Link href={`/${locale}`} className={styles.home}>
@@ -44,6 +46,7 @@ export function SiteHeader({ locale, dict }: SiteHeaderProps) {
           </ul>
         </nav>
       </Grid>
+      <HeaderWorld />
     </header>
   )
 }

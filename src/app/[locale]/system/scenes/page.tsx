@@ -5,7 +5,6 @@ import { isLocale } from '@/i18n/config'
 import { getDictionary } from '@/i18n/get-dictionary'
 import { getProjectSequence } from '@/content/registry'
 import { resolveConfidentialSummary, resolvePublicSummary } from '@/content/resolve'
-import { confidentialWorld } from '@/content/worlds'
 import { isSpecimenEnabled } from '@/lib/specimen'
 import { Grid } from '@/components/layout/Grid'
 import { Ltr } from '@/components/type/Ltr'
@@ -15,7 +14,7 @@ import { MediaShell } from '@/components/media/MediaShell'
 import { AbstractCover } from '@/components/project/AbstractCover'
 import { Scene } from '@/components/scene/Scene'
 import { DepthType } from '@/components/scene/DepthType'
-import { demoWorlds } from '../world-themes'
+import { worlds } from '@/content/worlds'
 import { scenesCopy as copy } from './scenes-copy'
 import styles from './page.module.css'
 
@@ -150,7 +149,7 @@ export default async function ScenesPage({ params }: PageProps<'/[locale]/system
 
       {/* 2. ON takes over: cream, bordeaux, olive, warm black, photography, paper. */}
       <Scene
-        theme={demoWorlds.on}
+        theme={worlds.on}
         enter="wipe"
         size="frame"
         aria-labelledby="scene-on"
@@ -179,7 +178,13 @@ export default async function ScenesPage({ params }: PageProps<'/[locale]/system
       </Scene>
 
       {/* 2b. A second register inside the same world: bordeaux, a softer rhythm. */}
-      <Scene theme={demoWorlds.onBordeaux} as="div" className={styles.onChapter}>
+      <Scene
+        theme={worlds.onBordeaux}
+        enter="wipe"
+        exit="wipe"
+        as="div"
+        className={styles.onChapter}
+      >
         <Grid>
           <div className={styles.onWide}>
             <PhotoPending ratio={16 / 9} caption={t(copy.photo)} />
@@ -189,14 +194,14 @@ export default async function ScenesPage({ params }: PageProps<'/[locale]/system
 
       {/* 3. Back to the MARTIN.G world, which introduces the next project. */}
       <Scene
-        enter="wipe"
+        enter="dissolve"
         atmosphere={{ light: 'pool', grid: 'fade', texture: 'grain' }}
         aria-labelledby="scene-return"
       >
         <DepthType variant="index">{miMaMo.number}</DepthType>
         <Grid className={styles.returnGrid}>
           <SceneNote>
-            {t(copy.worlds.brand)} · {t(copy.transitions.wipe)}
+            {t(copy.worlds.brand)} · {t(copy.transitions.dissolve)}
           </SceneNote>
           <h2 id="scene-return" className={`col-full t-label ${styles.eyebrow}`}>
             <IndexNumber value={miMaMo.number} />
@@ -210,7 +215,13 @@ export default async function ScenesPage({ params }: PageProps<'/[locale]/system
       </Scene>
 
       {/* 4. mi-ma-mo: darker, structured, technical. The grid is drawn; data is the imagery. */}
-      <Scene theme={demoWorlds.miMaMo} enter="split" size="frame" aria-labelledby="scene-mimamo">
+      <Scene
+        theme={worlds.miMaMo}
+        enter="split"
+        exit="split"
+        size="frame"
+        aria-labelledby="scene-mimamo"
+      >
         <Grid className={styles.mmGrid}>
           <SceneNote>
             {t(copy.worlds.miMaMo)} · {t(copy.transitions.split)}
@@ -234,7 +245,7 @@ export default async function ScenesPage({ params }: PageProps<'/[locale]/system
       </Scene>
 
       {/* 5. Confidential: restrained, monochrome, abstract. A hard cut, no light. */}
-      <Scene theme={confidentialWorld} aria-labelledby="scene-confidential">
+      <Scene theme={worlds.confidential} aria-labelledby="scene-confidential">
         <Grid className={styles.confGrid}>
           <SceneNote>
             {t(copy.worlds.confidential)} · {t(copy.transitions.cut)}
@@ -257,7 +268,7 @@ export default async function ScenesPage({ params }: PageProps<'/[locale]/system
 
       {/* 6. The MARTIN.G world closes the sequence. */}
       <Scene
-        enter="wipe"
+        enter="dissolve"
         size="frame"
         atmosphere={{ light: 'shaft', grid: 'hidden', texture: 'grain' }}
         aria-labelledby="scene-close"

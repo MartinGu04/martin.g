@@ -1,7 +1,8 @@
 export const locales = ['en', 'he'] as const
 export type Locale = (typeof locales)[number]
 
-export const defaultLocale: Locale = 'en'
+/** The site's primary language: unprefixed URLs resolve here unless the visitor chose otherwise. */
+export const defaultLocale: Locale = 'he'
 
 export const localeCookie = 'NEXT_LOCALE'
 

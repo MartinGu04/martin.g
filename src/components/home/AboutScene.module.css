@@ -1,0 +1,47 @@
+@layer components {
+  .scene {
+    --scene-pad-start: calc(var(--section-space) * 1.25);
+    --scene-pad-end: calc(var(--section-space) * 1.25);
+  }
+
+  .grid {
+    row-gap: var(--space-6);
+  }
+
+  .name {
+    grid-column: 1 / -1;
+    margin-block-start: var(--space-7);
+  }
+
+  .role {
+    grid-column: 1 / -1;
+  }
+
+  .lines {
+    grid-column: 1 / -1;
+    display: grid;
+    gap: var(--space-6);
+    margin-block-start: var(--space-8);
+  }
+
+  .lines > p {
+    max-inline-size: 18em;
+  }
+
+  @media (width >= 48rem) {
+    .lines {
+      grid-column: 3 / span 6;
+    }
+  }
+
+  @media (width >= 75rem) {
+    .role {
+      grid-column: 1 / span 3;
+    }
+
+    .lines {
+      grid-column: 5 / span 7;
+      margin-block-start: 0;
+    }
+  }
+}

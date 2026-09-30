@@ -1,0 +1,27 @@
+@layer components {
+  .link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-block-size: 2.75rem;
+    color: var(--text);
+  }
+
+  .arrow {
+    transition: translate var(--dur-standard) var(--ease-out);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .link:hover {
+      text-decoration-line: none;
+    }
+
+    .link:hover .arrow {
+      translate: calc(var(--distance-sm) * var(--dir)) 0;
+    }
+  }
+
+  .link:focus-visible .arrow {
+    translate: calc(var(--distance-sm) * var(--dir)) 0;
+  }
+}

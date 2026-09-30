@@ -40,9 +40,23 @@ export function MotionController() {
           observer.unobserve(entry.target)
         }
       },
-      { rootMargin: '0px 0px -8% 0px', threshold: 0 },
+      // The huge top margin counts everything above the viewport as seen, so content the
+      // visitor jumps past (End key, anchors, find in page) is revealed too.
+      { rootMargin: '100000px 0px -8% 0px', threshold: 0 },
     )
     document.querySelectorAll(REVEAL_SELECTOR).forEach((el) => observer.observe(el))
+
+    // Safety net: a scene that closes as it leaves (a wipe or split exit) clips its content,
+    // which the observer then never sees. Whatever is above the viewport when scrolling
+    // settles counts as seen.
+    const revealPassed = () => {
+      document.querySelectorAll(REVEAL_SELECTOR).forEach((el) => {
+        if (el.getBoundingClientRect().bottom > 0) return
+        el.setAttribute('data-revealed', '')
+        observer.unobserve(el)
+      })
+    }
+    window.addEventListener('scrollend', revealPassed, { passive: true })
 
     const onPreferenceChange = () => {
       if (!reduced.matches) return
@@ -54,6 +68,7 @@ export function MotionController() {
 
     return () => {
       observer.disconnect()
+      window.removeEventListener('scrollend', revealPassed)
       reduced.removeEventListener('change', onPreferenceChange)
     }
   }, [pathname])
