@@ -44,8 +44,11 @@
     align-content: start;
   }
 
+  .confidentialNumber {
+    margin-block-start: var(--space-2);
+  }
+
   .confidentialTitle {
     font-size: var(--step-2);
-    margin-block-start: var(--space-2);
   }
 }

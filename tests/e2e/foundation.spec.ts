@@ -78,7 +78,17 @@ test.describe('confidential work', () => {
     const section = page.getByRole('region', { name: 'Selected Confidential Work' })
     await expect(section.getByRole('heading', { level: 3 })).toHaveCount(2)
     await expect(section.getByRole('link')).toHaveCount(0)
+    await expect(section.getByText('03', { exact: true })).toBeVisible()
+    await expect(section.getByText('04', { exact: true })).toBeVisible()
     await expect(section.locator('img, video, picture, iframe')).toHaveCount(0)
+  })
+
+  test('continues the project numbering after routed work', async ({ page }) => {
+    await page.goto('/he')
+    const items = page.locator('#work').getByRole('listitem')
+    await expect(items).toHaveCount(2)
+    await expect(items.nth(0).getByText('01', { exact: true })).toBeVisible()
+    await expect(items.nth(1).getByText('02', { exact: true })).toBeVisible()
   })
 
   test('is absent from the sitemap', async ({ request }) => {

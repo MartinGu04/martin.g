@@ -24,6 +24,18 @@ export function getConfidentialProjects(): ConfidentialProject[] {
   )
 }
 
+/**
+ * The public display sequence: routed work first, then confidential work, each by `order`.
+ * Project numbers ("01", "02", ...) come from this sequence, so they stay continuous
+ * across sections and never skip a filtered draft.
+ */
+export function getProjectSequence(): { project: Project; number: string }[] {
+  return [...getPublicProjects(), ...getConfidentialProjects()].map((project, i) => ({
+    project,
+    number: String(i + 1).padStart(2, '0'),
+  }))
+}
+
 /** Only public, published projects have routes. */
 export function getPublicProject(slug: string): PublicProject | undefined {
   return getPublicProjects().find((p) => p.id === slug)

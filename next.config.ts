@@ -11,6 +11,7 @@ const securityHeaders = [
   {
     // Static CSP (no nonces) so every page stays statically generated.
     // 'unsafe-inline' for scripts is required by Next's inline bootstrap without nonces.
+    // Launch hardening: review after Analytics and Contact (docs/ARCHITECTURE.md).
     key: 'Content-Security-Policy',
     value: [
       "default-src 'self'",

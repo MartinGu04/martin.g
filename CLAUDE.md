@@ -14,4 +14,6 @@ This repository is **public**. Read README.md → Confidentiality and docs/ARCHI
 - CSS: logical properties only; read semantic color tokens, not palette constants.
 - Motion: nothing may start hidden unless `(scripting: enabled)` and
   `(prefers-reduced-motion: no-preference)`.
+- Commit messages: no Claude session URLs or other session links (public breadcrumbs).
+- Navigation: no placeholder or dead destinations (Contact arrives with Phase 6).
 - Before pushing: `pnpm check`, `pnpm build`, `pnpm test:e2e`.

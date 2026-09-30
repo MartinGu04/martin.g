@@ -5,6 +5,7 @@ import { dictionaries } from '@/i18n/dictionaries'
 import {
   getAllProjectsForChecks,
   getConfidentialProjects,
+  getProjectSequence,
   getPublicProject,
   getPublicProjects,
 } from '@/content/registry'
@@ -72,6 +73,17 @@ describe('project registry', () => {
         expect(contrast(textMuted, surface)).toBeGreaterThanOrEqual(4.5)
       }
     }
+  })
+})
+
+describe('project sequence', () => {
+  it('numbers routed work first, then confidential work, continuously', () => {
+    expect(getProjectSequence().map(({ project, number }) => `${number} ${project.id}`)).toEqual([
+      '01 on',
+      '02 mi-ma-mo',
+      '03 confidential-01',
+      '04 confidential-02',
+    ])
   })
 })
 

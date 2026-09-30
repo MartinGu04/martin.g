@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { isLocale } from '@/i18n/config'
 import { getDictionary } from '@/i18n/get-dictionary'
-import { getConfidentialProjects, getPublicProjects } from '@/content/registry'
+import { getProjectSequence } from '@/content/registry'
 import { resolveConfidentialSummary, resolvePublicSummary } from '@/content/resolve'
 import { Cell, Grid } from '@/components/layout/Grid'
 import { SectionHeading } from '@/components/type/SectionHeading'
@@ -15,9 +15,16 @@ export default async function HomePage({ params }: PageProps<'/[locale]'>) {
   const { locale } = await params
   if (!isLocale(locale)) notFound()
   const dict = getDictionary(locale)
-  const work = getPublicProjects().map((p) => resolvePublicSummary(p, locale, dict))
-  const confidential = getConfidentialProjects().map((p) =>
-    resolveConfidentialSummary(p, locale, dict),
+  const sequence = getProjectSequence()
+  const work = sequence.flatMap(({ project, number }) =>
+    project.visibility === 'public'
+      ? [{ number, ...resolvePublicSummary(project, locale, dict) }]
+      : [],
+  )
+  const confidential = sequence.flatMap(({ project, number }) =>
+    project.visibility === 'confidential'
+      ? [{ number, ...resolveConfidentialSummary(project, locale, dict) }]
+      : [],
   )
 
   return (
@@ -37,6 +44,9 @@ export default async function HomePage({ params }: PageProps<'/[locale]'>) {
             <Cell as="li" key={project.id} span={{ base: 4, md: 8, lg: 12 }} className={styles.row}>
               <Link href={project.href} className={styles.rowLink}>
                 <Cell span={{ base: 4, md: 3, lg: 5 }}>
+                  <p className="label muted">
+                    <Ltr>{project.number}</Ltr>
+                  </p>
                   <h3 className={styles.title}>
                     <Ltr>{project.title}</Ltr>
                   </h3>
@@ -68,6 +78,9 @@ export default async function HomePage({ params }: PageProps<'/[locale]'>) {
               className={styles.confidentialItem}
             >
               <AbstractCover pattern={project.pattern} />
+              <p className={`label muted ${styles.confidentialNumber}`}>
+                <Ltr>{project.number}</Ltr>
+              </p>
               <h3 className={styles.confidentialTitle}>{project.title}</h3>
               <p>{project.summary}</p>
               <p className="muted">
