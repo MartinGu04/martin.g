@@ -68,7 +68,7 @@ The contrast is the point: the **wordmark is refined and elegant**; every displa
 
 | Role (class)   | Size (320 to 1600px) | Weight EN / HE | Width | Use                         |
 | -------------- | -------------------- | -------------- | ----- | --------------------------- |
-| `t-hero`       | per tier, near-edge  | 800 / 900      | 125%  | the monumental statement    |
+| `t-hero`       | per tier, near-edge  | 800 / 900      | 125%* | the monumental statement    |
 | `t-display-xl` | 48 to 184px          | 800 / 900      | 122%  | scene titles, project names |
 | `t-display`    | 40 to 120px          | 800 / 900      | 120%  | large titles in a scene     |
 | `t-heading-1`  | 32 to 76px           | 700 / 800      | 112%  | section and page titles     |
@@ -82,9 +82,13 @@ The contrast is the point: the **wordmark is refined and elegant**; every displa
 | `t-numeric`    | inherits             |                |       | tabular lining figures      |
 
 `t-hero` is sized per tier so the longest line runs nearly to the frame edge (it may enter
-the inline-end page margin). Mobile sets the statement over four lines (English) or two
-(Hebrew) at near-viewport size. Body, small, label and micro sizes are rem-dominant so they
-scale fully with browser zoom; only display sizes lean on the viewport.
+the inline-end page margin). \*On desktop it sets at 120% width and -0.05em tracking, which
+buys about 6% more size in the same line length; there the size tracks the page margin, so
+the longest line keeps a deliberate gap of about 1.7% of the viewport (21 to 27px between
+1200 and 1600px) and never wraps differently on wide screens. Mobile sets the statement over
+four lines (English) or two (Hebrew) at near-viewport size. Body, small, label and micro
+sizes are rem-dominant so they scale fully with browser zoom; only display sizes lean on the
+viewport.
 
 ## Grid and spacing
 

@@ -252,7 +252,7 @@
     }
 
     :root:lang(he) {
-      --hero-size: clamp(7rem, 0.2rem + 12.6vw, 15rem);
+      --hero-size: clamp(6.25rem, 0.2rem + 12.6vw, 15rem);
     }
   }
 
@@ -263,6 +263,14 @@
       --margin: clamp(3rem, 2.25rem + 3.75vw, 6rem);
       --parallax: 1;
       --header-block-size: 5rem;
+      /* Desktop trades a little width for scale: at 120% the statement sets about 6% larger
+         in the same line length. The size tracks the page margin so the longest line
+         ("From problem") keeps a deliberate gap of about 1.7% of the viewport at the frame
+         edge, capped where the content stops growing (1600px). Hebrew keeps its own size
+         and tracking (:lang(he)). */
+      --hero-size: clamp(8.5rem, 12.4vw - 0.3rem, 13.5rem);
+      --hero-stretch: 120%;
+      --hero-tracking: -0.05em;
     }
   }
 

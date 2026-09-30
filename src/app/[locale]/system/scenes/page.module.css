@@ -41,6 +41,7 @@
     --hero-size: clamp(8rem, 2rem + 28vw, 30rem);
     --hero-leading: 0.8;
     --hero-tracking: -0.06em;
+    --hero-stretch: 125%;
     grid-column: 1 / -1;
     color: var(--accent);
   }
