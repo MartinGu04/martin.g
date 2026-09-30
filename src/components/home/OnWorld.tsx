@@ -8,62 +8,64 @@ import { Ltr } from '@/components/type/Ltr'
 import { MediaShell } from '@/components/media/MediaShell'
 import { Reveal } from '@/components/motion/Reveal'
 import { Scene } from '@/components/scene/Scene'
-import { DepthType } from '@/components/scene/DepthType'
 import { ProjectLink } from './ProjectLink'
 import styles from './OnWorld.module.css'
 
 type Project = PublicProjectSummary & { number: string }
 
 /** A warm exposure standing in for photography until the real assets arrive (Phase 4). */
-function PendingPhotograph({ ratio }: { ratio: number }) {
+function PendingPhotograph({ ratio, tone }: { ratio: number; tone: 'wine' | 'olive' }) {
   return (
     <MediaShell aspectRatio={ratio}>
-      <span className={styles.exposure} aria-hidden="true" />
+      <span className={`${styles.exposure} ${styles[tone]}`} aria-hidden="true" />
     </MediaShell>
   )
 }
 
 /**
- * Scene 04: ON takes over the whole experience. The cream world wipes in from a framed
- * panel to full bleed; the title becomes dominant in bordeaux; a bordeaux register
- * follows; then the world hands the frame back by closing to a panel, with the MARTIN.G
- * black returning around it (exit wipe).
+ * Scene 04: ON. The impact is the change of mood, not scale: quiet luxury, editorial
+ * hospitality. The cream world opens softly (a short, gentle wipe); the title is
+ * confident but modest; photography carries the scene; bordeaux is an accent (a mat
+ * behind one print), olive the detail.
  */
 export function OnWorld({ project, dict }: { project: Project; dict: Dictionary }) {
   return (
-    <article aria-labelledby="on-title" className={styles.world}>
-      <Scene theme={worlds.on} enter="wipe" size="frame" as="div">
-        <Grid className={styles.grid}>
+    <Scene
+      theme={worlds.on}
+      enter="wipe"
+      size="frame"
+      as="article"
+      id="on"
+      aria-labelledby="on-title"
+      className={styles.scene}
+    >
+      <Grid className={styles.grid}>
+        <div className={styles.text}>
           <p className={`t-label ${styles.eyebrow}`}>
             <IndexNumber value={project.number} />
             <span aria-hidden="true"> / </span>
             {project.disciplines.join(' · ')}
           </p>
-          <h3 id="on-title" className={`t-hero ${styles.title}`}>
+          <h3 id="on-title" className={`t-display ${styles.title}`}>
             <Link href={project.href} className={styles.titleLink}>
               <Ltr>{project.title}</Ltr>
             </Link>
           </h3>
-          <Reveal className={styles.text}>
-            <p className="t-heading-2">{project.summary}</p>
+          <span className={styles.rule} aria-hidden="true" />
+          <Reveal className={styles.summary}>
+            <p className="t-heading-3">{project.summary}</p>
             <ProjectLink href={project.href} label={dict.work.viewProject} title={project.title} />
           </Reveal>
-          <div className={styles.portrait} data-parallax>
-            <PendingPhotograph ratio={4 / 5} />
+        </div>
+        <div className={styles.gallery} aria-hidden="true">
+          <div className={styles.photoMain} data-parallax>
+            <PendingPhotograph ratio={4 / 5} tone="wine" />
           </div>
-        </Grid>
-      </Scene>
-
-      <Scene theme={worlds.onBordeaux} enter="wipe" exit="wipe" size="frame" as="div">
-        <DepthType variant="line">
-          <Ltr>{project.title}</Ltr>
-        </DepthType>
-        <Grid>
-          <div className={styles.wide}>
-            <PendingPhotograph ratio={16 / 9} />
+          <div className={styles.photoSecond} data-parallax>
+            <PendingPhotograph ratio={3 / 2} tone="olive" />
           </div>
-        </Grid>
-      </Scene>
-    </article>
+        </div>
+      </Grid>
+    </Scene>
   )
 }

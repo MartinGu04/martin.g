@@ -4,6 +4,7 @@ import { Eyebrow } from '@/components/type/Eyebrow'
 import { IndexNumber } from '@/components/type/IndexNumber'
 import { Reveal } from '@/components/motion/Reveal'
 import { Scene } from '@/components/scene/Scene'
+import { worlds } from '@/content/worlds'
 import styles from './Capabilities.module.css'
 
 export interface Capability {
@@ -14,9 +15,9 @@ export interface Capability {
 }
 
 /**
- * Scene 08: capabilities as proof, not a skill matrix. Each capability is set large and
+ * Scene 08: capabilities as proof, not a skill matrix. Each capability is set clearly and
  * answered by the work that demonstrates it, taken from the project entries themselves.
- * A calm scene: no light, no grid, a slow rise per row.
+ * A calm, light scene in the brand's bone register: daylight after the dark worlds.
  */
 export function Capabilities({
   copy,
@@ -26,10 +27,7 @@ export function Capabilities({
   items: Capability[]
 }) {
   return (
-    <Scene
-      atmosphere={{ light: 'none', grid: 'hidden', texture: 'grain', vignette: true }}
-      aria-labelledby="capabilities-title"
-    >
+    <Scene theme={worlds.bone} aria-labelledby="capabilities-title">
       <Grid className={styles.grid}>
         <Eyebrow as="h2" id="capabilities-title" muted={false} className="col-aside">
           {copy.title}
@@ -42,7 +40,7 @@ export function Capabilities({
                 value={String(i + 1).padStart(2, '0')}
                 className={`t-label muted ${styles.index}`}
               />
-              <p className={`t-heading-1 ${styles.name}`}>{item.label}</p>
+              <p className={`t-heading-2 ${styles.name}`}>{item.label}</p>
               <p className={`t-small muted ${styles.proof}`}>{item.proof.join(' · ')}</p>
             </Reveal>
           ))}

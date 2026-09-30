@@ -27,6 +27,7 @@ export function MiMaMoWorld({ project, dict }: { project: Project; dict: Diction
       exit="split"
       size="frame"
       as="article"
+      id="mi-ma-mo"
       aria-labelledby="mi-ma-mo-title"
       className={styles.scene}
     >

@@ -19,7 +19,7 @@ type Item = ConfidentialProjectSummary & { number: string }
  */
 export function ConfidentialScene({ items, dict }: { items: Item[]; dict: Dictionary }) {
   return (
-    <Scene theme={worlds.confidential} aria-labelledby="confidential-title">
+    <Scene theme={worlds.confidential} id="confidential" aria-labelledby="confidential-title">
       <Grid className={styles.grid}>
         <Eyebrow
           as="h2"
@@ -37,7 +37,7 @@ export function ConfidentialScene({ items, dict }: { items: Item[]; dict: Dictio
                 <AbstractCover pattern={item.pattern} />
               </div>
               <IndexNumber value={item.number} className="t-label muted" />
-              <h3 className="t-heading-1">{item.title}</h3>
+              <h3 className="t-heading-2">{item.title}</h3>
               <p className="t-body muted">{item.summary}</p>
               <p className="t-small muted">
                 {item.disciplines.join(' · ')}

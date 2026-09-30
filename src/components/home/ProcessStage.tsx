@@ -8,9 +8,10 @@ import { Atmosphere } from '@/components/scene/Atmosphere'
 import styles from './ProcessStage.module.css'
 
 /**
- * Scene 07, How I work: five states in one composition, moving from ambiguity to
- * clarity. On a stage with a sticky frame each word takes the frame in turn while the
- * grid behind it sharpens and the haze clears. Without the stage (reduced motion, no
+ * Scene 07, How I work: supporting content, not another hero. Five states in one
+ * composition, moving from ambiguity to clarity, set one step below the display peak.
+ * On a short stage with a sticky frame each word takes the frame in turn while the grid
+ * behind it sharpens and the haze clears. Without the stage (reduced motion, no
  * scroll-driven animation, a short viewport) it is a composed vertical sequence. Always
  * an ordered list in the document.
  */
@@ -38,7 +39,7 @@ export function ProcessStage({ copy }: { copy: HomeCopy['process'] }) {
                   <span className={`t-label t-numeric muted ${styles.count}`}>
                     <Ltr>{`${String(i + 1).padStart(2, '0')} / ${total}`}</Ltr>
                   </span>
-                  <h3 className={`t-display-xl ${styles.word}`}>{step.word}</h3>
+                  <h3 className={`t-display ${styles.word}`}>{step.word}</h3>
                   <p className={`t-lead ${styles.line}`}>{step.line}</p>
                 </li>
               )

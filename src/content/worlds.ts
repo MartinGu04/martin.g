@@ -54,18 +54,62 @@ export const worlds = {
     atmosphere: { light: 'side', grid: 'visible', texture: 'dots', marks: true, vignette: true },
   },
   /**
-   * Confidential work: restrained, monochrome and abstract. A flat neutral graphite with
+   * Confidential work: restrained, monochrome and abstract. A soft, flat neutral grey with
    * no light, no texture and only a fading trace of the grid. No classified or military
    * visual language.
    */
   confidential: {
     scheme: 'dark',
     colors: {
-      surface0: '#161616',
-      surface1: '#1e1e1e',
-      text: '#e6e6e6',
-      textMuted: '#a6a6a6',
+      surface0: '#222222',
+      surface1: '#2a2a2a',
+      text: '#ededed',
+      textMuted: '#b4b4b4',
     },
     atmosphere: { light: 'none', grid: 'fade', texture: 'none', marks: false, vignette: false },
+  },
+
+  /*
+   * MARTIN.G registers: the brand world in other light, so the page is not black from
+   * beginning to end. Same grammar, same identity, different tone.
+   */
+
+  /** A lighter graphite: bridges and the closing scene. */
+  graphite: {
+    scheme: 'dark',
+    colors: {
+      surface0: '#18181a',
+      surface1: '#222225',
+      text: '#f5f3ee',
+      textMuted: '#bcb9b3',
+      light: '#fff4e6',
+    },
+    atmosphere: { light: 'pool', grid: 'hidden', texture: 'grain', marks: false, vignette: true },
+  },
+  /** Bone: the brand's own light register, for calm, readable scenes. */
+  bone: {
+    scheme: 'light',
+    colors: {
+      surface0: '#ebe8e1',
+      surface1: '#e1ddd4',
+      text: '#141414',
+      textMuted: '#55524c',
+      light: '#ffffff',
+      shade: '#3a3834',
+    },
+    atmosphere: { light: 'side', grid: 'hidden', texture: 'grain', marks: false, vignette: false },
+  },
+  /** Warm: lamplight on dark wood, for the person behind the work. */
+  warm: {
+    scheme: 'dark',
+    colors: {
+      surface0: '#1b1512',
+      surface1: '#251d18',
+      text: '#f4ece2',
+      textMuted: '#c7b8a9',
+      light: '#ffd9b0',
+      shade: '#000000',
+    },
+    atmosphere: { light: 'pool', grid: 'hidden', texture: 'grain', marks: false, vignette: true },
   },
 } as const satisfies Record<string, ProjectTheme>

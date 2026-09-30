@@ -39,9 +39,10 @@
    */
   @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
     @supports (animation-timeline: view()) {
+      /* Short on purpose: a transition says "new world" and gets out of the way. */
       .scene[data-enter] {
         animation-timeline: view();
-        animation-range: entry 0% entry 100%;
+        animation-range: entry 0% entry 60%;
         animation-fill-mode: both;
       }
 
@@ -53,12 +54,13 @@
       .scene[data-enter='split'] {
         animation-name: scene-split;
         animation-timing-function: linear;
-        animation-range: entry 0% entry 90%;
+        animation-range: entry 0% entry 55%;
       }
 
       .scene[data-enter='dissolve'] {
         animation-name: scene-dissolve;
         animation-timing-function: var(--ease-in-out);
+        animation-range: entry 0% entry 50%;
       }
 
       .scene[data-exit] {
@@ -70,24 +72,25 @@
         animation-name: scene-wipe, scene-wipe-out;
         animation-timing-function: var(--ease-out), var(--ease-in-out);
         animation-range:
-          entry 0% entry 100%,
-          exit 0% exit 100%;
+          entry 0% entry 60%,
+          exit 40% exit 100%;
       }
 
       .scene[data-enter='split'][data-exit='split'] {
         animation-name: scene-split, scene-split-out;
         animation-timing-function: linear, linear;
         animation-range:
-          entry 0% entry 90%,
-          exit 10% exit 100%;
+          entry 0% entry 55%,
+          exit 40% exit 100%;
       }
     }
   }
 
-  /* From a framed panel inside the page margins to full bleed. */
+  /* From a framed panel inside the page margins to full bleed. A scene may soften the
+     frame with --wipe-inset. */
   @keyframes scene-wipe {
     from {
-      clip-path: inset(var(--scene-overlap) max(var(--margin), 8vw) 0);
+      clip-path: inset(var(--scene-overlap) var(--wipe-inset, max(var(--margin), 8vw)) 0);
     }
 
     to {
@@ -103,7 +106,7 @@
     }
 
     to {
-      clip-path: inset(0 max(var(--margin), 8vw) var(--scene-overlap));
+      clip-path: inset(0 var(--wipe-inset, max(var(--margin), 8vw)) var(--scene-overlap));
     }
   }
 

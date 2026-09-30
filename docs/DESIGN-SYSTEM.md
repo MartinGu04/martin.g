@@ -141,7 +141,7 @@ viewport.
   previous world stays visible around it while it opens. Every scene's end padding is at
   least the overlap, so it only ever covers empty space.
 - Stages (a tall scene with a sticky frame on a named view timeline) are compositions, not a
-  primitive: the hero and How I work use them, only under scripting, motion allowed,
+  primitive: How I work uses one, only under scripting, motion allowed,
   `height >= 34rem` and scroll-timeline support; otherwise the same markup is static.
 - Atmosphere layers carry `data-layer` (`base`, `light`, `haze`, `grid`, `texture`,
   `vignette`, `marks`) so a composition can move or fade one layer on its own timeline.
@@ -274,8 +274,8 @@ no-preference)` for scroll-driven transitions; `html[data-motion]` for reveals, 
   `--parallax` (0 on mobile, 0.5 tablet, 1 desktop).
 - Reduced motion collapses all durations, removes distances, scale, parallax, drift and
   transitions, and shows every scene in its final state.
-- The hero is a static frame for now: its composition and scale are fixed; its final motion
-  comes in a later phase.
+- The hero is one frame with three short timed beats (identity, positioning, principle),
+  masks that fill backwards only; nothing in it waits for scrolling.
 - Hover effects exist only under `(hover: hover) and (pointer: fine)`; keyboard focus gets
   the same state plus the focus ring.
 

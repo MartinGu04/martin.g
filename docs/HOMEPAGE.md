@@ -7,77 +7,86 @@ hijacking, no smooth-scroll library, no GSAP, Lenis or Motion.
 
 Composition: `src/app/[locale]/page.tsx`; scenes: `src/components/home/`.
 
+## Principles (restraint pass)
+
+- **Identity, proposition, proof, quickly.** Within the first viewport and about two seconds:
+  MARTIN.G, Martin Gusin, Product Builder, the positioning and the principle. The work
+  starts about one viewport later, with an index of everything that was built.
+- **Loud and quiet.** Extreme scale is reserved for one moment (the principle) and one world
+  (mi-ma-mo). Everything else is a step or two below: project titles are confident, not
+  gigantic; How I work, About and Contact are strong but calmer than the statement.
+- **Light and color.** MARTIN.G stays fundamentally dark, but the page moves through tones:
+  dark graphite, lighter graphite, ON cream, technical dark, soft neutral, bone, warm.
+- **Transitions only where the world changes**, and short: about 40% shorter than the first
+  Phase 3 pass.
+
 ## Scene map and pacing
 
-Like film editing, the energy rises and falls on purpose.
+| #   | Scene                            | Energy          | World / register | Enters by | Leaves by |
+| --- | -------------------------------- | --------------- | ---------------- | --------- | --------- |
+| 01  | Identity (`HeroScene`)           | strong, clear   | MARTIN.G dark    | timed     |           |
+| 02  | Index of the work (`WorkBridge`) | quiet bridge    | lighter graphite | cut       |           |
+| 03  | ON (`OnWorld`)                   | warm, intimate  | ON cream         | soft wipe |           |
+| 04  | mi-ma-mo                         | technical peak  | mi-ma-mo         | split     | split     |
+| 05  | Confidential                     | deliberate drop | soft neutral     | cut       |           |
+| 06  | How I work                       | rhythmic        | MARTIN.G dark    | dissolve  |           |
+| 07  | Capabilities                     | calm, daylight  | bone             | cut       |           |
+| 08  | About                            | calm, warm      | warm             | cut       |           |
+| 09  | Contact                          | strong close    | lighter graphite | cut       |           |
 
-| #   | Scene                 | Energy          | World        | Enters by | Leaves by |
-| --- | --------------------- | --------------- | ------------ | --------- | --------- |
-| 01  | Arrival (`HeroStage`) | quiet, tension  | MARTIN.G     |           |           |
-| 02  | The statement         | monumental peak | MARTIN.G     | (stage)   | recedes   |
-| 03  | Bridge (`WorkBridge`) | quiet bridge    | MARTIN.G     | cut       |           |
-| 04  | ON (`OnWorld`)        | takeover, warm  | ON cream     | wipe      |           |
-|     | ON, second register   | emotional       | ON bordeaux  | wipe      | wipe      |
-|     | Reset (`ReturnScene`) | a breath        | MARTIN.G     | dissolve  |           |
-| 05  | mi-ma-mo              | technical peak  | mi-ma-mo     | split     | split     |
-| 06  | Confidential          | deliberate drop | confidential | cut       |           |
-| 07  | How I work            | rhythmic        | MARTIN.G     | dissolve  |           |
-| 08  | Capabilities          | calm            | MARTIN.G     | cut       |           |
-| 09  | About                 | calm, warm      | MARTIN.G     | cut       |           |
-| 10  | Contact               | strong close    | MARTIN.G     | cut       |           |
+The hero is one frame with three timed beats (about two seconds in all, masks that fill
+backwards only): the wordmark then Martin Gusin, Product Builder; the positioning; the
+principle, set at about 70% of the previous hero scale. Nothing requires scrolling.
 
 ## Transitions (four, each with one meaning)
 
-| Transition | Meaning                                                   | Motion                                                       |
-| ---------- | --------------------------------------------------------- | ------------------------------------------------------------ |
-| `wipe`     | a project world takes over the whole experience           | from a framed panel inside the page margins to full bleed    |
-| `split`    | a technical, structured world takes over                  | from a center seam outward, hard mechanical edge, grid draws |
-| `dissolve` | the atmospheric return to the MARTIN.G world              | fades in over the tail of the previous world                 |
-| `cut`      | restraint (confidential work) and calm changes of subject | none                                                         |
+| Transition | Meaning                                                   | Motion                                                                  |
+| ---------- | --------------------------------------------------------- | ----------------------------------------------------------------------- |
+| `wipe`     | a project world takes over the whole experience           | from a framed panel to full bleed (ON: just inside the margins, softer) |
+| `split`    | a technical, structured world takes over                  | from a center seam outward, hard mechanical edge, grid draws            |
+| `dissolve` | the atmospheric return to the MARTIN.G world              | fades in over the tail of the previous world                            |
+| `cut`      | restraint (confidential work) and calm changes of subject | none                                                                    |
 
-A world hands the frame back the way it took it (`exit`): a `wipe` world closes back to a
-framed panel while the MARTIN.G black returns around it; a `split` world contracts back into
-its seam. Entering scenes overlap the previous one by `--scene-overlap`, so the previous
-world stays visible around the opening one.
+A world may hand the frame back the way it took it (`exit`): a `split` world contracts back
+into its seam (mi-ma-mo, before the confidential scene); a `wipe` world can close back to a
+framed panel (used in the specimen). Entering scenes overlap the previous one by
+`--scene-overlap`, so the previous world stays visible around the opening one. Ranges: wipe
+and split finish at `entry 60%` and `entry 55%`, dissolve at `entry 50%`, exits run over the
+last 60% of the scene's exit.
 
-## Stages (sticky frames)
+## Stage (sticky frame)
 
-Two scenes are **stages**: a tall section with a sticky, viewport-sized frame, driven by a
-named CSS view timeline (`--hero`, `--process`). The visitor scrolls at their own speed; the
-frame holds still while the story moves.
-
-- **Hero** (`--hero`, 200 / 230 / 250svh): the wordmark arrives centered and larger, then
-  settles at the inline start; the statement rises out of a mask; the cropped depth type
-  drifts against the reading direction; the light moves; the grid appears only inside the
-  light; at the end the statement recedes as the frame releases into the bridge.
-- **How I work** (`--process`, a viewport plus 45svh per step): five states share one
-  composition. Each word enters from a mask, its line follows, then it leaves upward; a
-  five-part progress rule fills in the reading direction; the haze clears and the grid
-  sharpens across the sequence (ambiguity to clarity).
-
-Stages only switch on under `(scripting: enabled) and (prefers-reduced-motion:
-no-preference) and (height >= 34rem)` with scroll-timeline support. Otherwise the same markup
-is a static composition (the hero frame; a vertical, ruled sequence of the five steps).
-`height >= 34rem` keeps short and zoomed viewports (for example 200% zoom on a laptop) on the
-reflowing static layout, so nothing can be trapped in a sticky frame.
+One scene is a **stage**: How I work, a short tall section with a sticky frame on a named
+CSS view timeline (`--process`, a viewport plus 28svh per step). Five states share one
+composition; each word enters from a mask, its line follows, then it leaves upward; a
+five-part progress rule fills in the reading direction; the haze clears and the grid
+sharpens (ambiguity to clarity). It is supporting content, set one step below the display
+peak. It only switches on under `(scripting: enabled) and (prefers-reduced-motion:
+no-preference) and (height >= 34rem)` with scroll-timeline support; otherwise it is a
+vertical, ruled sequence. `height >= 34rem` keeps short and zoomed viewports on the
+reflowing layout.
 
 ## Worlds
 
-- **MARTIN.G**: graphite, directional warm light, grain, vignette, cropped depth type. Grid
-  only inside the light, registration marks only in the hero. Never all layers at full
-  strength at once.
-- **ON**: cream, bordeaux, olive, warm black, paper texture, soft side light; photography
-  stand-ins until Phase 4. The title owns the frame.
+- **MARTIN.G**: graphite, directional warm light, grain, vignette, one cropped depth line in
+  the hero. Grid only inside the light, registration marks only in the hero. Registers
+  (`src/content/worlds.ts`): lighter graphite (index, contact), bone (capabilities), warm
+  (about).
+- **ON**: quiet luxury, editorial hospitality. Cream, breathing room, an editorial pair of
+  photographs (stand-ins until Phase 4), bordeaux as an accent (a mat behind one print),
+  olive details, paper texture, soft side light. The title is confident but modest; the
+  impact is the change of mood.
 - **mi-ma-mo**: cool dark graphite, drawn grid, dot field, registration marks, an
   operational board (lanes on a time axis, a day's load rhythm) that fills in along the axis.
   On exit its grid, dots and marks fade and its accent drains (`--world-signal`, 1 to 0), so
   the frame is near-monochrome before the confidential scene.
-- **Confidential**: flat monochrome graphite, no light, no texture, generated geometry, strong
-  type, almost no motion. Sanitized summaries only; no links, routes, media or identifying
+- **Confidential**: soft flat neutral grey, no light, no texture, flat generated geometry,
+  clear type, almost no motion. Sanitized summaries only; no links, routes, media or identifying
   detail.
 
 ON and mi-ma-mo palettes are provisional (`src/content/worlds.ts`) until the brand values are
-supplied.
+supplied. The public name of mi-ma-mo becomes המחלבה in Phase 4; the id and slug stay
+`mi-ma-mo`.
 
 ## Header
 
@@ -86,32 +95,31 @@ one-pixel band along the header's lower edge; the scene crossing it lends the he
 semantic colors (surface, text, muted text, lines, focus ring), crossfaded over
 `--dur-standard` (instant with reduced motion). Where two scenes overlap during a transition
 the entering one wins. Every world is contrast-validated, so the header is readable over
-MARTIN.G, ON cream, ON bordeaux, mi-ma-mo and confidential. Without JavaScript it keeps the
+every register and world on the page (dark, graphite, cream, technical, neutral, bone, warm). Without JavaScript it keeps the
 MARTIN.G colors (always readable: it has its own solid background). The browser theme color
 follows the world too.
 
 ## Responsive choreography
 
-- **Desktop** (≥ 1200px): the full version. Longest stages, strongest parallax (`--parallax:
-1`), near-edge statement, depth numerals, side-by-side compositions (ON title and portrait,
-  mi-ma-mo text and board).
-- **Tablet** (768 to 1199px): recomposed, not scaled. Shorter stages, half parallax, the
-  arrival wordmark scales less, compositions stack earlier.
-- **Mobile** (< 768px): vertical choreography. The statement sets over four lines (English)
-  or two (Hebrew) at near-viewport size; no parallax (`--parallax: 0`); the ON portrait and the
-  board stack under the text; the process words are fitted to the width (Hebrew verbs set much
-  larger than English words, which are longer).
+- **Desktop** (≥ 1200px): the identity signature sits beside the wordmark; side-by-side
+  compositions (ON text and photographs, mi-ma-mo text and board); full parallax on the
+  photographs and depth line.
+- **Tablet** (768 to 1199px): the same frames recomposed on 8 columns, half parallax.
+- **Mobile** (< 768px): vertical. The identity sits under the wordmark, the statement below the
+  positioning; the index stacks; ON's photographs follow its text; no parallax; the process
+  words are fitted to the width (Hebrew verbs set larger than the longer English words).
 
 ## RTL
 
-Light direction, depth-type drift, the arrival translation, the bridge and reset rules, the
-board's fill origin, the progress rule and all arrows mirror through `--dir` and logical
-properties. Wipes and splits are symmetric. The statement and wordmark anchor at the inline
-start (right in Hebrew). Project names and numerals stay Latin and isolated (`<Ltr>`).
+Light direction, depth-type drift, the index rule, the board's fill origin, the progress
+rule, the bordeaux mat behind ON's print and all arrows mirror through `--dir` and logical
+properties. Wipes and splits are symmetric. The wordmark and statement anchor at the inline
+start (right in Hebrew); the identity signature at the inline end. Project names and numerals stay Latin and isolated (`<Ltr>`).
 
 ## Reduced motion, no JavaScript, forced colors
 
-- **Reduced motion**: every scene shows its final state; stages become static compositions;
+- **Reduced motion**: every scene shows its final state; the hero beats are simply present;
+  the stage becomes a static composition;
   no wipes, splits, dissolves, drift or parallax; world colors, hierarchy and spacing are
   unchanged; scrolling is natural.
 - **No JavaScript**: the CSS choreography still works where supported (it needs no script),
@@ -126,11 +134,10 @@ start (right in Hebrew). Project names and numerals stay Latin and isolated (`<L
   scan line, a hairline.
 - The accent drain is a registered custom property (`@property --world-signal`), animated
   over a small board only.
-- Text is never faded to partial opacity while it has to be read: titles move but stay
-  opaque; the statement dims only while it leaves the frame.
-- The arrival deliberately shows the wordmark first and reveals the statement on scroll. The
-  statement is in the document from the start (read by assistive technology, visible without
-  scroll-timeline support or with reduced motion).
+- Text is never faded to partial opacity while it has to be read: the hero beats are masks,
+  titles move but stay opaque.
+- Grain is the world's ink through a noise mask, never a blend mode (a blended full-frame
+  layer halved the desktop frame rate in profiling).
 - The contact action is not rendered until its destination exists (Phase 6), so the CTA has
   no dead link.
 

@@ -33,6 +33,11 @@
     margin-block-end: var(--space-4);
   }
 
+  /* Flatter, quieter geometry: a band rather than a block. */
+  .cover > :first-child {
+    aspect-ratio: 16 / 7;
+  }
+
   @media (width >= 48rem) {
     .list {
       grid-template-columns: repeat(2, minmax(0, 1fr));

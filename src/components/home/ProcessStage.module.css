@@ -43,12 +43,12 @@
   /* A single word may not wrap: fit it to its column as well as to the type scale
      (the longest English word is about 7.4em wide). */
   .word {
-    --display-xl-size: min(var(--step-6), 12.5cqi);
+    --display-size: min(var(--step-5), 12.5cqi);
   }
 
   /* Hebrew verbs are far shorter than the English words: let them take the frame. */
   :root:lang(he) .word {
-    --display-xl-size: min(var(--step-6), 20cqi);
+    --display-size: min(var(--step-5), 18cqi);
   }
 
   .line {
@@ -67,7 +67,7 @@
     }
 
     .word {
-      --display-xl-size: min(var(--step-6), 10.5cqi);
+      --display-size: min(var(--step-5), 10cqi);
       grid-column: 3 / -1;
     }
 
@@ -85,7 +85,7 @@
         --scene-pad-start: 0;
         --scene-pad-end: 0;
         view-timeline: --process block;
-        block-size: calc(var(--scene-min) + 5 * 45svh);
+        block-size: calc(var(--scene-min) + 5 * 28svh);
       }
 
       .frame {

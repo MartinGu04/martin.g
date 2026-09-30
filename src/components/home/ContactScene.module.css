@@ -11,7 +11,7 @@
 
   .mark {
     grid-column: 1 / -1;
-    inline-size: clamp(12rem, 22vw, 22rem);
+    inline-size: clamp(12rem, 18vw, 18rem);
     line-height: 0;
     color: var(--text);
   }
@@ -29,12 +29,6 @@
   }
 
   @media (width >= 48rem) {
-    /* Two lines on larger screens ("Have a problem" is about 9.4em), so the whole closing
-       frame fits the viewport. */
-    .title {
-      --display-xl-size: min(var(--step-6), 10cqi);
-    }
-
     .line {
       grid-column: 5 / span 4;
     }

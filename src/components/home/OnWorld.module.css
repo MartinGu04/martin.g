@@ -1,22 +1,30 @@
 @layer components {
+  /* A softer takeover than the grammar's default: the panel starts just inside the page
+     margins, so the change reads as a mood, not a slam. */
+  .scene {
+    --wipe-inset: var(--margin);
+    --scene-pad-start: var(--section-space);
+    --scene-pad-end: var(--section-space);
+  }
+
   .grid {
-    container-type: inline-size;
-    row-gap: var(--space-6);
-    align-items: end;
+    row-gap: var(--space-8);
+    align-items: center;
+  }
+
+  .text {
+    grid-column: 1 / -1;
+    display: grid;
+    justify-items: start;
+    gap: var(--space-5);
   }
 
   .eyebrow {
-    grid-column: 1 / -1;
     color: var(--accent-2);
+    max-inline-size: 26em;
   }
 
-  /* ON is two letters: it may own the frame. Bordeaux on cream. */
   .title {
-    --hero-size: clamp(8rem, 2rem + 28vw, 30rem);
-    --hero-leading: 0.8;
-    --hero-tracking: -0.06em;
-    --hero-stretch: 125%;
-    grid-column: 1 / -1;
     color: var(--accent);
   }
 
@@ -30,115 +38,99 @@
     }
   }
 
-  .text {
-    grid-column: 1 / -1;
+  /* A short olive rule: the detail color. */
+  .rule {
+    inline-size: var(--space-8);
+    block-size: 2px;
+    background: var(--accent-2);
+  }
+
+  .summary {
     display: grid;
     justify-items: start;
     gap: var(--space-5);
-    max-inline-size: 22em;
+    max-inline-size: 20em;
   }
 
-  .portrait {
-    --parallax-shift: 3rem;
-    grid-column: 2 / -1;
-  }
-
-  .wide {
+  /* Editorial pair: a tall print and a smaller one set on a bordeaux mat. */
+  .gallery {
     grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    align-items: end;
   }
 
-  /* Photograph stand-in: exposure made from the world's own light and accents. */
+  .photoMain {
+    --parallax-shift: 1.5rem;
+    grid-column: 2 / -1;
+    grid-row: 1;
+  }
+
+  .photoSecond {
+    --parallax-shift: 3rem;
+    grid-column: 1 / span 3;
+    grid-row: 1;
+    z-index: 1;
+    margin-block-end: -12%;
+    box-shadow: calc(-0.875rem * var(--dir)) 0.875rem 0 0 var(--accent);
+  }
+
+  /* Photograph stand-ins: warm exposures in the world's own light and accents. */
   .exposure {
     position: absolute;
     inset: 0;
+  }
+
+  .wine {
     background:
       radial-gradient(
-        70% 60% at 30% 25%,
-        color-mix(in srgb, var(--light) 75%, transparent),
+        70% 60% at 32% 24%,
+        color-mix(in srgb, var(--light) 80%, transparent),
         transparent 70%
       ),
       radial-gradient(
-        60% 50% at 80% 90%,
-        color-mix(in srgb, var(--accent) 55%, transparent),
+        55% 45% at 78% 88%,
+        color-mix(in srgb, var(--accent) 45%, transparent),
         transparent 75%
       ),
       linear-gradient(
-        160deg,
-        color-mix(in srgb, var(--accent-2) 45%, var(--surface-1)),
-        color-mix(in srgb, var(--accent) 35%, var(--surface-1))
+        165deg,
+        color-mix(in srgb, var(--surface-1) 70%, var(--accent-2)),
+        color-mix(in srgb, var(--accent) 28%, var(--surface-1))
+      );
+  }
+
+  .olive {
+    background:
+      radial-gradient(
+        60% 70% at 70% 30%,
+        color-mix(in srgb, var(--light) 70%, transparent),
+        transparent 70%
+      ),
+      linear-gradient(
+        200deg,
+        color-mix(in srgb, var(--accent-2) 50%, var(--surface-1)),
+        color-mix(in srgb, var(--accent-2) 20%, var(--surface-0))
       );
   }
 
   @media (width >= 48rem) {
     .text {
-      grid-column: 1 / span 5;
+      grid-column: 1 / span 4;
     }
 
-    .portrait {
-      grid-column: 6 / span 3;
-    }
-
-    .wide {
-      grid-column: 2 / span 7;
+    .gallery {
+      grid-column: 5 / -1;
     }
   }
 
   @media (width >= 75rem) {
-    .eyebrow {
-      grid-column: 1 / span 8;
-      grid-row: 1;
-    }
-
-    /* Eight of twelve columns: "ON" (about 1.9em wide) must stay on one line. */
-    .title {
-      --hero-size: min(clamp(8rem, 2rem + 28vw, 30rem), 34cqi);
-      grid-column: 1 / span 8;
-      grid-row: 2 / span 2;
-      align-self: end;
-    }
-
-    .portrait {
-      grid-column: 9 / span 4;
-      grid-row: 1 / span 3;
-    }
-
     .text {
-      grid-column: 1 / span 6;
-      grid-row: 4;
+      grid-column: 1 / span 5;
     }
 
-    .wide {
-      grid-column: 3 / span 9;
-    }
-  }
-
-  /* The title settles into place as the world opens; the wide photograph collapses as
-     the world hands the frame back. Decorative movement only. */
-  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
-    @supports (animation-timeline: view()) {
-      .title {
-        animation: on-title linear both;
-        animation-timeline: view();
-        animation-range: entry 0% cover 40%;
-      }
-
-      .wide {
-        animation: on-collapse linear forwards;
-        animation-timeline: view();
-        animation-range: exit 0% exit 100%;
-      }
-    }
-  }
-
-  @keyframes on-title {
-    from {
-      translate: 0 22%;
-    }
-  }
-
-  @keyframes on-collapse {
-    to {
-      clip-path: inset(35% 18%);
+    .gallery {
+      grid-column: 7 / -1;
     }
   }
 }

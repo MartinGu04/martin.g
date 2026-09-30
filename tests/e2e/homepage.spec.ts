@@ -15,6 +15,32 @@ const headerBackground = (page: Page) =>
   page.getByRole('banner').evaluate((el) => getComputedStyle(el).backgroundColor)
 
 test.describe('homepage scenes', () => {
+  test('identity is in the first viewport, without scrolling', async ({ page }) => {
+    await page.goto('/en')
+    const hero = page.getByRole('region', { name: 'MARTIN.G' })
+    for (const text of [
+      'Martin Gusin',
+      'Product Builder',
+      'Digital products, systems & experiences.',
+      'From problem to product.',
+    ]) {
+      await expect(hero.getByText(text, { exact: true }).first()).toBeInViewport()
+    }
+  })
+
+  test('the work is reached quickly and its index leads to real scenes', async ({ page }) => {
+    await page.goto('/en')
+    const top = await page
+      .locator('#work-title')
+      .evaluate((el) => el.getBoundingClientRect().top / window.innerHeight)
+    expect(top).toBeLessThan(1.6)
+    const hrefs = await page
+      .locator('#work ol a[href^="#"]')
+      .evaluateAll((links) => links.map((a) => a.getAttribute('href')!))
+    expect(hrefs).toEqual(['#on', '#mi-ma-mo', '#confidential'])
+    for (const href of hrefs) await expect(page.locator(href)).toHaveCount(1)
+  })
+
   test('moves through distinct worlds', async ({ page }) => {
     await page.goto('/en')
     const backgrounds = await page
@@ -40,12 +66,8 @@ test.describe('homepage scenes', () => {
     const context = await browser.newContext({ reducedMotion: 'reduce' })
     const page = await context.newPage()
     await page.goto('/he')
-    const positions = await page
-      .locator('#hero-title, #process-title')
-      .evaluateAll((els) =>
-        els.map((el) => getComputedStyle(el.parentElement!.parentElement!).position),
-      )
-    expect(positions).not.toContain('sticky')
+    const frame = page.locator('#process-title').locator('xpath=../..')
+    expect(await frame.evaluate((el) => getComputedStyle(el).position)).not.toBe('sticky')
     const steps = page
       .getByRole('region', { name: 'דרך העבודה' })
       .getByRole('heading', { level: 3 })
@@ -63,7 +85,7 @@ test.describe('homepage scenes', () => {
     const context = await browser.newContext({ viewport: { width: 640, height: 400 } })
     const page = await context.newPage()
     await page.goto('/en')
-    const frame = page.locator('#hero-title').locator('xpath=../..')
+    const frame = page.locator('#process-title').locator('xpath=../..')
     expect(await frame.evaluate((el) => getComputedStyle(el).position)).not.toBe('sticky')
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth - innerWidth),

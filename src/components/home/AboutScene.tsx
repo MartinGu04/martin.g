@@ -4,24 +4,22 @@ import { Eyebrow } from '@/components/type/Eyebrow'
 import { Ltr } from '@/components/type/Ltr'
 import { Reveal } from '@/components/motion/Reveal'
 import { Scene } from '@/components/scene/Scene'
+import { worlds } from '@/content/worlds'
 import styles from './AboutScene.module.css'
 
 /**
  * Scene 09, About: the person behind the system. Warmer and calmer than everything
- * before it: a soft overhead light, no drawn grid, more air, concise text.
+ * before it: the warm register (lamplight on dark wood), no drawn grid, more air,
+ * concise text.
  */
 export function AboutScene({ copy }: { copy: HomeCopy['about'] }) {
   return (
-    <Scene
-      atmosphere={{ light: 'pool', grid: 'hidden', texture: 'grain', vignette: true }}
-      aria-labelledby="about-title"
-      className={styles.scene}
-    >
+    <Scene theme={worlds.warm} aria-labelledby="about-title" className={styles.scene}>
       <Grid className={styles.grid}>
         <Eyebrow as="h2" id="about-title" muted={false} className="col-full">
           {copy.title}
         </Eyebrow>
-        <Reveal as="p" variant="mask" className={`t-display-xl ${styles.name}`}>
+        <Reveal as="p" variant="mask" className={`t-heading-1 ${styles.name}`}>
           <Ltr>{copy.name}</Ltr>
         </Reveal>
         <p className={`t-label muted ${styles.role}`}>{copy.role}</p>

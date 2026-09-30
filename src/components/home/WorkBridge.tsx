@@ -1,36 +1,47 @@
 import type { Dictionary } from '@/i18n/dictionaries'
+import { worlds } from '@/content/worlds'
 import { Grid } from '@/components/layout/Grid'
 import { Eyebrow } from '@/components/type/Eyebrow'
-import { Reveal } from '@/components/motion/Reveal'
+import { IndexNumber } from '@/components/type/IndexNumber'
+import { Ltr } from '@/components/type/Ltr'
 import { Scene } from '@/components/scene/Scene'
-import { DepthType } from '@/components/scene/DepthType'
 import styles from './WorkBridge.module.css'
 
+export interface WorkIndexEntry {
+  /** In-page anchor of the scene that shows the work. */
+  href: `#${string}`
+  number: string
+  title: string
+}
+
 /**
- * Scene 03, the bridge: the positioning line, quieter than the statement, then the frame
- * changes register. Framing lines draw in, a huge index numeral rises behind them, and
- * the first project world begins to open over the bottom of this scene (the next scene's
- * wipe). It carries the section heading for the selected work.
+ * The bridge into the work, in a lighter graphite: the section heading between framing
+ * lines, and a compact index of what was built, so the proof is visible right after the
+ * hero. Each entry jumps to its scene; the first project world opens over the bottom of
+ * this one.
  */
-export function WorkBridge({ dict }: { dict: Dictionary }) {
+export function WorkBridge({ dict, entries }: { dict: Dictionary; entries: WorkIndexEntry[] }) {
   return (
-    <Scene
-      as="div"
-      atmosphere={{ light: 'pool', grid: 'fade', texture: 'grain' }}
-      className={styles.bridge}
-    >
-      <DepthType variant="index">01</DepthType>
+    <Scene as="div" theme={worlds.graphite} className={styles.bridge}>
       <Grid className={styles.grid}>
-        <Reveal as="p" variant="mask" className={`t-display ${styles.positioning}`}>
-          {dict.site.positioning}
-        </Reveal>
         <div className={styles.entry}>
-          <span className={styles.rule} aria-hidden="true" />
           <Eyebrow as="h2" id="work-title" index="01" muted={false} className={styles.label}>
             {dict.work.selectedTitle}
           </Eyebrow>
-          <span className={`${styles.rule} ${styles.ruleEnd}`} aria-hidden="true" />
+          <span className={styles.rule} aria-hidden="true" />
         </div>
+        <ol role="list" className={styles.index}>
+          {entries.map((entry) => (
+            <li key={entry.href}>
+              <a href={entry.href} className={styles.link}>
+                <IndexNumber value={entry.number} className="t-label muted" />
+                <span className="t-heading-3">
+                  <Ltr>{entry.title}</Ltr>
+                </span>
+              </a>
+            </li>
+          ))}
+        </ol>
       </Grid>
     </Scene>
   )

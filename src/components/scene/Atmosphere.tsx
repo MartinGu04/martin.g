@@ -19,9 +19,10 @@ interface AtmosphereProps extends AtmosphereSpec {
  * The layered background of a scene: base tone, light field, haze, grid, texture,
  * vignette and optional registration marks, back to front. Decorative and hidden from
  * assistive technology. Each layer carries data-layer (base, light, haze, grid, texture,
- * vignette, marks) so a composition can move or fade one layer with its own choreography. Every layer reads the enclosing scope's semantic colors (--text,
- * --surface-*, --light, --shade), so one spec renders correctly in any world. Place it as
- * the first child of an isolated, positioned container (<Scene> does this).
+ * vignette, marks) so a composition can move or fade one layer with its own choreography.
+ * Every layer reads the enclosing scope's semantic colors (--text, --surface-*, --light,
+ * --shade), so one spec renders correctly in any world. Place it as the first child of an
+ * isolated, positioned container (<Scene> does this).
  */
 export function Atmosphere({
   light = brandAtmosphere.light,
