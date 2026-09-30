@@ -1,0 +1,686 @@
+/*
+ * CONCEPT C · Cinematic Hybrid (temporary, review only).
+ * Monumental expanded typography inside atmospheric depth: one directional light shaft,
+ * haze, grain, vignette, a grid that is only visible where the light falls, oversized
+ * cropped type as a background layer, and a scene-scale transition into a project palette.
+ * Type: Archivo expanded 800 (display) and Archivo 400 to 600 (text) + Noto Sans Hebrew 700 to 800.
+ */
+@layer components {
+  .root {
+    --surface-0: #060606;
+    --surface-1: #111111;
+    --text: #f5f3ee;
+    --text-muted: #b3b1ac;
+    --line: rgb(255 255 255 / 0.1);
+    --line-strong: rgb(255 255 255 / 0.2);
+    --shaft: linear-gradient(
+      102deg,
+      transparent 34%,
+      rgb(255 247 236 / 0.13) 50%,
+      rgb(255 247 236 / 0.04) 60%,
+      transparent 72%
+    );
+    --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.7 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background: var(--surface-0);
+    color: var(--text);
+    font-family: var(--concept-archivo), var(--concept-hebrew), var(--font-fallback);
+    overflow: clip;
+  }
+
+  :root:lang(he) .root {
+    font-family: var(--concept-hebrew), var(--concept-archivo), var(--font-fallback);
+  }
+
+  .bannerBar {
+    border-block-end: var(--hairline) solid var(--line);
+  }
+
+  .banner {
+    padding-block: var(--space-3);
+    font-size: 0.75rem;
+    font-weight: 600;
+    font-stretch: 110%;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  /* ---------- atmosphere ---------- */
+  .atmosphere {
+    position: absolute;
+    inset: 0;
+    overflow: clip;
+    pointer-events: none;
+    background: radial-gradient(120% 90% at 70% 0%, #111, #060606 60%);
+  }
+
+  .atmosphere > * {
+    position: absolute;
+    inset: 0;
+  }
+
+  .light {
+    background: radial-gradient(48% 45% at 80% -5%, rgb(255 246 234 / 0.16), transparent 70%);
+  }
+
+  .light2 {
+    background: radial-gradient(90% 40% at 25% 115%, rgb(255 255 255 / 0.05), transparent 70%);
+  }
+
+  /* The light shaft. Mirrors in RTL through --dir. */
+  .beam {
+    inset: -20% -10%;
+    background: var(--shaft);
+    filter: blur(28px);
+    transform: scaleX(var(--dir));
+  }
+
+  .haze {
+    inset: -25%;
+    background:
+      radial-gradient(30% 25% at 30% 60%, rgb(255 255 255 / 0.035), transparent 70%),
+      radial-gradient(35% 30% at 70% 35%, rgb(255 246 234 / 0.05), transparent 70%);
+  }
+
+  .texture,
+  .marks {
+    display: none;
+  }
+
+  /* The grid is only visible where the light falls. */
+  .gridLines {
+    --line: rgb(255 255 255 / 0.11);
+    -webkit-mask-image: var(--shaft);
+    mask-image: var(--shaft);
+  }
+
+  :root[dir='rtl'] .gridLines {
+    transform: scaleX(-1);
+  }
+
+  .grain {
+    background-image: var(--grain);
+    background-size: 220px 220px;
+    opacity: 0.06;
+    mix-blend-mode: screen;
+  }
+
+  .vignette {
+    background: radial-gradient(ellipse 90% 80% at 55% 40%, transparent 45%, rgb(0 0 0 / 0.78));
+  }
+
+  /* Oversized cropped statement: a depth layer behind the hero, deliberately wider than
+     the viewport. Decorative duplicate of the readable statement. */
+  .giant {
+    position: absolute;
+    inset-inline-start: calc(var(--margin) * -0.5);
+    inset-block-end: -0.18em;
+    margin: 0;
+    font-size: clamp(8rem, 26vw, 30rem);
+    font-weight: 800;
+    font-stretch: 125%;
+    line-height: 0.8;
+    letter-spacing: -0.04em;
+    white-space: nowrap;
+    color: rgb(255 255 255 / 0.045);
+    pointer-events: none;
+  }
+
+  /* ---------- scene 1: hero ---------- */
+  .hero {
+    position: relative;
+    display: grid;
+    align-items: center;
+    min-block-size: calc(100svh - var(--header-block-size));
+    padding-block: var(--space-9) var(--space-10);
+    isolation: isolate;
+  }
+
+  .heroGrid {
+    position: relative;
+    row-gap: var(--space-7);
+  }
+
+  .wordmarkSlot {
+    grid-column: 1 / -1;
+    inline-size: clamp(15rem, 34vw, 36rem);
+    line-height: 0;
+  }
+
+  .statement {
+    grid-column: 1 / -1;
+    font-size: clamp(2.9rem, 0.4rem + 8.6vw, 10.5rem);
+    font-weight: 800;
+    font-stretch: 120%;
+    line-height: 0.9;
+    letter-spacing: -0.035em;
+  }
+
+  :root:lang(he) .statement {
+    font-size: clamp(3.4rem, 0.4rem + 10vw, 12rem);
+    letter-spacing: -0.01em;
+    line-height: 1;
+  }
+
+  .support {
+    grid-column: 1 / -1;
+    max-inline-size: 20em;
+    font-size: clamp(1.25rem, 1rem + 1vw, 2rem);
+    font-weight: 500;
+    line-height: 1.2;
+  }
+
+  .cue {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .cueLine {
+    inline-size: var(--space-8);
+    block-size: 1px;
+    background: linear-gradient(to right, var(--text), transparent);
+  }
+
+  :root[dir='rtl'] .cueLine {
+    background: linear-gradient(to left, var(--text), transparent);
+  }
+
+  @media (width >= 48rem) {
+    .support,
+    .cue {
+      grid-column: 3 / span 6;
+    }
+  }
+
+  @media (width >= 75rem) {
+    .statement {
+      grid-column: 1 / span 11;
+    }
+
+    .support,
+    .cue {
+      grid-column: 7 / span 6;
+    }
+  }
+
+  /* ---------- scene 2: scale ---------- */
+  .scale {
+    position: relative;
+    padding-block: var(--section-space);
+    isolation: isolate;
+  }
+
+  .bigIndex {
+    position: absolute;
+    inset-block-start: 4%;
+    inset-inline-end: calc(var(--margin) * -2);
+    font-size: clamp(16rem, 62vw, 60rem);
+    font-weight: 800;
+    font-stretch: 125%;
+    line-height: 0.75;
+    letter-spacing: -0.06em;
+    background: linear-gradient(to bottom, rgb(255 247 236 / 0.12), transparent 75%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    pointer-events: none;
+  }
+
+  .scaleGrid {
+    position: relative;
+    row-gap: var(--space-8);
+  }
+
+  .scaleLabel {
+    grid-column: 1 / -1;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  .lineup {
+    grid-column: 1 / -1;
+    display: grid;
+    gap: clamp(3.5rem, 7vw, 8rem);
+  }
+
+  .lineupItem {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .lineupIndex {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    color: var(--text-muted);
+  }
+
+  .lineupTitle {
+    white-space: nowrap;
+    font-size: clamp(3rem, 0.4rem + 9.4vw, 11.5rem);
+    font-weight: 800;
+    font-stretch: 122%;
+    line-height: 0.85;
+    letter-spacing: -0.045em;
+  }
+
+  .lineupSummary {
+    max-inline-size: 30rem;
+    font-size: clamp(1.1rem, 1rem + 0.45vw, 1.35rem);
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  .lineupMeta {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  @media (width >= 75rem) {
+    .lineupItem {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: var(--gutter);
+      align-items: end;
+    }
+
+    .lineupIndex {
+      grid-column: 1 / -1;
+    }
+
+    .lineupTitle {
+      grid-column: 1 / -1;
+      grid-row: 2;
+    }
+
+    .lineupSummary {
+      grid-column: 7 / span 6;
+      grid-row: 3;
+    }
+
+    .lineupMeta {
+      grid-column: 7 / span 6;
+      grid-row: 4;
+    }
+  }
+
+  /* ---------- scene 3: typography hierarchy ---------- */
+  .type {
+    padding-block: var(--section-space-sm);
+    border-block-start: var(--hairline) solid var(--line);
+  }
+
+  .sceneLabel {
+    grid-column: 1 / -1;
+    margin-block-end: var(--space-7);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .typeRow {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: subgrid;
+    row-gap: var(--space-3);
+    padding-block: var(--space-6);
+    border-block-start: var(--hairline) solid var(--line);
+  }
+
+  .roleName {
+    grid-column: 1 / -1;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .typeRow > :last-child {
+    grid-column: 1 / -1;
+  }
+
+  .sHero {
+    font-size: clamp(2.75rem, 0.5rem + 7vw, 8.5rem);
+    font-weight: 800;
+    font-stretch: 120%;
+    line-height: 0.9;
+    letter-spacing: -0.035em;
+  }
+
+  .sStatement {
+    font-size: clamp(1.75rem, 1.1rem + 2.4vw, 3.25rem);
+    font-weight: 600;
+    font-stretch: 108%;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+  }
+
+  .sProject {
+    font-size: clamp(2.75rem, 0.8rem + 6vw, 7rem);
+    font-weight: 800;
+    font-stretch: 122%;
+    line-height: 0.88;
+    letter-spacing: -0.04em;
+  }
+
+  .sBody {
+    max-inline-size: 36rem;
+    font-size: 1.125rem;
+    font-weight: 400;
+    line-height: 1.55;
+  }
+
+  .sMeta {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #d6d4cf;
+  }
+
+  .sMicro {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  @media (width >= 75rem) {
+    .roleName {
+      grid-column: 1 / span 3;
+      padding-block-start: var(--space-3);
+    }
+
+    .typeRow > :last-child {
+      grid-column: 4 / -1;
+    }
+  }
+
+  /* ---------- scene 4: scene-scale transition into a project palette ---------- */
+  .surface {
+    padding-block: var(--section-space-sm) 0;
+    border-block-start: var(--hairline) solid var(--line);
+  }
+
+  .stage {
+    position: relative;
+    margin-block-start: var(--space-7);
+    isolation: isolate;
+  }
+
+  /* Full-bleed light surface (a QA palette through ThemeScope, not a project theme). */
+  .panel {
+    position: relative;
+    padding-block: clamp(5rem, 12vw, 12rem);
+    background:
+      radial-gradient(60% 70% at 85% 0%, rgb(255 255 255 / 0.6), transparent 70%), var(--surface-0);
+  }
+
+  .panelGrid {
+    row-gap: var(--space-5);
+  }
+
+  .panelIndex,
+  .panelMeta {
+    grid-column: 1 / -1;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .panelTitle {
+    grid-column: 1 / -1;
+    white-space: nowrap;
+    font-size: clamp(6rem, 1rem + 22vw, 26rem);
+    font-weight: 800;
+    font-stretch: 125%;
+    line-height: 0.8;
+    letter-spacing: -0.06em;
+  }
+
+  .panelSummary {
+    grid-column: 1 / -1;
+    max-inline-size: 30rem;
+    font-size: clamp(1.15rem, 1rem + 0.7vw, 1.6rem);
+    font-weight: 500;
+    line-height: 1.3;
+  }
+
+  @media (width >= 75rem) {
+    .panelSummary {
+      grid-column: 7 / span 6;
+    }
+
+    .panelMeta {
+      grid-column: 7 / span 6;
+    }
+  }
+
+  /* ---------- scene 5: material ---------- */
+  .material {
+    padding-block: var(--section-space-sm) var(--section-space);
+  }
+
+  .tiles {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--gutter);
+  }
+
+  @media (width >= 48rem) {
+    .tiles {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+  }
+
+  .tile {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .tileArt {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    overflow: clip;
+    background: #060606;
+    box-shadow: inset 0 0 0 1px var(--line);
+  }
+
+  .tile_base {
+    background: radial-gradient(120% 90% at 70% 0%, #1c1c1c, #060606 60%);
+  }
+
+  .tile_light {
+    background:
+      linear-gradient(
+        102deg,
+        transparent 30%,
+        rgb(255 247 236 / 0.35) 50%,
+        rgb(255 247 236 / 0.08) 62%,
+        transparent 75%
+      ),
+      #060606;
+  }
+
+  .tile_grain {
+    background:
+      var(--grain) 0 0 / 220px 220px,
+      #060606;
+    background-blend-mode: screen;
+  }
+
+  .tile_vignette {
+    background: radial-gradient(ellipse 90% 80% at 55% 40%, #2a2a2a 25%, #000);
+  }
+
+  .tileGrid {
+    --line: rgb(255 255 255 / 0.25);
+    -webkit-mask-image: var(--shaft);
+    mask-image: var(--shaft);
+  }
+
+  .tileLabel {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  /* Hebrew: no uppercase, no tracking on labels. */
+  :root:lang(he)
+    :is(
+      .banner,
+      .cue,
+      .scaleLabel,
+      .lineupIndex,
+      .lineupMeta,
+      .sceneLabel,
+      .roleName,
+      .sMeta,
+      .sMicro,
+      .panelIndex,
+      .panelMeta,
+      .tileLabel
+    ) {
+    letter-spacing: 0;
+    text-transform: none;
+    font-size: 0.875rem;
+  }
+
+  :root:lang(he) :is(.lineupTitle, .sHero, .sProject, .panelTitle) {
+    letter-spacing: -0.01em;
+    line-height: 0.98;
+  }
+
+  /* ---------- motion ---------- */
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    .statement {
+      animation: c-mask 1.4s var(--ease-mask) 0.2s both;
+    }
+
+    .wordmarkSlot {
+      animation: c-fade 1.6s var(--ease-out) both;
+    }
+
+    .beam {
+      animation: c-light 2.4s var(--ease-out) both;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .haze {
+      animation: c-drift 48s ease-in-out infinite alternate;
+    }
+
+    @supports (animation-timeline: view()) {
+      .giant {
+        animation: c-pan linear both;
+        animation-timeline: view();
+        animation-range: exit 0% exit 100%;
+      }
+
+      .bigIndex {
+        animation: c-depth linear both;
+        animation-timeline: view();
+        animation-range: cover;
+      }
+
+      .lineupTitle {
+        animation: c-rise linear both;
+        animation-timeline: view();
+        animation-range: entry 0% cover 35%;
+      }
+
+      .panel {
+        animation: c-wipe linear both;
+        animation-timeline: view();
+        animation-range: entry 0% cover 50%;
+      }
+    }
+  }
+
+  @keyframes c-mask {
+    from {
+      clip-path: inset(0 100% 0 0);
+    }
+
+    to {
+      clip-path: inset(-0.1em -0.1em -0.1em 0);
+    }
+  }
+
+  @keyframes c-fade {
+    from {
+      opacity: 0;
+      transform: scale(0.98);
+    }
+  }
+
+  @keyframes c-light {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes c-drift {
+    from {
+      transform: translate3d(-3%, 0, 0);
+    }
+
+    to {
+      transform: translate3d(4%, -2%, 0);
+    }
+  }
+
+  @keyframes c-pan {
+    to {
+      transform: translate3d(calc(-18% * var(--dir)), 0, 0);
+    }
+  }
+
+  @keyframes c-depth {
+    from {
+      transform: translate3d(0, 20%, 0) scale(0.96);
+    }
+
+    to {
+      transform: translate3d(0, -20%, 0) scale(1.02);
+    }
+  }
+
+  @keyframes c-rise {
+    from {
+      opacity: 0.1;
+      transform: translate3d(0, 0.35em, 0);
+    }
+  }
+
+  /* Scene-scale transition: the project palette opens from a narrow band to full bleed. */
+  @keyframes c-wipe {
+    from {
+      clip-path: inset(18% 12% 18% 12%);
+    }
+
+    to {
+      clip-path: inset(0);
+    }
+  }
+}

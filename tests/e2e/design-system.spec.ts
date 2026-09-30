@@ -1,3 +1,4 @@
+import AxeBuilder from '@axe-core/playwright'
 import { expect, test, type Page } from '@playwright/test'
 
 const localePages = ['/en', '/he', '/en/work/on', '/he/work/on', '/en/system', '/he/system']
@@ -217,4 +218,28 @@ test.describe('typography and specimen', () => {
     const sitemap = await (await request.get('/sitemap.xml')).text()
     expect(sitemap).not.toContain('/system')
   })
+})
+
+// TEMPORARY: art-direction concepts under review. Remove with the concept routes.
+test.describe('art-direction concepts', () => {
+  const conceptPages = ['a', 'b', 'c'].flatMap((key) => [
+    `/en/system/concepts/${key}`,
+    `/he/system/concepts/${key}`,
+  ])
+
+  for (const url of conceptPages) {
+    test(`concept is accessible, noindex and reflows: ${url}`, async ({ page }) => {
+      await page.goto(url)
+      await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/)
+      await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1)
+      const results = await new AxeBuilder({ page })
+        .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+        .analyze()
+      expect(results.violations.map((v) => `${v.id}: ${v.help}`)).toEqual([])
+      for (const width of [1920, 1440, 820, 390, 320]) {
+        await page.setViewportSize({ width, height: 900 })
+        expect(await horizontalOverflow(page), `${url} at ${width}px`).toBeLessThanOrEqual(0)
+      }
+    })
+  }
 })

@@ -272,6 +272,9 @@ export function runSource(root, env = process.env) {
         )
       continue
     }
+    // Compressed font binaries are not text: decoding them as UTF-8 yields arbitrary code
+    // points. Their bytes are still scanned by leak-check (files/build modes).
+    if (['.woff2', '.woff', '.ttf', '.otf'].includes(ext)) continue
     const source = readFileSync(file, 'utf8')
     if (ext === '.css') report(file, checkCss(source))
     if (ext === '.tsx' || ext === '.ts') report(file, checkJsx(source))
