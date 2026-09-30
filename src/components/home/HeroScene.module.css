@@ -31,6 +31,11 @@
     gap: var(--space-1);
   }
 
+  /* The name a quarter above heading 3: clearly the person, still below mark and principle. */
+  .name {
+    --heading-3-size: calc(var(--step-2) * 1.25);
+  }
+
   .positioning {
     grid-column: 1 / -1;
     grid-row: 4;

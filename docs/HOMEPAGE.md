@@ -143,7 +143,8 @@ start (right in Hebrew); the identity signature at the inline end. Project names
 
 ## Copy
 
-New homepage copy (How I work, Capabilities, About, Contact) is proposed, not approved:
-`src/i18n/dictionaries/home.ts` is marked `draft` in both locales, so a Vercel production
-build refuses it until Martin approves it. Hebrew is a natural equivalent (infinitives and
-plural address rather than gendered first person), for Martin to confirm.
+The homepage copy (How I work, Capabilities, About, Contact) lives in
+`src/i18n/dictionaries/home.ts` and is approved by Martin in both locales. It keeps its own
+review state: marking either locale `draft` again makes the release gate refuse a Vercel
+production build. Hebrew is a natural equivalent (infinitives and plural address rather
+than gendered first person), not a literal translation.

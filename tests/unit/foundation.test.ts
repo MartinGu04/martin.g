@@ -60,7 +60,7 @@ describe('metadata', () => {
   it('builds canonical and hreflang alternates', () => {
     expect(localeAlternates('he', '/work/on')).toEqual({
       canonical: '/he/work/on',
-      languages: { en: '/en/work/on', he: '/he/work/on', 'x-default': '/en/work/on' },
+      languages: { en: '/en/work/on', he: '/he/work/on', 'x-default': '/he/work/on' },
     })
   })
 })
@@ -68,9 +68,8 @@ describe('metadata', () => {
 describe('release gate', () => {
   afterEach(() => vi.unstubAllEnvs())
 
-  it('lists exactly the proposed Phase 3 homepage copy as draft, nothing else', () => {
-    // Approving the homepage copy (src/i18n/dictionaries/home.ts) empties this list.
-    expect(findDraftCopy()).toEqual(['home:en', 'home:he'])
+  it('finds no draft copy: everything published is approved', () => {
+    expect(findDraftCopy()).toEqual([])
   })
 
   it('refuses synthetic draft copy in Vercel production builds only', () => {

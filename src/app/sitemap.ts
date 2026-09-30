@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next'
-import { locales } from '@/i18n/config'
+import { defaultLocale, locales } from '@/i18n/config'
 import { getPublicProjects } from '@/content/registry'
 import { siteUrl } from '@/lib/site'
 
@@ -11,9 +11,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     locales.map((locale) => ({
       url: new URL(`/${locale}${path}`, base).toString(),
       alternates: {
-        languages: Object.fromEntries(
-          locales.map((l) => [l, new URL(`/${l}${path}`, base).toString()]),
-        ),
+        languages: Object.fromEntries([
+          ...locales.map((l) => [l, new URL(`/${l}${path}`, base).toString()]),
+          ['x-default', new URL(`/${defaultLocale}${path}`, base).toString()],
+        ]),
       },
     })),
   )

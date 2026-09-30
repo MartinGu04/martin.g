@@ -4,7 +4,8 @@ import { directionOf, isLocale, locales } from '@/i18n/config'
 import { dictionaries } from '@/i18n/dictionaries'
 import { notFoundCopy } from '@/i18n/dictionaries/not-found'
 import { format } from '@/i18n/get-dictionary'
-import { localeFromPathname, negotiateLocale, parseAcceptLanguage } from '@/i18n/negotiate'
+import { defaultLocale, localeCookie } from '@/i18n/config'
+import { localeFromPathname, negotiateLocale } from '@/i18n/negotiate'
 
 function shape(value: unknown, prefix = ''): string[] {
   if (typeof value !== 'object' || value === null) return [prefix]
@@ -31,22 +32,17 @@ describe('locale config', () => {
 })
 
 describe('negotiation', () => {
-  it('prefers the cookie, then Accept-Language, then English', () => {
-    expect(negotiateLocale({ cookie: 'he', acceptLanguage: 'en-US' })).toBe('he')
-    expect(negotiateLocale({ cookie: 'xx', acceptLanguage: 'he-IL,he;q=0.9' })).toBe('he')
-    expect(negotiateLocale({ acceptLanguage: 'fr-FR,fr;q=0.9' })).toBe('en')
-    expect(negotiateLocale({})).toBe('en')
+  it('defaults to Hebrew', () => {
+    expect(defaultLocale).toBe('he')
+    expect(localeCookie).toBe('NEXT_LOCALE')
+    expect(negotiateLocale({})).toBe('he')
   })
 
-  it('respects quality values and the legacy iw code', () => {
-    expect(negotiateLocale({ acceptLanguage: 'en;q=0.5, he;q=0.8' })).toBe('he')
-    expect(negotiateLocale({ acceptLanguage: 'iw' })).toBe('he')
-    expect(negotiateLocale({ acceptLanguage: 'fr, en;q=0.1' })).toBe('en')
-    expect(negotiateLocale({ acceptLanguage: 'he;q=0' })).toBe('en')
-  })
-
-  it('parses malformed headers safely', () => {
-    expect(parseAcceptLanguage(',,; q=abc')).toEqual([])
+  it('honours an explicit choice and ignores invalid cookies', () => {
+    expect(negotiateLocale({ cookie: 'en' })).toBe('en')
+    expect(negotiateLocale({ cookie: 'he' })).toBe('he')
+    expect(negotiateLocale({ cookie: 'xx' })).toBe('he')
+    expect(negotiateLocale({ cookie: '' })).toBe('he')
   })
 
   it('reads the locale prefix of a path', () => {

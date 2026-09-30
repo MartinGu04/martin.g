@@ -1,16 +1,16 @@
 import type { Localized, ReviewStatus } from '../config'
 
 /**
- * PROPOSED homepage copy (Phase 3), awaiting Martin's review in both locales. Kept out of
- * the approved dictionaries so nothing here is approved silently: while either locale is
- * 'draft', the release gate (src/i18n/release-gate.ts) refuses a Vercel production build.
+ * Homepage copy (Phase 3), reviewed and approved by Martin in both locales. It stays in
+ * its own module with its own review state: setting either locale back to 'draft' makes
+ * the release gate (src/i18n/release-gate.ts) refuse a Vercel production build again.
  *
  * Hebrew is a natural equivalent, not a literal translation. It avoids gendered first
- * person forms (infinitives and plural address instead), which Martin should confirm.
+ * person forms (infinitives and plural address instead).
  */
 export const homeReview: Localized<ReviewStatus> = {
-  en: 'draft',
-  he: 'draft',
+  en: 'approved',
+  he: 'approved',
 }
 
 export type ProcessStepKey = 'understand' | 'define' | 'design' | 'build' | 'refine'
@@ -55,7 +55,7 @@ export const homeCopy: Localized<HomeCopy> = {
       role: 'Product Builder',
       lines: [
         'I find the problem worth solving, define the useful answer, and design and build the product end to end.',
-        'Strategy, design and engineering in one pair of hands, so nothing is lost between them.',
+        'Strategy, design and engineering carried through as one process, so nothing gets lost along the way.',
       ],
     },
     contact: {
@@ -70,8 +70,8 @@ export const homeCopy: Localized<HomeCopy> = {
         understand: { word: 'להבין', line: 'למצוא את הבעיה האמיתית, לפני המסך הראשון.' },
         define: { word: 'להגדיר', line: 'להחליט מה שווה לבנות, ומה לא.' },
         design: { word: 'לעצב', line: 'להתאים את המוצר לאופן שבו ישתמשו בו באמת.' },
-        build: { word: 'לבנות', line: 'להנדס אותו מקצה לקצה, מוכן לשימוש אמיתי.' },
-        refine: { word: 'לשפר', line: 'ללמוד מהשימוש בו, ולשפר.' },
+        build: { word: 'לבנות', line: 'להפוך את התכנון למוצר שלם, מוכן לשימוש אמיתי.' },
+        refine: { word: 'לשפר', line: 'ללמוד מהשימוש האמיתי, ואז לדייק.' },
       },
     },
     capabilities: {
@@ -83,13 +83,13 @@ export const homeCopy: Localized<HomeCopy> = {
       name: 'Martin Gusin',
       role: 'בונה מוצרים',
       lines: [
-        'לאתר את הבעיה ששווה לפתור, להגדיר את הפתרון המועיל, ולעצב ולבנות את המוצר מקצה לקצה.',
-        'אסטרטגיה, עיצוב והנדסה באותן ידיים, כך ששום דבר לא הולך לאיבוד ביניהם.',
+        'לזהות את הבעיה ששווה לפתור, להגדיר את הפתרון הנכון, ולעצב ולבנות את המוצר מקצה לקצה.',
+        'אסטרטגיה, עיצוב והנדסה בתהליך אחד, כך ששום דבר לא הולך לאיבוד בדרך.',
       ],
     },
     contact: {
       title: 'יש בעיה ששווה לפתור?',
-      line: 'בואו נבנה משהו מועיל.',
+      line: 'בואו נבנה משהו שעובד.',
     },
   },
 }

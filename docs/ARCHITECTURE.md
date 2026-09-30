@@ -38,8 +38,11 @@ tests/e2e                  Playwright (routing, direction, axe, confidential, br
 ## Locales
 
 - Both locales are prefixed: `/en/...`, `/he/...`. Slugs are shared ASCII.
-- `/` and unprefixed paths redirect (307) by `NEXT_LOCALE` cookie, then `Accept-Language`
-  (`he`/`iw` → `he`), then `en`.
+- Hebrew is the default locale. `/` and unprefixed paths redirect (307, `Vary: Cookie`) in
+  `src/proxy.ts`, before anything renders: to the `NEXT_LOCALE` cookie's locale if the
+  visitor chose one with the language switch, otherwise to `/he`. The browser language is
+  not consulted. Prefixed paths pass through, so there is no redirect loop.
+- `x-default` hreflang (page metadata and sitemap) points to the Hebrew URL.
 - `dynamicParams = false` everywhere: unknown locales and slugs are 404s.
 - Dictionaries: `en.ts` is the shape; `he.ts` is typed against it.
 - Bidi: numerals, brand and project names, and Latin terms inside Hebrew are isolated with
