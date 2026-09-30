@@ -39,6 +39,32 @@ jobs:
           PR_BODY: ${{ github.event.pull_request.body }}
         run: node scripts/leak-check.mjs env PR_TITLE PR_BODY
 
+  windows:
+    name: Windows leak-check and build
+    runs-on: windows-latest
+    env:
+      LEAK_CHECK_TERMS_B64: ${{ secrets.LEAK_CHECK_TERMS_B64 }}
+      NEXT_TELEMETRY_DISABLED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # Includes binary-scanning regressions: unaligned views, odd lengths, chunk
+      # boundaries, and a 64 MB binary scanned within a 64 MB JS heap.
+      - run: pnpm exec vitest run tests/unit/leak-check.test.ts tests/unit/leak-check-binary.test.ts
+      # next build, then the build-output leak check, then the built-HTML policy check.
+      - run: pnpm build
+      - name: Build-output leak check (explicit, with exit code)
+        shell: pwsh
+        run: |
+          node scripts/leak-check.mjs build
+          Write-Output "leak-check build exit code: $LASTEXITCODE"
+          exit $LASTEXITCODE
+
   verify:
     name: Typecheck, lint, test, build, e2e
     runs-on: ubuntu-latest

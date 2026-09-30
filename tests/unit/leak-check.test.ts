@@ -3,10 +3,8 @@
  * Never put a real confidential term in a test, fixture, snapshot or file name.
  */
 import { spawnSync } from 'node:child_process'
-import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs'
-import { tmpdir } from 'node:os'
+import { mkdirSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import {
   ConfigError,
@@ -18,14 +16,7 @@ import {
   normalize,
   redactPath,
 } from '../../scripts/leak-check.mjs'
-
-const SCRIPT = fileURLToPath(new URL('../../scripts/leak-check.mjs', import.meta.url))
-
-const LATIN = 'Zephyrquill Nimbex'
-const HEBREW = 'גלזברנוף' // ends in a final letter on purpose
-const TERMS = [LATIN, HEBREW]
-const encode = (terms: string[]) => Buffer.from(terms.join('\n'), 'utf8').toString('base64')
-const B64 = encode(TERMS)
+import { B64, HEBREW, LATIN, TERMS, cli, encode, tempDir } from '../support/leak-check'
 
 const matcher = createMatcher(TERMS)
 const hits = (text: string) => matcher.matchText(text)
@@ -33,28 +24,6 @@ const bufferHits = (buffer: Buffer) => matcher.matchBuffer(buffer)
 
 const jsEscape = (s: string) =>
   [...s].map((c) => `\\u${c.codePointAt(0)!.toString(16).padStart(4, '0')}`).join('')
-
-function tempDir() {
-  return mkdtempSync(path.join(tmpdir(), 'leak-check-'))
-}
-
-function cli(
-  args: string[],
-  opts: { cwd?: string; env?: Record<string, string>; input?: string } = {},
-) {
-  const result = spawnSync(process.execPath, [SCRIPT, ...args], {
-    cwd: opts.cwd ?? process.cwd(),
-    env: {
-      NODE_ENV: 'test',
-      PATH: process.env.PATH ?? '',
-      HOME: process.env.HOME ?? '',
-      ...opts.env,
-    },
-    input: opts.input,
-    encoding: 'utf8',
-  })
-  return { status: result.status, output: `${result.stdout}${result.stderr}` }
-}
 
 function expectNoTermInOutput(output: string) {
   for (const term of TERMS) {
@@ -130,7 +99,7 @@ describe('normalization', () => {
   it('ignores case, diacritics, niqqud, final letters and invisible characters', () => {
     expect(hits('ZEPHYRQUILL NIMBEX')).toEqual([1])
     expect(hits('Zéphyrquill Nïmbex')).toEqual([1])
-    expect(hits('Zephyr​quill Nimbex')).toEqual([1])
+    expect(hits(`Zephyr${String.fromCodePoint(0x200b)}quill Nimbex`)).toEqual([1])
     expect(hits('גְּלַזְבְּרָנוֹף')).toEqual([2])
     expect(hits('הגלזברנופים')).toEqual([2])
   })

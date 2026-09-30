@@ -1,0 +1,15 @@
+# Normalize text to LF on every platform. Git hooks are shell scripts and must never be
+# checked out with CRLF (Windows core.autocrlf would otherwise break them).
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.avif binary
+*.gif binary
+*.ico binary
+*.mp4 binary
+*.webm binary
+*.woff binary
+*.woff2 binary

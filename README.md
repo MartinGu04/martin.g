@@ -51,15 +51,26 @@ Enforcement is layered:
    - Git hooks: `pre-commit` (staged content, staged paths, branch name), `commit-msg`,
      `pre-push` (pushed refs and every object in the local Git database)
    - GitHub Actions: tracked files, full history, commit messages, ref names, PR title and body
-   - Vercel build: `.next` output and `public/`; a finding fails the deployment
+   - Vercel build: `.next` output (except the never-deployed `.next/cache` and
+     `.next/dev/cache`) and `public/`; a finding fails the deployment
 4. **Policy checks** (`scripts/lint-policy.mjs`): no `NEXT_PUBLIC_` variables, production
    browser source maps stay disabled, no editor metadata in SVGs, no EXIF/XMP/text
    metadata in images, and app code never references the blocklist variable.
 
-The check normalizes case, diacritics, Hebrew niqqud and final letters, removes invisible
-characters, matches separator variants (`foo bar`, `foo-bar`, `FooBar`), and decodes JS
-escapes, HTML entities, percent-encoding and UTF-16 in binaries. Output never contains a
-term: findings name the term's number and a location with matching path segments redacted.
+Content is handled in two ways:
+
+- **Text-like content** (valid UTF-8 without NUL bytes: HTML, JS, CSS, JSON, RSC payloads,
+  manifests, SVG, commit messages) is normalized for case, diacritics, Hebrew niqqud and
+  final letters, and invisible characters, matched with separator variants (`foo bar`,
+  `foo-bar`, `FooBar`), and decoded for JS escapes, HTML entities and percent-encoding.
+- **Arbitrary binary content** (images, fonts, caches, Git trees) is never converted to a
+  string. Each term is pre-encoded as UTF-8, UTF-16LE and UTF-16BE byte patterns (composed,
+  decomposed, niqqud-free, final-letter, case and separator forms) and matched byte-level,
+  which also covers text metadata inside images and documents. Files above 32 MB are
+  matched in overlapping chunks with bounded memory.
+
+Output never contains a term: findings name the term's number and a location with matching
+path segments redacted.
 
 It **fails closed** in CI and on Vercel when the variable is missing. Locally it fails too,
 unless you set `LEAK_CHECK_ALLOW_UNCONFIGURED=1` for a single command.

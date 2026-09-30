@@ -14,6 +14,7 @@
  *   svg-hygiene      SVGs carry no editor metadata or layer names
  *   image-metadata   raster images carry no EXIF/XMP/IPTC/text metadata
  *   hooks            locally, core.hooksPath points at .githooks
+ *   invisible-chars  no raw zero-width or bidi control characters in source (Trojan Source)
  */
 import { spawnSync } from 'node:child_process'
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
@@ -89,6 +90,35 @@ export function checkNextPublic(source) {
         line: i + 1,
         rule: 'no-next-public',
         message: 'NEXT_PUBLIC_ variables are not allowed',
+      })
+    }
+  })
+  return problems
+}
+
+// Built from code points so this file never contains the characters it forbids.
+const INVISIBLE_CHARS = new RegExp(
+  `[${[
+    [0xad, 0xad],
+    [0x200b, 0x200f],
+    [0x202a, 0x202e],
+    [0x2060, 0x2064],
+    [0x2066, 0x2069],
+    [0xfeff, 0xfeff],
+  ]
+    .map(([a, b]) => `${String.fromCodePoint(a)}-${String.fromCodePoint(b)}`)
+    .join('')}]`,
+  'u',
+)
+
+export function checkInvisibleChars(source) {
+  const problems = []
+  source.split('\n').forEach((text, i) => {
+    if (INVISIBLE_CHARS.test(text)) {
+      problems.push({
+        line: i + 1,
+        rule: 'invisible-chars',
+        message: 'use escapes or code points instead of raw invisible or bidi control characters',
       })
     }
   })
@@ -249,6 +279,13 @@ export function runSource(root, env = process.env) {
     report(file, checkEmDash(source))
     report(file, checkNextPublic(source))
     report(file, checkBlocklistVar(source))
+    report(file, checkInvisibleChars(source))
+  }
+
+  for (const dir of ['scripts', 'tests', 'docs', '.githooks', '.github']) {
+    for (const file of walk(path.join(root, dir))) {
+      report(file, checkInvisibleChars(readFileSync(file, 'utf8')))
+    }
   }
 
   for (const file of walk(path.join(root, 'public'))) {

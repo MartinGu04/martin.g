@@ -19,7 +19,8 @@
  *                       messages, tags) plus all ref and branch names
  *   refs                ref and branch names only (includes CI branch variables)
  *   env <VAR...>        values of the named environment variables (e.g. PR title/body)
- *   build               Next build output (.next, excluding cache), public/, .vercel/output
+ *   build               Next build output (.next, excluding the never-deployed caches
+ *                       .next/cache and .next/dev/cache), public/, .vercel/output
  *   dir <path...>       any directories or files
  *   encode              read terms from stdin, print the base64 value to configure
  *
@@ -28,10 +29,26 @@
  * and "FooBar"). Prefix a term with "=" to disable that for a term that causes false
  * positives. Terms must have at least 3 characters.
  *
+ * Content: text-like content (valid UTF-8 without NUL bytes: HTML, JS, CSS, JSON, RSC,
+ * manifests, SVG, commit messages) is normalized and decoded (JS escapes, HTML entities,
+ * percent-encoding) before matching. Arbitrary binary content is never converted to a
+ * string: each term is pre-encoded as UTF-8, UTF-16LE and UTF-16BE byte patterns (with
+ * composed/decomposed, niqqud-free, final-letter, case and separator variants) and matched
+ * byte-level. Files above 32 MB are matched byte-level in overlapping chunks.
+ *
  * Exit codes: 0 clean, 1 findings, 2 configuration error.
  */
+import { isUtf8 } from 'node:buffer'
 import { execFileSync, spawnSync } from 'node:child_process'
-import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
+import {
+  closeSync,
+  existsSync,
+  openSync,
+  readFileSync,
+  readSync,
+  readdirSync,
+  statSync,
+} from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
@@ -39,7 +56,10 @@ import { fileURLToPath } from 'node:url'
 export const TERMS_VAR = 'LEAK_CHECK_TERMS_B64'
 const MIN_TERM_LENGTH = 3
 const MIN_COLLAPSED_LENGTH = 4
-const MAX_FILE_BYTES = 512 * 1024 * 1024
+// Files up to this size are classified and, if text-like, fully normalized and decoded.
+const TEXT_SCAN_LIMIT_BYTES = 32 * 1024 * 1024
+// Larger files are matched byte-level in chunks of this size.
+const CHUNK_BYTES = 8 * 1024 * 1024
 
 /* ------------------------------------------------------------------ */
 /* Configuration                                                       */
@@ -105,8 +125,20 @@ export function loadTerms({ env = process.env, root = process.cwd() } = {}) {
 /* ------------------------------------------------------------------ */
 
 const HEBREW_FINALS = { ך: 'כ', ם: 'מ', ן: 'נ', ף: 'פ', ץ: 'צ' }
-// Zero-width and bidi control characters can split a term invisibly.
-const INVISIBLES = /[­​-‏‪-‮⁠-⁤⁦-⁩﻿]/g
+// Zero-width and bidi control characters can split a term invisibly. Built from code points
+// so this source file never contains the invisible characters themselves.
+const INVISIBLE_RANGES = [
+  [0xad, 0xad],
+  [0x200b, 0x200f],
+  [0x202a, 0x202e],
+  [0x2060, 0x2064],
+  [0x2066, 0x2069],
+  [0xfeff, 0xfeff],
+]
+const INVISIBLES = new RegExp(
+  `[${INVISIBLE_RANGES.map(([a, b]) => `${String.fromCodePoint(a)}-${String.fromCodePoint(b)}`).join('')}]`,
+  'gu',
+)
 
 /** Case, compatibility forms, diacritics, niqqud and Hebrew final letters are ignored. */
 export function normalize(text) {
@@ -170,26 +202,131 @@ export function decodeAll(text) {
   return current
 }
 
-function isBinary(buffer) {
-  const sample = buffer.subarray(0, 8000)
-  return sample.includes(0)
+/* ------------------------------------------------------------------ */
+/* Content classification                                              */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Text-like content (HTML, JS, CSS, JSON, RSC payloads, manifests, SVG, commit messages...)
+ * is valid UTF-8 without NUL bytes. Both checks run natively on the bytes, without decoding.
+ * Everything else is treated as arbitrary binary and is never converted to a string.
+ */
+export function isTextContent(buffer) {
+  return !buffer.includes(0) && isUtf8(buffer)
 }
 
-/** Text views of a buffer: UTF-8 (raw and decoded), plus UTF-16 for binaries. */
-export function textViews(buffer) {
-  const utf8 = buffer.toString('utf8')
-  const views = [utf8]
-  const decoded = decodeAll(utf8)
-  if (decoded !== utf8) views.push(decoded)
-  if (isBinary(buffer)) {
-    views.push(buffer.toString('utf16le'))
-    const swapped = Buffer.from(buffer.subarray(0, buffer.length - (buffer.length % 2)))
-    swapped.swap16()
-    views.push(swapped.toString('utf16le'))
-    // Offset by one byte to catch UTF-16 strings starting at odd offsets.
-    views.push(buffer.subarray(1).toString('utf16le'))
+/* ------------------------------------------------------------------ */
+/* Byte-level patterns for binary content                              */
+/* ------------------------------------------------------------------ */
+
+const SEPARATOR_JOINS = ['', ' ', '-', '_', '.']
+const utf8Encoder = new TextEncoder()
+
+const isAsciiLetter = (unit) => (unit >= 0x41 && unit <= 0x5a) || (unit >= 0x61 && unit <= 0x7a)
+const stripMarks = (s) => s.normalize('NFKD').replace(/\p{M}/gu, '').normalize('NFC')
+const regularFinals = (s) => s.replace(/[ךםןףץ]/g, (c) => HEBREW_FINALS[c])
+
+/**
+ * Surface forms a term can take inside binary content: composed and decomposed Unicode,
+ * without diacritics or niqqud, Hebrew final letters as regular letters (so suffixed
+ * forms match), upper and lower case, and, unless exact-only, words joined by common
+ * separators. ASCII case is also folded during matching, which covers camelCase.
+ */
+export function termForms(term, { separators }) {
+  const forms = new Set()
+  for (const base of [term.normalize('NFC'), term.normalize('NFD'), stripMarks(term)]) {
+    for (const form of [base, regularFinals(base)]) {
+      forms.add(form)
+      forms.add(form.toLowerCase())
+      forms.add(form.toUpperCase())
+    }
   }
-  return views
+  if (separators) {
+    for (const form of [...forms]) {
+      const words = form.split(/[^\p{L}\p{N}\p{M}]+/u).filter(Boolean)
+      if (words.length > 1) for (const join of SEPARATOR_JOINS) forms.add(words.join(join))
+    }
+  }
+  return [...forms].filter((f) => f.length > 0)
+}
+
+const BACKSLASH = String.fromCharCode(0x5c)
+const hex = (n, width) => n.toString(16).padStart(width, '0')
+
+/**
+ * Escaped spellings of a form that can appear inside binaries (URLs in metadata, embedded
+ * scripts or markup): percent-encoding, JS unicode escapes and HTML numeric entities for
+ * non-ASCII characters. Matched as ASCII bytes; hex case is folded during matching.
+ */
+export function escapedForms(form) {
+  const escape = (fn) => [...form].map((ch) => (ch.codePointAt(0) > 0x7f ? fn(ch) : ch)).join('')
+  const forms = new Set([
+    encodeURIComponent(form),
+    // Every UTF-16 unit is escaped, so characters outside the BMP become surrogate pairs.
+    escape((ch) =>
+      Array.from({ length: ch.length }, (_, k) => `${BACKSLASH}u${hex(ch.charCodeAt(k), 4)}`).join(
+        '',
+      ),
+    ),
+    escape((ch) => `&#x${hex(ch.codePointAt(0), 1)};`),
+    escape((ch) => `&#${ch.codePointAt(0)};`),
+  ])
+  forms.delete(form)
+  return [...forms]
+}
+
+/**
+ * Encodes one short term form as bytes, with an alternate byte per position for ASCII
+ * letters (case folding). Only the term is encoded here; scanned content never is.
+ * @param {string} form @param {'utf8' | 'utf16le' | 'utf16be'} encoding
+ */
+export function encodePattern(form, encoding) {
+  /** @type {[number, boolean][]} */
+  const units = []
+  if (encoding === 'utf8') {
+    for (const ch of form) {
+      const bytes = utf8Encoder.encode(ch)
+      const fold = bytes.length === 1 && isAsciiLetter(bytes[0])
+      for (const b of bytes) units.push([b, fold])
+    }
+  } else {
+    for (let i = 0; i < form.length; i++) {
+      const unit = form.charCodeAt(i)
+      const low = /** @type {[number, boolean]} */ ([unit & 0xff, isAsciiLetter(unit)])
+      const high = /** @type {[number, boolean]} */ ([unit >> 8, false])
+      if (encoding === 'utf16le') units.push(low, high)
+      else units.push(high, low)
+    }
+  }
+  return {
+    bytes: Uint8Array.from(units, ([b]) => b),
+    alt: Uint8Array.from(units, ([b, fold]) => (fold ? b ^ 0x20 : b)),
+  }
+}
+
+/**
+ * Searches bytes for a pattern, with ASCII case folding. Read-only: the haystack is never
+ * decoded, copied or mutated, and alignment does not matter. Candidate positions come from
+ * native single-byte indexOf, each advanced at most once past every position.
+ * @param {Uint8Array} haystack @param {{ bytes: Uint8Array, alt: Uint8Array }} pattern
+ */
+export function containsPattern(haystack, { bytes, alt }) {
+  const m = bytes.length
+  const last = haystack.length - m
+  if (m === 0 || last < 0) return false
+  const first = bytes[0]
+  const firstAlt = alt[0]
+  let nextFirst = haystack.indexOf(first, 0)
+  let nextAlt = firstAlt === first ? -1 : haystack.indexOf(firstAlt, 0)
+  for (;;) {
+    const i = nextFirst === -1 ? nextAlt : nextAlt === -1 ? nextFirst : Math.min(nextFirst, nextAlt)
+    if (i === -1 || i > last) return false
+    let j = 1
+    while (j < m && (haystack[i + j] === bytes[j] || haystack[i + j] === alt[j])) j++
+    if (j === m) return true
+    if (i === nextFirst) nextFirst = haystack.indexOf(first, i + 1)
+    if (i === nextAlt) nextAlt = haystack.indexOf(firstAlt, i + 1)
+  }
 }
 
 /* ------------------------------------------------------------------ */
@@ -202,13 +339,33 @@ export function createMatcher(terms) {
     const exactOnly = raw.startsWith('=')
     const term = exactOnly ? raw.slice(1) : raw
     const collapsed = collapse(term)
+    const separators = !exactOnly && collapsed.length >= MIN_COLLAPSED_LENGTH
+    const seen = new Set()
+    const patterns = []
+    const addPattern = (pattern) => {
+      const key = `${pattern.bytes.join(',')}|${pattern.alt.join(',')}`
+      if (seen.has(key)) return
+      seen.add(key)
+      patterns.push(pattern)
+    }
+    for (const form of termForms(term, { separators })) {
+      for (const encoding of /** @type {const} */ (['utf8', 'utf16le', 'utf16be'])) {
+        addPattern(encodePattern(form, encoding))
+      }
+      for (const escaped of escapedForms(form)) addPattern(encodePattern(escaped, 'utf8'))
+    }
     return {
       id: i + 1,
       normalized: normalize(term),
-      collapsed: !exactOnly && collapsed.length >= MIN_COLLAPSED_LENGTH ? collapsed : null,
+      collapsed: separators ? collapsed : null,
+      patterns,
     }
   })
   const needsCollapse = prepared.some((p) => p.collapsed)
+  const maxPatternLength = Math.max(
+    1,
+    ...prepared.flatMap((p) => p.patterns.map((pattern) => pattern.bytes.length)),
+  )
 
   /** Matches one already-decoded view. */
   function matchView(text) {
@@ -238,12 +395,57 @@ export function createMatcher(terms) {
     return union(decoded === text ? [text] : [text, decoded])
   }
 
-  /** @param {Buffer} buffer */
-  function matchBuffer(buffer) {
-    return union(textViews(buffer))
+  /** Byte-level matching for arbitrary binary content (UTF-8, UTF-16LE, UTF-16BE). */
+  function matchBytes(bytes) {
+    return prepared
+      .filter((p) => p.patterns.some((pattern) => containsPattern(bytes, pattern)))
+      .map((p) => p.id)
   }
 
-  return { matchText, matchBuffer }
+  /**
+   * Text-like content goes through normalization and escape/entity/percent decoding.
+   * Arbitrary binary content goes through byte-level matching only.
+   * @param {Buffer} buffer
+   */
+  function matchBuffer(buffer) {
+    return isTextContent(buffer) ? matchText(buffer.toString('utf8')) : matchBytes(buffer)
+  }
+
+  return { matchText, matchBytes, matchBuffer, maxPatternLength }
+}
+
+/**
+ * Scans a file with bounded memory. Files up to `textLimit` are read whole and classified;
+ * larger files are matched byte-level in overlapping chunks through one reused buffer, so
+ * a match spanning a chunk boundary is still found.
+ */
+export function scanFile(
+  abs,
+  matcher,
+  { chunkBytes = CHUNK_BYTES, textLimit = TEXT_SCAN_LIMIT_BYTES } = {},
+) {
+  const { size } = statSync(abs)
+  if (size <= textLimit) return matcher.matchBuffer(readFileSync(abs))
+  const overlap = matcher.maxPatternLength - 1
+  const buffer = Buffer.allocUnsafe(chunkBytes + overlap)
+  const hits = new Set()
+  const fd = openSync(abs, 'r')
+  try {
+    let carried = 0
+    let position = 0
+    while (position < size) {
+      const read = readSync(fd, buffer, carried, chunkBytes, position)
+      if (read === 0) break
+      position += read
+      const window = buffer.subarray(0, carried + read)
+      for (const id of matcher.matchBytes(window)) hits.add(id)
+      carried = Math.min(overlap, window.length)
+      buffer.copyWithin(0, window.length - carried, window.length)
+    }
+  } finally {
+    closeSync(fd)
+  }
+  return [...hits].sort((a, b) => a - b)
 }
 
 /** Replaces any path segment that matches a term. */
@@ -268,11 +470,11 @@ class Findings {
     for (const id of ids) this.items.push(`term #${id} in ${where}`)
   }
 
-  /** Scans a path (as text) and optionally its content. */
-  file(relPath, buffer) {
+  /** Records path matches and, when given, the term ids found in the file's content. */
+  file(relPath, contentIds) {
     const safePath = redactPath(relPath, this.matcher)
     this.add(this.matcher.matchText(relPath), `path "${safePath}"`)
-    if (buffer) this.add(this.matcher.matchBuffer(buffer), `content of "${safePath}"`)
+    if (contentIds) this.add(contentIds, `content of "${safePath}"`)
   }
 
   text(label, value) {
@@ -288,13 +490,6 @@ function gitLines(args) {
   return git(args).toString('utf8').split('\0').join('\n').split('\n').filter(Boolean)
 }
 
-function readIfSmall(abs) {
-  const stat = statSync(abs)
-  if (!stat.isFile()) return undefined
-  if (stat.size > MAX_FILE_BYTES) throw new ConfigError(`File too large to scan: ${abs}`)
-  return readFileSync(abs)
-}
-
 function walk(absDir, visit, skip = () => false) {
   for (const entry of readdirSync(absDir, { withFileTypes: true })) {
     const abs = path.join(absDir, entry.name)
@@ -308,7 +503,7 @@ export function scanPaths(findings, root, targets, skip) {
   for (const target of targets) {
     const absTarget = path.resolve(root, target)
     if (!existsSync(absTarget)) continue
-    const visit = (abs) => findings.file(path.relative(root, abs), readIfSmall(abs))
+    const visit = (abs) => findings.file(path.relative(root, abs), scanFile(abs, findings.matcher))
     if (statSync(absTarget).isDirectory()) walk(absTarget, visit, skip)
     else visit(absTarget)
   }
@@ -318,7 +513,8 @@ function scanWorkingTree(findings, root) {
   const files = gitLines(['ls-files', '-z', '--cached', '--others', '--exclude-standard'])
   for (const rel of files) {
     const abs = path.join(root, rel)
-    findings.file(rel, existsSync(abs) ? readIfSmall(abs) : undefined)
+    const isFile = existsSync(abs) && statSync(abs).isFile()
+    findings.file(rel, isFile ? scanFile(abs, findings.matcher) : undefined)
   }
 }
 
@@ -330,7 +526,8 @@ function scanBranchName(findings) {
 
 function scanStaged(findings) {
   const staged = gitLines(['diff', '--cached', '--name-only', '-z', '--diff-filter=ACMR'])
-  for (const rel of staged) findings.file(rel, git(['show', `:${rel}`]))
+  for (const rel of staged)
+    findings.file(rel, findings.matcher.matchBuffer(git(['show', `:${rel}`])))
   scanBranchName(findings)
 }
 
@@ -456,8 +653,11 @@ export function run(argv, { env = process.env, root = process.cwd(), log = conso
         log.error('leak-check: .next does not exist. Run next build first.')
         return 2
       }
-      const cache = path.join(nextDir, 'cache')
-      scanPaths(findings, root, ['.next', 'public', '.vercel/output'], (abs) => abs === cache)
+      // Local build caches are never deployed: Next's build cache and, since Next 16, the
+      // separate `next dev` output's Turbopack database. Everything else under .next is
+      // scanned, including the rest of .next/dev.
+      const caches = new Set([path.join(nextDir, 'cache'), path.join(nextDir, 'dev', 'cache')])
+      scanPaths(findings, root, ['.next', 'public', '.vercel/output'], (abs) => caches.has(abs))
       break
     }
     case 'dir':

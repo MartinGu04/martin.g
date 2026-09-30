@@ -6,6 +6,7 @@ import { localeAlternates } from '@/lib/site'
 import {
   checkCss,
   checkEmDash,
+  checkInvisibleChars,
   checkJsx,
   checkNextPublic,
   checkSourceMaps,
@@ -96,6 +97,13 @@ describe('policy rules', () => {
     expect(checkEmDash('2024–2026')).toHaveLength(0)
     expect(checkNextPublic('process.env.NEXT_PUBLIC_KEY')).toHaveLength(1)
     expect(checkNextPublic('no NEXT_PUBLIC_ prefix allowed')).toHaveLength(0)
+  })
+
+  it('rejects raw invisible and bidi control characters', () => {
+    expect(checkInvisibleChars(`a${String.fromCodePoint(0x202e)}b`)).toHaveLength(1)
+    expect(checkInvisibleChars(`a${String.fromCodePoint(0x200b)}b`)).toHaveLength(1)
+    expect(checkInvisibleChars('const re = /[\\u202a-\\u202e]/')).toHaveLength(0)
+    expect(checkInvisibleChars('עברית and English')).toHaveLength(0)
   })
 
   it('requires production browser source maps to stay disabled', () => {
