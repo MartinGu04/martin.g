@@ -12,12 +12,18 @@ interface SceneProps {
   /** 'frame' fills the viewport below the header, like a film frame; 'flow' fits content. */
   size?: 'frame' | 'flow'
   /**
-   * How the scene takes over from the one before it, driven by scroll (never hijacked):
-   *   'wipe'  the world opens from a framed panel to full bleed (warm, emotional worlds)
-   *   'split' the world opens from a center seam while its grid draws (technical worlds)
-   *   'cut'   no transition (restrained worlds)
+   * How the scene takes over from the one before it, driven by native scroll:
+   *   'wipe'     a project world opens from a framed panel to full bleed (takeover)
+   *   'split'    a technical world opens from a center seam while its grid draws
+   *   'dissolve' the MARTIN.G world returns, fading in over the previous world's tail
+   *   'cut'      no transition (restrained scenes, and quiet changes within a world)
    */
-  enter?: 'wipe' | 'split' | 'cut'
+  enter?: 'wipe' | 'split' | 'dissolve' | 'cut'
+  /**
+   * How a world hands the frame back as it leaves, mirroring how it took it: 'wipe' closes
+   * back to a framed panel, 'split' contracts to the center seam. Omit for no exit.
+   */
+  exit?: 'wipe' | 'split'
   as?: 'section' | 'div' | 'article'
   id?: string
   'aria-labelledby'?: string
@@ -37,6 +43,7 @@ export function Scene({
   atmosphere,
   size = 'flow',
   enter = 'cut',
+  exit,
   as = 'section',
   className,
   children,
@@ -47,7 +54,15 @@ export function Scene({
     .filter(Boolean)
     .join(' ')
   return (
-    <ThemeScope theme={theme} as={as} className={cls} data-scene="" data-enter={enter} {...rest}>
+    <ThemeScope
+      theme={theme}
+      as={as}
+      className={cls}
+      data-scene=""
+      data-enter={enter}
+      data-exit={exit}
+      {...rest}
+    >
       {layers ? <Atmosphere {...layers} /> : null}
       {children}
     </ThemeScope>

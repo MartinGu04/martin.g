@@ -1,0 +1,269 @@
+/*
+ * Hero stage. Static first (the composed end state); the choreography is layered on only
+ * where it can run well: scripting on, motion welcome, a viewport tall enough for a
+ * sticky frame (so zoomed or very short windows keep the plain, reflowing layout), and
+ * scroll-driven animation support.
+ */
+@layer components {
+  .stage {
+    --scene-pad-start: 0;
+    --scene-pad-end: 0;
+    /* Arrival: how much larger the wordmark starts, per tier. */
+    --arrive-scale: 1.35;
+  }
+
+  /* Static: the atmosphere is positioned against the scene; on the stage it travels with
+     the sticky frame. */
+  .frame {
+    display: grid;
+    min-block-size: var(--scene-min);
+    padding-block: var(--space-8) var(--space-7);
+    overflow: clip;
+  }
+
+  .grid {
+    container-type: inline-size;
+    grid-template-rows: auto 1fr auto;
+    row-gap: var(--space-6);
+  }
+
+  .title {
+    grid-column: 1 / -1;
+    inline-size: clamp(15rem, 34vw, 34rem);
+    line-height: 0;
+    color: var(--text);
+  }
+
+  .mark {
+    display: block;
+  }
+
+  /* Monumental and edge to edge: allowed into the inline-end page margin, so the longest
+     line nearly touches the frame (sized by --hero-size per tier, tokens.css). */
+  .statement {
+    grid-column: 1 / -1;
+    align-self: end;
+    margin-inline-end: calc(var(--margin) * -1);
+    text-wrap: balance;
+    transform-origin: 0 100%;
+  }
+
+  :root[dir='rtl'] .statement {
+    transform-origin: 100% 100%;
+  }
+
+  .cue {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .cueLine {
+    inline-size: var(--space-8);
+    block-size: var(--hairline);
+    background: linear-gradient(to right, var(--text), transparent);
+  }
+
+  :root[dir='rtl'] .cueLine {
+    background: linear-gradient(to left, var(--text), transparent);
+  }
+
+  @media (width >= 48rem) {
+    .stage {
+      --arrive-scale: 1.6;
+    }
+
+    .grid {
+      row-gap: var(--space-7);
+    }
+
+    .cue {
+      grid-column: 5 / span 4;
+    }
+  }
+
+  @media (width >= 75rem) {
+    .stage {
+      --arrive-scale: 1.75;
+    }
+
+    .cue {
+      grid-column: 8 / span 5;
+    }
+  }
+
+  /* ---------------------------------------------------------------- */
+  /* Arrival on load: the world fades up, then waits for the visitor.  */
+  /* ---------------------------------------------------------------- */
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    .atmosphere {
+      animation: hero-light-up 1.8s var(--ease-out) both;
+    }
+
+    .mark {
+      animation: hero-mark-up 1.6s var(--ease-out) 0.25s both;
+    }
+  }
+
+  /* ---------------------------------------------------------------- */
+  /* The stage: scroll moves the story, the frame holds still.         */
+  /* ---------------------------------------------------------------- */
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) and (height >= 34rem) {
+    @supports (view-timeline-name: --a) {
+      .stage {
+        view-timeline: --hero block;
+        block-size: 200svh;
+      }
+
+      .frame {
+        position: sticky;
+        isolation: isolate;
+        inset-block-start: var(--header-block-size);
+        block-size: var(--scene-min);
+      }
+
+      /* The wordmark arrives centered and larger, then settles at the inline start. */
+      .title {
+        animation: hero-arrive linear both;
+        animation-timeline: --hero;
+        animation-range: contain 0% contain 34%;
+      }
+
+      .cue {
+        animation: hero-cue linear both;
+        animation-timeline: --hero;
+        animation-range: contain 0% contain 12%;
+      }
+
+      /* The statement rises out of a mask, holds, then recedes into the next scene. */
+      .statement {
+        animation: hero-statement linear both;
+        animation-timeline: --hero;
+        animation-range: contain 14% contain 100%;
+      }
+
+      /* Depth: the cropped line drifts against the reading direction; the light moves. */
+      .frame .depth {
+        animation: hero-depth linear both;
+        animation-timeline: --hero;
+        animation-range: contain 0% contain 100%;
+      }
+
+      .frame [data-layer='light'] {
+        animation: hero-light linear both;
+        animation-timeline: --hero;
+        animation-range: contain 0% contain 100%;
+      }
+
+      .frame [data-layer='grid'] {
+        animation: hero-grid linear both;
+        animation-timeline: --hero;
+        animation-range: contain 10% contain 60%;
+      }
+    }
+
+    @media (width >= 48rem) {
+      @supports (view-timeline-name: --a) {
+        .stage {
+          block-size: 230svh;
+        }
+      }
+    }
+
+    @media (width >= 75rem) {
+      @supports (view-timeline-name: --a) {
+        .stage {
+          block-size: 250svh;
+        }
+      }
+    }
+  }
+
+  @keyframes hero-light-up {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes hero-mark-up {
+    from {
+      opacity: 0;
+      filter: blur(6px);
+    }
+  }
+
+  /* 50cqi is half the content width of the grid (a size container). */
+  @keyframes hero-arrive {
+    from {
+      translate: calc((50cqi - 50%) * var(--dir)) calc(var(--scene-min) / 2 - var(--space-8) - 50%);
+      scale: var(--arrive-scale);
+    }
+
+    to {
+      translate: 0 0;
+      scale: 1;
+    }
+  }
+
+  @keyframes hero-cue {
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes hero-statement {
+    0% {
+      clip-path: inset(100% -10% 0 -5%);
+      translate: 0 22%;
+    }
+
+    42% {
+      clip-path: inset(-10% -10% -30% -5%);
+      translate: 0 0;
+      scale: 1;
+      opacity: 1;
+    }
+
+    84% {
+      translate: 0 0;
+      scale: 1;
+      opacity: 1;
+    }
+
+    100% {
+      clip-path: inset(-10% -10% -30% -5%);
+      translate: 0 -8%;
+      scale: 0.92;
+      opacity: 0.6;
+    }
+  }
+
+  @keyframes hero-depth {
+    from {
+      translate: calc(8% * var(--dir)) 0;
+    }
+
+    to {
+      translate: calc(-26% * var(--dir)) 0;
+    }
+  }
+
+  @keyframes hero-light {
+    from {
+      translate: calc(10% * var(--dir)) -4%;
+      opacity: 0.55;
+    }
+
+    to {
+      translate: calc(-8% * var(--dir)) 2%;
+      opacity: 1;
+    }
+  }
+
+  @keyframes hero-grid {
+    from {
+      opacity: 0;
+    }
+  }
+}

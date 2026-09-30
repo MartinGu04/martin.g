@@ -22,6 +22,7 @@ export const scenesCopy = {
   transitions: {
     wipe: { en: 'Transition: wipe to full bleed', he: 'מעבר: פתיחה לרוחב מלא' },
     split: { en: 'Transition: center split', he: 'מעבר: פיצול מהמרכז' },
+    dissolve: { en: 'Transition: dissolve back to MARTIN.G', he: 'מעבר: התמוססות חזרה ל-MARTIN.G' },
     cut: { en: 'Transition: hard cut', he: 'מעבר: חיתוך חד' },
   },
   photo: { en: 'Photography, in production', he: 'צילום, בהפקה' },

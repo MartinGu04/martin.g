@@ -128,14 +128,23 @@ viewport.
   content. Padding and alignment are tunable through `--scene-pad-start`,
   `--scene-pad-end` and `--scene-align`.
 - `theme` (a world) and `atmosphere` (layers; defaults to the theme's, then the brand's).
-- `enter` is how a scene takes over from the one before it, driven by native scroll:
-  - `wipe`: the world opens from a framed panel inside the page margins to full bleed
-    (warm, emotional worlds; the return to the MARTIN.G world).
-  - `split`: the world opens from a center seam while its grid draws in (technical worlds).
-  - `cut`: no transition (restrained worlds).
+- `enter` is how a scene takes over from the one before it, driven by native scroll. Four
+  transitions, each with one meaning (docs/HOMEPAGE.md):
+  - `wipe`: a project world takes over, opening from a framed panel to full bleed.
+  - `split`: a technical world takes over, opening from a center seam while its grid draws.
+  - `dissolve`: the MARTIN.G world returns, fading in over the previous world's tail.
+  - `cut`: no transition (restraint, and calm changes of subject).
+- `exit` lets a world hand the frame back the way it took it: `wipe` closes back to a framed
+  panel, `split` contracts to the seam. Exits fill forwards only, so they never override
+  the entry.
 - An entering scene slides `--scene-overlap` over the tail of the previous one, so the
   previous world stays visible around it while it opens. Every scene's end padding is at
   least the overlap, so it only ever covers empty space.
+- Stages (a tall scene with a sticky frame on a named view timeline) are compositions, not a
+  primitive: the hero and How I work use them, only under scripting, motion allowed,
+  `height >= 34rem` and scroll-timeline support; otherwise the same markup is static.
+- Atmosphere layers carry `data-layer` (`base`, `light`, `haze`, `grid`, `texture`,
+  `vignette`, `marks`) so a composition can move or fade one layer on its own timeline.
 
 `<DepthType>` adds foreground/background depth: oversized, cropped typography behind the
 content (`line` along the lower edge, panning on scroll; `index`, a huge numeral receding
@@ -161,7 +170,7 @@ hidden, only where the light falls, fading, or fully drawn (a technical world). 
 default: shaft light, hidden grid, fine grain, vignette. The hero adds the grid inside the
 light and registration marks; that is the upper limit of technical detail in the MARTIN.G
 world. Every layer reads the scope's semantic colors, so one spec renders correctly in any
-world; strength, blend and grain amount follow the scheme (light worlds multiply). The whole
+world; light strength, vignette and grain amount follow the scheme (grain is the world's ink seen through a noise mask, with no blend mode, so it stays cheap to composite). The whole
 atmosphere is removed in forced-colors mode.
 
 ## Worlds
@@ -231,7 +240,9 @@ military visual language.
 
 ## Header and footer
 
-- Header: sticky, solid black background, hairline bottom rule, aligned to the page grid.
+- Header: sticky, solid background, hairline bottom rule, aligned to the page grid. It takes
+  on the semantic colors of the scene beneath its lower edge (`HeaderWorld`), crossfading
+  between worlds; without JavaScript it keeps the MARTIN.G colors.
   Wordmark (tablet/desktop) or monogram (mobile), then navigation: `Work` and the language
   switch `EN / HE`. About and Contact appear only when their destinations exist (no dead
   links; tests check that every header and footer link resolves). No menu drawer: the

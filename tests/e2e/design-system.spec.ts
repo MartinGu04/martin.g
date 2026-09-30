@@ -62,10 +62,11 @@ test.describe('brand marks', () => {
   test('marks stay visible in forced colors mode', async ({ page }) => {
     await page.emulateMedia({ forcedColors: 'active' })
     await page.goto('/en')
-    const color = await page
+    const colors = await page
       .locator('main [data-mark="wordmark"]')
-      .evaluate((el) => getComputedStyle(el).backgroundColor)
-    expect(color).not.toBe('rgba(0, 0, 0, 0)')
+      .evaluateAll((els) => els.map((el) => getComputedStyle(el).backgroundColor))
+    expect(colors.length).toBeGreaterThan(0)
+    expect(colors).not.toContain('rgba(0, 0, 0, 0)')
   })
 })
 

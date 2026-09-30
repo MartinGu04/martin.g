@@ -1,0 +1,48 @@
+@layer components {
+  .scene {
+    --scene-align: end;
+    --scene-pad-end: var(--space-9);
+  }
+
+  .grid {
+    container-type: inline-size;
+    row-gap: var(--space-7);
+  }
+
+  .mark {
+    grid-column: 1 / -1;
+    inline-size: clamp(12rem, 22vw, 22rem);
+    line-height: 0;
+    color: var(--text);
+  }
+
+  /* Echoes the hero: large, heavy, running toward the inline-end edge. */
+  .title {
+    grid-column: 1 / -1;
+    max-inline-size: 11em;
+    margin-inline-end: calc(var(--margin) * -1);
+    text-wrap: balance;
+  }
+
+  .line {
+    grid-column: 1 / -1;
+  }
+
+  @media (width >= 48rem) {
+    /* Two lines on larger screens ("Have a problem" is about 9.4em), so the whole closing
+       frame fits the viewport. */
+    .title {
+      --display-xl-size: min(var(--step-6), 10cqi);
+    }
+
+    .line {
+      grid-column: 5 / span 4;
+    }
+  }
+
+  @media (width >= 75rem) {
+    .line {
+      grid-column: 8 / span 5;
+    }
+  }
+}

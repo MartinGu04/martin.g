@@ -1,0 +1,270 @@
+/*
+ * How I work. Static first: a composed vertical sequence of five states. The staged
+ * version (one frame, the words taking it in turn) is layered on only where it can run
+ * well, exactly like the hero stage.
+ */
+@layer components {
+  /* Static: the stage's atmosphere covers the whole scene (it is positioned against the
+     scene); on the stage it travels with the sticky frame instead. */
+  .stage {
+    --scene-pad-start: var(--section-space);
+  }
+
+  .grid {
+    container-type: inline-size;
+    row-gap: var(--space-7);
+  }
+
+  .heading {
+    grid-column: 1 / -1;
+  }
+
+  .steps {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: subgrid;
+  }
+
+  .step {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: subgrid;
+    row-gap: var(--space-3);
+    padding-block: var(--space-6) var(--space-7);
+    border-block-start: var(--hairline) solid var(--line);
+  }
+
+  .count,
+  .word,
+  .line {
+    grid-column: 1 / -1;
+  }
+
+  /* A single word may not wrap: fit it to its column as well as to the type scale
+     (the longest English word is about 7.4em wide). */
+  .word {
+    --display-xl-size: min(var(--step-6), 12.5cqi);
+  }
+
+  /* Hebrew verbs are far shorter than the English words: let them take the frame. */
+  :root:lang(he) .word {
+    --display-xl-size: min(var(--step-6), 20cqi);
+  }
+
+  .line {
+    max-inline-size: 24em;
+  }
+
+  .progress {
+    display: none;
+  }
+
+  @media (width >= 75rem) {
+    .count {
+      grid-column: 1 / span 2;
+      grid-row: 1 / span 2;
+      padding-block-start: var(--space-4);
+    }
+
+    .word {
+      --display-xl-size: min(var(--step-6), 10.5cqi);
+      grid-column: 3 / -1;
+    }
+
+    .line {
+      grid-column: 3 / span 7;
+    }
+  }
+
+  /* ---------------------------------------------------------------- */
+  /* The stage: one frame, five states, driven by natural scroll.      */
+  /* ---------------------------------------------------------------- */
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) and (height >= 34rem) {
+    @supports (view-timeline-name: --a) {
+      .stage {
+        --scene-pad-start: 0;
+        --scene-pad-end: 0;
+        view-timeline: --process block;
+        block-size: calc(var(--scene-min) + 5 * 45svh);
+      }
+
+      .frame {
+        position: sticky;
+        isolation: isolate;
+        inset-block-start: var(--header-block-size);
+        display: grid;
+        align-content: center;
+        block-size: var(--scene-min);
+        overflow: clip;
+      }
+
+      .grid {
+        row-gap: var(--space-8);
+      }
+
+      .step {
+        grid-row: 1;
+        padding-block: 0;
+        border-block-start: 0;
+        animation: step-middle linear both;
+        animation-timeline: --process;
+        animation-range: contain calc(var(--i) * 20%) contain calc(var(--i) * 20% + 20%);
+      }
+
+      .step:first-child {
+        animation-name: step-first;
+      }
+
+      .step:last-child {
+        animation-name: step-last;
+      }
+
+      .line {
+        animation: step-line linear both;
+        animation-timeline: --process;
+        animation-range: contain calc(var(--i) * 20%) contain calc(var(--i) * 20% + 20%);
+      }
+
+      .step:first-child .line {
+        animation-name: none;
+      }
+
+      .progress {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: var(--space-2);
+      }
+
+      .progress > i {
+        block-size: 2px;
+        background: var(--line);
+        background-image: linear-gradient(var(--text), var(--text));
+        background-repeat: no-repeat;
+        background-size: 0% 100%;
+        animation: step-tick linear both;
+        animation-timeline: --process;
+        animation-range: contain calc(var(--i) * 20%) contain calc(var(--i) * 20% + 20%);
+      }
+
+      :root[dir='rtl'] .progress > i {
+        background-position: 100% 0;
+      }
+
+      /* Ambiguity to clarity: the haze clears and the grid sharpens across the sequence. */
+      .frame [data-layer='haze'] {
+        animation: step-haze linear both;
+        animation-timeline: --process;
+        animation-range: contain 0% contain 100%;
+      }
+
+      .frame [data-layer='grid'] {
+        animation: step-grid linear both;
+        animation-timeline: --process;
+        animation-range: contain 0% contain 100%;
+      }
+
+      .frame [data-layer='light'] {
+        animation: step-light linear both;
+        animation-timeline: --process;
+        animation-range: contain 0% contain 100%;
+      }
+    }
+  }
+
+  @keyframes step-middle {
+    0% {
+      opacity: 0;
+      translate: 0 30%;
+      clip-path: inset(100% -5% -25% -5%);
+    }
+
+    24%,
+    76% {
+      opacity: 1;
+      translate: 0 0;
+      clip-path: inset(-10% -5% -25% -5%);
+    }
+
+    100% {
+      opacity: 0;
+      translate: 0 -20%;
+      clip-path: inset(-10% -5% -25% -5%);
+    }
+  }
+
+  @keyframes step-first {
+    0%,
+    76% {
+      opacity: 1;
+      translate: 0 0;
+    }
+
+    100% {
+      opacity: 0;
+      translate: 0 -20%;
+    }
+  }
+
+  @keyframes step-last {
+    0% {
+      opacity: 0;
+      translate: 0 30%;
+      clip-path: inset(100% -5% -25% -5%);
+    }
+
+    24%,
+    100% {
+      opacity: 1;
+      translate: 0 0;
+      clip-path: inset(-10% -5% -25% -5%);
+    }
+  }
+
+  @keyframes step-line {
+    0%,
+    30% {
+      opacity: 0;
+    }
+
+    50% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes step-tick {
+    to {
+      background-size: 100% 100%;
+    }
+  }
+
+  @keyframes step-haze {
+    from {
+      opacity: 1;
+    }
+
+    to {
+      opacity: 0.15;
+    }
+  }
+
+  @keyframes step-grid {
+    from {
+      opacity: 0.08;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes step-light {
+    from {
+      translate: calc(12% * var(--dir)) 0;
+    }
+
+    to {
+      translate: calc(-10% * var(--dir)) 0;
+    }
+  }
+}

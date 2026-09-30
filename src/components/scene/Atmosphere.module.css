@@ -10,8 +10,8 @@
     --shaft-angle: 102deg;
     --light-x: 80%;
     --side-x: 0%;
-    --noise-fine: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0.33 0.33 0.33 0 0 0.33 0.33 0.33 0 0 0.33 0.33 0.33 0 0 0 0 0 0 1'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-    --noise-paper: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='360' height='360'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.55' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0.33 0.33 0.33 0 0 0.33 0.33 0.33 0 0 0.33 0.33 0.33 0 0 0 0 0 0 1'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    --noise-fine: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0.33 0.33 0.33 0 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    --noise-paper: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='360' height='360'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.55' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0.33 0.33 0.33 0 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
     position: absolute;
     inset: 0;
     z-index: -1;
@@ -91,7 +91,12 @@
       );
   }
 
-  /* The grid, drawn only as much as the scene wants. */
+  /* The grid, drawn only as much as the scene wants. The wrapper is the addressable
+     layer (data-layer="grid"). */
+  .gridLayer {
+    pointer-events: none;
+  }
+
   .grid {
     --line: color-mix(in srgb, var(--text) 11%, transparent);
   }
@@ -115,19 +120,28 @@
     --line: color-mix(in srgb, var(--text) 14%, transparent);
   }
 
-  .grain {
-    background-image: var(--noise-fine);
-    background-size: 220px 220px;
+  /*
+   * Grain is the world's own ink seen through a noise mask: light specks in dark worlds,
+   * dark specks in light ones. No blend mode, so it composites cheaply while scrolling
+   * (a blended full-frame layer roughly halved the frame rate in profiling).
+   */
+  .grain,
+  .paper {
+    background-color: var(--text);
+    -webkit-mask-image: var(--noise-fine);
+    mask-image: var(--noise-fine);
+    -webkit-mask-size: 220px 220px;
+    mask-size: 220px 220px;
     opacity: var(--grain-opacity);
-    mix-blend-mode: var(--grain-blend);
   }
 
   /* Softer, larger-grained material for warm, tactile worlds. */
   .paper {
-    background-image: var(--noise-paper);
-    background-size: 360px 360px;
+    -webkit-mask-image: var(--noise-paper);
+    mask-image: var(--noise-paper);
+    -webkit-mask-size: 360px 360px;
+    mask-size: 360px 360px;
     opacity: calc(var(--grain-opacity) * 1.4);
-    mix-blend-mode: var(--grain-blend);
   }
 
   /* A technical dot field, fading in and out along the block axis. */

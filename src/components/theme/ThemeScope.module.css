@@ -22,18 +22,16 @@
     --light-strength: 16%;
     --vignette-strength: 78%;
     --grain-opacity: 0.06;
-    --grain-blend: screen;
   }
 
   /* Light worlds: light fields brighten toward white, the vignette falls off into the
-     world's own ink, and texture multiplies instead of screening. */
+     world's own ink, and grain shows as dark specks (it is always the world's ink). */
   .themed[data-theme-scheme='light'] {
     --light: white;
     --shade: var(--text);
     --light-strength: 60%;
     --vignette-strength: 16%;
     --grain-opacity: 0.12;
-    --grain-blend: multiply;
   }
 
   @media (forced-colors: active) {

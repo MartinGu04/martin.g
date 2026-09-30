@@ -4,9 +4,19 @@
     inset-block-start: 0;
     z-index: var(--z-header);
     background: var(--surface-0);
+    color: var(--text);
     border-block-end: var(--hairline) solid var(--line);
+    /* Crossfades between worlds (HeaderWorld); instant with reduced motion. */
+    transition:
+      background-color var(--dur-standard) var(--ease-out),
+      border-color var(--dur-standard) var(--ease-out),
+      color var(--dur-standard) var(--ease-out);
     /* Design size of the mark; BrandMark clamps it up to the legible minimum per density. */
     --header-mark: 1.5rem;
+  }
+
+  .header[data-world-scheme='light'] {
+    color-scheme: light;
   }
 
   .bar {

@@ -68,8 +68,9 @@ describe('metadata', () => {
 describe('release gate', () => {
   afterEach(() => vi.unstubAllEnvs())
 
-  it('has no draft copy in the approved Phase 1 content', () => {
-    expect(findDraftCopy()).toEqual([])
+  it('lists exactly the proposed Phase 3 homepage copy as draft, nothing else', () => {
+    // Approving the homepage copy (src/i18n/dictionaries/home.ts) empties this list.
+    expect(findDraftCopy()).toEqual(['home:en', 'home:he'])
   })
 
   it('refuses synthetic draft copy in Vercel production builds only', () => {

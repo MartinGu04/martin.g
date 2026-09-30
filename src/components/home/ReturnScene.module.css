@@ -1,0 +1,47 @@
+@layer components {
+  .scene {
+    --scene-pad-start: var(--section-space);
+    --scene-pad-end: calc(var(--section-space) * 1.5);
+    min-block-size: 70svh;
+    display: grid;
+    align-content: end;
+  }
+
+  .entry {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: var(--space-5);
+  }
+
+  .label {
+    white-space: nowrap;
+  }
+
+  .rule {
+    block-size: var(--hairline);
+    background: var(--line-strong);
+    transform-origin: 0 50%;
+  }
+
+  :root[dir='rtl'] .rule {
+    transform-origin: 100% 50%;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .rule {
+        animation: return-rule linear both;
+        animation-timeline: view();
+        animation-range: entry 20% cover 50%;
+      }
+    }
+  }
+
+  @keyframes return-rule {
+    from {
+      scale: 0 1;
+    }
+  }
+}

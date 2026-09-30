@@ -26,24 +26,60 @@
    * previous world stays visible around it. Every scene's bottom padding is at least the
    * overlap, so it only ever covers empty space.
    */
-  .scene:is([data-enter='wipe'], [data-enter='split']) {
+  .scene:is([data-enter='wipe'], [data-enter='split'], [data-enter='dissolve']) {
     z-index: 1;
     margin-block-start: calc(var(--scene-overlap) * -1);
     padding-block-start: calc(var(--scene-pad-start, var(--section-space)) + var(--scene-overlap));
   }
 
+  /*
+   * Entries run while the scene's leading edge travels up the viewport; exits (a world
+   * handing the frame back) while its trailing edge does. Exits fill forwards only, so
+   * they never override the entry before they start.
+   */
   @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
     @supports (animation-timeline: view()) {
-      .scene[data-enter='wipe'] {
-        animation: scene-wipe var(--ease-out) both;
+      .scene[data-enter] {
         animation-timeline: view();
         animation-range: entry 0% entry 100%;
+        animation-fill-mode: both;
+      }
+
+      .scene[data-enter='wipe'] {
+        animation-name: scene-wipe;
+        animation-timing-function: var(--ease-out);
       }
 
       .scene[data-enter='split'] {
-        animation: scene-split linear both;
-        animation-timeline: view();
+        animation-name: scene-split;
+        animation-timing-function: linear;
         animation-range: entry 0% entry 90%;
+      }
+
+      .scene[data-enter='dissolve'] {
+        animation-name: scene-dissolve;
+        animation-timing-function: var(--ease-in-out);
+      }
+
+      .scene[data-exit] {
+        animation-timeline: view(), view();
+        animation-fill-mode: both, forwards;
+      }
+
+      .scene[data-enter='wipe'][data-exit='wipe'] {
+        animation-name: scene-wipe, scene-wipe-out;
+        animation-timing-function: var(--ease-out), var(--ease-in-out);
+        animation-range:
+          entry 0% entry 100%,
+          exit 0% exit 100%;
+      }
+
+      .scene[data-enter='split'][data-exit='split'] {
+        animation-name: scene-split, scene-split-out;
+        animation-timing-function: linear, linear;
+        animation-range:
+          entry 0% entry 90%,
+          exit 10% exit 100%;
       }
     }
   }
@@ -59,6 +95,18 @@
     }
   }
 
+  /* Handing the frame back: full bleed closes to a framed panel, the world underneath
+     (the MARTIN.G black of the page) returns around it. */
+  @keyframes scene-wipe-out {
+    from {
+      clip-path: inset(0);
+    }
+
+    to {
+      clip-path: inset(0 max(var(--margin), 8vw) var(--scene-overlap));
+    }
+  }
+
   /* From a center seam outward, with a hard mechanical edge. */
   @keyframes scene-split {
     from {
@@ -67,6 +115,28 @@
 
     to {
       clip-path: inset(0);
+    }
+  }
+
+  /* Contracting back into the seam. */
+  @keyframes scene-split-out {
+    from {
+      clip-path: inset(0);
+    }
+
+    to {
+      clip-path: inset(0 calc(50% - var(--hairline)));
+    }
+  }
+
+  /* The MARTIN.G world returning: it fades in over the previous world's tail. */
+  @keyframes scene-dissolve {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
     }
   }
 }
