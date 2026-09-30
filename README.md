@@ -103,3 +103,5 @@ marked `draft`** (`src/i18n/release-gate.ts`); preview and local builds are unaf
 ## More
 
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): decisions, structure and phase plan
+- [docs/DESIGN-SYSTEM.md](docs/DESIGN-SYSTEM.md): the visual system (tokens, type, grid,
+  brand marks, motion, themes)

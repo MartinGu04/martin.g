@@ -1,0 +1,144 @@
+@layer components {
+  /* The list spans the parent grid and shares its tracks. */
+  .list {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: subgrid;
+  }
+
+  .row {
+    position: relative;
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: subgrid;
+    row-gap: var(--space-4);
+    padding-block: var(--space-6) var(--space-7);
+    border-block-start: var(--hairline) solid var(--line);
+    transition: border-color var(--dur-micro) var(--ease-out);
+  }
+
+  .row:last-child {
+    border-block-end: var(--hairline) solid var(--line);
+  }
+
+  .number {
+    grid-column: 1 / -1;
+  }
+
+  .title {
+    grid-column: 1 / -1;
+    overflow-wrap: anywhere;
+  }
+
+  .link {
+    color: var(--text);
+  }
+
+  /* Stretched hit area: the whole row is clickable, the name stays the title. */
+  .link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  .link:focus-visible {
+    outline: none;
+    text-decoration-line: none;
+  }
+
+  .link:focus-visible::after {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 4px;
+  }
+
+  .meta {
+    grid-column: 1 / -1;
+    display: grid;
+    gap: var(--space-2);
+    max-inline-size: var(--measure-lead);
+  }
+
+  .arrow {
+    grid-column: 1 / -1;
+    justify-self: start;
+    color: var(--text-muted);
+    transition:
+      color var(--dur-micro) var(--ease-out),
+      transform var(--dur-standard) var(--ease-out);
+  }
+
+  /* Shared interactive state: hover (capable devices only) and keyboard focus. */
+  @media (hover: hover) and (pointer: fine) {
+    .row:hover {
+      border-block-start-color: var(--line-strong);
+    }
+
+    .row:hover .arrow {
+      color: var(--text);
+      transform: translate3d(calc(var(--distance-sm) * var(--dir)), 0, 0);
+    }
+
+    .row:hover .link {
+      text-decoration-line: none;
+    }
+  }
+
+  .row:has(.link:focus-visible) {
+    border-block-start-color: var(--line-strong);
+  }
+
+  .row:has(.link:focus-visible) .arrow {
+    color: var(--text);
+  }
+
+  /* Tablet: numeral in its own column, the title across the rest, details under it. */
+  @media (width >= 48rem) {
+    .number {
+      grid-column: 1 / span 1;
+      padding-block-start: var(--space-3);
+    }
+
+    .title {
+      grid-column: 2 / -1;
+    }
+
+    .meta {
+      grid-column: 4 / span 4;
+    }
+
+    .arrow {
+      grid-column: 8 / span 1;
+      grid-row: 2;
+      justify-self: end;
+      align-self: end;
+    }
+  }
+
+  /* Desktop: a monumental title across the frame; details offset under it. */
+  @media (width >= 75rem) {
+    .row {
+      row-gap: var(--space-6);
+      padding-block: var(--space-7) var(--space-8);
+    }
+
+    .number {
+      grid-row: 1;
+    }
+
+    .title {
+      grid-column: 2 / -1;
+      grid-row: 1;
+    }
+
+    .meta {
+      grid-column: 8 / span 4;
+      grid-row: 2;
+    }
+
+    .arrow {
+      grid-column: 12 / span 1;
+      grid-row: 2;
+      align-self: start;
+    }
+  }
+}

@@ -1,22 +1,67 @@
 /*
- * Motion foundation. Vocabulary: mask reveals, subtle translate, opacity, restrained
- * scale, subtle parallax; clip-path only when justified. No bounce, no decoration.
+ * Motion system. Vocabulary: mask reveal, subtle translate, opacity, restrained scale
+ * (0.98 to 1), subtle parallax. clip-path only for mask reveals. No bounce, no decoration,
+ * no scroll hijacking: scrolling is always native.
  *
- * Rule: an element may start hidden only when scripting is enabled AND the user has not
- * asked for reduced motion. Without JS, or with reduced motion, content is always visible.
- * Phase 2 adds the Reveal component that toggles [data-revealed].
+ * Durations: micro 200ms (state changes), standard 600ms (reveals), cinematic 1100ms
+ * (masks, large media). Reduced motion collapses all of them (tokens.css).
+ *
+ * Safety: an element may start hidden only when
+ *   1. the inline head script has run (html[data-motion] is 'pending' or 'on'), and
+ *   2. the user has not asked for reduced motion.
+ * The head script switches to 'off' if the controller has not mounted within 2.5s, and
+ * the controller switches to 'off' for reduced motion or missing IntersectionObserver.
+ * Without JavaScript, html[data-motion] is never set, so nothing is ever hidden.
  */
 @layer base {
-  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
-    [data-reveal]:not([data-revealed]) {
+  @media (prefers-reduced-motion: no-preference) {
+    :root:is([data-motion='pending'], [data-motion='on']) [data-reveal]:not([data-revealed]) {
       opacity: 0;
-      transform: translate3d(0, var(--distance-2), 0);
     }
 
-    [data-reveal] {
+    :root:is([data-motion='pending'], [data-motion='on'])
+      [data-reveal='rise']:not([data-revealed]) {
+      transform: translate3d(0, var(--distance-md), 0);
+    }
+
+    :root:is([data-motion='pending'], [data-motion='on'])
+      [data-reveal='scale']:not([data-revealed]) {
+      transform: scale(var(--scale-from));
+    }
+
+    /* Mask reveal: the content is wiped in from below, fully opaque. */
+    :root:is([data-motion='pending'], [data-motion='on'])
+      [data-reveal='mask']:not([data-revealed]) {
+      opacity: 1;
+      clip-path: inset(0 0 100% 0);
+    }
+
+    :root[data-motion='on'] [data-reveal] {
       transition:
-        opacity var(--dur-3) var(--ease-out),
-        transform var(--dur-4) var(--ease-out);
+        opacity var(--dur-standard) var(--ease-out),
+        transform var(--dur-cinematic) var(--ease-out),
+        clip-path var(--dur-cinematic) var(--ease-mask);
+      transition-delay: calc(var(--reveal-order, 0) * var(--stagger));
+    }
+
+    /* Parallax architecture (CSS scroll-driven, no JavaScript, no scroll hijacking).
+       Offset = --parallax-shift x tier intensity (--parallax: 0 on mobile). */
+    @supports (animation-timeline: view()) {
+      [data-parallax] {
+        animation: mg-parallax linear both;
+        animation-timeline: view();
+        animation-range: cover;
+      }
+    }
+  }
+
+  @keyframes mg-parallax {
+    from {
+      transform: translate3d(0, calc(var(--parallax-shift, 2rem) * var(--parallax)), 0);
+    }
+
+    to {
+      transform: translate3d(0, calc(var(--parallax-shift, 2rem) * var(--parallax) * -1), 0);
     }
   }
 
@@ -28,6 +73,11 @@
       animation-iteration-count: 1 !important;
       transition-duration: 1ms !important;
       scroll-behavior: auto !important;
+    }
+
+    [data-parallax] {
+      animation: none !important;
+      transform: none !important;
     }
   }
 }

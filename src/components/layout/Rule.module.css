@@ -1,0 +1,13 @@
+@layer components {
+  .rule {
+    inline-size: 100%;
+    block-size: 0;
+    border: 0;
+    border-block-start: var(--hairline) solid var(--line);
+    margin: 0;
+  }
+
+  .strong {
+    border-block-start-color: var(--line-strong);
+  }
+}

@@ -25,6 +25,7 @@ interface GridProps {
   children: ReactNode
   id?: string
   role?: string
+  'aria-labelledby'?: string
 }
 
 export function Grid({ as: Tag = 'div', className, children, ...rest }: GridProps) {

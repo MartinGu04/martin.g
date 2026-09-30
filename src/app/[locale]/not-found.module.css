@@ -1,14 +1,5 @@
 @layer components {
   .wrap {
-    padding-block: var(--space-section);
-  }
-
-  .title {
-    font-size: var(--step-3);
-    margin-block: var(--space-4);
-  }
-
-  .back {
-    margin-block-start: var(--space-6);
+    padding-block: var(--section-space);
   }
 }

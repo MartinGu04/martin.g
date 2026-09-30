@@ -6,7 +6,7 @@
     grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
     column-gap: var(--gutter);
     inline-size: 100%;
-    max-inline-size: calc(var(--content-max) + 2 * var(--margin));
+    max-inline-size: var(--page-max);
     margin-inline: auto;
     padding-inline: var(--margin);
   }
@@ -16,6 +16,8 @@
     --_span: min(var(--span, var(--cols)), var(--cols));
     --_start: var(--start, auto);
     grid-column: var(--_start) / span var(--_span);
+    /* Grid items default to min-content; long unbreakable strings must not widen tracks. */
+    min-inline-size: 0;
   }
 
   @media (width >= 48rem) {

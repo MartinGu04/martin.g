@@ -1,0 +1,44 @@
+@layer components {
+  /* Codes are Latin in both locales; keep their order EN / HE regardless of direction. */
+  .switch {
+    display: inline-flex;
+    align-items: center;
+    direction: ltr;
+  }
+
+  .item {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .divider {
+    color: var(--text-muted);
+    padding-inline: var(--space-1);
+  }
+
+  .link {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 2.75rem;
+    min-inline-size: 2rem;
+    justify-content: center;
+    color: var(--text-muted);
+    transition: color var(--dur-micro) var(--ease-out);
+  }
+
+  .link[aria-current='true'] {
+    color: var(--text);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .link:hover {
+      color: var(--text);
+      text-decoration-line: none;
+    }
+  }
+
+  .link:focus-visible {
+    color: var(--text);
+    text-decoration-line: none;
+  }
+}

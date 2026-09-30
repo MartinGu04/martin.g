@@ -1,0 +1,72 @@
+/*
+ * Scenes and scene transitions. Scrolling stays native: transitions are CSS scroll-driven
+ * animations on the entering scene, never scroll hijacking, and they start partly hidden
+ * only when scripting is on and motion is welcome (CLAUDE.md, docs/DESIGN-SYSTEM.md).
+ */
+@layer components {
+  /* Padding and alignment are custom properties so a composition can tune them without
+     competing with these rules. The end padding never drops below the overlap. */
+  .scene {
+    position: relative;
+    isolation: isolate;
+    overflow: clip;
+    padding-block: var(--scene-pad-start, var(--section-space))
+      max(var(--scene-pad-end, var(--section-space)), var(--scene-overlap));
+  }
+
+  /* A film frame: at least the viewport below the header, content centered in it. */
+  .frame {
+    display: grid;
+    align-content: var(--scene-align, center);
+    min-block-size: var(--scene-min);
+  }
+
+  /*
+   * An entering scene slides over the tail of the previous one, so while it opens the
+   * previous world stays visible around it. Every scene's bottom padding is at least the
+   * overlap, so it only ever covers empty space.
+   */
+  .scene:is([data-enter='wipe'], [data-enter='split']) {
+    z-index: 1;
+    margin-block-start: calc(var(--scene-overlap) * -1);
+    padding-block-start: calc(var(--scene-pad-start, var(--section-space)) + var(--scene-overlap));
+  }
+
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .scene[data-enter='wipe'] {
+        animation: scene-wipe var(--ease-out) both;
+        animation-timeline: view();
+        animation-range: entry 0% entry 100%;
+      }
+
+      .scene[data-enter='split'] {
+        animation: scene-split linear both;
+        animation-timeline: view();
+        animation-range: entry 0% entry 90%;
+      }
+    }
+  }
+
+  /* From a framed panel inside the page margins to full bleed. */
+  @keyframes scene-wipe {
+    from {
+      clip-path: inset(var(--scene-overlap) max(var(--margin), 8vw) 0);
+    }
+
+    to {
+      clip-path: inset(0);
+    }
+  }
+
+  /* From a center seam outward, with a hard mechanical edge. */
+  @keyframes scene-split {
+    from {
+      clip-path: inset(0 calc(50% - var(--hairline)));
+    }
+
+    to {
+      clip-path: inset(0);
+    }
+  }
+}

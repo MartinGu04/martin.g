@@ -33,8 +33,14 @@ describe('brand tokens', () => {
     }
   })
 
-  it('keeps divider lines subtle', () => {
-    expect(contrast(token('mg-line'), token('mg-black'))).toBeLessThan(1.5)
+  it('keeps structural lines subtle (white at 10% over the background)', () => {
+    const match = tokens.match(/--mg-line:\s*rgb\(255 255 255 \/ ([0-9.]+)\)/)
+    const alpha = Number(match?.[1])
+    expect(alpha).toBeCloseTo(0.1, 3)
+    const base = Number.parseInt(token('mg-black').slice(1, 3), 16)
+    const blended = Math.round(base + (255 - base) * alpha)
+    const hex = `#${blended.toString(16).padStart(2, '0').repeat(3)}`
+    expect(contrast(hex, token('mg-black'))).toBeLessThan(1.5)
   })
 })
 

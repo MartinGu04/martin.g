@@ -1,0 +1,85 @@
+@layer components {
+  /* Sits above the atmosphere and below the content (both share the scene's stacking
+     context; DOM order decides). */
+  .depth {
+    position: absolute;
+    z-index: -1;
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-stretch: 125%;
+    white-space: nowrap;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .line {
+    inset-inline-start: calc(var(--margin) * -0.5);
+    inset-block-end: -0.18em;
+    font-size: var(--depth-line-size);
+    line-height: 0.8;
+    letter-spacing: -0.04em;
+    color: color-mix(in srgb, var(--text) 5%, transparent);
+  }
+
+  .index {
+    inset-block-start: 4%;
+    inset-inline-end: calc(var(--margin) * -2);
+    font-size: var(--depth-index-size);
+    line-height: 0.75;
+    letter-spacing: -0.06em;
+    background: linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--text) 12%, transparent),
+      transparent 75%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  :root:lang(he) .depth {
+    font-weight: 900;
+    letter-spacing: 0;
+  }
+
+  /* Parallax in depth, scaled by the tier's intensity (none on mobile). Moves only;
+     never hides. */
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .line {
+        animation: depth-pan linear both;
+        animation-timeline: view();
+        animation-range: exit 0% exit 100%;
+      }
+
+      .index {
+        animation: depth-recede linear both;
+        animation-timeline: view();
+        animation-range: cover;
+      }
+    }
+  }
+
+  @keyframes depth-pan {
+    to {
+      transform: translate3d(calc(-18% * var(--dir) * var(--parallax)), 0, 0);
+    }
+  }
+
+  @keyframes depth-recede {
+    from {
+      transform: translate3d(0, calc(20% * var(--parallax)), 0) scale(0.96);
+    }
+
+    to {
+      transform: translate3d(0, calc(-20% * var(--parallax)), 0) scale(1.02);
+    }
+  }
+
+  @media (forced-colors: active) {
+    .depth {
+      display: none;
+    }
+  }
+}

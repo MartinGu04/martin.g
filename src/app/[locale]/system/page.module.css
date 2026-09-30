@@ -1,0 +1,165 @@
+@layer components {
+  .page {
+    padding-block-end: var(--section-space);
+  }
+
+  .pageTitle {
+    margin-block-start: var(--space-4);
+  }
+
+  .typeRow {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: subgrid;
+    row-gap: var(--space-2);
+    padding-block: var(--space-5);
+    border-block-start: var(--hairline) solid var(--line);
+  }
+
+  .roleName {
+    padding-block-start: var(--space-2);
+  }
+
+  .weights {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-5) var(--space-7);
+  }
+
+  .weight {
+    display: grid;
+    justify-items: start;
+    gap: var(--space-1);
+    font-size: var(--step-4);
+    font-stretch: 125%;
+    line-height: 1.05;
+  }
+
+  .tileRow {
+    padding: var(--space-5);
+    margin-block-end: var(--gutter);
+  }
+
+  .tiles {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-5) var(--gutter);
+  }
+
+  .tile {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .tileArt {
+    position: relative;
+    isolation: isolate;
+    aspect-ratio: 4 / 5;
+    overflow: clip;
+    box-shadow: inset 0 0 0 var(--hairline) var(--line);
+  }
+
+  @media (width >= 48rem) {
+    .tiles {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  @media (width >= 75rem) {
+    .tiles {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+  }
+
+  .gridDemo {
+    position: relative;
+  }
+
+  .placement {
+    display: flex;
+    align-items: center;
+    min-block-size: 3rem;
+    margin-block-end: var(--space-3);
+    padding-inline: var(--space-3);
+    background: var(--surface-1);
+    box-shadow: inset 0 0 0 var(--hairline) var(--line-strong);
+  }
+
+  .surfaceDemo {
+    display: flex;
+    align-items: end;
+    min-block-size: 8rem;
+    padding: var(--space-5);
+  }
+
+  .marks {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: var(--space-6);
+  }
+
+  .markFigure {
+    margin: 0;
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  /* Visualizes the clear-space rule (BrandMark withClearSpace): the dashed box is the
+     mark plus its minimum clear space. */
+  .clearSpace {
+    display: inline-block;
+    line-height: 0;
+    outline: var(--hairline) dashed var(--line-strong);
+  }
+
+  .themeBand {
+    position: relative;
+    isolation: isolate;
+    overflow: clip;
+    padding-block: var(--section-space-sm);
+  }
+
+  .themeGrid {
+    row-gap: var(--space-6);
+  }
+
+  .accents {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-5);
+  }
+
+  .motionTile {
+    grid-column: span 2;
+    display: flex;
+    align-items: end;
+    min-block-size: 10rem;
+    padding: var(--space-4);
+    margin-block-end: var(--gutter);
+  }
+
+  @media (width >= 75rem) {
+    .motionTile {
+      grid-column: span 3;
+    }
+  }
+
+  .parallaxFrame {
+    position: relative;
+    overflow: clip;
+    min-block-size: 16rem;
+    background: var(--surface-1);
+    box-shadow: inset 0 0 0 var(--hairline) var(--line);
+  }
+
+  .parallaxLayer {
+    --parallax-shift: 3rem;
+    position: absolute;
+    inset: 25% 10%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 0 0 var(--hairline) var(--line-strong);
+  }
+}

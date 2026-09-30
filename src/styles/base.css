@@ -4,46 +4,70 @@
     color: var(--text);
     font-family: var(--font-text);
     font-size: 100%;
-    line-height: var(--leading-text);
-    scroll-padding-block-start: var(--header-block-size);
+    line-height: var(--body-leading);
+    font-kerning: normal;
+    font-optical-sizing: auto;
+    scroll-padding-block-start: calc(var(--header-block-size) + var(--space-4));
+    -webkit-tap-highlight-color: transparent;
   }
 
   body {
     background: var(--surface-0);
-    font-size: var(--step-0);
-    font-feature-settings: 'kern';
+    font-size: var(--body-size);
+    font-weight: var(--body-weight);
     text-rendering: optimizeLegibility;
   }
 
   h1,
   h2,
-  h3 {
+  h3,
+  h4 {
     font-family: var(--font-display);
-    font-weight: 400;
-    line-height: var(--leading-heading);
-    letter-spacing: var(--tracking-display);
+    font-weight: 700;
+    line-height: var(--heading-3-leading);
     text-wrap: balance;
   }
 
-  p {
+  p,
+  li,
+  dd {
     text-wrap: pretty;
   }
 
+  /* Links: quiet by default. Underlines appear on interaction, never only on hover:
+     keyboard focus gets the same treatment plus the focus ring. */
   a {
     color: inherit;
+    text-decoration-line: none;
     text-decoration-thickness: var(--hairline);
-    text-underline-offset: 0.2em;
+    text-underline-offset: 0.22em;
+  }
+
+  a:focus-visible {
+    text-decoration-line: underline;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    a:hover {
+      text-decoration-line: underline;
+    }
+  }
+
+  /* Running text links are always underlined so they never rely on color alone. */
+  .prose a {
+    text-decoration-line: underline;
+    text-decoration-color: var(--line-strong);
   }
 
   ::selection {
-    background: var(--text);
-    color: var(--surface-0);
+    background: var(--selection-bg);
+    color: var(--selection-text);
   }
 
-  /* Focus is always visible for keyboard users and never removed. */
+  /* Focus: always visible for keyboard users, never removed, theme-aware. */
   :focus-visible {
     outline: 2px solid var(--focus-ring);
-    outline-offset: 3px;
+    outline-offset: 4px;
     border-radius: var(--radius-1);
   }
 
@@ -51,15 +75,19 @@
     outline: none;
   }
 
+  [tabindex='-1']:focus {
+    outline: none;
+  }
+
+  hr {
+    border: 0;
+    border-block-start: var(--hairline) solid var(--line);
+    margin: 0;
+  }
+
   @media (prefers-reduced-motion: no-preference) {
     html {
       scroll-behavior: smooth;
-    }
-  }
-
-  @media (forced-colors: active) {
-    :focus-visible {
-      outline-color: Highlight;
     }
   }
 }
@@ -77,15 +105,51 @@
     border: 0 !important;
   }
 
-  .label {
-    font-size: var(--label-size);
-    text-transform: var(--label-transform);
-    letter-spacing: var(--label-tracking);
-    font-weight: var(--label-weight);
-    line-height: 1.3;
-  }
-
   .muted {
     color: var(--text-muted);
+  }
+
+  /* Raised surface: a quiet tonal step, no shadow, no blur, minimal radius. */
+  .surface {
+    background: var(--surface-1);
+  }
+
+  .surface-outline {
+    background: var(--surface-1);
+    box-shadow: inset 0 0 0 var(--hairline) var(--line);
+  }
+
+  /* Vertical rhythm: spacing between direct children. */
+  .stack > * + * {
+    margin-block-start: var(--stack-gap, var(--space-4));
+  }
+
+  .stack-xs {
+    --stack-gap: var(--space-2);
+  }
+
+  .stack-sm {
+    --stack-gap: var(--space-4);
+  }
+
+  .stack-md {
+    --stack-gap: var(--space-6);
+  }
+
+  .stack-lg {
+    --stack-gap: var(--space-8);
+  }
+
+  /* Editorial measures. */
+  .measure-text {
+    max-inline-size: var(--measure-text);
+  }
+
+  .measure-lead {
+    max-inline-size: var(--measure-lead);
+  }
+
+  .measure-narrow {
+    max-inline-size: var(--measure-narrow);
   }
 }

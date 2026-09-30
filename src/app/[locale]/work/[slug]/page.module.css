@@ -1,31 +1,27 @@
 @layer components {
   .article {
-    padding-block: var(--space-9) var(--space-section);
+    padding-block: var(--section-space-sm) var(--section-space);
   }
 
   .header {
     row-gap: var(--space-6);
-    margin-block-end: var(--space-8);
+    margin-block-end: var(--section-space-sm);
   }
 
   .title {
-    font-size: var(--step-5);
-    line-height: var(--leading-display);
-  }
-
-  .summary {
-    font-size: var(--step-1);
-    line-height: var(--leading-heading);
+    overflow-wrap: anywhere;
   }
 
   .facts {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-6);
+    gap: var(--space-4) var(--space-8);
+    padding-block-start: var(--space-5);
+    border-block-start: var(--hairline) solid var(--line);
   }
 
   .facts dd {
-    margin-block-start: var(--space-1);
+    margin-block-start: var(--space-2);
   }
 
   .note {

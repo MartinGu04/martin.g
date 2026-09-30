@@ -51,16 +51,51 @@ export type Media = ImageMedia | VideoMedia | PendingMedia
 /* Themes                                                              */
 /* ------------------------------------------------------------------ */
 
-export type ColorToken = 'surface0' | 'surface1' | 'text' | 'textMuted' | 'line' | 'accent'
+/** Theme colors are 6-digit hex so contrast can be validated (src/lib/theme.ts). */
+export type HexColor = `#${string}`
 
 /**
- * Projects may introduce their own visual world, but only through color.
- * There are deliberately no spacing, radius, grid, type-scale or motion keys:
- * MARTIN.G layout and motion rules always apply.
+ * The layers of a scene's atmosphere (<Atmosphere>). Every layer reads the scope's
+ * semantic colors, so the same spec renders correctly in any world.
+ */
+export interface AtmosphereSpec {
+  /** Where light falls: a directional shaft, an overhead pool, a raking side light, or none. */
+  readonly light?: 'shaft' | 'pool' | 'side' | 'none'
+  /** How much of the grid is drawn. The grid itself is always authoritative. */
+  readonly grid?: 'hidden' | 'light' | 'fade' | 'visible'
+  /** Surface texture: fine grain, softer paper, a technical dot field, or none. */
+  readonly texture?: 'grain' | 'paper' | 'dots' | 'none'
+  /** Corner registration marks (a technical accent, never the identity). */
+  readonly marks?: boolean
+  readonly vignette?: boolean
+}
+
+/**
+ * A project world. MARTIN.G provides the grammar (scale, type hierarchy, spacing, grid,
+ * motion, transitions, brand marks, pacing); a world may change color, light, texture and
+ * atmosphere, and nothing else. There are deliberately no spacing, radius, grid,
+ * type-scale or motion keys.
+ *
+ * Required: background (surface0), raised surface (surface1), foreground (text) and muted
+ * text. Optional: structural lines (derived from the foreground when omitted), up to two
+ * accents (default to the foreground), the color of light fields and of the shade they
+ * fall off into (derived from the scheme when omitted), and the atmosphere layers. Focus
+ * ring, selection and control borders are always derived, so a theme cannot break them.
  */
 export interface ProjectTheme {
   scheme: 'dark' | 'light'
-  colors: Readonly<Record<Exclude<ColorToken, 'accent'>, string>> & { accent?: string }
+  colors: {
+    readonly surface0: HexColor
+    readonly surface1: HexColor
+    readonly text: HexColor
+    readonly textMuted: HexColor
+    readonly line?: HexColor
+    readonly accent?: HexColor
+    readonly accent2?: HexColor
+    readonly light?: HexColor
+    readonly shade?: HexColor
+  }
+  atmosphere?: AtmosphereSpec
 }
 
 /* ------------------------------------------------------------------ */
