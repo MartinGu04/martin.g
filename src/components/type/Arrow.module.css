@@ -1,0 +1,14 @@
+@layer components {
+  .wrap {
+    display: inline-flex;
+  }
+
+  .arrow {
+    inline-size: 1.5rem;
+    block-size: 1.5rem;
+  }
+
+  :dir(rtl) .arrow {
+    transform: scaleX(-1);
+  }
+}

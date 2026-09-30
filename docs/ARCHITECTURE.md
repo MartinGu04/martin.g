@@ -24,9 +24,11 @@ src/
     sitemap.ts robots.ts icon.png apple-icon.png favicon.ico
   i18n/                    config, negotiation, dictionaries, release gate
   content/                 schema, registry (server-only), resolve (view models), projects/
-  components/              brand, layout (grid, header, footer), nav, type, theme, media, project, hero
+  components/              brand, layout (grid, rule, header, footer), nav, type, theme, media,
+                           motion, project, hero
+  fonts/                   self-hosted OFL fonts and licenses
   lib/                     site URL and metadata helpers, CSS var typing
-  styles/                  layers, tokens, fonts, reset, base, motion
+  styles/                  layers, tokens, fonts, reset, base, typography, layout, motion
 scripts/                   leak-check, lint-policy, setup-hooks
 tests/unit                 Vitest (content, i18n, tokens, grid, policy, leak check)
 tests/e2e                  Playwright (routing, direction, axe, confidential, brand, headers)
@@ -45,48 +47,23 @@ tests/e2e                  Playwright (routing, direction, axe, confidential, br
 - Hebrew has no case: label styles switch from tracked uppercase to weight and size through
   `:lang(he)` tokens.
 
-## Typography
+## Design system
 
-Latin and Hebrew are separate families, each registered with a script-specific
-`unicode-range` (`src/styles/fonts.css`). Mixed runs resolve per character; each locale
-decides which family leads for shared glyphs. **Provisional:** the faces point at local
-system fonts. The design-system phase replaces them with free, self-hosted files via
-`next/font/local`, keeping the family names and role variables.
+Phase 2 established the production visual system; see
+[DESIGN-SYSTEM.md](DESIGN-SYSTEM.md) for tokens, typography (Hanken Grotesk + Noto Sans
+Hebrew, self-hosted, script-limited with `unicode-range`), the 4/8/12 grid and named
+placements, primitives, brand-mark sizing and clear space, header/footer rules, motion,
+themes and the accessibility baseline. The QA specimen lives at `/[locale]/system` in local
+and preview builds only.
 
-## Grid and breakpoints
-
-| Tier    | Range    | Columns | Gutter | Margin                   |
-| ------- | -------- | ------- | ------ | ------------------------ |
-| Mobile  | < 768px  | 4       | 12px   | 20px                     |
-| Tablet  | ≥ 768px  | 8       | 20px   | 40px                     |
-| Desktop | ≥ 1200px | 12      | 24px   | fluid 48–80              |
-| Wide    | ≥ 1600px | 12      | 32px   | content capped at 1600px |
-
-`<Grid>` and `<Cell span={{ base, md, lg }} start={{ ... }}>` compile to CSS custom
-properties. Spans inherit upward. Grid lines follow the inline direction, so layouts mirror
-in RTL without extra code. Physical `left`/`right` CSS is rejected by `lint-policy`.
-
-## Themes
-
-Semantic color tokens (`--surface-0`, `--surface-1`, `--text`, `--text-muted`, `--line`,
-`--accent`) are the only colors components read. `ThemeScope` (server) writes a project's
-palette as inline variables. `ProjectTheme` has no spacing, radius, type or motion keys, so
-projects change palette, never system. Scroll-driven theme transitions (`ThemeConductor`)
-arrive with the hero phase.
-
-## Brand marks
-
-`Wordmark` (primary) and `Monogram` (secondary) read `components/brand/brand.ts`.
-
-- **Wordmark** on larger layouts, at sizes that pass real-size testing (hero, social,
-  and the tablet/desktop header once verified).
-- **Monogram** for compact mobile branding, favicon and small details.
-
-**Provisional:** alpha masks derived from the reference PNGs, tinted with `currentColor`.
-Known issue: at header size (about 17px tall) the wordmark's hairlines disappear. This is
-not to be compensated by changing proportions or thickening the traced mask. Phase 2
-replaces the masks with production SVGs (outlined, `currentColor`, tight viewBox, one group
-per glyph) and sets each mark's minimum size from real-size tests.
+- Grid lines follow the inline direction, so layouts mirror in RTL without extra code.
+  Physical `left`/`right` CSS is rejected by `lint-policy`.
+- `ThemeScope` (server) lets a section control background, foreground, muted text, lines
+  and up to two accents; derived tokens are re-declared inside the scope; `themeIssues()`
+  validates contrast. Spacing, grid, type and motion are never themeable.
+- Brand marks are provisional masks with CSS-enforced minimum sizes per pixel density
+  (the hairlines are ~2% of mark height, a property of the design). Production SVGs replace
+  the masks without API changes; small-size legibility needs a brand-owned optical cut.
 
 ## Content
 
@@ -128,8 +105,8 @@ destination exists (Phase 6); no placeholder or dead links.
 ## Phases
 
 - Phase 0: Decisions (done)
-- Phase 1: Foundation (this)
-- Phase 2: Design system
+- Phase 1: Foundation (done)
+- Phase 2: Design system (this)
 - Phase 3: Content engine
 - Phase 4: Hero and home choreography
 - Phase 5: ON case study

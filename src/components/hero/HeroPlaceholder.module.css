@@ -2,43 +2,77 @@
   .hero {
     position: relative;
     display: grid;
-    align-content: center;
+    grid-template-rows: 1fr auto;
     min-block-size: calc(100svh - var(--header-block-size));
-    padding-block: var(--space-9);
     overflow: clip;
   }
 
   .lines {
-    --grid-opacity: 0.35;
+    --grid-opacity: 0.55;
   }
 
-  .inner {
+  .grid {
     position: relative;
+    align-content: end;
     row-gap: var(--space-7);
+    padding-block: var(--space-9) var(--space-7);
   }
 
   .title {
+    grid-column: 1 / -1;
+    line-height: 0;
     color: var(--text);
-    line-height: 1;
   }
 
-  .lines2 {
+  .statement {
+    grid-column: 1 / -1;
     display: grid;
-    gap: var(--space-2);
+    gap: var(--space-1);
   }
 
-  .positioning {
-    font-size: var(--step-2);
-    line-height: var(--leading-heading);
-  }
-
-  .principle {
-    font-size: var(--step-1);
+  /* Measured on the lines themselves (em of the heading size). em, not ch: ch comes from
+     the '0' glyph, which the Hebrew face does not contain. */
+  .statement > p {
+    max-inline-size: 16em;
   }
 
   .scroll {
-    position: absolute;
-    inset-block-end: var(--space-6);
-    inset-inline-start: var(--margin);
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding-block: var(--space-5);
+  }
+
+  .scrollLine {
+    inline-size: var(--space-7);
+    block-size: 0;
+    border-block-start: var(--hairline) solid var(--line-strong);
+  }
+
+  /* Tablet: the wordmark takes 7 of 8 columns, the statement steps in by two. */
+  @media (width >= 48rem) {
+    .title {
+      grid-column: 1 / span 7;
+    }
+
+    .statement {
+      grid-column: 3 / span 6;
+    }
+  }
+
+  /* Desktop: wordmark across 9 columns, statement offset to the main column. */
+  @media (width >= 75rem) {
+    .grid {
+      padding-block-end: var(--space-8);
+    }
+
+    .title {
+      grid-column: 1 / span 9;
+    }
+
+    .statement {
+      grid-column: 5 / span 7;
+    }
   }
 }

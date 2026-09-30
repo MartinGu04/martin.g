@@ -3,4 +3,26 @@
     background: var(--surface-0);
     color: var(--text);
   }
+
+  /*
+   * Tokens derived from the scope's own colors. Custom properties resolve where they are
+   * declared, so derived tokens must be re-declared inside the scope, not inherited from
+   * :root (where they were computed from the brand palette).
+   */
+  .themed {
+    --line: color-mix(in srgb, var(--text) 9%, transparent);
+    --line-strong: color-mix(in srgb, var(--text) 18%, transparent);
+    --control-border: var(--text-muted);
+    --focus-ring: var(--text);
+    --selection-bg: var(--text);
+    --selection-text: var(--surface-0);
+  }
+
+  @media (forced-colors: active) {
+    .themed {
+      --line: CanvasText;
+      --line-strong: CanvasText;
+      --focus-ring: Highlight;
+    }
+  }
 }

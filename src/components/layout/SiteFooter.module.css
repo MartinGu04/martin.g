@@ -1,16 +1,61 @@
 @layer components {
   .footer {
-    border-block-start: var(--hairline) solid var(--line);
-    padding-block: var(--space-7);
-    font-size: var(--step--1);
+    padding-block: 0 var(--space-6);
   }
 
-  .bar {
-    align-items: center;
+  .grid {
+    row-gap: var(--space-7);
   }
 
-  .end {
+  /* Wordmark clear space: at least half its height on every side. */
+  .identity {
+    padding-block-start: var(--space-7);
+  }
+
+  .statement {
+    display: grid;
+    gap: var(--space-1);
+  }
+
+  @media (width >= 48rem) {
+    .statement {
+      padding-block-start: var(--space-7);
+    }
+  }
+
+  .meta {
     display: flex;
-    justify-content: flex-end;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4) var(--space-6);
+    padding-block-start: var(--space-4);
+    border-block-start: var(--hairline) solid var(--line);
+  }
+
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-6);
+  }
+
+  .link {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 2.75rem;
+    color: var(--text-muted);
+    transition: color var(--dur-micro) var(--ease-out);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .link:hover {
+      color: var(--text);
+      text-decoration-line: none;
+    }
+  }
+
+  .link:focus-visible {
+    color: var(--text);
   }
 }

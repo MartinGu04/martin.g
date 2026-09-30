@@ -1,7 +1,7 @@
 import AxeBuilder from '@axe-core/playwright'
 import { expect, test } from '@playwright/test'
 
-const pages = ['/en', '/he', '/en/work/on', '/he/work/mi-ma-mo']
+const pages = ['/en', '/he', '/en/work/on', '/he/work/mi-ma-mo', '/en/system', '/he/system']
 
 test.describe('locale routing', () => {
   test('redirects unprefixed URLs using Accept-Language', async ({ browser }) => {
@@ -40,7 +40,11 @@ test.describe('locale routing', () => {
 
   test('the language switch keeps the current page', async ({ page }) => {
     await page.goto('/en/work/on')
-    await page.getByRole('link', { name: /Switch language/ }).click()
+    await page
+      .getByRole('banner')
+      .getByRole('group', { name: 'Switch language' })
+      .getByRole('link', { name: /^HE/ })
+      .click()
     await expect(page).toHaveURL(/\/he\/work\/on$/)
     await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
   })
@@ -159,8 +163,8 @@ test.describe('brand and layout', () => {
   test('wordmark on desktop and tablet, monogram on compact mobile', async ({ page, isMobile }) => {
     await page.goto('/en')
     const header = page.getByRole('banner')
-    const marks = header.locator('span[aria-hidden="true"][dir="ltr"]')
-    const [wordmark, monogram] = [marks.nth(0), marks.nth(1)]
+    const wordmark = header.locator('[data-mark="wordmark"]')
+    const monogram = header.locator('[data-mark="monogram"]')
     if (isMobile) {
       await expect(wordmark).toBeHidden()
       await expect(monogram).toBeVisible()

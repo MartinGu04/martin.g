@@ -1,16 +1,23 @@
-import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { isLocale } from '@/i18n/config'
 import { getDictionary } from '@/i18n/get-dictionary'
 import { getProjectSequence } from '@/content/registry'
 import { resolveConfidentialSummary, resolvePublicSummary } from '@/content/resolve'
-import { Cell, Grid } from '@/components/layout/Grid'
+import { Grid } from '@/components/layout/Grid'
 import { SectionHeading } from '@/components/type/SectionHeading'
+import { IndexNumber } from '@/components/type/IndexNumber'
 import { Ltr } from '@/components/type/Ltr'
 import { HeroPlaceholder } from '@/components/hero/HeroPlaceholder'
+import { ProjectIndex } from '@/components/project/ProjectIndex'
 import { AbstractCover } from '@/components/project/AbstractCover'
+import { Reveal } from '@/components/motion/Reveal'
 import styles from './page.module.css'
 
+/**
+ * Foundation home, upgraded to the Phase 2 design system: a living specimen of real,
+ * approved content. Not the final home experience (hero, showcases and transitions come
+ * in later phases).
+ */
 export default async function HomePage({ params }: PageProps<'/[locale]'>) {
   const { locale } = await params
   if (!isLocale(locale)) notFound()
@@ -31,59 +38,23 @@ export default async function HomePage({ params }: PageProps<'/[locale]'>) {
     <>
       <HeroPlaceholder dict={dict} />
 
-      <section id="work" aria-labelledby="work-title" className={styles.section}>
-        <Grid>
-          <Cell span={{ base: 4, md: 8, lg: 12 }}>
-            <SectionHeading id="work-title" index="01">
-              {dict.work.selectedTitle}
-            </SectionHeading>
-          </Cell>
-        </Grid>
-        <Grid as="ol" role="list" className={styles.list}>
-          {work.map((project) => (
-            <Cell as="li" key={project.id} span={{ base: 4, md: 8, lg: 12 }} className={styles.row}>
-              <Link href={project.href} className={styles.rowLink}>
-                <Cell span={{ base: 4, md: 3, lg: 5 }}>
-                  <p className="label muted">
-                    <Ltr>{project.number}</Ltr>
-                  </p>
-                  <h3 className={styles.title}>
-                    <Ltr>{project.title}</Ltr>
-                  </h3>
-                </Cell>
-                <Cell span={{ base: 4, md: 5, lg: 5 }} start={{ lg: 7 }}>
-                  <p>{project.summary}</p>
-                  <p className="muted">{project.disciplines.join(' · ')}</p>
-                </Cell>
-              </Link>
-            </Cell>
-          ))}
-        </Grid>
-      </section>
+      <Grid as="section" id="work" aria-labelledby="work-title" className="section">
+        <SectionHeading id="work-title" index="01" label={dict.work.selectedTitle} />
+        <ProjectIndex projects={work} />
+      </Grid>
 
-      <section aria-labelledby="confidential-title" className={styles.section}>
-        <Grid>
-          <Cell span={{ base: 4, md: 8, lg: 12 }}>
-            <SectionHeading id="confidential-title">{dict.work.confidentialTitle}</SectionHeading>
-            <p className={`muted ${styles.note}`}>{dict.work.confidentialNote}</p>
-          </Cell>
-        </Grid>
+      <Grid as="section" aria-labelledby="confidential-title" className="section">
+        <SectionHeading id="confidential-title" label={dict.work.confidentialTitle} />
+        <p className={`col-aside t-small muted ${styles.note}`}>{dict.work.confidentialNote}</p>
         {/* No links, no media, no routes: sanitized summaries only. */}
-        <Grid as="ul" role="list" className={styles.list}>
-          {confidential.map((project) => (
-            <Cell
-              as="li"
-              key={project.id}
-              span={{ base: 4, md: 4, lg: 6 }}
-              className={styles.confidentialItem}
-            >
+        <ul role="list" className={`col-main ${styles.confidential}`}>
+          {confidential.map((project, i) => (
+            <Reveal as="li" key={project.id} order={i} className={styles.item}>
               <AbstractCover pattern={project.pattern} />
-              <p className={`label muted ${styles.confidentialNumber}`}>
-                <Ltr>{project.number}</Ltr>
-              </p>
-              <h3 className={styles.confidentialTitle}>{project.title}</h3>
-              <p>{project.summary}</p>
-              <p className="muted">
+              <IndexNumber value={project.number} className="t-label muted" />
+              <h3 className="t-heading-3">{project.title}</h3>
+              <p className="t-body">{project.summary}</p>
+              <p className="t-small muted">
                 {project.disciplines.join(' · ')}
                 {project.years ? (
                   <>
@@ -92,10 +63,10 @@ export default async function HomePage({ params }: PageProps<'/[locale]'>) {
                   </>
                 ) : null}
               </p>
-            </Cell>
+            </Reveal>
           ))}
-        </Grid>
-      </section>
+        </ul>
+      </Grid>
     </>
   )
 }

@@ -1,0 +1,33 @@
+@layer components {
+  /* Participates in the parent grid's tracks. */
+  .heading {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: subgrid;
+    row-gap: var(--space-5);
+    margin-block-end: var(--heading-gap);
+  }
+
+  .eyebrow {
+    padding-block-start: var(--space-4);
+  }
+
+  .main {
+    display: grid;
+    gap: var(--space-5);
+  }
+
+  .title {
+    max-inline-size: var(--measure-heading);
+  }
+
+  .intro {
+    margin: 0;
+  }
+
+  @media (width >= 48rem) {
+    .main {
+      padding-block-start: var(--space-4);
+    }
+  }
+}

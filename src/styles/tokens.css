@@ -1,3 +1,7 @@
+/*
+ * MARTIN.G design tokens. Components read semantic tokens only; palette constants (--mg-*)
+ * exist to feed them. Full rationale in docs/DESIGN-SYSTEM.md.
+ */
 @layer tokens {
   :root {
     /* ---------------------------------------------------------------- */
@@ -7,25 +11,86 @@
     --mg-graphite: #111111;
     --mg-bone: #f1f0ec;
     --mg-ash: #949494;
-    --mg-line: #1c1c1c;
-    --mg-control: #6b6b6b; /* >= 3:1 on both surfaces, for form borders and UI boundaries */
+    /* Structural lines: white at 7% (resolves to about #1c1c1c on --mg-black). */
+    --mg-line: rgb(255 255 255 / 0.07);
+    --mg-line-strong: rgb(255 255 255 / 0.14);
+    /* >= 3:1 on both surfaces: form borders and other UI boundaries (WCAG 1.4.11). */
+    --mg-control: #6b6b6b;
 
     /* ---------------------------------------------------------------- */
-    /* Semantic color tokens: the only colors components may read.     */
-    /* Project themes override exactly these through ThemeScope.        */
+    /* Semantic color tokens. ThemeScope overrides exactly these.       */
     /* ---------------------------------------------------------------- */
     --surface-0: var(--mg-black);
     --surface-1: var(--mg-graphite);
     --text: var(--mg-bone);
     --text-muted: var(--mg-ash);
     --line: var(--mg-line);
+    --line-strong: var(--mg-line-strong);
+    /* MARTIN.G itself uses almost no accent: both accents default to the text color. */
     --accent: var(--mg-bone);
+    --accent-2: var(--mg-bone);
     --control-border: var(--mg-control);
     --focus-ring: var(--text);
+    --selection-bg: var(--text);
+    --selection-text: var(--surface-0);
     color-scheme: dark;
 
     /* ---------------------------------------------------------------- */
-    /* Space                                                            */
+    /* Type scale. Fluid between 320px and 1600px viewports.            */
+    /* Body sizes stay rem-dominant so they scale fully with zoom.       */
+    /* ---------------------------------------------------------------- */
+    --step--2: 0.6875rem;
+    --step--1: clamp(0.8125rem, 0.7969rem + 0.0781vw, 0.875rem);
+    --step-0: clamp(1rem, 0.9844rem + 0.0781vw, 1.0625rem);
+    --step-1: clamp(1.125rem, 1.0625rem + 0.3125vw, 1.375rem);
+    --step-2: clamp(1.375rem, 1.2188rem + 0.7812vw, 2rem);
+    --step-3: clamp(1.75rem, 1.4375rem + 1.5625vw, 3rem);
+    --step-4: clamp(2.25rem, 1.6875rem + 2.8125vw, 4.5rem);
+    --step-5: clamp(2.75rem, 1.6875rem + 5.3125vw, 7rem);
+    --step-6: clamp(3.25rem, 1.4375rem + 9.0625vw, 10.5rem);
+
+    /* Type roles: size / leading / tracking / weight. Hebrew overrides below. */
+    --display-xl-size: var(--step-6);
+    --display-xl-leading: 0.96;
+    --display-xl-tracking: -0.035em;
+    --display-size: var(--step-5);
+    --display-leading: 1;
+    --display-tracking: -0.03em;
+    --display-weight: 300;
+
+    --heading-1-size: var(--step-4);
+    --heading-1-leading: 1.04;
+    --heading-1-tracking: -0.025em;
+    --heading-1-weight: 300;
+    --heading-2-size: var(--step-3);
+    --heading-2-leading: 1.1;
+    --heading-2-tracking: -0.018em;
+    --heading-2-weight: 300;
+    --heading-3-size: var(--step-2);
+    --heading-3-leading: 1.2;
+    --heading-3-tracking: -0.01em;
+    --heading-3-weight: 400;
+
+    --lead-size: var(--step-1);
+    --lead-leading: 1.45;
+    --lead-weight: 300;
+    --body-size: var(--step-0);
+    --body-leading: 1.6;
+    --body-weight: 400;
+    --small-size: var(--step--1);
+    --small-leading: 1.5;
+
+    /* Labels ("01 / SELECTED WORK") and microcopy. Hebrew has no case: see :lang(he). */
+    --label-size: 0.75rem;
+    --label-leading: 1.3;
+    --label-transform: uppercase;
+    --label-tracking: 0.14em;
+    --label-weight: 500;
+    --micro-size: var(--step--2);
+    --micro-tracking: 0.12em;
+
+    /* ---------------------------------------------------------------- */
+    /* Space and rhythm (4px base)                                      */
     /* ---------------------------------------------------------------- */
     --space-1: 0.25rem;
     --space-2: 0.5rem;
@@ -37,7 +102,21 @@
     --space-8: 4rem;
     --space-9: 6rem;
     --space-10: 8rem;
-    --space-section: clamp(6rem, 4rem + 8vw, 14rem);
+    /* Between major sections, and between sub-sections inside one. */
+    --section-space: clamp(5rem, 3.25rem + 8.75vw, 12rem);
+    --section-space-sm: clamp(3rem, 2rem + 5vw, 7rem);
+    /* Between a section heading and its content. */
+    --heading-gap: clamp(2rem, 1.5rem + 2.5vw, 4rem);
+
+    /* ---------------------------------------------------------------- */
+    /* Measures: editorial line lengths, independent of the grid.       */
+    /* ---------------------------------------------------------------- */
+    --measure-text: 38rem; /* body copy: about 65 to 75 characters */
+    --measure-lead: 34rem;
+    --measure-narrow: 24rem;
+    /* Headings wrap into short, balanced lines. em rather than ch: ch is measured from the
+       '0' glyph, which the Hebrew face does not contain. */
+    --measure-heading: 11em;
 
     /* ---------------------------------------------------------------- */
     /* Shape                                                            */
@@ -47,48 +126,28 @@
     --hairline: 1px;
 
     /* ---------------------------------------------------------------- */
-    /* Type scale (fluid). Families are defined per script in fonts.css */
-    /* ---------------------------------------------------------------- */
-    --step--1: clamp(0.8125rem, 0.79rem + 0.1vw, 0.875rem);
-    --step-0: clamp(1rem, 0.96rem + 0.2vw, 1.125rem);
-    --step-1: clamp(1.25rem, 1.16rem + 0.45vw, 1.5rem);
-    --step-2: clamp(1.5rem, 1.25rem + 1.1vw, 2.25rem);
-    --step-3: clamp(2rem, 1.5rem + 2.3vw, 3.5rem);
-    --step-4: clamp(2.75rem, 1.9rem + 4vw, 6rem);
-    --step-5: clamp(3.5rem, 2.2rem + 6.5vw, 9rem);
-
-    --leading-display: 1.02;
-    --leading-heading: 1.12;
-    --leading-text: 1.55;
-    --tracking-display: -0.02em;
-    --tracking-text: 0;
-
-    /* Label style (e.g. "01 / SELECTED WORK"). Hebrew has no case: see :lang(he). */
-    --label-size: var(--step--1);
-    --label-transform: uppercase;
-    --label-tracking: 0.14em;
-    --label-weight: 400;
-
-    /* ---------------------------------------------------------------- */
     /* Grid: 4 / 8 / 12 columns                                         */
     /* ---------------------------------------------------------------- */
     --cols: 4;
-    --gutter: 0.75rem;
+    --gutter: 1rem;
     --margin: 1.25rem;
     --content-max: 100rem;
+    --page-max: calc(var(--content-max) + 2 * var(--margin));
 
     /* ---------------------------------------------------------------- */
     /* Motion                                                           */
     /* ---------------------------------------------------------------- */
     --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
     --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
-    --dur-1: 160ms;
-    --dur-2: 320ms;
-    --dur-3: 640ms;
-    --dur-4: 960ms;
-    --dur-5: 1400ms;
-    --distance-1: 0.5rem;
-    --distance-2: 1.5rem;
+    --ease-mask: cubic-bezier(0.77, 0, 0.18, 1);
+    --dur-micro: 200ms;
+    --dur-standard: 600ms;
+    --dur-cinematic: 1100ms;
+    --distance-sm: 0.5rem;
+    --distance-md: 1.5rem;
+    --scale-from: 0.98;
+    --stagger: 80ms;
+    /* Parallax intensity per tier; 0 disables. Multiplied into offsets. */
     --parallax: 0;
     /* Multiply horizontal motion by --dir so it mirrors in RTL. */
     --dir: 1;
@@ -96,7 +155,7 @@
     /* ---------------------------------------------------------------- */
     /* Chrome                                                           */
     /* ---------------------------------------------------------------- */
-    --header-block-size: 4rem;
+    --header-block-size: 3.5rem;
     --z-header: 10;
     --z-skip: 100;
   }
@@ -105,15 +164,28 @@
     --dir: -1;
   }
 
+  /* Hebrew: no negative tracking, taller leading, no uppercase, slightly larger labels. */
   :root:lang(he) {
-    --leading-display: 1.12;
-    --leading-heading: 1.2;
-    --leading-text: 1.7;
-    --tracking-display: 0;
+    --display-xl-leading: 1.06;
+    --display-xl-tracking: 0;
+    --display-leading: 1.08;
+    --display-tracking: 0;
+    --heading-1-leading: 1.14;
+    --heading-1-tracking: 0;
+    --heading-2-leading: 1.2;
+    --heading-2-tracking: 0;
+    --heading-3-leading: 1.3;
+    --heading-3-tracking: 0;
+    --lead-leading: 1.6;
+    --body-leading: 1.75;
+    --small-leading: 1.65;
+    --label-size: 0.875rem;
     --label-transform: none;
     --label-tracking: 0;
     --label-weight: 500;
-    --label-size: var(--step-0);
+    --micro-size: 0.8125rem;
+    --micro-tracking: 0;
+    --measure-heading: 13em;
   }
 
   /* Breakpoints (mirrored in src/styles/breakpoints.ts):
@@ -122,7 +194,7 @@
     :root {
       --cols: 8;
       --gutter: 1.25rem;
-      --margin: 2.5rem;
+      --margin: clamp(2rem, 4vw, 3rem);
       --parallax: 0.5;
       --header-block-size: 4.5rem;
     }
@@ -132,7 +204,7 @@
     :root {
       --cols: 12;
       --gutter: 1.5rem;
-      --margin: clamp(3rem, 4vw, 5rem);
+      --margin: clamp(3rem, 2.25rem + 3.75vw, 6rem);
       --parallax: 1;
       --header-block-size: 5rem;
     }
@@ -146,14 +218,22 @@
 
   @media (prefers-reduced-motion: reduce) {
     :root {
-      --dur-1: 1ms;
-      --dur-2: 1ms;
-      --dur-3: 1ms;
-      --dur-4: 1ms;
-      --dur-5: 1ms;
-      --distance-1: 0;
-      --distance-2: 0;
+      --dur-micro: 1ms;
+      --dur-standard: 1ms;
+      --dur-cinematic: 1ms;
+      --distance-sm: 0;
+      --distance-md: 0;
+      --scale-from: 1;
+      --stagger: 0ms;
       --parallax: 0;
+    }
+  }
+
+  @media (forced-colors: active) {
+    :root {
+      --line: CanvasText;
+      --line-strong: CanvasText;
+      --focus-ring: Highlight;
     }
   }
 }

@@ -5,7 +5,8 @@ import { getDictionary } from '@/i18n/get-dictionary'
 import { getPublicProject, getPublicProjects } from '@/content/registry'
 import { formatYears } from '@/content/resolve'
 import { localeAlternates } from '@/lib/site'
-import { Cell, Grid } from '@/components/layout/Grid'
+import { Grid } from '@/components/layout/Grid'
+import { Eyebrow } from '@/components/type/Eyebrow'
 import { Ltr } from '@/components/type/Ltr'
 import { MediaFrame } from '@/components/media/MediaFrame'
 import { ThemeScope } from '@/components/theme/ThemeScope'
@@ -42,38 +43,35 @@ export default async function ProjectPage({ params }: PageProps<'/[locale]/work/
   return (
     <ThemeScope theme={project.theme} as="article" className={styles.article}>
       <Grid className={styles.header}>
-        <Cell span={{ base: 4, md: 8, lg: 8 }}>
-          <h1 className={styles.title}>
-            <Ltr>{project.title[locale]}</Ltr>
-          </h1>
-        </Cell>
-        <Cell span={{ base: 4, md: 6, lg: 6 }}>
-          <p className={styles.summary}>{project.summary[locale]}</p>
-        </Cell>
-        <Cell span={{ base: 4, md: 8, lg: 12 }}>
-          <dl className={styles.facts}>
-            {years ? (
-              <div>
-                <dt className="label muted">{dict.project.years}</dt>
-                <dd>
-                  <Ltr>{years}</Ltr>
-                </dd>
-              </div>
-            ) : null}
+        <Eyebrow className="col-full">{dict.nav.work}</Eyebrow>
+        <h1 className={`col-full t-display-xl ${styles.title}`}>
+          <Ltr>{project.title[locale]}</Ltr>
+        </h1>
+        <p className="col-main t-lead measure-lead">{project.summary[locale]}</p>
+        <dl className={`col-main ${styles.facts}`}>
+          {years ? (
             <div>
-              <dt className="label muted">{dict.project.disciplines}</dt>
-              <dd>{project.disciplines.map((d) => dict.disciplines[d]).join(' · ')}</dd>
+              <dt className="t-label muted">{dict.project.years}</dt>
+              <dd className="t-numeric">
+                <Ltr>{years}</Ltr>
+              </dd>
             </div>
-          </dl>
-        </Cell>
+          ) : null}
+          <div>
+            <dt className="t-label muted">{dict.project.disciplines}</dt>
+            <dd>{project.disciplines.map((d) => dict.disciplines[d]).join(' · ')}</dd>
+          </div>
+        </dl>
       </Grid>
       <Grid>
-        <Cell span={{ base: 4, md: 8, lg: 12 }}>
-          <MediaFrame media={project.cover} locale={locale} sizes="100vw" priority />
-        </Cell>
-        <Cell span={{ base: 4, md: 6, lg: 6 }} className={styles.note}>
-          <p className="muted">{dict.project.inPreparation}</p>
-        </Cell>
+        <MediaFrame
+          media={project.cover}
+          locale={locale}
+          sizes="(width >= 75rem) 84vw, 100vw"
+          priority
+          className="col-content"
+        />
+        <p className={`col-text t-body muted ${styles.note}`}>{dict.project.inPreparation}</p>
       </Grid>
     </ThemeScope>
   )

@@ -1,0 +1,90 @@
+/*
+ * Type roles. Apply one class per text element; sizes, leading, tracking and weight come
+ * from tokens.css, with Hebrew overrides there. Use the semantic element that matches the
+ * document outline and the class that matches the visual role (they are independent).
+ */
+@layer base {
+  .t-display-xl {
+    font-family: var(--font-display);
+    font-size: var(--display-xl-size);
+    line-height: var(--display-xl-leading);
+    letter-spacing: var(--display-xl-tracking);
+    font-weight: var(--display-weight);
+  }
+
+  .t-display {
+    font-family: var(--font-display);
+    font-size: var(--display-size);
+    line-height: var(--display-leading);
+    letter-spacing: var(--display-tracking);
+    font-weight: var(--display-weight);
+  }
+
+  .t-heading-1 {
+    font-family: var(--font-display);
+    font-size: var(--heading-1-size);
+    line-height: var(--heading-1-leading);
+    letter-spacing: var(--heading-1-tracking);
+    font-weight: var(--heading-1-weight);
+  }
+
+  .t-heading-2 {
+    font-family: var(--font-display);
+    font-size: var(--heading-2-size);
+    line-height: var(--heading-2-leading);
+    letter-spacing: var(--heading-2-tracking);
+    font-weight: var(--heading-2-weight);
+  }
+
+  .t-heading-3 {
+    font-family: var(--font-display);
+    font-size: var(--heading-3-size);
+    line-height: var(--heading-3-leading);
+    letter-spacing: var(--heading-3-tracking);
+    font-weight: var(--heading-3-weight);
+  }
+
+  .t-lead {
+    font-size: var(--lead-size);
+    line-height: var(--lead-leading);
+    font-weight: var(--lead-weight);
+  }
+
+  .t-body {
+    font-size: var(--body-size);
+    line-height: var(--body-leading);
+    font-weight: var(--body-weight);
+  }
+
+  .t-small {
+    font-size: var(--small-size);
+    line-height: var(--small-leading);
+  }
+
+  .t-label,
+  .label {
+    font-size: var(--label-size);
+    line-height: var(--label-leading);
+    text-transform: var(--label-transform);
+    letter-spacing: var(--label-tracking);
+    font-weight: var(--label-weight);
+  }
+
+  .t-micro {
+    font-size: var(--micro-size);
+    line-height: var(--label-leading);
+    text-transform: var(--label-transform);
+    letter-spacing: var(--micro-tracking);
+    font-weight: var(--label-weight);
+  }
+
+  /* Numerals: tabular lining figures (Hanken Grotesk's default), always from the Latin
+     family so they match in both locales. Pair with <Ltr> for bidi isolation. */
+  .t-numeric {
+    font-family: var(--font-latin), var(--font-fallback);
+    font-variant-numeric: tabular-nums lining-nums;
+    font-feature-settings:
+      'tnum' 1,
+      'lnum' 1;
+  }
+}

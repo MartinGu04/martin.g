@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import type { Locale } from '@/i18n/config'
 import type { Media, VideoSource } from '@/content/schema'
-import styles from './MediaFrame.module.css'
+import { MediaShell } from './MediaShell'
 
 interface MediaFrameProps {
   media: Media
@@ -9,6 +9,7 @@ interface MediaFrameProps {
   /** Responsive `sizes` hint for images. */
   sizes: string
   priority?: boolean
+  className?: string
 }
 
 function renderVideoSources(source: VideoSource) {
@@ -18,34 +19,34 @@ function renderVideoSources(source: VideoSource) {
   }
 }
 
-/** Single entry point for all media, so providers can change without touching layouts. */
-export function MediaFrame({ media, locale, sizes, priority }: MediaFrameProps) {
+function aspectOf(media: Media): number {
   switch (media.kind) {
     case 'pending':
-      return (
-        <div
-          className={styles.pending}
-          style={{ aspectRatio: String(media.aspectRatio) }}
-          role="img"
-          aria-label={media.alt[locale]}
-        />
-      )
+      return media.aspectRatio
     case 'image':
-      return (
+      return media.src.width / media.src.height
+    case 'video':
+      return media.poster.width / media.poster.height
+  }
+}
+
+/** Single entry point for all media, so providers can change without touching layouts. */
+export function MediaFrame({ media, locale, sizes, priority, className }: MediaFrameProps) {
+  return (
+    <MediaShell aspectRatio={aspectOf(media)} className={className}>
+      {media.kind === 'pending' ? (
+        <div role="img" aria-label={media.alt[locale]} style={{ position: 'absolute', inset: 0 }} />
+      ) : media.kind === 'image' ? (
         <Image
-          className={styles.image}
           src={media.src}
           alt={media.decorative ? '' : media.alt[locale]}
           sizes={sizes}
           priority={priority ?? false}
           placeholder="blur"
         />
-      )
-    case 'video':
-      // Phase 5 adds in-view autoplay (never under reduced motion). V1 foundation: user-initiated.
-      return (
+      ) : (
+        // Phase 5 adds in-view autoplay (never under reduced motion). For now: user-initiated.
         <video
-          className={styles.video}
           controls
           playsInline
           preload="none"
@@ -57,6 +58,7 @@ export function MediaFrame({ media, locale, sizes, priority }: MediaFrameProps) 
             <track kind="captions" src={media.captions[locale]} srcLang={locale} default />
           ) : null}
         </video>
-      )
-  }
+      )}
+    </MediaShell>
+  )
 }

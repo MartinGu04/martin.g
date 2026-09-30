@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { notFound } from 'next/navigation'
 import '@/styles/global.css'
+import { fontVariables } from '@/styles/fonts'
 import { directionOf, isLocale, localeMeta, locales } from '@/i18n/config'
 import { getDictionary } from '@/i18n/get-dictionary'
 import { assertReleasableCopy } from '@/i18n/release-gate'
@@ -8,6 +9,8 @@ import { localeAlternates, siteUrl } from '@/lib/site'
 import { SkipLink } from '@/components/layout/SkipLink'
 import { SiteHeader } from '@/components/layout/SiteHeader'
 import { SiteFooter } from '@/components/layout/SiteFooter'
+import { MotionController } from '@/components/motion/MotionController'
+import { motionHeadScript } from '@/components/motion/motion-script'
 
 export const dynamicParams = false
 
@@ -44,14 +47,24 @@ export default async function LocaleLayout({ children, params }: LayoutProps<'/[
   const dict = getDictionary(locale)
 
   return (
-    <html lang={locale} dir={directionOf(locale)}>
+    // suppressHydrationWarning: the motion head script sets data-motion before hydration.
+    <html
+      lang={locale}
+      dir={directionOf(locale)}
+      className={fontVariables}
+      suppressHydrationWarning
+    >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: motionHeadScript }} />
+      </head>
       <body>
         <SkipLink label={dict.a11y.skipToContent} />
         <SiteHeader locale={locale} dict={dict} />
         <main id="main" tabIndex={-1}>
           {children}
         </main>
-        <SiteFooter dict={dict} />
+        <SiteFooter locale={locale} dict={dict} />
+        <MotionController />
       </body>
     </html>
   )

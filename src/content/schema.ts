@@ -51,16 +51,30 @@ export type Media = ImageMedia | VideoMedia | PendingMedia
 /* Themes                                                              */
 /* ------------------------------------------------------------------ */
 
-export type ColorToken = 'surface0' | 'surface1' | 'text' | 'textMuted' | 'line' | 'accent'
+/** Theme colors are 6-digit hex so contrast can be validated (src/lib/theme.ts). */
+export type HexColor = `#${string}`
 
 /**
  * Projects may introduce their own visual world, but only through color.
  * There are deliberately no spacing, radius, grid, type-scale or motion keys:
  * MARTIN.G layout and motion rules always apply.
+ *
+ * Required: background (surface0), raised surface (surface1), foreground (text) and muted
+ * text. Optional: structural lines (derived from the foreground when omitted) and up to
+ * two accents (default to the foreground). Focus ring, selection and control borders are
+ * always derived, so a theme cannot break them.
  */
 export interface ProjectTheme {
   scheme: 'dark' | 'light'
-  colors: Readonly<Record<Exclude<ColorToken, 'accent'>, string>> & { accent?: string }
+  colors: {
+    readonly surface0: HexColor
+    readonly surface1: HexColor
+    readonly text: HexColor
+    readonly textMuted: HexColor
+    readonly line?: HexColor
+    readonly accent?: HexColor
+    readonly accent2?: HexColor
+  }
 }
 
 /* ------------------------------------------------------------------ */

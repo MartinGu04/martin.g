@@ -1,24 +1,30 @@
 @layer components {
+  /* The visible column structure, drawn from the same tokens as the layout grid.
+     Place inside a positioned container. Decorative only. */
   .lines {
     position: absolute;
     inset: 0;
     display: grid;
     grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
     column-gap: var(--gutter);
-    max-inline-size: calc(var(--content-max) + 2 * var(--margin));
+    max-inline-size: var(--page-max);
     margin-inline: auto;
     padding-inline: var(--margin);
     pointer-events: none;
+    opacity: var(--grid-opacity, 1);
   }
 
   .col {
-    border-inline: var(--hairline) solid var(--line);
-    opacity: var(--grid-opacity, 0.6);
+    border-inline-start: var(--hairline) solid var(--line);
   }
 
-  /* Only as many columns as the current tier has. */
+  /* Only as many columns as the current tier has; the last visible one closes the frame. */
   .col:nth-child(n + 5) {
     display: none;
+  }
+
+  .col:nth-child(4) {
+    border-inline-end: var(--hairline) solid var(--line);
   }
 
   @media (width >= 48rem) {
@@ -29,11 +35,34 @@
     .col:nth-child(n + 9) {
       display: none;
     }
+
+    .col:nth-child(4) {
+      border-inline-end: 0;
+    }
+
+    .col:nth-child(8) {
+      border-inline-end: var(--hairline) solid var(--line);
+    }
   }
 
   @media (width >= 75rem) {
     .col:nth-child(n + 9) {
       display: block;
+    }
+
+    .col:nth-child(8) {
+      border-inline-end: 0;
+    }
+
+    .col:nth-child(12) {
+      border-inline-end: var(--hairline) solid var(--line);
+    }
+  }
+
+  /* Purely decorative: remove in forced colors rather than turning it into CanvasText. */
+  @media (forced-colors: active) {
+    .lines {
+      display: none;
     }
   }
 }
