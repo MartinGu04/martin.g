@@ -1,0 +1,6 @@
+@layer components {
+  .scope {
+    background: var(--surface-0);
+    color: var(--text);
+  }
+}

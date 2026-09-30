@@ -1,0 +1,16 @@
+@layer components {
+  .footer {
+    border-block-start: var(--hairline) solid var(--line);
+    padding-block: var(--space-7);
+    font-size: var(--step--1);
+  }
+
+  .bar {
+    align-items: center;
+  }
+
+  .end {
+    display: flex;
+    justify-content: flex-end;
+  }
+}

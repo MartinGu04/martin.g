@@ -1,0 +1,17 @@
+@layer components {
+  .mark {
+    display: inline-block;
+    flex: none;
+    background-color: currentColor;
+    -webkit-mask: var(--mark-src) center / contain no-repeat;
+    mask: var(--mark-src) center / contain no-repeat;
+  }
+
+  /* Forced colors would otherwise replace the tinted background and hide the mark. */
+  @media (forced-colors: active) {
+    .mark {
+      forced-color-adjust: none;
+      background-color: CanvasText;
+    }
+  }
+}

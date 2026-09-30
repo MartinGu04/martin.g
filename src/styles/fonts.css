@@ -1,0 +1,48 @@
+/*
+ * Typography architecture: Latin and Hebrew are separate families, each registered
+ * with a script-specific unicode-range. Mixed runs (brand names, numerals and English
+ * terms inside Hebrew) therefore resolve per character to the right family, while each
+ * locale decides which family leads for shared glyphs such as digits and punctuation.
+ *
+ * PROVISIONAL: these faces point at locally installed system fonts so the pipeline can
+ * be exercised without choosing typefaces. In the design-system phase each face is
+ * replaced by a self-hosted file (next/font/local with a matching unicode-range),
+ * keeping the family names and role variables below unchanged.
+ */
+
+@font-face {
+  font-family: 'MG Latin';
+  src: local('Helvetica Neue'), local('HelveticaNeue'), local('Arial'), local('Liberation Sans');
+  font-display: swap;
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'MG Hebrew';
+  src: local('Arial Hebrew'), local('ArialHebrew'), local('Noto Sans Hebrew'), local('Arial');
+  font-display: swap;
+  unicode-range: U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F;
+}
+
+@layer tokens {
+  :root {
+    /* Per-script families. Never include generic families here. */
+    --font-latin-text: 'MG Latin';
+    --font-latin-display: 'MG Latin';
+    --font-hebrew-text: 'MG Hebrew';
+    --font-hebrew-display: 'MG Hebrew';
+    --font-fallback: system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+    /* Roles consumed by components. Latin leads in English. */
+    --font-text: var(--font-latin-text), var(--font-hebrew-text), var(--font-fallback);
+    --font-display: var(--font-latin-display), var(--font-hebrew-display), var(--font-fallback);
+  }
+
+  :root:lang(he) {
+    /* Hebrew leads for shared glyphs in the Hebrew locale. */
+    --font-text: var(--font-hebrew-text), var(--font-latin-text), var(--font-fallback);
+    --font-display: var(--font-hebrew-display), var(--font-latin-display), var(--font-fallback);
+  }
+}

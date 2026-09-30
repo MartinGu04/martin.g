@@ -1,0 +1,159 @@
+@layer tokens {
+  :root {
+    /* ---------------------------------------------------------------- */
+    /* Palette (brand constants)                                        */
+    /* ---------------------------------------------------------------- */
+    --mg-black: #0b0b0b;
+    --mg-graphite: #111111;
+    --mg-bone: #f1f0ec;
+    --mg-ash: #949494;
+    --mg-line: #1c1c1c;
+    --mg-control: #6b6b6b; /* >= 3:1 on both surfaces, for form borders and UI boundaries */
+
+    /* ---------------------------------------------------------------- */
+    /* Semantic color tokens: the only colors components may read.     */
+    /* Project themes override exactly these through ThemeScope.        */
+    /* ---------------------------------------------------------------- */
+    --surface-0: var(--mg-black);
+    --surface-1: var(--mg-graphite);
+    --text: var(--mg-bone);
+    --text-muted: var(--mg-ash);
+    --line: var(--mg-line);
+    --accent: var(--mg-bone);
+    --control-border: var(--mg-control);
+    --focus-ring: var(--text);
+    color-scheme: dark;
+
+    /* ---------------------------------------------------------------- */
+    /* Space                                                            */
+    /* ---------------------------------------------------------------- */
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-5: 1.5rem;
+    --space-6: 2rem;
+    --space-7: 3rem;
+    --space-8: 4rem;
+    --space-9: 6rem;
+    --space-10: 8rem;
+    --space-section: clamp(6rem, 4rem + 8vw, 14rem);
+
+    /* ---------------------------------------------------------------- */
+    /* Shape                                                            */
+    /* ---------------------------------------------------------------- */
+    --radius-0: 0;
+    --radius-1: 2px;
+    --hairline: 1px;
+
+    /* ---------------------------------------------------------------- */
+    /* Type scale (fluid). Families are defined per script in fonts.css */
+    /* ---------------------------------------------------------------- */
+    --step--1: clamp(0.8125rem, 0.79rem + 0.1vw, 0.875rem);
+    --step-0: clamp(1rem, 0.96rem + 0.2vw, 1.125rem);
+    --step-1: clamp(1.25rem, 1.16rem + 0.45vw, 1.5rem);
+    --step-2: clamp(1.5rem, 1.25rem + 1.1vw, 2.25rem);
+    --step-3: clamp(2rem, 1.5rem + 2.3vw, 3.5rem);
+    --step-4: clamp(2.75rem, 1.9rem + 4vw, 6rem);
+    --step-5: clamp(3.5rem, 2.2rem + 6.5vw, 9rem);
+
+    --leading-display: 1.02;
+    --leading-heading: 1.12;
+    --leading-text: 1.55;
+    --tracking-display: -0.02em;
+    --tracking-text: 0;
+
+    /* Label style (e.g. "01 / SELECTED WORK"). Hebrew has no case: see :lang(he). */
+    --label-size: var(--step--1);
+    --label-transform: uppercase;
+    --label-tracking: 0.14em;
+    --label-weight: 400;
+
+    /* ---------------------------------------------------------------- */
+    /* Grid: 4 / 8 / 12 columns                                         */
+    /* ---------------------------------------------------------------- */
+    --cols: 4;
+    --gutter: 0.75rem;
+    --margin: 1.25rem;
+    --content-max: 100rem;
+
+    /* ---------------------------------------------------------------- */
+    /* Motion                                                           */
+    /* ---------------------------------------------------------------- */
+    --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+    --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+    --dur-1: 160ms;
+    --dur-2: 320ms;
+    --dur-3: 640ms;
+    --dur-4: 960ms;
+    --dur-5: 1400ms;
+    --distance-1: 0.5rem;
+    --distance-2: 1.5rem;
+    --parallax: 0;
+    /* Multiply horizontal motion by --dir so it mirrors in RTL. */
+    --dir: 1;
+
+    /* ---------------------------------------------------------------- */
+    /* Chrome                                                           */
+    /* ---------------------------------------------------------------- */
+    --header-block-size: 4rem;
+    --z-header: 10;
+    --z-skip: 100;
+  }
+
+  :root[dir='rtl'] {
+    --dir: -1;
+  }
+
+  :root:lang(he) {
+    --leading-display: 1.12;
+    --leading-heading: 1.2;
+    --leading-text: 1.7;
+    --tracking-display: 0;
+    --label-transform: none;
+    --label-tracking: 0;
+    --label-weight: 500;
+    --label-size: var(--step-0);
+  }
+
+  /* Breakpoints (mirrored in src/styles/breakpoints.ts):
+     tablet >= 48rem (768px), desktop >= 75rem (1200px), wide >= 100rem (1600px) */
+  @media (width >= 48rem) {
+    :root {
+      --cols: 8;
+      --gutter: 1.25rem;
+      --margin: 2.5rem;
+      --parallax: 0.5;
+      --header-block-size: 4.5rem;
+    }
+  }
+
+  @media (width >= 75rem) {
+    :root {
+      --cols: 12;
+      --gutter: 1.5rem;
+      --margin: clamp(3rem, 4vw, 5rem);
+      --parallax: 1;
+      --header-block-size: 5rem;
+    }
+  }
+
+  @media (width >= 100rem) {
+    :root {
+      --gutter: 2rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root {
+      --dur-1: 1ms;
+      --dur-2: 1ms;
+      --dur-3: 1ms;
+      --dur-4: 1ms;
+      --dur-5: 1ms;
+      --distance-1: 0;
+      --distance-2: 0;
+      --parallax: 0;
+    }
+  }
+}

@@ -1,0 +1,2 @@
+#!/bin/sh
+exec node scripts/leak-check.mjs commit-msg "$1"

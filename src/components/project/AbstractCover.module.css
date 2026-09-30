@@ -1,0 +1,27 @@
+@layer components {
+  .cover {
+    aspect-ratio: 4 / 3;
+    background-color: var(--surface-1);
+    border: var(--hairline) solid var(--line);
+  }
+
+  .grid {
+    background-image:
+      linear-gradient(to right, var(--line) var(--hairline), transparent var(--hairline)),
+      linear-gradient(to bottom, var(--line) var(--hairline), transparent var(--hairline));
+    background-size: 12.5% 16.666%;
+  }
+
+  .lines {
+    background-image: repeating-linear-gradient(
+      to bottom,
+      var(--line) 0 var(--hairline),
+      transparent var(--hairline) 0.75rem
+    );
+  }
+
+  .field {
+    background-image: radial-gradient(var(--line) 1px, transparent 1.5px);
+    background-size: 1rem 1rem;
+  }
+}

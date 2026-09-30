@@ -1,0 +1,34 @@
+@layer layout {
+  /* The page grid: 4 / 8 / 12 columns from tokens.css. Column lines follow the inline
+     direction, so placements mirror automatically in RTL. */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+    column-gap: var(--gutter);
+    inline-size: 100%;
+    max-inline-size: calc(var(--content-max) + 2 * var(--margin));
+    margin-inline: auto;
+    padding-inline: var(--margin);
+  }
+
+  /* Spans inherit upward: tablet falls back to base, desktop to tablet. */
+  .cell {
+    --_span: min(var(--span, var(--cols)), var(--cols));
+    --_start: var(--start, auto);
+    grid-column: var(--_start) / span var(--_span);
+  }
+
+  @media (width >= 48rem) {
+    .cell {
+      --_span: min(var(--span-md, var(--span, var(--cols))), var(--cols));
+      --_start: var(--start-md, var(--start, auto));
+    }
+  }
+
+  @media (width >= 75rem) {
+    .cell {
+      --_span: min(var(--span-lg, var(--span-md, var(--span, var(--cols)))), var(--cols));
+      --_start: var(--start-lg, var(--start-md, var(--start, auto)));
+    }
+  }
+}

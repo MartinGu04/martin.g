@@ -1,0 +1,4 @@
+#!/bin/sh
+# Defense in depth: scan staged content, staged paths and the branch name before they
+# enter history. CI and the Vercel build scan again independently.
+exec node scripts/leak-check.mjs staged

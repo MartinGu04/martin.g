@@ -1,0 +1,33 @@
+/*
+ * Motion foundation. Vocabulary: mask reveals, subtle translate, opacity, restrained
+ * scale, subtle parallax; clip-path only when justified. No bounce, no decoration.
+ *
+ * Rule: an element may start hidden only when scripting is enabled AND the user has not
+ * asked for reduced motion. Without JS, or with reduced motion, content is always visible.
+ * Phase 2 adds the Reveal component that toggles [data-revealed].
+ */
+@layer base {
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    [data-reveal]:not([data-revealed]) {
+      opacity: 0;
+      transform: translate3d(0, var(--distance-2), 0);
+    }
+
+    [data-reveal] {
+      transition:
+        opacity var(--dur-3) var(--ease-out),
+        transform var(--dur-4) var(--ease-out);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 1ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 1ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}

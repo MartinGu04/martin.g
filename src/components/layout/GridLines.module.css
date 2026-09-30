@@ -1,0 +1,39 @@
+@layer components {
+  .lines {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+    column-gap: var(--gutter);
+    max-inline-size: calc(var(--content-max) + 2 * var(--margin));
+    margin-inline: auto;
+    padding-inline: var(--margin);
+    pointer-events: none;
+  }
+
+  .col {
+    border-inline: var(--hairline) solid var(--line);
+    opacity: var(--grid-opacity, 0.6);
+  }
+
+  /* Only as many columns as the current tier has. */
+  .col:nth-child(n + 5) {
+    display: none;
+  }
+
+  @media (width >= 48rem) {
+    .col:nth-child(n + 5) {
+      display: block;
+    }
+
+    .col:nth-child(n + 9) {
+      display: none;
+    }
+  }
+
+  @media (width >= 75rem) {
+    .col:nth-child(n + 9) {
+      display: block;
+    }
+  }
+}

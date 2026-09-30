@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  leak-check:
+    name: Confidential leak check
+    runs-on: ubuntu-latest
+    env:
+      # Secret only. It is never echoed; findings print term numbers, never terms.
+      LEAK_CHECK_TERMS_B64: ${{ secrets.LEAK_CHECK_TERMS_B64 }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Full history: every object, commit message and ref name is scanned.
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Tracked files and paths
+        run: node scripts/leak-check.mjs files
+      - name: Full history, commit messages and ref names
+        run: node scripts/leak-check.mjs history
+      - name: Pull request title and body
+        if: github.event_name == 'pull_request'
+        env:
+          # Passed through env, never interpolated into the script, to avoid injection.
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: node scripts/leak-check.mjs env PR_TITLE PR_BODY
+
+  verify:
+    name: Typecheck, lint, test, build, e2e
+    runs-on: ubuntu-latest
+    env:
+      LEAK_CHECK_TERMS_B64: ${{ secrets.LEAK_CHECK_TERMS_B64 }}
+      NEXT_TELEMETRY_DISABLED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm format:check
+      - run: pnpm test
+      # Includes the build-output leak check and the built-HTML policy check.
+      - run: pnpm build
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm test:e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7

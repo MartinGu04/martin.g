@@ -1,0 +1,51 @@
+@layer components {
+  .section {
+    padding-block: var(--space-section) 0;
+  }
+
+  .section:last-child {
+    padding-block-end: var(--space-section);
+  }
+
+  .list {
+    margin-block-start: var(--space-7);
+    row-gap: var(--space-7);
+  }
+
+  /* Rows and their links share the page tracks through subgrid. */
+  .row {
+    display: grid;
+    grid-template-columns: subgrid;
+    border-block-start: var(--hairline) solid var(--line);
+  }
+
+  .rowLink {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: subgrid;
+    row-gap: var(--space-4);
+    padding-block: var(--space-6);
+    text-decoration: none;
+  }
+
+  .title {
+    font-size: var(--step-4);
+    line-height: var(--leading-display);
+  }
+
+  .note {
+    margin-block-start: var(--space-4);
+    max-inline-size: 40ch;
+  }
+
+  .confidentialItem {
+    display: grid;
+    gap: var(--space-4);
+    align-content: start;
+  }
+
+  .confidentialTitle {
+    font-size: var(--step-2);
+    margin-block-start: var(--space-2);
+  }
+}

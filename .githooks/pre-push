@@ -1,0 +1,3 @@
+#!/bin/sh
+# Scans the refs being pushed and every object in the local Git database.
+exec node scripts/leak-check.mjs push
