@@ -8,8 +8,8 @@
 @layer components {
   .scene {
     view-timeline: --mi-ma-mo block;
-    --scene-pad-start: var(--space-8);
-    --scene-pad-end: var(--section-space);
+    --scene-pad-start: var(--space-6);
+    --scene-pad-end: var(--space-8);
   }
 
   /* The accent, draining toward the muted text color as the world leaves. Declared where
@@ -20,7 +20,7 @@
       var(--accent) calc(var(--world-signal, 1) * 100%),
       var(--text-muted)
     );
-    row-gap: var(--space-6);
+    row-gap: var(--space-4);
   }
 
   .eyebrow {
@@ -59,7 +59,7 @@
   .note {
     max-inline-size: 30em;
     padding-block-start: var(--space-4);
-    border-block-start: var(--hairline) solid var(--line);
+    border-block-start: var(--hairline) solid color-mix(in srgb, var(--light) 45%, transparent);
   }
 
   .phone,
@@ -76,22 +76,26 @@
     color: var(--text-muted);
   }
 
+  /* The interface's controlled blue, for the device's annotation. */
   .labelRule {
     inline-size: var(--space-6);
     block-size: var(--hairline);
-    background: var(--line-strong);
+    background: var(--light);
   }
 
   /*
    * Phones: no scaled-down desktop screen. The phone first, large enough to read, then the
    * few Team Week columns that stay legible at this width.
    */
+  .product {
+    grid-column: 1 / -1;
+  }
+
   .stage {
     display: none;
   }
 
   .phone {
-    grid-column: 1 / -1;
     inline-size: min(100%, 19rem);
   }
 
@@ -100,84 +104,86 @@
     margin-block-start: var(--space-6);
   }
 
-  /* Tablet: the product frame at full width, the phone lifted over its lower corner. */
+  /*
+   * Tablet and up: the whole composition fits one viewport below the header. The product
+   * block is a container: the phone takes about 30% of its width (less when the viewport
+   * is short), the frame takes the rest beside it, and both are capped by the viewport's
+   * height, so the frame, its labels and the phone are always seen together. The
+   * product's interface reads right to left, so its quiet side is always the physical
+   * left: the phone stands there in both directions and never covers the screen's content.
+   */
   @media (width >= 48rem) {
+    .product {
+      --avail: calc(100svh - var(--header-block-size));
+      container-type: inline-size;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+
+    .product > * {
+      /* Phone width: 30% of the block, or what a phone's height allows in this viewport. */
+      --pw: min(30cqi, calc((var(--avail) - 20rem) * 0.495));
+    }
+
+    .product {
+      min-block-size: calc(min(30cqi, calc((var(--avail) - 20rem) * 0.495)) / 0.495 + 2.5rem);
+    }
+
+    /* The frame: beside the phone (which overlaps its quiet edge by a little over half
+       its width), capped so frame and labels stay within the viewport. */
     .stage {
       display: block;
-      grid-column: 1 / -1;
-      margin-block-start: var(--space-4);
+      inline-size: min(calc(100cqi - 0.45 * var(--pw)), calc((var(--avail) - 19rem) * 1.892));
+      margin-inline-start: auto;
+    }
+
+    :dir(rtl) .stage {
+      margin-inline: 0 auto;
+    }
+
+    /* In English the labels start at the phone's side: they begin after it. */
+    :dir(ltr) .stage {
+      --labels-inset: calc(0.55 * var(--pw) + var(--space-5));
     }
 
     .detail {
       display: none;
     }
 
-    /* The product's interface reads right to left, so its quiet side is always the
-       physical left: the phone stands there in both directions (inline start in English,
-       inline end in Hebrew) and never covers the screen's content. */
     .phone {
-      grid-column: 1 / span 3;
-      inline-size: 17rem;
-      max-inline-size: 100%;
-      justify-self: start;
-      margin-block-start: -16rem;
+      position: absolute;
+      inset-block-end: 0;
+      inset-inline-start: 0;
       z-index: 3;
+      inline-size: var(--pw);
     }
 
     :dir(rtl) .phone {
-      grid-column: 6 / -1;
-      justify-self: end;
-    }
-
-    /* In English the phone stands at the labels' end of the frame: they start after it. */
-    :dir(ltr) .stage {
-      --labels-inset: 18rem;
+      inset-inline: auto 0;
     }
   }
 
-  /* Desktop: the title and the statement share one header line; below it the product
-     frame spans ten of the twelve columns, and the phone (three columns, readable) stands
-     over its quiet edge, the physical left as above, and hangs below it. */
+  /* Desktop: the title on its own line; below it the text at the inline start (statement,
+     action, note) and the product beside it across nine columns. Everything from the
+     thread to the view labels fits one viewport (about 760px at 1440 x 900). */
   @media (width >= 75rem) {
     .title {
-      grid-column: 1 / span 5;
+      grid-column: 1 / span 8;
       grid-row: 3;
-      align-self: end;
     }
 
     .text {
-      grid-column: 7 / -1;
-      grid-row: 3;
-      align-self: end;
-    }
-
-    .stage {
-      grid-column: 3 / -1;
-      grid-row: 4;
-      margin-block-start: var(--space-4);
-    }
-
-    :dir(rtl) .stage {
-      grid-column: 1 / span 10;
-    }
-
-    :dir(ltr) .stage {
-      --labels-inset: calc(var(--space-9) + var(--space-6));
-    }
-
-    .phone {
       grid-column: 1 / span 3;
       grid-row: 4;
-      align-self: end;
-      inline-size: auto;
-      justify-self: stretch;
-      margin-block: 0 -7rem;
-      margin-inline: 0;
+      align-self: start;
     }
 
-    :dir(rtl) .phone {
-      grid-column: 10 / -1;
-      justify-self: stretch;
+    .product {
+      grid-column: 4 / -1;
+      grid-row: 4;
+      align-self: start;
     }
   }
 

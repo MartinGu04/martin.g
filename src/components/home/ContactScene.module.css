@@ -1,19 +1,12 @@
 @layer components {
   .scene {
-    --scene-pad-start: var(--section-space);
+    --scene-pad-start: var(--section-space-sm);
     --scene-pad-end: var(--section-space-sm);
   }
 
   .grid {
-    container-type: inline-size;
-    row-gap: var(--space-6);
-  }
-
-  .mark {
-    grid-column: 1 / -1;
-    inline-size: clamp(12rem, 18vw, 18rem);
-    line-height: 0;
-    color: var(--text);
+    row-gap: var(--space-5);
+    align-items: center;
   }
 
   /* Echoes the hero, a clear step below it. */
@@ -25,117 +18,39 @@
 
   .line {
     grid-column: 1 / -1;
-  }
-
-  /* The ambient line: a hairline and the word beside it, both decorative. */
-  .ambient {
-    grid-column: 1 / -1;
-    display: flex;
-    align-items: center;
-    gap: var(--space-5);
-    margin-block-start: var(--space-6);
     color: var(--accent);
   }
 
-  /* The thread, resolved: the full line from About's warm light into the closing amber,
-     ending in an open square. It draws once as the scene arrives, then rests. */
-  .draw {
-    flex: 1;
-    position: relative;
-    block-size: 2px;
-    background: linear-gradient(to right, var(--thread-from), var(--thread-to));
-    transform-origin: left center;
-  }
-
-  :root[dir='rtl'] .draw {
-    background: linear-gradient(to left, var(--thread-from), var(--thread-to));
-    transform-origin: right center;
-  }
-
-  .draw::after {
-    content: '';
-    position: absolute;
-    inset-block-start: 50%;
-    inset-inline-end: 0;
-    inline-size: 0.625rem;
-    block-size: 0.625rem;
-    translate: 0 -50%;
-    border: var(--hairline) solid var(--thread-to);
-    background: var(--surface-0);
-  }
-
-  /* Static: the three words together. */
-  .words {
-    display: flex;
-    gap: var(--space-4);
-    white-space: nowrap;
+  .visual {
+    grid-column: 1 / -1;
+    margin-block-start: var(--space-6);
   }
 
   @media (width >= 48rem) {
-    .line {
-      grid-column: 5 / span 4;
-    }
-
-    .ambient {
-      grid-column: 1 / span 8;
+    .visual {
+      grid-column: 2 / -1;
     }
   }
 
+  /* Desktop: the invitation at the inline start, the strands arriving from the inline
+     end and meeting just before it. */
   @media (width >= 75rem) {
-    .line {
-      grid-column: 8 / span 5;
+    .title {
+      grid-column: 1 / span 6;
+      grid-row: 1;
       align-self: end;
     }
 
-    .ambient {
-      grid-column: 1 / span 7;
-    }
-  }
-
-  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
-    @supports (animation-timeline: view()) {
-      .draw {
-        animation: contact-resolve linear both;
-        animation-timeline: view();
-        animation-range: entry 10% cover 45%;
-      }
+    .line {
+      grid-column: 1 / span 6;
+      grid-row: 2;
+      align-self: start;
     }
 
-    :root:is([data-motion='pending'], [data-motion='on']) .words {
-      display: grid;
-      grid-template-areas: 'stack';
-      min-inline-size: 9em;
-    }
-
-    :root:is([data-motion='pending'], [data-motion='on']) .word {
-      grid-area: stack;
-      animation: contact-word 10.5s linear infinite;
-      animation-delay: calc((var(--i) - 3) * 3.5s - 0.6s);
-    }
-  }
-
-  @keyframes contact-resolve {
-    from {
-      scale: 0 1;
-    }
-  }
-
-  @keyframes contact-word {
-    0% {
-      opacity: 0;
-      transform: translate3d(0, 0.4em, 0);
-    }
-
-    6%,
-    30% {
-      opacity: 1;
-      transform: none;
-    }
-
-    35%,
-    100% {
-      opacity: 0;
-      transform: translate3d(0, -0.3em, 0);
+    .visual {
+      grid-column: 7 / -1;
+      grid-row: 1 / span 2;
+      margin-block-start: 0;
     }
   }
 }

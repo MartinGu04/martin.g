@@ -44,7 +44,7 @@
 
   /* A short olive rule: the detail color. */
   .rule {
-    inline-size: var(--space-8);
+    inline-size: var(--space-9);
     block-size: 2px;
     background: var(--accent-2);
   }
@@ -65,9 +65,11 @@
   }
 
   /*
-   * The composition: the garden behind, the website in front and larger, the patisserie a
-   * small insert. Phones: the garden as a landscape band, the website's phone screen large
-   * over its lower edge.
+   * The composition, closer to a product launch than a collage: one dominant website
+   * frame on a bordeaux mat, its phone layout standing in front of its lower corner, and
+   * the garden behind as the only atmosphere. Phones: the garden as a band, the website's
+   * phone screen large over its lower edge (the proof frame already shows the phone
+   * layout there, so the separate phone is not repeated).
    */
   .gallery {
     grid-column: 1 / -1;
@@ -81,7 +83,7 @@
     grid-row: 1;
   }
 
-  .detail {
+  .phone {
     display: none;
   }
 
@@ -107,32 +109,41 @@
       grid-template-columns: repeat(8, minmax(0, 1fr));
     }
 
-    /* The garden: atmosphere, upper inline end. */
+    /* The garden: behind the frame, upper inline end, mostly covered. */
     .atmosphere {
-      grid-column: 3 / -1;
+      grid-column: 4 / -1;
       grid-row: 1;
       align-self: start;
+      opacity: 0.92;
     }
 
-    /* The website: the proof, large, over the garden's lower part. */
+    /* The website: the proof, nearly the gallery's width. */
     .proof {
       grid-column: 1 / span 7;
       grid-row: 1;
       align-self: start;
-      margin-block-start: 20%;
+      margin-block-start: 13%;
+      box-shadow:
+        0 0 0 var(--hairline) var(--gold),
+        calc(-1rem * var(--dir)) 1rem 0 0 var(--accent);
     }
 
-    /* The patisserie: a small insert over the garden's upper inline-end corner. */
-    .detail {
-      --parallax-shift: 3rem;
+    /* Its phone layout: a small device in front of the frame's lower inline-start corner,
+       held in a cream mat with a gold edge. */
+    .phone {
       display: block;
-      grid-column: 7 / -1;
+      grid-column: 1 / span 2;
       grid-row: 1;
-      align-self: start;
+      align-self: end;
       z-index: 3;
-      margin-block-start: -6%;
-      margin-inline-end: calc(var(--space-5) * -1);
-      box-shadow: 0 0 0 0.5rem var(--surface-0);
+      inline-size: min(100%, 9.5rem);
+      margin-inline-start: calc(var(--space-7) * -1);
+      margin-block-end: calc(var(--space-8) * -1);
+      border-radius: 1.25rem;
+      overflow: clip;
+      box-shadow:
+        0 0 0 0.375rem var(--surface-0),
+        0 0 0 calc(0.375rem + var(--hairline)) var(--gold);
     }
   }
 

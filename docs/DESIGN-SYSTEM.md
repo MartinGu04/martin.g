@@ -161,6 +161,11 @@ uses one of the first four; `t-label` and `t-micro` are for orientation only.
   in from the inline start as its scene arrives (scroll-driven, static without motion,
   hidden in forced colors) and is decorative. One per scene; the closing scene resolves it
   (drawn once, an open square, still).
+- Brand marks inside scenes (4.7): the full wordmark belongs to the header, the hero and
+  the footer. Interior scenes use grid geometry, lines and nodes instead, or nothing.
+- Glyphs (4.7): small custom inline SVG on the 24-unit grid (hairline strokes, square
+  nodes, orthogonal paths, no gradients, no containers), monochrome or a world's second
+  accent, about 18 to 24px. Never an icon pack.
 
 `<DepthType>` adds foreground/background depth: oversized, cropped typography behind the
 content (`line` along the lower edge, panning on scroll; `index`, a huge numeral receding

@@ -2,7 +2,8 @@ import type { Localized, ReviewStatus } from '../config'
 
 /**
  * Copy around the real project media (Phase 4, revised in 4.5): alternative text, captions,
- * technical annotations, the preview player's controls and the closing scene's word cycle.
+ * technical annotations, the preview player's controls, the closing scene's three strands,
+ * the Selected Work chapter lines, the explore label and the About discipline marks.
  * Martin's Hebrew corrections are applied and the rest was reviewed for literal phrasing;
  * it stays 'draft' until Martin approves it, and a Vercel production build refuses it
  * (src/i18n/release-gate.ts) until then. The action labels "Visit live site" / "לאתר החי"
@@ -27,8 +28,14 @@ export interface ShowcaseCopy {
     sanitized: string
     views: { home: string; teamWeek: string; manager: string; mobile: string }
   }
-  /** The closing scene's slow word cycle, from the approved positioning. Decorative. */
+  /** The closing scene's three converging paths, from the approved positioning. */
   contactCycle: readonly string[]
+  /** Selected Work: one short line per chapter, naming the world it opens. */
+  chapters: { on: string; miMaMo: string; defense: string }
+  /** Shown over a project's main proof on hover, beside the explicit project link. */
+  explore: string
+  /** About: the three disciplines named in Martin's support line, as marks on one line. */
+  aboutMarks: readonly [string, string, string]
   /** What each capability means, one sentence (English supplied by Martin). */
   capabilities: Readonly<Record<CapabilityKey, string>>
 }
@@ -55,6 +62,13 @@ export const showcaseCopy: Localized<ShowcaseCopy> = {
       views: { home: 'Home', teamWeek: 'Team Week', manager: 'Manager area', mobile: 'Mobile' },
     },
     contactCycle: ['Product', 'System', 'Experience'],
+    chapters: {
+      on: 'Brand and digital experience',
+      miMaMo: 'Operational product',
+      defense: 'Complex systems',
+    },
+    explore: 'Explore project',
+    aboutMarks: ['Strategy', 'Design', 'Engineering'],
     capabilities: {
       'product-strategy': 'From problem to a clear product direction.',
       'product-design': 'From direction to an interface designed for real use.',
@@ -77,6 +91,13 @@ export const showcaseCopy: Localized<ShowcaseCopy> = {
       views: { home: 'מסך הבית', teamWeek: 'צוות השבוע', manager: 'אזור המנהל', mobile: 'מובייל' },
     },
     contactCycle: ['מוצר', 'מערכת', 'חוויה'],
+    chapters: {
+      on: 'מותג וחוויה דיגיטלית',
+      miMaMo: 'מוצר תפעולי',
+      defense: 'מערכות מורכבות',
+    },
+    explore: 'לפרויקט',
+    aboutMarks: ['אסטרטגיה', 'עיצוב', 'הנדסה'],
     capabilities: {
       'product-strategy': 'מבעיה לכיוון מוצר ברור.',
       'product-design': 'מכיוון לממשק שמעוצב לשימוש אמיתי.',

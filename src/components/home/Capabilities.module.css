@@ -74,6 +74,19 @@
     border-block-start: var(--hairline) solid var(--line-strong);
   }
 
+  /* The number (rust) and the glyph (sage, noticed second) on one line. */
+  .mark {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .glyph {
+    inline-size: 1.375rem;
+    block-size: 1.375rem;
+    color: var(--accent-2);
+  }
+
   .index {
     color: var(--accent);
   }
@@ -93,7 +106,7 @@
   .evidenceRule {
     inline-size: var(--space-5);
     block-size: var(--hairline);
-    background: var(--accent);
+    background: var(--accent-2);
   }
 
   .sep {

@@ -1,5 +1,6 @@
 import { Fragment } from 'react'
 import type { HomeCopy } from '@/i18n/dictionaries/home'
+import type { CapabilityKey } from '@/i18n/dictionaries/showcase'
 import { thread, worlds } from '@/content/worlds'
 import { Grid } from '@/components/layout/Grid'
 import { IndexNumber } from '@/components/type/IndexNumber'
@@ -7,10 +8,11 @@ import { Reveal } from '@/components/motion/Reveal'
 import { Name } from '@/components/type/Name'
 import { Scene } from '@/components/scene/Scene'
 import { Thread } from '@/components/scene/Thread'
+import { CapabilityGlyph } from './CapabilityGlyph'
 import styles from './Capabilities.module.css'
 
 export interface Capability {
-  key: string
+  key: CapabilityKey
   label: string
   /** What the capability means, in one sentence. */
   statement: string
@@ -21,10 +23,11 @@ export interface Capability {
 /**
  * Scene 07: capabilities as a proof system, not a skill matrix. A clear headline and its
  * claim; one very slow typographic rail of the names (decorative, an ambient loop, never
- * needed to read the list); then an editorial grid in which each discipline is a name,
- * one sentence of what it means, and the real work that proves it, linked to that work
- * on this page. No metrics, no cards. Daylight after the dark worlds: bone, ink and one
- * warm accent, which the thread carries in.
+ * needed to read the list); then an editorial grid in which each discipline is a small
+ * number and its glyph, a name, one sentence of what it means, and the real work that
+ * proves it, linked to that work on this page. No metrics, no cards. Daylight after
+ * the dark worlds: bone and ink, a rust accent the thread carries in, and muted sage for
+ * the glyphs and the evidence rules.
  */
 export function Capabilities({
   copy,
@@ -66,10 +69,13 @@ export function Capabilities({
         <ul role="list" className={styles.list}>
           {items.map((item, i) => (
             <Reveal as="li" key={item.key} order={i % 3} className={styles.item}>
-              <IndexNumber
-                value={String(i + 1).padStart(2, '0')}
-                className={`t-label ${styles.index}`}
-              />
+              <span className={styles.mark}>
+                <IndexNumber
+                  value={String(i + 1).padStart(2, '0')}
+                  className={`t-label ${styles.index}`}
+                />
+                <CapabilityGlyph name={item.key} className={styles.glyph} />
+              </span>
               <h3 className={`t-heading-3 ${styles.name}`}>{item.label}</h3>
               <p className={`t-body-l muted ${styles.statement}`}>{item.statement}</p>
               <p className={`t-action ${styles.evidence}`}>

@@ -376,7 +376,7 @@ test.describe('one story, many worlds', () => {
       await expect(threads, scene).toHaveCount(1)
     }
     // The closing line is drawn and still: no loop runs on it.
-    const close = page.locator('[aria-labelledby="contact-title"] [class*="draw"]')
+    const close = page.locator('[aria-labelledby="contact-title"] path[class*="resolve"]')
     await close.evaluate((el) => el.scrollIntoView())
     const infinite = await close.evaluate(
       (el) =>
@@ -395,5 +395,93 @@ test.describe('one story, many worlds', () => {
     await expect(
       about.getByText('I don’t start with a screen. I start with the problem.'),
     ).toBeVisible()
+  })
+})
+
+test.describe('exploration and polish', () => {
+  test('Selected Work is three chapters, each with a glimpse of its world', async ({ page }) => {
+    await page.goto('/he')
+    const chapters = page.locator('#work ol').first().locator('> li')
+    await expect(chapters).toHaveCount(3)
+    for (const chapter of await chapters.all()) {
+      const link = chapter.getByRole('link')
+      await expect(link).toHaveAttribute('href', /^#/)
+      await expect(chapter.locator('[aria-hidden="true"] :is(img, svg)').first()).toBeVisible()
+    }
+    // The Defense glimpse is still geometry: nothing loops outside an ambient scene.
+    await expect(chapters.nth(2).locator('[data-loop]')).toHaveCount(0)
+  })
+
+  test('המחלבה fits one desktop viewport: title, statement, action, frame, phone, labels', async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, 'the one-viewport composition is the desktop layout')
+    for (const viewport of [
+      { width: 1440, height: 900 },
+      { width: 1366, height: 768 },
+      { width: 1920, height: 1080 },
+    ]) {
+      await page.setViewportSize(viewport)
+      await page.goto('/he')
+      const box = await page.locator('#mi-ma-mo').evaluate((scene) => {
+        const rect = (sel: string) => scene.querySelector(sel)!.getBoundingClientRect()
+        const parts = [
+          rect('#mi-ma-mo-title'),
+          rect('p.t-statement'),
+          rect('[data-project-link]'),
+          rect('[data-fallback]'),
+          rect('figure'),
+        ]
+        const header = document.querySelector('header')!.getBoundingClientRect().height
+        return {
+          span: Math.max(...parts.map((r) => r.bottom)) - Math.min(...parts.map((r) => r.top)),
+          room: innerHeight - header,
+          frame: rect('[data-fallback]').width,
+          phone: rect('figure').width,
+        }
+      })
+      const at = `${viewport.width} x ${viewport.height}`
+      expect(box.span, at).toBeLessThanOrEqual(box.room)
+      expect(box.frame, at).toBeGreaterThan(viewport.width * 0.45)
+      expect(box.phone, at).toBeGreaterThan(170)
+    }
+  })
+
+  test('the main proof invites exploring the project, beside the explicit link', async ({
+    page,
+    isMobile,
+  }) => {
+    await page.goto('/en')
+    const scene = page.locator('#on')
+    await expect(scene.getByRole('link', { name: /View project/ })).toBeVisible()
+    const cover = scene.locator('a[aria-hidden="true"][tabindex="-1"]')
+    await expect(cover).toHaveCount(1)
+    await expect(cover).toHaveAttribute('href', '/en/work/on')
+    if (isMobile) {
+      await expect(cover).toBeHidden()
+      return
+    }
+    await scene.evaluate((el) => el.scrollIntoView())
+    await cover.hover()
+    await expect(cover.getByText('Explore project')).toHaveCSS('opacity', '1')
+  })
+
+  test('the full wordmark lives in the header, the hero and the footer only', async ({ page }) => {
+    await page.goto('/en')
+    await expect(page.locator('main [data-mark="wordmark"]')).toHaveCount(1)
+    await expect(
+      page.locator('main section').first().locator('[data-mark="wordmark"]'),
+    ).toHaveCount(1)
+  })
+
+  test('capabilities carry quiet glyphs, and the close names what converges', async ({ page }) => {
+    await page.goto('/he')
+    const glyphs = page.locator('[aria-labelledby="capabilities-title"] li svg[aria-hidden="true"]')
+    await expect(glyphs).toHaveCount(6)
+    const contact = page.locator('[aria-labelledby="contact-title"]')
+    for (const word of ['מוצר', 'מערכת', 'חוויה'])
+      await expect(contact.getByText(word)).toBeVisible()
+    await expect(contact.getByRole('link')).toHaveCount(0)
   })
 })

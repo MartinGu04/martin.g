@@ -12,10 +12,17 @@ interface ProjectLinkProps {
   className?: string
 }
 
-/** The explicit way into a project from its scene: label and a direction-aware arrow. */
+/**
+ * The explicit way into a project from its scene: label and a direction-aware arrow over a
+ * short rule in the world's accent, so the case study reads as the first invitation.
+ */
 export function ProjectLink({ href, label, title, className }: ProjectLinkProps) {
   return (
-    <Link href={href} className={[`t-action ${styles.link}`, className].filter(Boolean).join(' ')}>
+    <Link
+      href={href}
+      data-project-link=""
+      className={[`t-action ${styles.link}`, className].filter(Boolean).join(' ')}
+    >
       {label}
       <span className="visually-hidden">
         {' '}

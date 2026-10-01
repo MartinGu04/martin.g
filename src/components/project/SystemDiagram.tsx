@@ -116,9 +116,10 @@ const GEOMETRY: Record<Pattern, () => Geometry> = {
  * A generated, non-representational system diagram for confidential work: topology or
  * data pathways, a few masked structural blocks, and, while the scene is visible, a slow
  * scan and pulses travelling along some paths. It depicts no real system, carries no text,
- * labels, coordinates or data, and is hidden from assistive technology.
+ * labels, coordinates or data, and is hidden from assistive technology. `still` draws the
+ * geometry alone (no scan, no pulses), for small previews outside an ambient scene.
  */
-export function SystemDiagram({ pattern }: { pattern: Pattern }) {
+export function SystemDiagram({ pattern, still }: { pattern: Pattern; still?: boolean }) {
   const g = GEOMETRY[pattern]()
   return (
     <svg
@@ -134,17 +135,19 @@ export function SystemDiagram({ pattern }: { pattern: Pattern }) {
           <path key={i} d={d} />
         ))}
       </g>
-      <g className={styles.pulses}>
-        {g.pulses.map((d, i) => (
-          <path
-            key={i}
-            d={d}
-            pathLength={100}
-            data-loop=""
-            style={{ animationDelay: `${i * -1.7}s` }}
-          />
-        ))}
-      </g>
+      {still ? null : (
+        <g className={styles.pulses}>
+          {g.pulses.map((d, i) => (
+            <path
+              key={i}
+              d={d}
+              pathLength={100}
+              data-loop=""
+              style={{ animationDelay: `${i * -1.7}s` }}
+            />
+          ))}
+        </g>
+      )}
       <g className={styles.nodes}>
         {g.nodes.map((n, i) =>
           n.kind === 'hollow' ? (
@@ -173,22 +176,26 @@ export function SystemDiagram({ pattern }: { pattern: Pattern }) {
           <rect key={i} x={m.x} y={m.y} width={m.w} height={m.h} />
         ))}
       </g>
-      <defs>
-        <linearGradient id={`scan-${pattern}`} x1="0" x2="1" y1="0" y2="0">
-          <stop offset="0" stopColor="currentColor" stopOpacity="0" />
-          <stop offset="0.75" stopColor="currentColor" stopOpacity="0.1" />
-          <stop offset="1" stopColor="currentColor" stopOpacity="0.28" />
-        </linearGradient>
-      </defs>
-      <rect
-        className={styles.scan}
-        x={0}
-        y={0}
-        width={72}
-        height={H}
-        fill={`url(#scan-${pattern})`}
-        data-loop=""
-      />
+      {still ? null : (
+        <>
+          <defs>
+            <linearGradient id={`scan-${pattern}`} x1="0" x2="1" y1="0" y2="0">
+              <stop offset="0" stopColor="currentColor" stopOpacity="0" />
+              <stop offset="0.75" stopColor="currentColor" stopOpacity="0.1" />
+              <stop offset="1" stopColor="currentColor" stopOpacity="0.28" />
+            </linearGradient>
+          </defs>
+          <rect
+            className={styles.scan}
+            x={0}
+            y={0}
+            width={72}
+            height={H}
+            fill={`url(#scan-${pattern})`}
+            data-loop=""
+          />
+        </>
+      )}
     </svg>
   )
 }

@@ -5,9 +5,12 @@ import { homeCopy } from '@/i18n/dictionaries/home'
 import { showcaseCopy } from '@/i18n/dictionaries/showcase'
 import { capabilityProof, type Evidence } from '@/content/capabilities'
 import { getProjectSequence } from '@/content/registry'
+import { onMedia } from '@/content/projects/on'
+import { miMaMoMedia } from '@/content/projects/mi-ma-mo'
+import { thread } from '@/content/worlds'
 import { resolveConfidentialSummary, resolvePublicSummary } from '@/content/resolve'
 import { HeroScene } from '@/components/home/HeroScene'
-import { WorkBridge, type WorkIndexEntry } from '@/components/home/WorkBridge'
+import { WorkBridge, type WorkChapter } from '@/components/home/WorkBridge'
 import { OnWorld } from '@/components/home/OnWorld'
 import { MiMaMoWorld } from '@/components/home/MiMaMoWorld'
 import { ConfidentialScene } from '@/components/home/ConfidentialScene'
@@ -53,13 +56,31 @@ export default async function HomePage({ params }: PageProps<'/[locale]'>) {
   const miMaMo = work.find((project) => project.id === 'mi-ma-mo')
   if (!on || !miMaMo) throw new Error('The homepage expects the ON and mi-ma-mo entries.')
 
-  const index: WorkIndexEntry[] = [
-    { href: '#on', number: on.number, title: on.title },
-    { href: '#mi-ma-mo', number: miMaMo.number, title: miMaMo.title },
+  const firstConfidential = confidential[0]
+  const chapters: WorkChapter[] = [
+    {
+      href: '#on',
+      number: on.number,
+      title: on.title,
+      line: showcase.chapters.on,
+      accent: thread.on,
+      preview: { kind: 'image', src: onMedia.siteHome.src },
+    },
+    {
+      href: '#mi-ma-mo',
+      number: miMaMo.number,
+      title: miMaMo.title,
+      line: showcase.chapters.miMaMo,
+      accent: thread.miMaMo,
+      preview: { kind: 'image', src: miMaMoMedia.dashboard.src, position: 'right top' },
+    },
     {
       href: '#confidential',
       number: confidential.map((item) => item.number).join('–'),
       title: dict.work.confidentialTitle,
+      line: showcase.chapters.defense,
+      accent: thread.defense,
+      preview: { kind: 'diagram', pattern: firstConfidential?.pattern ?? 'grid' },
     },
   ]
 
@@ -80,7 +101,7 @@ export default async function HomePage({ params }: PageProps<'/[locale]'>) {
       <HeroScene dict={dict} name={copy.about.name} role={copy.about.role} />
 
       <section id="work" aria-labelledby="work-title">
-        <WorkBridge dict={dict} entries={index} />
+        <WorkBridge dict={dict} chapters={chapters} />
         <OnWorld project={on} dict={dict} showcase={showcase} locale={locale} />
         <MiMaMoWorld project={miMaMo} dict={dict} showcase={showcase} locale={locale} />
       </section>
@@ -88,7 +109,7 @@ export default async function HomePage({ params }: PageProps<'/[locale]'>) {
       <ConfidentialScene items={confidential} dict={dict} />
       <ProcessStage copy={copy.process} />
       <Capabilities copy={copy.capabilities} items={capabilities} />
-      <AboutScene copy={copy.about} locale={locale} />
+      <AboutScene copy={copy.about} marks={showcase.aboutMarks} locale={locale} />
       <ContactScene copy={copy.contact} cycle={showcase.contactCycle} />
     </>
   )

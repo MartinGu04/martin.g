@@ -6,6 +6,7 @@ import type { ShowcaseCopy } from '@/i18n/dictionaries/showcase'
 import type { PublicProjectSummary } from '@/content/resolve'
 import { onMedia } from '@/content/projects/on'
 import { thread, worlds } from '@/content/worlds'
+import type { StyleWithVars } from '@/lib/css'
 import { Grid } from '@/components/layout/Grid'
 import { IndexNumber } from '@/components/type/IndexNumber'
 import { MediaFrame } from '@/components/media/MediaFrame'
@@ -14,6 +15,7 @@ import { Reveal } from '@/components/motion/Reveal'
 import { Scene } from '@/components/scene/Scene'
 import { Thread } from '@/components/scene/Thread'
 import { LiveSiteLink } from './LiveSiteLink'
+import { ExploreFrame } from './ExploreFrame'
 import { ProjectLink } from './ProjectLink'
 import styles from './OnWorld.module.css'
 
@@ -29,10 +31,10 @@ interface OnWorldProps {
 /**
  * Scene 03: ON, the human, brand and experience side of the work. Quiet luxury, editorial
  * hospitality: the cream world opens softly (a gentle wipe) and the thread arrives in ON's
- * gold. The proof is the digital work: the live website, large on a bordeaux mat, turning
- * between two of its real views. The retreat's own garden is the atmosphere behind it,
- * breathing slowly while the visitor stays; a small print of a stop on the route supports
- * it. The title is the real ON monogram.
+ * gold. The proof is the digital work, launched like a product: one large frame of the live
+ * website on a bordeaux mat, turning between two of its real views, with its phone layout
+ * standing in front. The retreat's own garden is the only atmosphere, behind the frame and
+ * breathing slowly while the visitor stays. The title is the real ON monogram.
  */
 export function OnWorld({ project, dict, showcase, locale }: OnWorldProps) {
   return (
@@ -84,29 +86,31 @@ export function OnWorld({ project, dict, showcase, locale }: OnWorldProps) {
             </div>
           </Reveal>
         </div>
-        <div className={styles.gallery}>
+        <div className={styles.gallery} style={{ '--gold': thread.on } as StyleWithVars}>
           <div className={styles.atmosphere} data-parallax>
             <MediaFrame
               media={onMedia.stage}
               locale={locale}
               motion="drift"
-              sizes="(width >= 75rem) 42vw, (width >= 48rem) 70vw, 100vw"
+              sizes="(width >= 75rem) 30vw, (width >= 48rem) 50vw, 100vw"
             />
           </div>
-          <div className={styles.detail} data-parallax>
-            <MediaFrame media={onMedia.patisserie} locale={locale} sizes="12rem" />
-          </div>
           <div className={styles.proof}>
-            <div className={styles.develop}>
-              <ViewCycle
-                items={[{ media: onMedia.site }, { media: onMedia.siteStoryPrint }]}
-                locale={locale}
-                step={7}
-                fallback="first"
-                sizes="(width >= 75rem) 50vw, (width >= 48rem) 80vw, 70vw"
-                className={styles.print}
-              />
-            </div>
+            <ExploreFrame href={project.href} label={showcase.explore}>
+              <div className={styles.develop}>
+                <ViewCycle
+                  items={[{ media: onMedia.site }, { media: onMedia.siteStoryPrint }]}
+                  locale={locale}
+                  step={7}
+                  fallback="first"
+                  sizes="(width >= 75rem) 56vw, (width >= 48rem) 86vw, 76vw"
+                  className={styles.print}
+                />
+              </div>
+            </ExploreFrame>
+          </div>
+          <div className={styles.phone}>
+            <MediaFrame media={onMedia.siteMobile} locale={locale} sizes="10rem" />
           </div>
         </div>
       </Grid>

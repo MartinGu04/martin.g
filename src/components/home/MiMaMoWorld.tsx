@@ -13,6 +13,7 @@ import { ViewCycle } from '@/components/media/ViewCycle'
 import { Reveal } from '@/components/motion/Reveal'
 import { Scene } from '@/components/scene/Scene'
 import { Thread } from '@/components/scene/Thread'
+import { ExploreFrame } from './ExploreFrame'
 import { ProjectLink } from './ProjectLink'
 import styles from './MiMaMoWorld.module.css'
 
@@ -67,32 +68,36 @@ export function MiMaMoWorld({ project, dict, showcase, locale }: MiMaMoWorldProp
           <p className={`t-small muted ${styles.note}`}>{showcase.miMaMo.sanitized}</p>
         </Reveal>
 
-        <div className={styles.stage}>
-          <ViewCycle
-            items={[
-              { media: miMaMoMedia.dashboard, label: views.home },
-              { media: miMaMoMedia.teamWeekView, label: views.teamWeek },
-              { media: miMaMoMedia.managerView, label: views.manager },
-            ]}
-            locale={locale}
-            step={5}
-            fallback="grid"
-            labels
-            sizes="(width >= 75rem) 80vw, 100vw"
-          />
-        </div>
+        <div className={styles.product}>
+          <div className={styles.stage}>
+            <ExploreFrame href={project.href} label={showcase.explore} corner="right">
+              <ViewCycle
+                items={[
+                  { media: miMaMoMedia.dashboard, label: views.home },
+                  { media: miMaMoMedia.teamWeekView, label: views.teamWeek },
+                  { media: miMaMoMedia.managerView, label: views.manager },
+                ]}
+                locale={locale}
+                step={5}
+                fallback="grid"
+                labels
+                sizes="(width >= 75rem) 56vw, 80vw"
+              />
+            </ExploreFrame>
+          </div>
 
-        <figure className={styles.phone}>
-          <MediaFrame
-            media={miMaMoMedia.mobile}
-            locale={locale}
-            sizes="(width >= 75rem) 22vw, (width >= 48rem) 34vw, 75vw"
-          />
-          <figcaption className={`t-label ${styles.label}`}>
-            <span className={styles.labelRule} aria-hidden="true" />
-            {views.mobile}
-          </figcaption>
-        </figure>
+          <figure className={styles.phone}>
+            <MediaFrame
+              media={miMaMoMedia.mobile}
+              locale={locale}
+              sizes="(width >= 75rem) 20vw, (width >= 48rem) 30vw, 75vw"
+            />
+            <figcaption className={`t-label ${styles.label}`}>
+              <span className={styles.labelRule} aria-hidden="true" />
+              {views.mobile}
+            </figcaption>
+          </figure>
+        </div>
 
         <figure className={styles.detail}>
           <MediaFrame media={miMaMoMedia.teamWeekNarrow} locale={locale} sizes="100vw" />
