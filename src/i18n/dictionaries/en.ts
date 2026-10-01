@@ -23,9 +23,11 @@ export const en = {
   },
   work: {
     selectedTitle: 'Selected Work',
-    confidentialTitle: 'Restricted Work',
-    confidentialNote: 'Identifying details are withheld by design.',
+    confidentialTitle: 'Defense Systems',
+    confidentialNote:
+      'Operational systems built for a defense environment. Identifying details and interfaces are intentionally withheld.',
     viewProject: 'View project',
+    visitLiveSite: 'Visit live site',
   },
   project: {
     years: 'Years',
@@ -38,7 +40,7 @@ export const en = {
     'product-design': 'Product design',
     'experience-design': 'Experience design',
     'brand-experience': 'Brand experience',
-    engineering: 'Engineering',
+    engineering: 'Software engineering',
     'system-design': 'System design',
     'operational-workflows': 'Operational workflows',
   },

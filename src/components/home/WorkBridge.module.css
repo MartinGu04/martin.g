@@ -1,84 +1,172 @@
 @layer components {
   .bridge {
     --scene-pad-start: var(--section-space-sm);
-    --scene-pad-end: var(--section-space);
+    --scene-pad-end: var(--section-space-sm);
   }
 
   .grid {
     row-gap: var(--space-7);
   }
 
-  /* "01 / Selected Work" and a framing line that draws in from the inline start. */
   .entry {
     grid-column: 1 / -1;
-    display: grid;
-    grid-template-columns: auto 1fr;
-    align-items: center;
-    gap: var(--space-5);
   }
 
   .label {
     white-space: nowrap;
   }
 
-  .rule {
-    block-size: var(--hairline);
-    background: var(--line-strong);
-    transform-origin: 0 50%;
-  }
-
-  :root[dir='rtl'] .rule {
-    transform-origin: 100% 50%;
-  }
-
-  /* The compact index: what was built, at a glance. */
-  .index {
+  /*
+   * Three chapters. Phones: stacked, the glimpse at the inline end of each. Tablet and up:
+   * three columns, each hanging from a rule in its world's color.
+   */
+  .chapters {
     grid-column: 1 / -1;
     display: grid;
-    gap: var(--space-2) var(--gutter);
+    gap: var(--space-6) var(--gutter);
   }
 
-  .link {
-    display: flex;
-    align-items: baseline;
-    gap: var(--space-4);
-    min-block-size: 2.75rem;
-    padding-block: var(--space-3);
-    border-block-end: var(--hairline) solid var(--line);
+  .chapter {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'number preview'
+      'title preview'
+      'line preview';
+    align-content: start;
+    column-gap: var(--space-5);
+    row-gap: var(--space-2);
+    padding-block: var(--space-5) var(--space-4);
     color: var(--text);
-    transition: border-color var(--dur-micro) var(--ease-out);
+  }
+
+  /* The chapter's rule: a hairline, with a short stretch in the world's color that runs
+     the full width when the chapter is pointed at or focused. */
+  .rule {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline: 0;
+    block-size: var(--hairline);
+    background: var(--line);
+  }
+
+  .rule::after {
+    content: '';
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    inline-size: 28%;
+    block-size: 2px;
+    background: var(--chapter);
+    transition: inline-size var(--dur-standard) var(--ease-out);
+  }
+
+  .number {
+    grid-area: number;
+    color: var(--chapter);
+  }
+
+  /* The name, and beside it (wrapping under it where narrow) who the project is. */
+  .title {
+    grid-area: title;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: var(--space-4);
+    row-gap: var(--space-1);
+  }
+
+  .identity {
+    color: var(--text-muted);
+  }
+
+  .line {
+    grid-area: line;
+  }
+
+  /* The glimpse: small, muted at rest. */
+  .preview {
+    grid-area: preview;
+    align-self: start;
+    position: relative;
+    display: block;
+    inline-size: 6.5rem;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    background: var(--surface-1);
+    outline: var(--hairline) solid var(--line);
+    filter: grayscale(0.7);
+    opacity: 0.6;
+    transition:
+      filter var(--dur-standard) var(--ease-out),
+      opacity var(--dur-standard) var(--ease-out),
+      outline-color var(--dur-standard) var(--ease-out);
+  }
+
+  .image {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+  }
+
+  .diagram {
+    --accent: var(--chapter);
+    display: block;
+    block-size: 100%;
   }
 
   @media (hover: hover) and (pointer: fine) {
-    .link:hover {
+    .chapter:hover {
       text-decoration-line: none;
-      border-block-end-color: var(--text);
+    }
+
+    .chapter:hover .rule::after {
+      inline-size: 100%;
+    }
+
+    .chapter:hover .preview {
+      filter: none;
+      opacity: 1;
+      outline-color: var(--chapter);
     }
   }
 
-  .link:focus-visible {
-    border-block-end-color: var(--text);
+  .chapter:focus-visible .rule::after {
+    inline-size: 100%;
+  }
+
+  .chapter:focus-visible .preview {
+    filter: none;
+    opacity: 1;
+    outline-color: var(--chapter);
   }
 
   @media (width >= 48rem) {
-    .index {
+    .chapters {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
-  }
 
-  @media (prefers-reduced-motion: no-preference) {
-    @supports (animation-timeline: view()) {
-      .rule {
-        animation: bridge-rule linear both;
-        animation-timeline: view();
-        animation-range: entry 10% cover 40%;
-      }
+    .chapter {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-areas:
+        'number'
+        'title'
+        'line'
+        'preview';
+      row-gap: var(--space-3);
+    }
+
+    .preview {
+      inline-size: 10rem;
+      margin-block-start: var(--space-3);
     }
   }
 
-  @keyframes bridge-rule {
-    from {
-      scale: 0 1;
+  @media (forced-colors: active) {
+    .preview {
+      filter: none;
+      opacity: 1;
     }
   }
 }

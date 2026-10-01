@@ -39,6 +39,13 @@ const nextConfig: NextConfig = {
   // with its own reviewed working rules).
   agentRules: false,
   typedRoutes: true,
+  images: {
+    // Real photography and product screens ship as WebP, never as the sources. AVIF was
+    // measured at 5 to 10 times the encode time per image (seconds per photograph), which
+    // every fresh deployment's first visitors would wait for; WebP encodes in well under a
+    // second for a moderate size cost.
+    formats: ['image/webp'],
+  },
   experimental: {
     // The root layout lives under [locale]; this handles URLs outside it.
     globalNotFound: true,

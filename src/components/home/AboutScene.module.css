@@ -1,47 +1,153 @@
 @layer components {
   .scene {
-    --scene-pad-start: calc(var(--section-space) * 1.25);
-    --scene-pad-end: calc(var(--section-space) * 1.25);
+    --scene-pad-start: var(--section-space-sm);
+    --scene-pad-end: var(--section-space-sm);
   }
 
   .grid {
     row-gap: var(--space-6);
   }
 
-  .name {
-    grid-column: 1 / -1;
-    margin-block-start: var(--space-7);
-  }
-
-  .role {
+  .eyebrow {
     grid-column: 1 / -1;
   }
 
-  .lines {
+  /* Phones: the portrait, then the name and role, the statement, the disciplines. */
+  .portrait,
+  .column {
     grid-column: 1 / -1;
+  }
+
+  .column {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-7);
+  }
+
+  /* The print: the portrait in a hairline mat of lamplight, offset like a print laid on
+     another. Decorative geometry, behind the image. */
+  .portrait {
+    position: relative;
+    max-inline-size: 26rem;
+    isolation: isolate;
+  }
+
+  /* The print rests on the dark wood: a soft, low shadow, no frame effect. */
+  .portrait > :first-child {
+    box-shadow: 0 2rem 3rem -1.75rem color-mix(in srgb, var(--shade) 75%, transparent);
+  }
+
+  .portrait::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    inset-block: var(--space-4) calc(var(--space-4) * -1);
+    inset-inline: var(--space-4) calc(var(--space-4) * -1);
+    border: var(--hairline) solid color-mix(in srgb, var(--accent) 55%, transparent);
+  }
+
+  .identity {
     display: grid;
-    gap: var(--space-6);
-    margin-block-start: var(--space-8);
+    gap: var(--space-1);
   }
 
-  .lines > p {
-    max-inline-size: 18em;
+  /* The name, a heading's size and quieter than the quote; the role in lamplight. */
+  .role {
+    color: var(--accent);
   }
 
+  .name {
+    font-weight: 600;
+  }
+
+  .statement {
+    display: grid;
+    gap: var(--space-5);
+  }
+
+  .quote {
+    max-inline-size: 14em;
+  }
+
+  .support {
+    max-inline-size: 30em;
+  }
+
+  /* Strategy, design, engineering: three nodes on one line that joins them. */
+  .marks {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    max-inline-size: 30rem;
+    padding-block-start: var(--space-5);
+  }
+
+  .marks::before {
+    content: '';
+    position: absolute;
+    inset-block-start: calc(var(--space-5) + 0.3125rem);
+    inset-inline: 0.3125rem 33%;
+    block-size: var(--hairline);
+    background: color-mix(in srgb, var(--accent) 60%, transparent);
+  }
+
+  .mark {
+    position: relative;
+    display: grid;
+    justify-items: start;
+    gap: var(--space-3);
+    color: var(--text-muted);
+  }
+
+  .node {
+    inline-size: 0.625rem;
+    block-size: 0.625rem;
+    border: var(--hairline) solid var(--accent);
+    background: var(--surface-0);
+  }
+
+  .mark:last-child .node {
+    background: var(--accent);
+  }
+
+  /* Tablet and up: the print at the inline start; beside it, the name and role at its top
+     edge, the statement right under them and the disciplines along its bottom edge. */
   @media (width >= 48rem) {
-    .lines {
-      grid-column: 3 / span 6;
+    .portrait {
+      grid-column: 1 / span 4;
+      grid-row: 3;
+      align-self: start;
+      max-inline-size: none;
+    }
+
+    .column {
+      grid-column: 5 / -1;
+      grid-row: 3;
+      align-self: stretch;
+      gap: var(--space-8);
+      margin-block-start: var(--space-2);
+    }
+
+    .marks {
+      margin-block-start: auto;
     }
   }
 
   @media (width >= 75rem) {
-    .role {
-      grid-column: 1 / span 3;
+    .portrait {
+      grid-column: 1 / span 5;
+      max-inline-size: 32rem;
     }
 
-    .lines {
-      grid-column: 5 / span 7;
-      margin-block-start: 0;
+    .column {
+      grid-column: 7 / -1;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .portrait::before,
+    .marks::before {
+      display: none;
     }
   }
 }

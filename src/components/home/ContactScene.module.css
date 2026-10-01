@@ -1,42 +1,57 @@
 @layer components {
   .scene {
-    --scene-align: end;
-    --scene-pad-end: var(--space-9);
+    --scene-pad-start: var(--section-space-sm);
+    --scene-pad-end: var(--section-space-sm);
   }
 
   .grid {
-    container-type: inline-size;
-    row-gap: var(--space-7);
+    row-gap: var(--space-5);
+    align-items: center;
   }
 
-  .mark {
-    grid-column: 1 / -1;
-    inline-size: clamp(12rem, 18vw, 18rem);
-    line-height: 0;
-    color: var(--text);
-  }
-
-  /* Echoes the hero: large, heavy, running toward the inline-end edge. */
+  /* Echoes the hero, a clear step below it. */
   .title {
     grid-column: 1 / -1;
-    max-inline-size: 11em;
-    margin-inline-end: calc(var(--margin) * -1);
+    max-inline-size: 13em;
     text-wrap: balance;
   }
 
   .line {
     grid-column: 1 / -1;
+    color: var(--accent);
+    text-wrap: balance;
+  }
+
+  .visual {
+    grid-column: 1 / -1;
+    margin-block-start: var(--space-6);
   }
 
   @media (width >= 48rem) {
-    .line {
-      grid-column: 5 / span 4;
+    .visual {
+      grid-column: 2 / -1;
     }
   }
 
+  /* Desktop: the invitation at the inline start, the strands arriving from the inline
+     end and meeting just before it. */
   @media (width >= 75rem) {
+    .title {
+      grid-column: 1 / span 6;
+      grid-row: 1;
+      align-self: end;
+    }
+
     .line {
-      grid-column: 8 / span 5;
+      grid-column: 1 / span 6;
+      grid-row: 2;
+      align-self: start;
+    }
+
+    .visual {
+      grid-column: 7 / -1;
+      grid-row: 1 / span 2;
+      margin-block-start: 0;
     }
   }
 }

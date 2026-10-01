@@ -27,9 +27,10 @@ export const he: Dictionary = {
   },
   work: {
     selectedTitle: 'עבודות נבחרות',
-    confidentialTitle: 'פרויקטים בחשיפה מוגבלת',
-    confidentialNote: 'פרטים מזהים הושמטו במכוון.',
+    confidentialTitle: 'מערכות ביטחוניות',
+    confidentialNote: 'מערכות תפעוליות שנבנו לסביבה ביטחונית. פרטים מזהים וממשקים הושמטו במכוון.',
     viewProject: 'לפרויקט',
+    visitLiveSite: 'לאתר החי',
   },
   project: {
     years: 'שנים',

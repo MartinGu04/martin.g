@@ -150,7 +150,7 @@ test.describe('confidential work', () => {
 
   test('renders only sanitized, unlinked summaries', async ({ page }) => {
     await page.goto('/en')
-    const section = page.getByRole('region', { name: 'Restricted Work' })
+    const section = page.getByRole('region', { name: 'Defense Systems' })
     await expect(section.getByRole('heading', { level: 3 })).toHaveCount(2)
     await expect(section.getByRole('link')).toHaveCount(0)
     await expect(section.getByText('03', { exact: true })).toBeVisible()
@@ -158,10 +158,10 @@ test.describe('confidential work', () => {
     await expect(section.locator('img, video, picture, iframe')).toHaveCount(0)
   })
 
-  test('is framed as restricted work, truthfully, in both locales', async ({ page }) => {
+  test('is framed as defense systems, truthfully, in both locales', async ({ page }) => {
     for (const [path, title] of [
-      ['/en', 'Restricted Work'],
-      ['/he', 'פרויקטים בחשיפה מוגבלת'],
+      ['/en', 'Defense Systems'],
+      ['/he', 'מערכות ביטחוניות'],
     ] as const) {
       await page.goto(path)
       const section = page.getByRole('region', { name: title })
@@ -170,7 +170,14 @@ test.describe('confidential work', () => {
       await expect(section.locator('a, button, input, [tabindex]')).toHaveCount(0)
       // No pretend access control or classified language.
       const text = (await section.innerText()).toLowerCase()
-      for (const term of ['classified', 'top secret', 'clearance', 'access denied', 'סודי'])
+      for (const term of [
+        'classified',
+        'top secret',
+        'clearance',
+        'access denied',
+        'סודי',
+        'מסווג',
+      ])
         expect(text).not.toContain(term)
     }
     await page.goto('/en')

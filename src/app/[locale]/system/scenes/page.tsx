@@ -8,6 +8,7 @@ import { resolveConfidentialSummary, resolvePublicSummary } from '@/content/reso
 import { isSpecimenEnabled } from '@/lib/specimen'
 import { Grid } from '@/components/layout/Grid'
 import { Ltr } from '@/components/type/Ltr'
+import { Name } from '@/components/type/Name'
 import { IndexNumber } from '@/components/type/IndexNumber'
 import { Wordmark } from '@/components/brand/BrandMark'
 import { MediaShell } from '@/components/media/MediaShell'
@@ -165,7 +166,7 @@ export default async function ScenesPage({ params }: PageProps<'/[locale]/system
             {dict.work.selectedTitle}
           </p>
           <h2 id="scene-on" className={`t-hero ${styles.onTitle}`}>
-            <Ltr>{on.title}</Ltr>
+            <Name>{on.title}</Name>
           </h2>
           <div className={styles.onText}>
             <p className="t-heading-2">{on.summary}</p>
@@ -209,7 +210,7 @@ export default async function ScenesPage({ params }: PageProps<'/[locale]/system
             {dict.work.selectedTitle}
           </h2>
           <p className="col-full t-display-xl">
-            <Ltr>{miMaMo.title}</Ltr>
+            <Name>{miMaMo.title}</Name>
           </p>
         </Grid>
       </Scene>
@@ -232,7 +233,7 @@ export default async function ScenesPage({ params }: PageProps<'/[locale]/system
             {dict.work.selectedTitle}
           </p>
           <h2 id="scene-mimamo" className={`t-display-xl ${styles.mmTitle}`}>
-            <Ltr>{miMaMo.title}</Ltr>
+            <Name>{miMaMo.title}</Name>
           </h2>
           <div className={styles.mmText}>
             <p className="t-lead">{miMaMo.summary}</p>

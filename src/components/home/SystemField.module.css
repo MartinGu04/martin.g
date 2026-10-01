@@ -1,0 +1,51 @@
+@layer components {
+  /* Behind the archive, filling the scene; static and far below the content. */
+  .field {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    inline-size: 100%;
+    block-size: 100%;
+    pointer-events: none;
+    opacity: 0.6;
+  }
+
+  .panels rect {
+    fill: color-mix(in srgb, var(--accent) 5%, transparent);
+    stroke: color-mix(in srgb, var(--text) 8%, transparent);
+    stroke-width: 1;
+  }
+
+  .row {
+    fill: none;
+    stroke: color-mix(in srgb, var(--text) 9%, transparent);
+    stroke-width: 4;
+  }
+
+  .gridLine {
+    fill: none;
+    stroke: color-mix(in srgb, var(--text) 7%, transparent);
+    stroke-width: 1;
+  }
+
+  .topology path {
+    fill: none;
+    stroke: color-mix(in srgb, var(--text) 9%, transparent);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .topology rect {
+    fill: color-mix(in srgb, var(--text) 14%, transparent);
+  }
+
+  .topology .trace {
+    stroke: color-mix(in srgb, var(--accent) 30%, transparent);
+  }
+
+  @media (forced-colors: active) {
+    .field {
+      display: none;
+    }
+  }
+}

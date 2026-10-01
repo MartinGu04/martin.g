@@ -74,11 +74,14 @@ The contrast is the point: the **wordmark is refined and elegant**; every displa
 | `t-heading-1`  | 32 to 76px           | 700 / 800      | 112%  | section and page titles     |
 | `t-heading-2`  | 24 to 52px           | 650 / 700      | 108%  | statements, sub-sections    |
 | `t-heading-3`  | 20 to 30px           | 600 / 700      | 104%  | item titles                 |
-| `t-lead`       | 18 to 24px           | 500            | 100%  | intros, project summaries   |
+| `t-statement`  | 22 to 30px           | 550 / 600      | 100%  | a scene's main statement    |
+| `t-lead`       | 18 to 24px           | 500            | 100%  | intros                      |
+| `t-body-l`     | 17 to 21px           | 400            | 100%  | important body text         |
+| `t-action`     | 16 to 18px           | 600            | 100%  | calls to action, CTAs       |
 | `t-body`       | 16 to 17px           | 400            | 100%  | running text                |
 | `t-small`      | 13 to 14px           | 400            | 100%  | captions, metadata          |
 | `t-label`      | 12px / HE 14px       | 600            | 112%  | eyebrows, nav, "01 / WORK"  |
-| `t-micro`      | 11px / HE 13px       | 600            | 112%  | annotations                 |
+| `t-micro`      | 12px / HE 13px       | 600            | 112%  | annotations                 |
 | `t-numeric`    | inherits             |                |       | tabular lining figures      |
 
 `t-hero` is sized per tier so the longest line runs nearly to the frame edge (it may enter
@@ -89,6 +92,12 @@ the longest line keeps a deliberate gap of about 1.7% of the viewport (21 to 27p
 four lines (English) or two (Hebrew) at near-viewport size. Body, small, label and micro
 sizes are rem-dominant so they scale fully with browser zoom; only display sizes lean on the
 viewport.
+
+Readability targets on a desktop (since 4.6), applied on phones at their own scale: project
+titles about 72 to 90px (a scene overrides `--display-size` for this), statements 24 to
+30px (`t-statement`), important body 18 to 21px (`t-body-l`), calls to action 16 to 18px
+(`t-action`), micro text 12 to 14px. Anything a visitor must read to understand the work
+uses one of the first four; `t-label` and `t-micro` are for orientation only.
 
 ## Grid and spacing
 
@@ -140,11 +149,23 @@ viewport.
 - An entering scene slides `--scene-overlap` over the tail of the previous one, so the
   previous world stays visible around it while it opens. Every scene's end padding is at
   least the overlap, so it only ever covers empty space.
+- `ambient` marks a scene whose continuous loops run only while it is on screen (motion.css,
+  docs/HOMEPAGE.md, "Ambient loops").
 - Stages (a tall scene with a sticky frame on a named view timeline) are compositions, not a
-  primitive: How I work uses one, only under scripting, motion allowed,
-  `height >= 34rem` and scroll-timeline support; otherwise the same markup is static.
+  primitive; the homepage no longer uses one (How I Work advances on its own since 4.5).
 - Atmosphere layers carry `data-layer` (`base`, `light`, `haze`, `grid`, `texture`,
   `vignette`, `marks`) so a composition can move or fade one layer on its own timeline.
+- `<Thread from to>` (since 4.6) is the visual handoff between scenes: a 2px hairline at a
+  scene's top, a gradient from the previous world's thread color to this one's
+  (`thread` in `src/content/worlds.ts`), with a small head in the arriving color. It draws
+  in from the inline start as its scene arrives (scroll-driven, static without motion,
+  hidden in forced colors) and is decorative. One per scene; the closing scene resolves it
+  (drawn once, an open square, still).
+- Brand marks inside scenes (4.7): the full wordmark belongs to the header, the hero and
+  the footer. Interior scenes use grid geometry, lines and nodes instead, or nothing.
+- Glyphs (4.7): small custom inline SVG on the 24-unit grid (hairline strokes, square
+  nodes, orthogonal paths, no gradients, no containers), monochrome or a world's second
+  accent, about 18 to 24px. Never an icon pack.
 
 `<DepthType>` adds foreground/background depth: oversized, cropped typography behind the
 content (`line` along the lower edge, panning on scroll; `index`, a huge numeral receding
@@ -189,24 +210,28 @@ are `#rrggbb` so `themeIssues()` validates every world in tests: text and muted 
 4.5:1 on both surfaces, accents at 3:1, scheme matching the background. Worlds are
 server-rendered: the first paint already shows the right world.
 
-| World        | Character                                                    | Status            |
-| ------------ | ------------------------------------------------------------ | ----------------- |
-| MARTIN.G     | cinematic dark, warm key light, grain, depth type            | production        |
-| ON           | cream, bordeaux, olive, warm black; photography; paper; soft | demo, provisional |
-| mi-ma-mo     | darker, cooler, structured; drawn grid, dots, marks, data    | demo, provisional |
-| Confidential | deeper graphite restricted archive; no light, no texture     | production        |
+| World    | Character                                                    | Status     |
+| -------- | ------------------------------------------------------------ | ---------- |
+| MARTIN.G | cinematic dark, warm key light, grain, depth type            | production |
+| ON       | cream, bordeaux, olive, warm black; photography; paper; soft | homepage   |
+| המחלבה   | darker, cooler, structured; drawn grid, dots, marks, real UI | homepage   |
+| Defense  | gunmetal archive, one cold accent; generated system diagrams | production |
 
-ON and mi-ma-mo palettes are provisional stand-ins (`system/world-themes.ts`) until each
-project's brand values are supplied; they are not attached to content yet. Industrial
+ON uses its real brand values (sampled from the live site); the המחלבה world keeps its
+technical register; they are not attached to content yet. Industrial
 detail (visible grid, dots, marks, data fragments, technical motion) belongs to the
-mi-ma-mo world, not to the MARTIN.G identity. Confidential work never uses classified or
-military visual language.
+mi-ma-mo world, not to the MARTIN.G identity. Defense Systems (the confidential work) never
+uses classified, warning, clearance or dossier language or styling.
 
 ## Primitives (deliberately few)
 
 `Grid`/`Cell`, `GridLines` (the visible grid, drawn from the real grid tokens), `Rule`,
-`SectionHeading`, `Eyebrow`, `IndexNumber`, `TextBlock`, `MediaShell` (aspect-ratio frame;
-`MediaFrame` renders all media into it), `Arrow` (mirrors in RTL), `ProjectIndex`,
+`SectionHeading`, `Eyebrow`, `IndexNumber`, `TextBlock`, `Name` (bidi-isolated proper
+names), `MediaShell` (aspect-ratio frame, per tier when art directed; `contain` for
+cut-outs; `MediaFrame` renders all media into it, with `<picture>` art direction and
+`PreviewVideo` for watermarked preview films), `ViewCycle` (real views taking turns in one
+frame), `SystemDiagram` (generated, abstract system geometry for confidential work),
+`LiveSiteLink` (the quiet external action), `Arrow` (mirrors in RTL), `ProjectIndex`,
 `ThemeScope`, `Scene`, `Atmosphere`, `DepthType`, `Reveal`, surface utilities (`.surface`,
 `.surface-outline`). No card library, no UI kit.
 
@@ -254,6 +279,13 @@ military visual language.
 
 ## Motion
 
+- **Ambient loops** (since 4.5): continuous motion while a scene is visible and the visitor
+  does nothing: slow drifts, crossfades between real views, a process that advances, a scan,
+  a typographic rail. Only inside `<Scene ambient>`, on elements marked `data-loop`, paused
+  offscreen, never without scripting or with reduced motion; a loop that hides anything also
+  needs `:root[data-motion]` pending or on. Periods of seconds to minutes, never fast cuts;
+  never bouncing, floating cards, particles or cursor effects. `ViewCycle` is the shared
+  crossfade for real views; `MediaFrame motion="drift"` the shared photograph drift.
 - Vocabulary: large mask reveals, typography entrances, scene-scale transitions (`wipe`,
   `split`), layered depth (depth type panning and receding), atmospheric movement (haze
   drift), restrained technical motion inside technical worlds (grid drawing, data filling),

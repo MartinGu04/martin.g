@@ -46,18 +46,18 @@ test.describe('homepage scenes', () => {
     const backgrounds = await page
       .locator('[data-scene]')
       .evaluateAll((els) => els.map((el) => getComputedStyle(el).backgroundColor))
-    // MARTIN.G, ON cream, ON bordeaux, mi-ma-mo and confidential are all present.
+    // MARTIN.G, ON cream, המחלבה and confidential are all present.
     expect(new Set(backgrounds).size).toBeGreaterThanOrEqual(5)
-    expect(backgrounds).toContain('rgb(239, 231, 218)')
+    expect(backgrounds).toContain('rgb(246, 240, 229)')
   })
 
   test('the header takes on the world beneath it and hands it back', async ({ page }) => {
     await page.goto('/en')
     await expect.poll(() => headerBackground(page)).toBe('rgb(6, 6, 6)')
     await bringSceneUnderHeader(page, '#on-title')
-    await expect.poll(() => headerBackground(page)).toBe('rgb(239, 231, 218)')
+    await expect.poll(() => headerBackground(page)).toBe('rgb(246, 240, 229)')
     await bringSceneUnderHeader(page, '#mi-ma-mo-title')
-    await expect.poll(() => headerBackground(page)).toBe('rgb(11, 13, 16)')
+    await expect.poll(() => headerBackground(page)).toBe('rgb(11, 18, 28)')
     await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }))
     await expect.poll(() => headerBackground(page)).toBe('rgb(6, 6, 6)')
   })
@@ -66,7 +66,7 @@ test.describe('homepage scenes', () => {
     const context = await browser.newContext({ reducedMotion: 'reduce' })
     const page = await context.newPage()
     await page.goto('/he')
-    const frame = page.locator('#process-title').locator('xpath=../..')
+    const frame = page.locator('[aria-labelledby="process-title"]')
     expect(await frame.evaluate((el) => getComputedStyle(el).position)).not.toBe('sticky')
     const steps = page
       .getByRole('region', { name: 'דרך העבודה' })
@@ -85,7 +85,7 @@ test.describe('homepage scenes', () => {
     const context = await browser.newContext({ viewport: { width: 640, height: 400 } })
     const page = await context.newPage()
     await page.goto('/en')
-    const frame = page.locator('#process-title').locator('xpath=../..')
+    const frame = page.locator('[aria-labelledby="process-title"]')
     expect(await frame.evaluate((el) => getComputedStyle(el).position)).not.toBe('sticky')
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth - innerWidth),

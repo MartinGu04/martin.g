@@ -1,11 +1,20 @@
 @layer components {
-  /* Restricted Work: a framed archive inside a deeper graphite register. */
+  .scene {
+    --scene-pad-start: var(--section-space-sm);
+  }
+
+  .grid {
+    row-gap: var(--space-6);
+  }
+
+  /* Defense Systems: a framed archive inside a gunmetal register. */
   .archive {
     --corner: 0.875rem;
     --archive-pad: var(--space-5);
     position: relative;
     padding: var(--archive-pad);
-    background: var(--surface-1);
+    /* Nearly opaque, so the system field behind is felt at the edges, not read through. */
+    background: color-mix(in srgb, var(--surface-1) 90%, transparent);
   }
 
   /* The boundary: a hairline frame in eight segments, each from a corner to a midpoint,
@@ -89,6 +98,7 @@
 
   .note {
     grid-column: 1 / -1;
+    max-inline-size: 36em;
   }
 
   .list {
@@ -123,6 +133,10 @@
     max-inline-size: 9em;
   }
 
+  .summary {
+    max-inline-size: 28em;
+  }
+
   /*
    * Masked geometry: the abstract pattern keeps its full frame but fades out before the
    * frame ends, and a second sheet sits just behind it. There is more here than is shown;
@@ -152,13 +166,13 @@
     content: '';
     position: absolute;
     inset: var(--hairline);
-    background: linear-gradient(to right, transparent 38%, var(--surface-1) 86%) left top / 100%
+    background: linear-gradient(to right, transparent 62%, var(--surface-1) 98%) left top / 100%
       100% no-repeat;
     transition: background-size var(--dur-cinematic) var(--ease-out);
   }
 
   :root[dir='rtl'] .cover::after {
-    background-image: linear-gradient(to left, transparent 38%, var(--surface-1) 86%);
+    background-image: linear-gradient(to left, transparent 62%, var(--surface-1) 98%);
     background-position: right top;
   }
 

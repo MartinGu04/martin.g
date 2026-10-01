@@ -1,0 +1,186 @@
+@layer components {
+  /*
+   * Static first. 'grid': every view set out (the first across the full width, the rest
+   * two to a row). 'first': only the first view.
+   */
+  .views {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--gutter);
+  }
+
+  .view {
+    min-inline-size: 0;
+  }
+
+  .view:first-child,
+  [data-fallback='first'] .view {
+    grid-column: 1 / -1;
+  }
+
+  [data-fallback='first'] .view:not(:first-child) {
+    display: none;
+  }
+
+  .labels {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-6);
+    margin-block-start: var(--space-4);
+    /* A scene can keep the labels clear of something standing over the frame's edge. */
+    padding-inline-start: var(--labels-inset, 0);
+    color: var(--text-muted);
+  }
+
+  .label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .index {
+    color: var(--signal, var(--accent));
+  }
+
+  .rule {
+    position: relative;
+    inline-size: var(--space-6);
+    block-size: var(--hairline);
+    background: var(--line-strong);
+    overflow: hidden;
+  }
+
+  /*
+   * The cycle: the views share one cell; each takes its turn (n views, --step seconds
+   * each). The incoming view fades in above the outgoing one, which stays opaque beneath
+   * it until the fade completes, so the frame never dips. Delays are negative so the first
+   * view is fully in at time 0 (the frame held before the scene is first seen).
+   */
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    :root:is([data-motion='pending'], [data-motion='on']) .views {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-areas: 'stack';
+    }
+
+    :root:is([data-motion='pending'], [data-motion='on']) .views .view {
+      display: block;
+      grid-area: stack;
+      animation: view-turn-3 calc(var(--n) * var(--step)) linear infinite;
+      animation-delay: calc((var(--i) - var(--n)) * var(--step) - var(--n) * var(--step) * 0.06);
+    }
+
+    :root:is([data-motion='pending'], [data-motion='on']) [data-count='2'] .views .view {
+      animation-name: view-turn-2;
+    }
+
+    /* The label of the view on screen brightens, and its rule fills over its turn. */
+    :root:is([data-motion='pending'], [data-motion='on']) .label {
+      animation: label-turn-3 calc(var(--n) * var(--step)) linear infinite;
+      animation-delay: calc((var(--i) - var(--n)) * var(--step) - var(--n) * var(--step) * 0.06);
+    }
+
+    :root:is([data-motion='pending'], [data-motion='on']) .rule::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--text);
+      transform-origin: var(--rule-origin, left);
+      animation: rule-turn-3 calc(var(--n) * var(--step)) linear infinite;
+      animation-delay: calc((var(--i) - var(--n)) * var(--step) - var(--n) * var(--step) * 0.06);
+    }
+
+    :root[dir='rtl'] .rule {
+      --rule-origin: right;
+    }
+  }
+
+  @keyframes view-turn-3 {
+    0% {
+      opacity: 0;
+      z-index: 2;
+    }
+
+    6% {
+      opacity: 1;
+    }
+
+    33.33% {
+      opacity: 1;
+      z-index: 2;
+    }
+
+    33.34% {
+      z-index: 1;
+    }
+
+    39.33% {
+      opacity: 1;
+      z-index: 1;
+    }
+
+    39.34%,
+    100% {
+      opacity: 0;
+      z-index: 1;
+    }
+  }
+
+  @keyframes view-turn-2 {
+    0% {
+      opacity: 0;
+      z-index: 2;
+    }
+
+    9% {
+      opacity: 1;
+    }
+
+    50% {
+      opacity: 1;
+      z-index: 2;
+    }
+
+    50.01% {
+      z-index: 1;
+    }
+
+    59% {
+      opacity: 1;
+      z-index: 1;
+    }
+
+    59.01%,
+    100% {
+      opacity: 0;
+      z-index: 1;
+    }
+  }
+
+  @keyframes label-turn-3 {
+    0%,
+    39.34%,
+    100% {
+      color: var(--text-muted);
+    }
+
+    6%,
+    33.33% {
+      color: var(--text);
+    }
+  }
+
+  @keyframes rule-turn-3 {
+    0% {
+      transform: scaleX(0);
+    }
+
+    33.33% {
+      transform: scaleX(1);
+    }
+
+    33.34%,
+    100% {
+      transform: scaleX(0);
+    }
+  }
+}

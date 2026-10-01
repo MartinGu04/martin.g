@@ -4,15 +4,18 @@ import { usePathname } from 'next/navigation'
 import { useEffect } from 'react'
 
 const REVEAL_SELECTOR = '[data-reveal]:not([data-revealed])'
+const AMBIENT_SELECTOR = '[data-ambient]'
 
 function revealAll() {
   document.querySelectorAll(REVEAL_SELECTOR).forEach((el) => el.setAttribute('data-revealed', ''))
 }
 
 /**
- * The only JavaScript in the motion system: one IntersectionObserver that marks reveal
- * elements as revealed once they enter the viewport. Everything visual is CSS.
- * Mounted once in the root layout; renders nothing.
+ * The only JavaScript in the motion system, two IntersectionObservers. One marks reveal
+ * elements as revealed once they enter the viewport. The other marks ambient scenes
+ * (`data-ambient`) as `data-live` while any part of them is on screen, so their
+ * continuous loops (`data-loop`, motion.css) run only while they can be seen.
+ * Everything visual is CSS. Mounted once in the root layout; renders nothing.
  */
 export function MotionController() {
   const pathname = usePathname()
@@ -46,6 +49,11 @@ export function MotionController() {
     )
     document.querySelectorAll(REVEAL_SELECTOR).forEach((el) => observer.observe(el))
 
+    const ambient = new IntersectionObserver((entries) => {
+      for (const entry of entries) entry.target.toggleAttribute('data-live', entry.isIntersecting)
+    })
+    document.querySelectorAll(AMBIENT_SELECTOR).forEach((el) => ambient.observe(el))
+
     // Safety net: a scene that closes as it leaves (a wipe or split exit) clips its content,
     // which the observer then never sees. Whatever is above the viewport when scrolling
     // settles counts as seen.
@@ -61,6 +69,7 @@ export function MotionController() {
     const onPreferenceChange = () => {
       if (!reduced.matches) return
       observer.disconnect()
+      ambient.disconnect()
       root.setAttribute('data-motion', 'off')
       revealAll()
     }
@@ -68,6 +77,7 @@ export function MotionController() {
 
     return () => {
       observer.disconnect()
+      ambient.disconnect()
       window.removeEventListener('scrollend', revealPassed)
       reduced.removeEventListener('change', onPreferenceChange)
     }

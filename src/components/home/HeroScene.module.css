@@ -1,5 +1,7 @@
 @layer components {
-  /* One frame: identity at the top, the proposition and the principle anchored low. */
+  /* One frame: identity at the top; the proposition and the principle held at the optical
+     center of what remains (a little more space below them than above), the scroll cue at
+     the foot. */
   .hero {
     --scene-pad-start: var(--space-8);
     --scene-pad-end: var(--space-7);
@@ -7,7 +9,7 @@
   }
 
   .grid {
-    grid-template-rows: auto auto 1fr auto auto auto;
+    grid-template-rows: auto auto minmax(0, 0.85fr) auto auto minmax(0, 1.15fr) auto;
     row-gap: var(--space-5);
   }
 
@@ -53,7 +55,7 @@
 
   .cue {
     grid-column: 1 / -1;
-    grid-row: 6;
+    grid-row: 7;
     display: flex;
     align-items: center;
     gap: var(--space-3);
@@ -152,6 +154,25 @@
     to {
       clip-path: inset(-20% -5% -30% -5%);
       translate: 0 0;
+    }
+  }
+
+  /* The one ambient layer: the key light wanders slowly and breathes (an ambient loop). */
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    .hero [data-layer='light'] {
+      animation: hero-light 40s ease-in-out infinite alternate;
+    }
+  }
+
+  @keyframes hero-light {
+    from {
+      translate: calc(-5% * var(--dir)) 0;
+      opacity: 0.8;
+    }
+
+    to {
+      translate: calc(7% * var(--dir)) 3%;
+      opacity: 1;
     }
   }
 }

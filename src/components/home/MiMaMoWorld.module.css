@@ -8,18 +8,30 @@
 @layer components {
   .scene {
     view-timeline: --mi-ma-mo block;
+    --scene-pad-start: var(--space-6);
+    --scene-pad-end: var(--space-8);
   }
 
+  /* The accent, draining toward the muted text color as the world leaves. Declared where
+     --world-signal is animated, so it follows it. */
   .grid {
-    row-gap: var(--space-6);
+    --signal: color-mix(
+      in srgb,
+      var(--accent) calc(var(--world-signal, 1) * 100%),
+      var(--text-muted)
+    );
+    row-gap: var(--space-4);
   }
 
   .eyebrow {
     grid-column: 1 / -1;
-    color: var(--accent);
+    color: var(--signal);
   }
 
+  /* A project title, not a poster: one step below the display peak (about 76px on a
+     1440px screen), so the product, not the name, carries the scene. */
   .title {
+    --display-size: clamp(2.75rem, 1.5rem + 3.6vw, 5.5rem);
     grid-column: 1 / -1;
   }
 
@@ -38,32 +50,166 @@
     display: grid;
     justify-items: start;
     gap: var(--space-5);
-    max-inline-size: var(--measure-lead);
   }
 
-  .board {
+  .text > :first-child {
+    max-inline-size: 22em;
+  }
+
+  .note {
+    max-inline-size: 30em;
+    padding-block-start: var(--space-4);
+    border-block-start: var(--hairline) solid color-mix(in srgb, var(--light) 45%, transparent);
+  }
+
+  .phone,
+  .detail {
+    margin: 0;
+    min-inline-size: 0;
+  }
+
+  .label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-block-start: var(--space-3);
+    color: var(--text-muted);
+  }
+
+  /* The interface's controlled blue, for the device's annotation. */
+  .labelRule {
+    inline-size: var(--space-6);
+    block-size: var(--hairline);
+    background: var(--light);
+  }
+
+  /*
+   * Phones: no scaled-down desktop screen. The phone first, large enough to read, then the
+   * few Team Week columns that stay legible at this width.
+   */
+  .product {
     grid-column: 1 / -1;
   }
 
-  @media (width >= 75rem) {
-    .text {
-      grid-column: 1 / span 4;
-      align-self: start;
+  .stage {
+    display: none;
+  }
+
+  .phone {
+    inline-size: min(100%, 19rem);
+  }
+
+  .detail {
+    grid-column: 1 / -1;
+    margin-block-start: var(--space-6);
+  }
+
+  /*
+   * Tablet and up: the whole composition fits one viewport below the header. The product
+   * block is a container: the phone takes about 30% of its width (less when the viewport
+   * is short), the frame takes the rest beside it, and both are capped by the viewport's
+   * height, so the frame, its labels and the phone are always seen together. The
+   * product's interface reads right to left, so its quiet side is always the physical
+   * left: the phone stands there in both directions and never covers the screen's content.
+   */
+  @media (width >= 48rem) {
+    .product {
+      --avail: calc(100svh - var(--header-block-size));
+      container-type: inline-size;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
     }
 
-    .board {
-      grid-column: 6 / span 7;
+    .product > * {
+      /* Phone width: 30% of the block, or what a phone's height allows in this viewport. */
+      --pw: min(30cqi, calc((var(--avail) - 20rem) * 0.495));
     }
 
-    .text,
-    .board {
-      grid-row: 3;
+    .product {
+      min-block-size: calc(min(30cqi, calc((var(--avail) - 20rem) * 0.495)) / 0.495 + 2.5rem);
+    }
+
+    /* The frame: beside the phone (which overlaps its quiet edge by a little over half
+       its width), capped so frame and labels stay within the viewport. */
+    .stage {
+      display: block;
+      inline-size: min(calc(100cqi - 0.45 * var(--pw)), calc((var(--avail) - 19rem) * 1.892));
+      margin-inline-start: auto;
+    }
+
+    :dir(rtl) .stage {
+      margin-inline: 0 auto;
+    }
+
+    /* In English the labels start at the phone's side: they begin after it. */
+    :dir(ltr) .stage {
+      --labels-inset: calc(0.55 * var(--pw) + var(--space-5));
+    }
+
+    .detail {
+      display: none;
+    }
+
+    .phone {
+      position: absolute;
+      inset-block-end: 0;
+      inset-inline-start: 0;
+      z-index: 3;
+      inline-size: var(--pw);
+    }
+
+    :dir(rtl) .phone {
+      inset-inline: auto 0;
+    }
+
+    /* Shared depth: the frame lifts off the midnight on a long soft shadow with a faint
+       edge of the interface's blue; the phone stands in front of it on a contact shadow
+       that follows the device's own outline. No perspective, no gloss. */
+    .stage [data-fallback] > :first-child {
+      box-shadow:
+        0 0 0 var(--hairline) color-mix(in srgb, var(--light) 16%, transparent),
+        0 2.5rem 4rem -2rem color-mix(in srgb, var(--shade) 75%, transparent);
+    }
+
+    .phone > :first-child {
+      filter: drop-shadow(0 1.25rem 1rem color-mix(in srgb, var(--shade) 60%, transparent));
     }
   }
 
-  /* Leaving: structure fades and the accent drains while the world contracts. */
+  /* Desktop: the title on its own line; below it the text at the inline start (statement,
+     action, note) and the product beside it across nine columns. Everything from the
+     thread to the view labels fits one viewport (about 760px at 1440 x 900). */
+  @media (width >= 75rem) {
+    .title {
+      grid-column: 1 / span 8;
+      grid-row: 3;
+    }
+
+    .text {
+      grid-column: 1 / span 3;
+      grid-row: 4;
+      align-self: start;
+    }
+
+    .product {
+      grid-column: 4 / -1;
+      grid-row: 4;
+      align-self: start;
+    }
+  }
+
   @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
     @supports (view-timeline-name: --a) {
+      /* Entering: the product screen opens from the same center seam as the world. */
+      .stage {
+        animation: mm-seam linear both;
+        animation-timeline: view();
+        animation-range: entry 5% cover 35%;
+      }
+
+      /* Leaving: structure fades and the accent drains while the world contracts. */
       .grid {
         animation: mm-signal linear both;
         animation-timeline: --mi-ma-mo;
@@ -75,6 +221,16 @@
         animation-timeline: --mi-ma-mo;
         animation-range: exit 0% exit 55%;
       }
+    }
+  }
+
+  @keyframes mm-seam {
+    from {
+      clip-path: inset(0 50% 0 50%);
+    }
+
+    to {
+      clip-path: inset(0 0 0 0);
     }
   }
 

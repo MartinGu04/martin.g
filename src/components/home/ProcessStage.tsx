@@ -4,55 +4,79 @@ import type { StyleWithVars } from '@/lib/css'
 import { Grid } from '@/components/layout/Grid'
 import { Ltr } from '@/components/type/Ltr'
 import { Scene } from '@/components/scene/Scene'
-import { Atmosphere } from '@/components/scene/Atmosphere'
+import { Thread } from '@/components/scene/Thread'
+import { thread } from '@/content/worlds'
+import { ProcessGlyph } from './ProcessGlyph'
 import styles from './ProcessStage.module.css'
 
 /**
- * Scene 07, How I work: supporting content, not another hero. Five states in one
- * composition, moving from ambiguity to clarity, set one step below the display peak.
- * On a short stage with a sticky frame each word takes the frame in turn while the grid
- * behind it sharpens and the haze clears. Without the stage (reduced motion, no
- * scroll-driven animation, a short viewport) it is a composed vertical sequence. Always
- * an ordered list in the document.
+ * Scene 06, How I Work: how a problem becomes a product. A real section heading and its
+ * one-line thought, then the five steps, always an ordered list, readable at once. While
+ * the scene is visible the process advances on its own (about three seconds a step): the
+ * current step brightens in the list, its word takes the frame beside it with its line,
+ * and a five-part rule fills in the reading direction (the scan of the thread). Pointing
+ * at a step takes over: that step becomes current and the clock waits until the pointer
+ * leaves, then continues where it was. Above the current word stands its stage's line
+ * glyph (focus, boundary, grid, modules, loop), changing with it on the same clock.
+ * Nothing waits for scrolling. Without scripting or with reduced motion it is the list
+ * alone.
  */
 export function ProcessStage({ copy }: { copy: HomeCopy['process'] }) {
   const total = String(processOrder.length).padStart(2, '0')
   return (
     <Scene
       enter="dissolve"
-      atmosphere={false}
+      ambient
+      atmosphere={{ light: 'shaft', grid: 'light', texture: 'grain' }}
       aria-labelledby="process-title"
       className={styles.stage}
     >
-      <div className={styles.frame}>
-        <Atmosphere light="shaft" grid="visible" texture="grain" />
-        <Grid className={styles.grid}>
-          <h2 id="process-title" className={`t-label ${styles.heading}`}>
+      <Grid className={styles.grid}>
+        <Thread from={thread.defense} to={thread.process} />
+        <header className={styles.head}>
+          <h2 id="process-title" className="t-heading-1">
             {copy.title}
           </h2>
-          <ol role="list" className={styles.steps}>
-            {processOrder.map((key, i) => {
-              const step = copy.steps[key]
-              const style: StyleWithVars = { '--i': i }
-              return (
-                <li key={key} className={styles.step} style={style}>
-                  <span className={`t-label t-numeric muted ${styles.count}`}>
-                    <Ltr>{`${String(i + 1).padStart(2, '0')} / ${total}`}</Ltr>
-                  </span>
-                  <h3 className={`t-display ${styles.word}`}>{step.word}</h3>
-                  <p className={`t-lead ${styles.line}`}>{step.line}</p>
-                </li>
-              )
-            })}
-          </ol>
-          <div className={styles.progress} aria-hidden="true">
-            {processOrder.map((key, i) => {
-              const style: StyleWithVars = { '--i': i }
-              return <i key={key} style={style} />
-            })}
+          <p className="t-statement muted">{copy.lead}</p>
+        </header>
+        <ol role="list" className={styles.steps}>
+          {processOrder.map((key, i) => {
+            const step = copy.steps[key]
+            const style: StyleWithVars = { '--i': i }
+            return (
+              <li key={key} className={styles.step} style={style} data-loop="">
+                <span className={`t-label t-numeric muted ${styles.count}`}>
+                  <Ltr>{`${String(i + 1).padStart(2, '0')} / ${total}`}</Ltr>
+                </span>
+                <h3 className={`t-heading-3 ${styles.word}`}>{step.word}</h3>
+                <p className={`t-body-l muted ${styles.line}`}>{step.line}</p>
+              </li>
+            )
+          })}
+        </ol>
+        {/* The frame: a decorative echo of the current step, beside the list. */}
+        <div className={styles.frame} aria-hidden="true">
+          <div className={styles.words}>
+            {processOrder.map((key, i) => (
+              <div
+                key={key}
+                className={styles.current}
+                style={{ '--i': i } as StyleWithVars}
+                data-loop=""
+              >
+                <ProcessGlyph step={key} className={styles.bigGlyph} />
+                <span className={`t-display ${styles.big}`}>{copy.steps[key].word}</span>
+                <span className={`t-statement ${styles.bigLine}`}>{copy.steps[key].line}</span>
+              </div>
+            ))}
           </div>
-        </Grid>
-      </div>
+          <div className={styles.progress}>
+            {processOrder.map((key, i) => (
+              <i key={key} style={{ '--i': i } as StyleWithVars} data-loop="" />
+            ))}
+          </div>
+        </div>
+      </Grid>
     </Scene>
   )
 }

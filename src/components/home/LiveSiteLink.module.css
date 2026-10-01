@@ -1,0 +1,46 @@
+@layer components {
+  .link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-block-size: 2.75rem;
+    color: var(--text-muted);
+    text-decoration-line: none;
+    transition: color var(--dur-micro) var(--ease-out);
+  }
+
+  .text {
+    text-decoration-line: underline;
+    text-decoration-thickness: var(--hairline);
+    text-underline-offset: 0.3em;
+  }
+
+  .icon {
+    display: inline-flex;
+    transition: translate var(--dur-standard) var(--ease-out);
+  }
+
+  .icon svg {
+    inline-size: 1.125rem;
+    block-size: 1.125rem;
+  }
+
+  /* The arrow leaves toward the inline end: up and to the left in Hebrew. */
+  :dir(rtl) .icon svg {
+    transform: scaleX(-1);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .link:hover {
+      color: var(--text);
+    }
+
+    .link:hover .icon {
+      translate: calc(var(--space-1) * var(--dir)) calc(-1 * var(--space-1));
+    }
+  }
+
+  .link:focus-visible {
+    color: var(--text);
+  }
+}

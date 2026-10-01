@@ -4,10 +4,15 @@
     align-items: center;
     gap: var(--space-3);
     min-block-size: 2.75rem;
+    padding-block-end: var(--space-1);
     color: var(--text);
+    background: linear-gradient(var(--accent), var(--accent)) no-repeat;
+    background-size: 100% 2px;
+    background-position: bottom;
   }
 
   .arrow {
+    color: var(--accent);
     transition: translate var(--dur-standard) var(--ease-out);
   }
 

@@ -24,6 +24,11 @@ interface SceneProps {
    * back to a framed panel, 'split' contracts to the center seam. Omit for no exit.
    */
   exit?: 'wipe' | 'split'
+  /**
+   * The scene has continuous loops (motion.css, "Ambient loops"): they run only while it is
+   * on screen, and never without scripting or with reduced motion.
+   */
+  ambient?: boolean
   as?: 'section' | 'div' | 'article'
   id?: string
   'aria-labelledby'?: string
@@ -44,6 +49,7 @@ export function Scene({
   size = 'flow',
   enter = 'cut',
   exit,
+  ambient,
   as = 'section',
   className,
   children,
@@ -61,6 +67,7 @@ export function Scene({
       data-scene=""
       data-enter={enter}
       data-exit={exit}
+      data-ambient={ambient ? '' : undefined}
       {...rest}
     >
       {layers ? <Atmosphere {...layers} /> : null}

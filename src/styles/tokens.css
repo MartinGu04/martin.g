@@ -103,6 +103,18 @@
     --lead-size: var(--step-1);
     --lead-leading: 1.4;
     --lead-weight: 500;
+    /* A project's or section's one-sentence statement: clearly readable, below headings. */
+    --statement-size: clamp(1.375rem, 1.05rem + 0.9vw, 1.875rem);
+    --statement-leading: 1.3;
+    --statement-weight: 550;
+    /* Body copy that carries meaning (not running text): a step above body. */
+    --body-l-size: clamp(1.0625rem, 0.98rem + 0.3vw, 1.3125rem);
+    --body-l-leading: 1.55;
+    --body-l-weight: 400;
+    /* Actions (View project, Visit live site): readable at once, never shouting. */
+    --action-size: clamp(1rem, 0.95rem + 0.2vw, 1.125rem);
+    --action-weight: 600;
+    --action-tracking: 0.01em;
     --body-size: var(--step-0);
     --body-leading: 1.6;
     --body-weight: 400;
@@ -116,7 +128,7 @@
     --label-tracking: 0.16em;
     --label-weight: 600;
     --label-stretch: 112%;
-    --micro-size: var(--step--2);
+    --micro-size: 0.75rem;
     --micro-tracking: 0.18em;
 
     /* Depth type: decorative, cropped, behind the content (<DepthType>). */
@@ -227,6 +239,10 @@
     --heading-3-tracking: 0;
     --heading-3-weight: 700;
     --lead-leading: 1.55;
+    --statement-leading: 1.45;
+    --statement-weight: 600;
+    --body-l-leading: 1.7;
+    --action-tracking: 0;
     --body-leading: 1.75;
     --small-leading: 1.65;
     --label-size: 0.875rem;

@@ -76,7 +76,16 @@ preview builds only.
 `src/content/schema.ts` defines `PublicProject` and `ConfidentialProject` (closed shape, no
 route). Media is a union (`image`, `video`, `pending`); video sources are a provider union
 with only `static` implemented, so a dedicated video host can be added later without
-changing case-study components.
+changing case-study components. Images can be art directed per tier (`art`) and shown whole
+(`fit: 'contain'`, for a device cut-out). A public project may carry `links.live`, an https
+URL approved for visitors (ON has one; המחלבה deliberately has none).
+
+Project media lives in `src/assets/` (sanitized, metadata-free sources) and is referenced
+from each project module. Until the Phase 5 block renderer, project pages render only the
+`media` and `sequence` blocks of a story (`ProjectMedia`); any other block fails the build.
+Alt text, captions and player labels written in Phase 4 live in
+`src/i18n/dictionaries/showcase.ts`, marked `draft` until Martin approves them, so the
+release gate refuses a Vercel production build until then.
 
 ## Contact (Phase 6, not built)
 
@@ -91,8 +100,9 @@ Vercel Web Analytics, planned; not part of Foundation.
 ## Project numbering
 
 Projects are numbered continuously across sections from `getProjectSequence()`: routed
-work first, then confidential work (01 ON, 02 mi-ma-mo, 03 and 04 confidential). The
-"Restricted Work" section has no chapter number of its own, and its items stay
+work first, then confidential work (01 ON, 02 המחלבה with id `mi-ma-mo`, 03 and 04
+confidential). The
+"Defense Systems" section has no chapter number of its own, and its items stay
 non-clickable and route-less.
 
 ## Navigation

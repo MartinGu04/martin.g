@@ -1,0 +1,137 @@
+@layer components {
+  .field {
+    position: relative;
+    aspect-ratio: 2 / 1;
+    inline-size: 100%;
+  }
+
+  .svg {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    overflow: visible;
+  }
+
+  /* Drawn origins on the right; in RTL the drawing mirrors so they stay at the inline end
+     and the line still runs toward the text. */
+  :dir(rtl) .svg {
+    scale: -1 1;
+  }
+
+  .strand,
+  .pulse,
+  .resolve {
+    fill: none;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .strand {
+    stroke: color-mix(in srgb, var(--strand) 70%, transparent);
+    stroke-width: 1.25;
+  }
+
+  .resolve {
+    stroke: var(--strand);
+    stroke-width: 2;
+  }
+
+  .meet {
+    fill: var(--strand);
+  }
+
+  .end {
+    fill: var(--surface-0);
+    stroke: var(--strand);
+    stroke-width: 1.25;
+    vector-effect: non-scaling-stroke;
+  }
+
+  /* The pulse: a short dash in the strand's full color; at rest, nothing. */
+  .pulse {
+    stroke: var(--strand);
+    stroke-width: 2.5;
+    stroke-dasharray: 0 100;
+  }
+
+  /* The three words at the strands' origins (20%, 50% and 80% of the field's height). */
+  .labels {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .label {
+    position: absolute;
+    inset-inline-end: 0;
+    inset-block-start: calc(20% + var(--i) * 30%);
+    translate: 0 calc(-100% - var(--space-2));
+    color: var(--strand);
+  }
+
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      /* The drawing completes while the scene's upper half comes into view, so whenever
+         the invitation is readable the whole schematic is there, never half drawn. */
+      .strand,
+      .resolve {
+        stroke-dasharray: 100 100;
+        animation: converge-draw linear both;
+        animation-timeline: view();
+        animation-range: entry 0% entry 40%;
+      }
+
+      .resolve {
+        animation-range: entry 25% entry 50%;
+      }
+    }
+
+    .pulse {
+      animation: converge-pulse 14s linear infinite;
+      animation-delay: calc(var(--i) * -4.6s);
+    }
+  }
+
+  @keyframes converge-draw {
+    from {
+      stroke-dashoffset: 100;
+    }
+
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  /* Origin to meeting point over the first half, then rest. */
+  @keyframes converge-pulse {
+    0% {
+      stroke-dasharray: 6 100;
+      stroke-dashoffset: 6;
+      opacity: 0;
+    }
+
+    6% {
+      opacity: 1;
+    }
+
+    50% {
+      stroke-dasharray: 6 100;
+      stroke-dashoffset: -94;
+      opacity: 1;
+    }
+
+    56%,
+    100% {
+      stroke-dasharray: 6 100;
+      stroke-dashoffset: -94;
+      opacity: 0;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .strand,
+    .resolve,
+    .pulse {
+      stroke: CanvasText;
+    }
+  }
+}

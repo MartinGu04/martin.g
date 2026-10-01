@@ -1,0 +1,57 @@
+@layer components {
+  .thread {
+    position: relative;
+    display: block;
+    grid-column: 1 / -1;
+    block-size: 2px;
+    background: linear-gradient(to right, var(--thread-from), var(--thread-to));
+    transform-origin: left center;
+  }
+
+  :dir(rtl).thread,
+  :dir(rtl) .thread {
+    background: linear-gradient(to left, var(--thread-from), var(--thread-to));
+    transform-origin: right center;
+  }
+
+  /* The thread's head: a small square in the arriving world's color. */
+  .thread::after {
+    content: '';
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-end: 0;
+    inline-size: 6px;
+    block-size: 6px;
+    translate: 0 -50%;
+    background: var(--thread-to);
+  }
+
+  @media (width >= 75rem) {
+    .thread {
+      grid-column: 1 / span 6;
+    }
+  }
+
+  /* Arriving: the thread draws from the previous world into this one. */
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .thread {
+        animation: thread-draw linear both;
+        animation-timeline: view();
+        animation-range: entry 0% cover 30%;
+      }
+    }
+  }
+
+  @keyframes thread-draw {
+    from {
+      scale: 0 1;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .thread {
+      display: none;
+    }
+  }
+}

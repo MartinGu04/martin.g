@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import type { PublicProjectSummary } from '@/content/resolve'
 import { Arrow } from '@/components/type/Arrow'
-import { Ltr } from '@/components/type/Ltr'
+import { Name } from '@/components/type/Name'
 import styles from './ProjectLink.module.css'
 
 interface ProjectLinkProps {
@@ -12,14 +12,21 @@ interface ProjectLinkProps {
   className?: string
 }
 
-/** The explicit way into a project from its scene: label and a direction-aware arrow. */
+/**
+ * The explicit way into a project from its scene: label and a direction-aware arrow over a
+ * short rule in the world's accent, so the case study reads as the first invitation.
+ */
 export function ProjectLink({ href, label, title, className }: ProjectLinkProps) {
   return (
-    <Link href={href} className={[`t-label ${styles.link}`, className].filter(Boolean).join(' ')}>
+    <Link
+      href={href}
+      data-project-link=""
+      className={[`t-action ${styles.link}`, className].filter(Boolean).join(' ')}
+    >
       {label}
       <span className="visually-hidden">
         {' '}
-        <Ltr>{title}</Ltr>
+        <Name>{title}</Name>
       </span>
       <Arrow className={styles.arrow} />
     </Link>
