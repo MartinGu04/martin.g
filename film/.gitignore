@@ -1,0 +1,6 @@
+node_modules
+# Copied from the site (src/assets, public/brand, src/fonts) by `pnpm assets`; never committed twice.
+public
+# Renders and generated audio stay out of Git; they are rebuilt from source.
+out
+audio/cues-*.json
