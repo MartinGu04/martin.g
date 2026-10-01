@@ -9,3 +9,4 @@ film/node_modules
 film/public
 film/out
 film/pnpm-lock.yaml
+film/src/generated
