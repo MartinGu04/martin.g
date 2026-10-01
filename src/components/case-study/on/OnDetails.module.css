@@ -44,8 +44,9 @@
       var(--surface-0);
   }
 
-  .lockup {
-    max-inline-size: 18rem;
+  /* A small source region: never drawn much larger than the site draws it. */
+  .numerals {
+    max-inline-size: 13rem;
   }
 
   .eyebrow {
@@ -75,7 +76,7 @@
       align-self: start;
     }
 
-    .lockup,
+    .numerals,
     .eyebrow {
       grid-column: 6 / -1;
     }
@@ -103,7 +104,7 @@
       grid-column: 1 / span 7;
     }
 
-    .lockup {
+    .numerals {
       grid-column: 9 / span 3;
       align-self: start;
     }

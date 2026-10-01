@@ -89,6 +89,7 @@ export const onCrops = {
   pillDark: crop(siteHome, [36, 4, 182, 54], caseOnMedia.pillDark),
   pillLight: crop(siteStory, [8, 4, 182, 56], caseOnMedia.pillLight),
   // Phones: the two numbers at the inline start of the row, at a size that still reads.
+  numerals: crop(siteStory, [690, 76, 170, 220], caseOnMedia.numerals),
   numbers: crop(siteStory, [0, 72, 1245, 230], caseOnMedia.numbers, [622, 72, 623, 230]),
   rhythm: crop(siteStory, [830, 560, 415, 320], caseOnMedia.rhythm),
   arch: crop(siteStory, [10, 396, 490, 600], caseOnMedia.arch),

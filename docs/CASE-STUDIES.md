@@ -28,25 +28,29 @@ Route `/[locale]/work/on`. Copy `src/i18n/dictionaries/case-on.ts` (draft, both 
 Media: the approved ON assets only (`src/content/projects/on.ts`), plus `onCrops`, regions of
 those same files.
 
-| #   | Chapter            | Register | What carries it                                                            |
-| --- | ------------------ | -------- | -------------------------------------------------------------------------- |
-|     | Opening            | wine     | the gold monogram (h1), identity line, statement, the live site rising     |
-| 01  | The context        | cream    | the retreat in two paragraphs, the guesthouse garden, the format as stated |
-| 02  | The problem        | cream    | four things it must not be, each struck through once, then the aim         |
-| 03  | Direction          | cream    | brand-book plates: monogram, palette (sampled), type, photography, arch    |
-| 04  | From brand to site | wine     | the real navigation and its destinations, the story section, the phone     |
-| 05  | Key decisions      | cream    | six decisions, each with its evidence (the site's words or a detail)       |
-| 06  | Film               | night    | the watermarked preview in a screening room (wipe)                         |
-| 07  | Details            | cream    | craft up close: ribbon, signature, spaced line, the action twice, mobile   |
-| 08  | Result             | wine     | only what is true: launch-ready, live, desktop and mobile; live-site link  |
-|     | Next               | המחלבה   | wine darkens into midnight, the grid surfaces, the thread descends; split  |
+| #   | Chapter            | Register | What carries it                                                              |
+| --- | ------------------ | -------- | ---------------------------------------------------------------------------- |
+|     | Opening            | wine     | the gold monogram (h1), identity line, statement, the live site rising       |
+| 01  | The context        | cream    | the retreat in two paragraphs, the guesthouse garden, the format as stated   |
+| 02  | The problem        | cream    | four things it must not be, each struck through once, then the aim           |
+| 03  | Direction          | cream    | editorial plates: monogram, palette (sampled), type, photography, arch       |
+| 04  | From brand to site | wine     | the real navigation and its destinations, the story section, the phone       |
+| 05  | Key decisions      | cream    | six decisions, each with its evidence (the site's words or a detail)         |
+| 06  | Film               | night    | the watermarked preview in a screening room (wipe)                           |
+| 07  | Details            | cream    | craft up close: ribbon, serif numerals, spaced line, the action twice, phone |
+| 08  | Result             | wine     | From identity to launch: one live experience, desktop and mobile; live link  |
+|     | Next               | המחלבה   | wine darkens into midnight, the grid surfaces, the thread descends; split    |
 
 Rules specific to ON:
 
+- **No formal brand book is claimed.** The identity is shown as plates of real material; the
+  copy never calls it a brand book.
+- **The mark is not repeated to fill space.** In Details it appears once (the ribbon); the
+  other details are type, actions and the phone.
 - **Decisions are evidenced.** Every decision points to something visible on the live site
   (its own words, a crop of its screens). The format numbers are the site's own (two days,
   24 participants, 12 + 12, 30+) and are labelled as such; they are not results.
-- **Result is objective.** Launch-ready, live, working on desktop and mobile. Measurable
+- **Result is objective.** One complete experience, live, on desktop and mobile. Measurable
   results are added only if they are supplied.
 - **Screens without capture edges.** The desktop screenshot has a few white pixels along its
   right and bottom edges and the phone screenshot a dark scroll strip; the crops frame the

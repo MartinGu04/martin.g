@@ -13,9 +13,9 @@ import styles from './OnDetails.module.css'
 
 /**
  * 07 Details: one sequence of craft, examined up close, not a screenshot gallery. The
- * monogram's ribbon large on its wine, then the small things that carry the identity: the
- * signature under the mark, the spaced line, the one action in its two grounds, and the
- * action on a phone. Every detail is a region of the real material, drawn no larger than
+ * monogram's ribbon large on its wine (the one place the mark appears in this chapter), then
+ * the small things that carry the identity: the numbers in the site's serif, the spaced
+ * line, the one action in its two grounds, and the action on a phone. Every detail is a region of the real material, drawn no larger than
  * the material allows; a fine pointer leans in a little.
  */
 export function OnDetails({
@@ -60,10 +60,14 @@ export function OnDetails({
               <figcaption className={`t-small ${styles.caption}`}>{items.ribbon}</figcaption>
             </figure>
           </li>
-          <Reveal as="li" className={styles.lockup}>
+          <Reveal as="li" className={styles.numerals}>
             <figure>
-              <Crop crop={onCrops.lockup} locale={locale} width={{ base: 0.7, md: 0.3, lg: 0.2 }} />
-              <figcaption className={`t-small ${styles.caption}`}>{items.lockup}</figcaption>
+              <Crop
+                crop={onCrops.numerals}
+                locale={locale}
+                width={{ base: 0.5, md: 0.25, lg: 0.16 }}
+              />
+              <figcaption className={`t-small ${styles.caption}`}>{items.numerals}</figcaption>
             </figure>
           </Reveal>
           <Reveal as="li" order={1} className={styles.eyebrow}>

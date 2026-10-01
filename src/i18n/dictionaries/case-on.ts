@@ -20,7 +20,7 @@ export type OnChapterKey =
 
 export type OnDecisionKey = 'language' | 'rhythm' | 'place' | 'exclusive' | 'application' | 'mobile'
 
-export type OnDetailKey = 'ribbon' | 'lockup' | 'eyebrow' | 'actions' | 'mobileAction'
+export type OnDetailKey = 'ribbon' | 'numerals' | 'eyebrow' | 'actions' | 'mobileAction'
 
 export type OnSwatchKey = 'cream' | 'blush' | 'bordeaux' | 'wine' | 'gold' | 'ink'
 
@@ -105,7 +105,7 @@ export const caseOnCopy: Localized<OnCaseCopy> = {
     },
     opening: {
       statement:
-        'A brand and a website for a boutique dating retreat in the Galilee, made to feel like the retreat itself: warm, unhurried and real.',
+        'A brand and website for a boutique dating retreat in the Galilee, made to feel like the retreat itself: warm, unhurried and real.',
     },
     chapters: {
       context: 'The context',
@@ -167,7 +167,7 @@ export const caseOnCopy: Localized<OnCaseCopy> = {
       shape: { label: 'The arch', note: 'One soft arch, used as a window onto the view.' },
     },
     website: {
-      heading: 'From brand book to a working website.',
+      heading: 'From brand identity to a working website.',
       intro:
         'A Hebrew, right-to-left website, from the opening question to the suitability check, on desktop and on a phone.',
       structure: {
@@ -197,7 +197,7 @@ export const caseOnCopy: Localized<OnCaseCopy> = {
       items: {
         language: {
           title: 'Outside the language of dating apps',
-          body: 'The opening asks a question instead of selling a service, and says plainly what the retreat is not.',
+          body: 'The opening screen leads with a question, and its supporting line says what the retreat is not.',
           quote: {
             text: 'No swipes. Just meeting for real.',
             original: 'בלי סוויפים. פשוט להיפגש באמת.',
@@ -205,7 +205,7 @@ export const caseOnCopy: Localized<OnCaseCopy> = {
         },
         rhythm: {
           title: 'A softer, editorial rhythm',
-          body: 'One idea at a time: a short heading, one sentence in bordeaux, a line of support and room around them.',
+          body: 'The story section gives each idea room: a short heading, one sentence in bordeaux and a single supporting line.',
         },
         place: {
           title: 'The Galilee as part of the story',
@@ -213,15 +213,15 @@ export const caseOnCopy: Localized<OnCaseCopy> = {
         },
         exclusive: {
           title: 'Exclusive, and still warm',
-          body: 'The limits are stated plainly: 24 participants, 12 women and 12 men, aged 30 and up. Each number comes with a soft icon and a human line.',
+          body: 'The limits are stated plainly: 24 participants, 12 women and 12 men, aged 30 and up. Each number sits under a soft icon, with a short line beneath it.',
         },
         application: {
           title: 'An application that feels intentional',
-          body: 'The action is a suitability check, not a booking: a short questionnaire, no payment and no commitment. It stays in the header as the page scrolls.',
+          body: 'The action is a suitability check, not a booking: a short questionnaire, no payment and no commitment. The same button also sits in the site’s header.',
         },
         mobile: {
-          title: 'One identity on every screen',
-          body: 'On a phone the gold mark still opens the page, over the same evening light and the same spaced line.',
+          title: 'One identity, desktop and phone',
+          body: 'On a phone the gold mark still opens the page, over evening light, with the same spaced line beneath it.',
         },
       },
     },
@@ -233,15 +233,15 @@ export const caseOnCopy: Localized<OnCaseCopy> = {
       heading: 'Up close.',
       items: {
         ribbon: 'The ribbon line that ties the two letters',
-        lockup: 'The signature under the mark',
+        numerals: 'Numbers in the site’s serif, a small, light plus and a soft icon',
         eyebrow: 'A spaced line before the headline',
         actions: 'One action, cream on the evening photograph and bordeaux on cream',
         mobileAction: 'On a phone, the action spans the screen',
       },
     },
     result: {
-      heading: 'A complete brand and website, live.',
-      body: 'The identity and the website became one complete, launch-ready digital experience. The site is live, and it works across desktop and mobile.',
+      heading: 'From identity to launch.',
+      body: 'The identity and the website became one complete digital experience, live and available on desktop and mobile.',
     },
   },
   he: {
@@ -316,7 +316,7 @@ export const caseOnCopy: Localized<OnCaseCopy> = {
       shape: { label: 'הקשת', note: 'קשת רכה אחת, כחלון אל הנוף.' },
     },
     website: {
-      heading: 'מספר מותג לאתר שעובד.',
+      heading: 'מזהות מותג לאתר שעובד.',
       intro: 'אתר בעברית, מימין לשמאל, משאלת הפתיחה ועד בדיקת ההתאמה, בדסקטופ ובטלפון.',
       structure: {
         label: 'מבנה',
@@ -338,12 +338,12 @@ export const caseOnCopy: Localized<OnCaseCopy> = {
       items: {
         language: {
           title: 'מחוץ לשפה של אפליקציות היכרויות',
-          body: 'הפתיחה שואלת שאלה במקום למכור שירות, ואומרת בפשטות מה הריטריט לא.',
+          body: 'מסך הפתיחה נפתח בשאלה, ושורת ההסבר שלו אומרת מה הריטריט לא.',
           quote: { text: 'בלי סוויפים. פשוט להיפגש באמת.' },
         },
         rhythm: {
           title: 'קצב רך ועריכתי',
-          body: 'רעיון אחד בכל פעם: כותרת קצרה, משפט אחד בבורדו, שורת הסבר ומרחב סביבם.',
+          body: 'אזור הסיפור נותן לכל רעיון מרחב: כותרת קצרה, משפט אחד בבורדו ושורת הסבר אחת.',
         },
         place: {
           title: 'הגליל כחלק מהסיפור',
@@ -351,15 +351,15 @@ export const caseOnCopy: Localized<OnCaseCopy> = {
         },
         exclusive: {
           title: 'אקסקלוסיבי, ועדיין חם',
-          body: 'הגבולות נאמרים בפשטות: 24 משתתפים, 12 נשים ו־12 גברים, מגיל 30 ומעלה. כל מספר מגיע עם אייקון רך ושורה אנושית.',
+          body: 'הגבולות נאמרים בפשטות: 24 משתתפים, 12 נשים ו־12 גברים, מגיל 30 ומעלה. כל מספר מופיע מתחת לאייקון רך, עם שורה קצרה מתחתיו.',
         },
         application: {
           title: 'פנייה שמרגישה מכוונת',
-          body: 'הפעולה היא בדיקת התאמה ולא הזמנה: שאלון קצר, ללא תשלום וללא התחייבות. היא נשארת בכותרת העליונה לאורך כל הגלילה.',
+          body: 'הפעולה היא בדיקת התאמה ולא הזמנה: שאלון קצר, ללא תשלום וללא התחייבות. אותו כפתור מופיע גם בכותרת העליונה של האתר.',
         },
         mobile: {
-          title: 'זהות אחת בכל מסך',
-          body: 'גם בטלפון הסמל הזהוב פותח את העמוד, באותו אור ערב ועם אותה שורה מרווחת.',
+          title: 'זהות אחת, בדסקטופ ובטלפון',
+          body: 'גם בטלפון הסמל הזהוב פותח את העמוד, מעל אור ערב, ואותה שורה מרווחת מתחתיו.',
         },
       },
     },
@@ -371,15 +371,15 @@ export const caseOnCopy: Localized<OnCaseCopy> = {
       heading: 'מקרוב.',
       items: {
         ribbon: 'קו הסרט שקושר בין שתי האותיות',
-        lockup: 'החתימה שמתחת לסמל',
+        numerals: 'מספרים בסריף של האתר, פלוס קטן ובהיר ואייקון רך',
         eyebrow: 'שורה מרווחת לפני הכותרת',
         actions: 'פעולה אחת, בשמנת על צילום הערב ובבורדו על רקע שמנת',
         mobileAction: 'בטלפון, הפעולה פרוסה לרוחב המסך',
       },
     },
     result: {
-      heading: 'מותג ואתר שלמים, באוויר.',
-      body: 'הזהות והאתר הפכו לחוויה דיגיטלית אחת, שלמה ומוכנה להשקה. האתר באוויר, ועובד בדסקטופ ובמובייל.',
+      heading: 'מזהות להשקה.',
+      body: 'הזהות והאתר הפכו לחוויה דיגיטלית אחת ושלמה, באוויר וזמינה בדסקטופ ובמובייל.',
     },
   },
 }
@@ -397,6 +397,10 @@ export const caseOnMedia = {
   lockup: {
     en: 'The gold ON mark over the line Love, Retreat, Galilee and the script signature Turn Love ON.',
     he: 'סמל ON הזהוב מעל השורה Love, Retreat, Galilee והחתימה בכתב יד Turn Love ON.',
+  },
+  numerals: {
+    en: 'Close-up of 12 + 12 in the site’s serif, under a wine-glass icon in a blush circle, above the line women and men.',
+    he: 'תקריב של 12 + 12 בסריף של האתר, מתחת לאייקון של כוסות יין בעיגול ורוד עתיק, מעל השורה נשים וגברים.',
   },
   eyebrow: {
     en: 'The spaced line Dating Retreat in the Galilee, in Hebrew, above the headline.',
