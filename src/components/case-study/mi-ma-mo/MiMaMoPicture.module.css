@@ -1,0 +1,89 @@
+@layer components {
+  .scene {
+    --scene-pad-start: var(--section-space);
+  }
+
+  .grid {
+    row-gap: var(--space-7);
+  }
+
+  .level,
+  .heading,
+  .intro,
+  .card,
+  .legend,
+  .shortcuts,
+  .week {
+    grid-column: 1 / -1;
+  }
+
+  .intro {
+    max-inline-size: var(--measure-text);
+  }
+
+  /* The card at about its own size (1058px wide in the screenshot), never larger. */
+  .card {
+    inline-size: 100%;
+    max-inline-size: 1058px;
+    margin-block-start: var(--space-5);
+    justify-self: center;
+    box-shadow: 0 2.5rem 4rem -2rem var(--shade);
+  }
+
+  .legend {
+    max-inline-size: 1058px;
+    justify-self: center;
+    inline-size: 100%;
+  }
+
+  .shortcuts,
+  .week {
+    display: grid;
+    gap: var(--space-4);
+    margin: 0;
+  }
+
+  .shortcutsImage {
+    max-inline-size: 465px;
+  }
+
+  .caption {
+    max-inline-size: var(--measure-lead);
+    color: var(--text-muted);
+  }
+
+  .week {
+    margin-block-start: var(--space-4);
+  }
+
+  @media (width >= 48rem) {
+    .legend {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .shortcuts {
+      grid-template-columns: minmax(0, 465px) minmax(0, 1fr);
+      align-items: center;
+      column-gap: var(--space-7);
+    }
+  }
+
+  @media (width >= 75rem) {
+    .heading {
+      grid-column: 1 / span 8;
+    }
+
+    .intro {
+      grid-column: 1 / span 6;
+    }
+
+    .card,
+    .legend {
+      grid-column: 2 / span 10;
+    }
+
+    .shortcuts {
+      grid-column: 2 / span 10;
+    }
+  }
+}

@@ -1,0 +1,120 @@
+@layer components {
+  .scene {
+    --scene-pad-start: var(--section-space);
+  }
+
+  .grid {
+    row-gap: var(--space-8);
+  }
+
+  .heading,
+  .bench {
+    grid-column: 1 / -1;
+  }
+
+  /* The bench: plates on the grid, two per row on tablets, in spans of the real grid on
+     desktops (7 + 5, 5 + 7, 6 + 6), so the composition is the grid's own geometry. */
+  .bench {
+    display: grid;
+    gap: var(--gutter);
+    margin: 0;
+    padding: 0;
+  }
+
+  .plate {
+    display: grid;
+  }
+
+  .figure {
+    display: grid;
+    grid-template-rows: 1fr auto;
+    margin: 0;
+    border: var(--hairline) solid var(--line-strong);
+    background: color-mix(in srgb, var(--surface-1) 70%, transparent);
+  }
+
+  /* The specimen: the region(s) centered on the dotted ground, with room around them. */
+  .specimen {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-5);
+    min-block-size: 11rem;
+    padding: var(--space-7) var(--space-5);
+    background-image: radial-gradient(
+      circle,
+      color-mix(in srgb, var(--light) 22%, transparent) 1px,
+      transparent 1.5px
+    );
+    background-size: 1rem 1rem;
+  }
+
+  /* Each region: as wide as its zoom allows, and no wider; a pair sits side by side when
+     both fit, one above the other when they do not. */
+  .region {
+    flex: 0 1 var(--native);
+    min-inline-size: 0;
+    box-shadow: 0 1.5rem 2rem -1.5rem var(--shade);
+  }
+
+  .caption {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: baseline;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-5);
+    border-block-start: var(--hairline) solid var(--line-strong);
+  }
+
+  .index {
+    color: var(--accent);
+  }
+
+  @media (width >= 48rem) {
+    .bench {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .specimen {
+      min-block-size: 15rem;
+    }
+  }
+
+  @media (width >= 75rem) {
+    .heading {
+      grid-column: 1 / span 8;
+    }
+
+    .bench {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+    }
+
+    .plate:nth-child(1) {
+      grid-column: 1 / span 7;
+    }
+
+    .plate:nth-child(2) {
+      grid-column: 8 / span 5;
+    }
+
+    .plate:nth-child(3) {
+      grid-column: 1 / span 5;
+    }
+
+    .plate:nth-child(4) {
+      grid-column: 6 / span 7;
+    }
+
+    .plate:nth-child(5),
+    .plate:nth-child(6) {
+      grid-column: span 6;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .specimen {
+      background-image: none;
+    }
+  }
+}

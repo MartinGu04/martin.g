@@ -1,0 +1,170 @@
+@layer components {
+  .annotated {
+    position: relative;
+  }
+
+  /* The overlay shares the frame's box and its physical, left-to-right coordinates. */
+  .overlay {
+    position: absolute;
+    inset: 0;
+    direction: ltr;
+    pointer-events: none;
+  }
+
+  /*
+   * A box around a real part of the interface: a hairline in the world's amber, drawn
+   * inside the box so nothing it marks is covered. Phones use the phone region's box.
+   */
+  .mark {
+    position: absolute;
+    inset-inline-start: var(--mx-sm);
+    inset-block-start: var(--my-sm);
+    inline-size: var(--mw-sm);
+    block-size: var(--mh-sm);
+    box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--accent) 88%, transparent);
+  }
+
+  .mark[data-phone='off'] {
+    display: none;
+  }
+
+  @media (width >= 48rem) {
+    .mark,
+    .mark[data-phone='off'] {
+      display: block;
+      inset-inline-start: var(--mx);
+      inset-block-start: var(--my);
+      inline-size: var(--mw);
+      block-size: var(--mh);
+    }
+  }
+
+  /* The number sits just outside one corner, so it never covers what the box marks. */
+  .tag {
+    position: absolute;
+    display: grid;
+    place-items: center;
+    min-inline-size: 1.25rem;
+    block-size: 1.25rem;
+    padding-inline: 0.25rem;
+    color: var(--surface-0);
+    background: var(--accent);
+  }
+
+  .mark[data-tag^='top'] .tag {
+    inset-block-end: 100%;
+  }
+
+  .mark[data-tag^='bottom'] .tag {
+    inset-block-start: 100%;
+  }
+
+  .mark[data-tag$='left'] .tag {
+    inset-inline-start: 0;
+  }
+
+  .mark[data-tag$='right'] .tag {
+    inset-inline-end: 0;
+  }
+
+  /* The box traces itself in as it arrives (static, already drawn, without motion). */
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .mark {
+        animation: mark-trace linear both;
+        animation-timeline: view();
+        animation-range: entry 30% cover 40%;
+      }
+    }
+  }
+
+  /* Today's pulse: a second outline that breathes out from the box, slowly. */
+  .pulse {
+    display: none;
+  }
+
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    .pulse {
+      display: block;
+      position: absolute;
+      inset: -0.25rem;
+      box-shadow: 0 0 0 1.5px var(--accent);
+      opacity: 0;
+      animation: mark-pulse 4s var(--ease-in-out) infinite;
+    }
+  }
+
+  @keyframes mark-pulse {
+    0%,
+    100% {
+      opacity: 0;
+      scale: 0.96;
+    }
+
+    50% {
+      opacity: 0.7;
+      scale: 1;
+    }
+  }
+
+  @keyframes mark-trace {
+    from {
+      clip-path: inset(0 0 100% 100%);
+    }
+
+    to {
+      clip-path: inset(-2rem);
+    }
+  }
+
+  /* The legend: the same numbers, a name and one line each. */
+  .list {
+    display: grid;
+    gap: var(--space-5) var(--gutter);
+    margin: 0;
+    padding: 0;
+  }
+
+  .item {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+    gap: var(--space-3);
+    padding-block-start: var(--space-3);
+    border-block-start: var(--hairline) solid var(--line);
+  }
+
+  .number {
+    display: grid;
+    place-items: center;
+    min-inline-size: 1.25rem;
+    block-size: 1.25rem;
+    padding-inline: 0.25rem;
+    color: var(--surface-0);
+    background: var(--accent);
+  }
+
+  .text {
+    display: grid;
+    gap: var(--space-1);
+  }
+
+  .label {
+    font-weight: 600;
+  }
+
+  @media (forced-colors: active) {
+    .mark {
+      box-shadow: none;
+      outline: 2px solid CanvasText;
+      outline-offset: -2px;
+    }
+
+    .tag,
+    .number {
+      forced-color-adjust: none;
+      color: Canvas;
+      background: CanvasText;
+    }
+  }
+}

@@ -1,0 +1,651 @@
+@layer components {
+  /* ------------------------------------------------------------------ */
+  /* Opening: the name, one statement, the real product beneath it        */
+  /* ------------------------------------------------------------------ */
+
+  .opening {
+    --scene-pad-start: var(--space-6);
+    --scene-pad-end: var(--section-space-sm);
+  }
+
+  .openingGrid {
+    row-gap: var(--space-6);
+  }
+
+  .topline {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3) var(--space-6);
+  }
+
+  .back {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-block-size: 2.75rem;
+    color: var(--text-muted);
+  }
+
+  .back:focus-visible {
+    color: var(--text);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .back:hover {
+      color: var(--text);
+    }
+  }
+
+  /* "All work" goes back: the arrow points to the inline start. */
+  .backArrow {
+    scale: -1 1;
+  }
+
+  .kicker {
+    margin: 0;
+    color: var(--accent);
+  }
+
+  /* The kicker is Latin on the Hebrew page too, so it keeps the Latin label treatment that
+     :lang(he) otherwise switches off (tokens.css: uppercase, 0.16em, 12px). */
+  :lang(he) .kicker {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+  }
+
+  .identity {
+    grid-column: 1 / -1;
+    display: grid;
+    justify-items: start;
+    gap: var(--space-4);
+  }
+
+  /* The identity line, marked like a status: the interface's operational green. */
+  .line {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin: 0;
+    color: var(--accent);
+  }
+
+  .lineMark {
+    inline-size: 0.5rem;
+    block-size: 0.5rem;
+    background: var(--accent-2);
+  }
+
+  .title {
+    --display-size: clamp(3rem, 1.6rem + 4.4vw, 6.75rem);
+    margin: 0;
+  }
+
+  .statement {
+    grid-column: 1 / -1;
+    max-inline-size: 26em;
+    margin: 0;
+  }
+
+  /* The product, framed like an instrument: a bar naming the view, corner ticks. */
+  .console {
+    grid-column: 1 / -1;
+    margin: var(--space-5) 0 0;
+  }
+
+  .consoleBar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-2) var(--space-6);
+    margin-block-end: var(--space-4);
+    padding-block-start: var(--space-3);
+    border-block-start: var(--hairline) solid var(--line-strong);
+  }
+
+  .view {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--text);
+  }
+
+  .viewNode {
+    inline-size: 0.5rem;
+    block-size: 0.5rem;
+    background: var(--accent);
+  }
+
+  .sanitized {
+    max-inline-size: 34rem;
+    color: var(--text-muted);
+  }
+
+  .screen {
+    position: relative;
+    box-shadow:
+      0 0 0 var(--hairline) color-mix(in srgb, var(--light) 24%, transparent),
+      0 3rem 5rem -2.5rem var(--shade);
+  }
+
+  /* Registration ticks at the screen's four corners, just outside it. */
+  .ticks {
+    --tick: 0.875rem;
+    --tick-color: color-mix(in srgb, var(--light) 70%, transparent);
+    position: absolute;
+    inset: calc(var(--space-2) * -1);
+    pointer-events: none;
+    background:
+      linear-gradient(var(--tick-color), var(--tick-color)) top left / var(--tick) 1px,
+      linear-gradient(var(--tick-color), var(--tick-color)) top left / 1px var(--tick),
+      linear-gradient(var(--tick-color), var(--tick-color)) top right / var(--tick) 1px,
+      linear-gradient(var(--tick-color), var(--tick-color)) top right / 1px var(--tick),
+      linear-gradient(var(--tick-color), var(--tick-color)) bottom left / var(--tick) 1px,
+      linear-gradient(var(--tick-color), var(--tick-color)) bottom left / 1px var(--tick),
+      linear-gradient(var(--tick-color), var(--tick-color)) bottom right / var(--tick) 1px,
+      linear-gradient(var(--tick-color), var(--tick-color)) bottom right / 1px var(--tick);
+    background-repeat: no-repeat;
+  }
+
+  /* A short amber trace that runs along the screen's top edge now and then (a loop:
+     only while the scene is on screen, never without scripting or with reduced motion). */
+  .trace {
+    display: none;
+  }
+
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    .trace {
+      position: absolute;
+      z-index: 1;
+      inset-block-start: calc(var(--hairline) * -1);
+      inset-inline: 0;
+      display: block;
+      block-size: 2px;
+      overflow: clip;
+      pointer-events: none;
+    }
+
+    .trace::before {
+      content: '';
+      position: absolute;
+      inset-block: 0;
+      inset-inline-start: 0;
+      inline-size: 16%;
+      background: linear-gradient(to right, transparent, var(--accent), transparent);
+      translate: calc(var(--dir) * -100%) 0;
+      animation: mm-trace 14s linear infinite;
+    }
+  }
+
+  @keyframes mm-trace {
+    0% {
+      translate: calc(var(--dir) * -100%) 0;
+    }
+
+    55%,
+    100% {
+      translate: calc(var(--dir) * 625%) 0;
+    }
+  }
+
+  .facts {
+    row-gap: var(--space-6);
+    margin-block-start: var(--space-8);
+  }
+
+  .meta {
+    grid-column: 1 / -1;
+    display: grid;
+    gap: var(--space-5) var(--gutter);
+    margin: 0;
+  }
+
+  .meta dd {
+    margin: var(--space-2) 0 0;
+  }
+
+  .index {
+    grid-column: 1 / -1;
+    margin-block-start: var(--space-6);
+  }
+
+  @media (width >= 48rem) {
+    .meta {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  /* Desktop: the name at the inline start, the statement answering it at the inline end,
+     both on one baseline; the product beneath, across the whole grid at about its own
+     size (0.9 of the screenshot at 1440px). */
+  @media (width >= 75rem) {
+    .identity {
+      grid-column: 1 / span 7;
+      align-self: end;
+    }
+
+    .statement {
+      grid-column: 8 / -1;
+      align-self: end;
+      padding-block-end: var(--space-3);
+    }
+
+    .meta {
+      grid-column: 1 / span 9;
+    }
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* 01 Context: what it is, and where each state is read                 */
+  /* ------------------------------------------------------------------ */
+
+  .context {
+    --scene-pad-start: var(--section-space);
+  }
+
+  .contextGrid {
+    row-gap: var(--space-8);
+    align-items: start;
+  }
+
+  .contextHeading,
+  .contextText,
+  .map {
+    grid-column: 1 / -1;
+  }
+
+  .contextText {
+    display: grid;
+    gap: var(--space-5);
+    max-inline-size: var(--measure-text);
+  }
+
+  .map {
+    margin: 0;
+  }
+
+  .mapLabel {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-block-end: var(--space-5);
+    color: var(--accent);
+  }
+
+  .table {
+    position: relative;
+    inline-size: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+  .table thead td {
+    inline-size: 46%;
+  }
+
+  .surface {
+    padding-block: var(--space-3);
+    color: var(--text-muted);
+    text-align: center;
+    vertical-align: bottom;
+    border-block-end: var(--hairline) solid var(--line-strong);
+  }
+
+  /* Phones: the four views read upward, so each column stays a column. */
+  .surface span {
+    display: inline-block;
+    white-space: nowrap;
+    writing-mode: vertical-rl;
+    rotate: 180deg;
+  }
+
+  @supports (writing-mode: sideways-lr) {
+    .surface span {
+      writing-mode: sideways-lr;
+      rotate: none;
+    }
+  }
+
+  .state {
+    padding-block: var(--space-3);
+    padding-inline-end: var(--space-3);
+    font-weight: 400;
+    text-align: start;
+    border-block-end: var(--hairline) solid var(--line);
+  }
+
+  .cell {
+    text-align: center;
+    vertical-align: middle;
+    border-block-end: var(--hairline) solid var(--line);
+    border-inline-start: var(--hairline) solid var(--line);
+  }
+
+  /* A faint point where a state is not read; an amber mark where it is. */
+  .dot {
+    display: inline-block;
+    inline-size: 3px;
+    block-size: 3px;
+    vertical-align: middle;
+    background: var(--line-strong);
+  }
+
+  .cell[data-on] .dot {
+    inline-size: 0.625rem;
+    block-size: 0.625rem;
+    background: var(--accent);
+  }
+
+  /* The map's sweep: a faint band that visits each view's column in turn (a loop). */
+  .tableWrap {
+    position: relative;
+  }
+
+  .sweep {
+    display: none;
+  }
+
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    .sweep {
+      position: absolute;
+      inset-block: 0;
+      inset-inline-start: 46%;
+      display: block;
+      inline-size: 13.5%;
+      background: color-mix(in srgb, var(--light) 10%, transparent);
+      pointer-events: none;
+      animation: mm-sweep 16s var(--ease-in-out) infinite;
+    }
+  }
+
+  @keyframes mm-sweep {
+    0%,
+    20% {
+      inset-inline-start: 46%;
+    }
+
+    25%,
+    45% {
+      inset-inline-start: 59.5%;
+    }
+
+    50%,
+    70% {
+      inset-inline-start: 73%;
+    }
+
+    75%,
+    95% {
+      inset-inline-start: 86.5%;
+    }
+
+    100% {
+      inset-inline-start: 46%;
+    }
+  }
+
+  @media (width >= 48rem) {
+    .surface span {
+      white-space: normal;
+      writing-mode: horizontal-tb;
+      rotate: none;
+    }
+  }
+
+  @media (width >= 75rem) {
+    .contextHeading {
+      grid-column: 1 / span 9;
+    }
+
+    .contextText {
+      grid-column: 1 / span 5;
+      padding-block-start: var(--space-2);
+    }
+
+    .map {
+      grid-column: 7 / -1;
+    }
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* 08 Result: one working system                                        */
+  /* ------------------------------------------------------------------ */
+
+  .result {
+    --scene-pad-start: var(--section-space);
+    --scene-pad-end: var(--section-space-sm);
+  }
+
+  .resultGrid {
+    row-gap: var(--space-7);
+  }
+
+  .resultHeading,
+  .resultBody,
+  .system {
+    grid-column: 1 / -1;
+  }
+
+  .resultBody {
+    max-inline-size: var(--measure-lead);
+  }
+
+  /* The four views as stations on one line. Phones: a column, the line beside it. */
+  .system {
+    position: relative;
+    margin-block-start: var(--space-5);
+    padding-inline-start: var(--space-6);
+  }
+
+  .systemLine {
+    position: absolute;
+    inset-block: 0.375rem;
+    inset-inline-start: 0.25rem;
+    inline-size: 2px;
+    background: var(--accent);
+    transform-origin: center top;
+  }
+
+  .systemList {
+    display: grid;
+    gap: var(--space-6);
+    margin: 0;
+    padding: 0;
+  }
+
+  .systemNode {
+    position: relative;
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .systemMark {
+    position: absolute;
+    inset-block-start: 0.125rem;
+    inset-inline-start: calc(var(--space-6) * -1);
+    inline-size: 0.75rem;
+    block-size: 0.75rem;
+    border: 2px solid var(--accent);
+    background: var(--surface-0);
+  }
+
+  @media (width >= 48rem) {
+    .system {
+      padding-inline-start: 0;
+      padding-block-start: var(--space-6);
+    }
+
+    .systemLine {
+      inset-block: 0.3125rem auto;
+      inset-inline: 0;
+      inline-size: auto;
+      block-size: 2px;
+      transform-origin: left center;
+    }
+
+    :dir(rtl) .systemLine {
+      transform-origin: right center;
+    }
+
+    .systemList {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      column-gap: var(--gutter);
+    }
+
+    .systemMark {
+      inset-block-start: calc(var(--space-6) * -1);
+      inset-inline-start: 0;
+    }
+  }
+
+  @media (width >= 75rem) {
+    .resultHeading {
+      grid-column: 1 / span 9;
+    }
+
+    .resultBody {
+      grid-column: 1 / span 6;
+    }
+  }
+
+  /* The line draws itself across the stations as it arrives (static without motion). */
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .systemLine {
+        animation: mm-line-v linear both;
+        animation-timeline: view();
+        animation-range: entry 20% cover 45%;
+      }
+
+      @media (width >= 48rem) {
+        .systemLine {
+          animation-name: mm-line-h;
+        }
+      }
+    }
+  }
+
+  @keyframes mm-line-v {
+    from {
+      scale: 1 0;
+    }
+
+    to {
+      scale: 1 1;
+    }
+  }
+
+  @keyframes mm-line-h {
+    from {
+      scale: 0 1;
+    }
+
+    to {
+      scale: 1 1;
+    }
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Closing: midnight into steel, the next world named, not opened       */
+  /* ------------------------------------------------------------------ */
+
+  .passage {
+    position: relative;
+    block-size: clamp(12rem, 38svh, 24rem);
+    overflow: clip;
+    background: linear-gradient(to bottom, var(--from), var(--to));
+  }
+
+  /* The drawn grid thins into abstraction as the ground turns to steel. */
+  .passageGrid {
+    --line: color-mix(in srgb, var(--thread-to) 18%, transparent);
+    mask-image: linear-gradient(to bottom, black 0%, transparent 85%);
+  }
+
+  .descent {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: calc(50% - var(--hairline));
+    inline-size: 2px;
+    background: linear-gradient(to bottom, var(--thread-from), var(--thread-to));
+    transform-origin: center top;
+  }
+
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .descent {
+        animation: mm-line-v linear both;
+        animation-timeline: view();
+        animation-range: entry 20% exit 20%;
+      }
+    }
+  }
+
+  .closing {
+    --scene-pad-start: var(--space-8);
+    --scene-pad-end: var(--section-space);
+  }
+
+  .closingGrid {
+    row-gap: var(--space-5);
+  }
+
+  .closingKicker,
+  .closingTitle,
+  .closingNote,
+  .closingBack {
+    grid-column: 1 / -1;
+  }
+
+  .closingKicker {
+    margin: 0;
+  }
+
+  .closingTitle {
+    margin: 0;
+    color: var(--text);
+  }
+
+  .closingNote {
+    max-inline-size: var(--measure-lead);
+  }
+
+  .closingBack {
+    display: inline-flex;
+    align-items: center;
+    justify-self: start;
+    gap: var(--space-3);
+    min-block-size: 2.75rem;
+    margin-block-start: var(--space-4);
+    color: var(--text);
+  }
+
+  @media (width >= 75rem) {
+    .closingKicker,
+    .closingTitle {
+      grid-column: 1 / span 7;
+    }
+
+    .closingNote {
+      grid-column: 1 / span 6;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .passage {
+      display: none;
+    }
+
+    .dot,
+    .cell[data-on] .dot,
+    .lineMark,
+    .viewNode {
+      forced-color-adjust: none;
+      background: CanvasText;
+    }
+  }
+}
