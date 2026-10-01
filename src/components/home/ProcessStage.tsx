@@ -16,8 +16,10 @@ import styles from './ProcessStage.module.css'
  * current step brightens in the list, its word takes the frame beside it with its line,
  * and a five-part rule fills in the reading direction (the scan of the thread). Pointing
  * at a step takes over: that step becomes current and the clock waits until the pointer
- * leaves, then continues where it was. Nothing waits for scrolling. Without scripting or
- * with reduced motion it is the list alone.
+ * leaves, then continues where it was. Above the current word stands its stage's line
+ * glyph (focus, boundary, grid, modules, loop), changing with it on the same clock.
+ * Nothing waits for scrolling. Without scripting or with reduced motion it is the list
+ * alone.
  */
 export function ProcessStage({ copy }: { copy: HomeCopy['process'] }) {
   const total = String(processOrder.length).padStart(2, '0')
@@ -47,7 +49,6 @@ export function ProcessStage({ copy }: { copy: HomeCopy['process'] }) {
                   <Ltr>{`${String(i + 1).padStart(2, '0')} / ${total}`}</Ltr>
                 </span>
                 <h3 className={`t-heading-3 ${styles.word}`}>{step.word}</h3>
-                <ProcessGlyph step={key} className={styles.glyph} />
                 <p className={`t-body-l muted ${styles.line}`}>{step.line}</p>
               </li>
             )
@@ -63,6 +64,7 @@ export function ProcessStage({ copy }: { copy: HomeCopy['process'] }) {
                 style={{ '--i': i } as StyleWithVars}
                 data-loop=""
               >
+                <ProcessGlyph step={key} className={styles.bigGlyph} />
                 <span className={`t-display ${styles.big}`}>{copy.steps[key].word}</span>
                 <span className={`t-statement ${styles.bigLine}`}>{copy.steps[key].line}</span>
               </div>

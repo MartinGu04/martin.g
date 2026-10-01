@@ -5,8 +5,8 @@ import type { ProcessStepKey } from '@/i18n/dictionaries/home'
  * One quiet line glyph per stage of the process, on the same 24-unit grid as the
  * capability glyphs: thin strokes, square nodes, no fills beyond a node. Abstract, not
  * clip art: a focus being found, a boundary being set, a grid taking structure, modules
- * joined into one, a path returning to itself. They take the step's own color, so they
- * brighten with it when it becomes current. Decorative: the word carries the meaning.
+ * joined into one, a path returning to itself. Each stands above its stage's word in the
+ * How I Work frame and changes with it. Decorative: the word carries the meaning.
  */
 const GLYPHS: Record<ProcessStepKey, ReactNode> = {
   // Understand: observation, a focus with its four bearings.

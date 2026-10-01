@@ -28,7 +28,7 @@
 
   .step {
     display: grid;
-    grid-template-columns: 3.5rem minmax(0, 1fr) auto;
+    grid-template-columns: 3.5rem minmax(0, 1fr);
     column-gap: var(--space-4);
     row-gap: var(--space-1);
     align-items: baseline;
@@ -42,17 +42,6 @@
 
   .count {
     grid-row: 1 / span 2;
-  }
-
-  /* The stage's glyph at the row's inline end: the step's own color, held back, so it
-     brightens with the step when it becomes current (and on hover). */
-  .glyph {
-    grid-column: 3;
-    grid-row: 1 / span 2;
-    align-self: center;
-    inline-size: 1.375rem;
-    block-size: 1.375rem;
-    opacity: 0.6;
   }
 
   .word {
@@ -172,6 +161,14 @@
     opacity: 0;
     animation: step-word 16s linear infinite;
     animation-delay: calc((var(--i) - 5) * 3.2s - 0.64s);
+  }
+
+  /* The current stage's glyph above its word: quieter than the word, on the same clock
+     (it fades with the word that carries it, and follows the pointer takeover). */
+  .bigGlyph {
+    inline-size: clamp(1.75rem, 1.4rem + 0.8vw, 2.375rem);
+    block-size: clamp(1.75rem, 1.4rem + 0.8vw, 2.375rem);
+    color: var(--text-muted);
   }
 
   /* Strong, not overpowering: a heading-sized word, not a poster. */

@@ -493,12 +493,13 @@ test.describe('exploration and polish', () => {
 test.describe('depth and texture', () => {
   test('decorative atmosphere and glyphs stay out of the accessibility tree', async ({ page }) => {
     await page.goto('/he')
-    // ON's far haze, the Defense system field, and one glyph per process stage.
+    // ON's far haze and the Defense system field.
     await expect(page.locator('#on [aria-hidden="true"] img[alt=""]')).toHaveCount(1)
     await expect(page.locator('#confidential > svg[aria-hidden="true"]')).toHaveCount(1)
-    const stages = page.locator('[aria-labelledby="process-title"] ol > li')
-    for (const stage of await stages.all())
-      await expect(stage.locator('svg[aria-hidden="true"]')).toHaveCount(1)
+    // The stage glyphs live in the active display above the current word, not in the list.
+    const process = page.locator('[aria-labelledby="process-title"]')
+    await expect(process.locator('ol > li svg')).toHaveCount(0)
+    await expect(process.locator('[aria-hidden="true"] svg')).toHaveCount(5)
     // The field is generated geometry only: no text, no images.
     await expect(page.locator('#confidential > svg :is(text, image)')).toHaveCount(0)
   })

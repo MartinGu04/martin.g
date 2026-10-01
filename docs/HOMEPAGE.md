@@ -87,8 +87,9 @@ Composition first, then depth, then texture; nothing here is a concept of its ow
 
 - **Hero**: the positioning and the principle sit at the optical center of the frame below
   the identity (a little more space below than above), no longer anchored low.
-- **Selected Work**: a viewport-tall frame with the chapters at its center. ON's chapter
-  carries its identity beside its name, quieter than it (`ריטריט היכרויות בגליל` /
+- **Selected Work**: a compact editorial section (a table of contents, not another hero;
+  the viewport-tall frame tried in 4.8 was reverted). ON's chapter carries its identity
+  beside its name, quieter than it (`ריטריט היכרויות בגליל` /
   `Dating Retreat in the Galilee`).
 - **Shared image depth** (ON, המחלבה, About): long, soft, low shadows in the world's shade
   and, on dark worlds, a faint edge of the world's light; foreground devices rest on a
@@ -102,8 +103,12 @@ Composition first, then depth, then texture; nothing here is a concept of its ow
   fragments, orthogonal topology with square nodes and two cold traces. No screenshots,
   text or data; the archive's surface lets it through only at about 10%.
 - **How I Work**: one line glyph per stage (`ProcessGlyph`: focus, boundary, grid,
-  modules, loop) at the row's inline end, in the step's own color held back, so it
-  brightens with the step.
+  modules, loop) above the large current word in the frame (about 28 to 38px, muted),
+  changing with the word on the same clock and following the pointer takeover. The list
+  rows carry no glyphs.
+- **Contact**: the convergence drawing is the 4.7 geometry unchanged; its draw-in now
+  completes while the scene's upper half comes into view (entry 0% to 40%), so the
+  schematic is never seen half drawn while the invitation is readable.
 - **Capabilities**: unchanged; the bone world already carries its fine light grain (the
   light scheme's 0.12), so no second texture is added.
 - **Texture per world**: ON paper and its haze, המחלבה its grid and dots, Defense its field,

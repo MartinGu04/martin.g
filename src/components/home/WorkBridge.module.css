@@ -1,8 +1,7 @@
 @layer components {
   .bridge {
-    --scene-pad-start: var(--space-7);
-    --scene-pad-end: var(--space-8);
-    --scene-align: center;
+    --scene-pad-start: var(--section-space-sm);
+    --scene-pad-end: var(--section-space-sm);
   }
 
   .grid {
