@@ -35,6 +35,29 @@
     pointer-events: none;
   }
 
+  /* A slow ambient drift inside the frame: the picture breathes, the frame stays still.
+     Starts and ends inside the frame's crop, so no edge ever shows. */
+  .drift {
+    position: absolute;
+    inset: 0;
+  }
+
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    .drift {
+      animation: media-drift 32s ease-in-out infinite alternate;
+    }
+  }
+
+  @keyframes media-drift {
+    from {
+      transform: scale(1.04) translate3d(calc(1% * var(--dir)), 0.6%, 0);
+    }
+
+    to {
+      transform: scale(1.1) translate3d(calc(-1.6% * var(--dir)), -1%, 0);
+    }
+  }
+
   @media (width >= 48rem) {
     .frame {
       aspect-ratio: var(--ar-md, var(--ar));

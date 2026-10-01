@@ -1,7 +1,7 @@
 @layer components {
   .scene {
-    --scene-pad-start: calc(var(--section-space) * 1.25);
-    --scene-pad-end: calc(var(--section-space) * 1.25);
+    --scene-pad-start: var(--section-space);
+    --scene-pad-end: var(--section-space-sm);
   }
 
   .grid {

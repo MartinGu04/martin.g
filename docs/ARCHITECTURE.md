@@ -102,7 +102,7 @@ Vercel Web Analytics, planned; not part of Foundation.
 Projects are numbered continuously across sections from `getProjectSequence()`: routed
 work first, then confidential work (01 ON, 02 המחלבה with id `mi-ma-mo`, 03 and 04
 confidential). The
-"Restricted Work" section has no chapter number of its own, and its items stay
+"Defense Systems" section has no chapter number of its own, and its items stay
 non-clickable and route-less.
 
 ## Navigation

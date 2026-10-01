@@ -20,7 +20,11 @@ This repository is **public**. Read README.md → Confidentiality and docs/ARCHI
   type-role classes and named grid placements in docs/DESIGN-SYSTEM.md. No `ch` units for
   measures (the Hebrew face has no "0" glyph). Never render a brand mark below its minimum.
 - Motion: nothing may start hidden unless `(scripting: enabled)` and
-  `(prefers-reduced-motion: no-preference)`.
+  `(prefers-reduced-motion: no-preference)`. Continuous loops only inside `<Scene ambient>`,
+  on `data-loop` elements (paused offscreen, none with reduced motion); slow, restrained,
+  real content only.
+- Defense Systems (confidential work): sanitized aliases and generated abstract geometry
+  only; never classified, warning, clearance or dossier language or styling.
 - Commit messages: no Claude session URLs or other session links (public breadcrumbs).
 - Navigation: no placeholder or dead destinations (Contact arrives with Phase 6).
 - Before pushing: `pnpm check`, `pnpm build`, `pnpm test:e2e`.

@@ -1,5 +1,9 @@
 @layer components {
-  /* Restricted Work: a framed archive inside a deeper graphite register. */
+  .scene {
+    --scene-pad-start: var(--section-space-sm);
+  }
+
+  /* Defense Systems: a framed archive inside a gunmetal register. */
   .archive {
     --corner: 0.875rem;
     --archive-pad: var(--space-5);
@@ -152,13 +156,13 @@
     content: '';
     position: absolute;
     inset: var(--hairline);
-    background: linear-gradient(to right, transparent 38%, var(--surface-1) 86%) left top / 100%
+    background: linear-gradient(to right, transparent 62%, var(--surface-1) 98%) left top / 100%
       100% no-repeat;
     transition: background-size var(--dur-cinematic) var(--ease-out);
   }
 
   :root[dir='rtl'] .cover::after {
-    background-image: linear-gradient(to left, transparent 38%, var(--surface-1) 86%);
+    background-image: linear-gradient(to left, transparent 62%, var(--surface-1) 98%);
     background-position: right top;
   }
 

@@ -1,0 +1,109 @@
+@layer components {
+  .diagram {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    background: var(--surface-1);
+    border: var(--hairline) solid var(--line);
+  }
+
+  .paths path,
+  .pulses path {
+    fill: none;
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .paths path {
+    stroke: var(--line-strong);
+  }
+
+  /* Pulses travel along a few paths: a short accent dash over the hairline. */
+  .pulses path {
+    stroke: var(--accent);
+    stroke-width: 1.5;
+    stroke-dasharray: 0 100;
+    opacity: 0.9;
+  }
+
+  .solid {
+    fill: var(--text-muted);
+  }
+
+  .hollow {
+    fill: var(--surface-1);
+    stroke: var(--text-muted);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .accent {
+    fill: var(--accent);
+  }
+
+  /* Masked structural blocks: solid, quiet, a hairline edge. Never a censor bar. */
+  .masks rect {
+    fill: color-mix(in srgb, var(--surface-0) 70%, var(--surface-1));
+    stroke: var(--line-strong);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+
+  /* The scan: a soft band of the accent with a brighter leading edge. */
+  .scan {
+    color: var(--accent);
+    opacity: 0;
+  }
+
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    .pulses path {
+      animation: system-pulse 7s linear infinite;
+    }
+
+    .scan {
+      opacity: 1;
+      animation: system-scan 11s linear infinite;
+    }
+
+    [data-pattern='lines'] .scan {
+      animation-duration: 13s;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .diagram {
+      display: none;
+    }
+  }
+
+  @keyframes system-pulse {
+    0% {
+      stroke-dasharray: 0 100;
+      stroke-dashoffset: 0;
+    }
+
+    10% {
+      stroke-dasharray: 8 100;
+    }
+
+    90% {
+      stroke-dasharray: 8 100;
+      stroke-dashoffset: -92;
+    }
+
+    100% {
+      stroke-dasharray: 0 100;
+      stroke-dashoffset: -100;
+    }
+  }
+
+  @keyframes system-scan {
+    from {
+      transform: translateX(-60px);
+    }
+
+    to {
+      transform: translateX(660px);
+    }
+  }
+}

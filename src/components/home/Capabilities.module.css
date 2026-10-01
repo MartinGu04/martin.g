@@ -1,10 +1,56 @@
 @layer components {
-  .grid {
-    row-gap: var(--space-5);
+  .scene {
+    --scene-pad-start: var(--section-space-sm);
+    --scene-pad-end: var(--section-space-sm);
   }
 
+  .grid {
+    row-gap: var(--space-4);
+  }
+
+  .title,
   .lead {
-    margin-block-end: var(--heading-gap);
+    grid-column: 1 / -1;
+  }
+
+  /* The rail: the capability names in one very slow line, full bleed, quiet ink. */
+  .rail {
+    overflow: clip;
+    margin-block: var(--space-8) var(--space-6);
+    padding-block: var(--space-4);
+    border-block: var(--hairline) solid var(--line);
+    color: color-mix(in srgb, var(--text) 26%, var(--surface-0));
+  }
+
+  .track {
+    display: flex;
+    inline-size: max-content;
+  }
+
+  .run {
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+    padding-inline-end: var(--space-6);
+    white-space: nowrap;
+  }
+
+  .dot {
+    inline-size: 0.4rem;
+    block-size: 0.4rem;
+    background: var(--accent);
+  }
+
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    .track {
+      animation: capability-rail 120s linear infinite;
+    }
+  }
+
+  @keyframes capability-rail {
+    to {
+      transform: translate3d(calc(-50% * var(--dir)), 0, 0);
+    }
   }
 
   .list {
@@ -17,14 +63,18 @@
     grid-column: 1 / -1;
     display: grid;
     grid-template-columns: subgrid;
-    row-gap: var(--space-2);
+    row-gap: var(--space-1);
     align-items: baseline;
-    padding-block: var(--space-5);
+    padding-block: var(--space-4);
     border-block-start: var(--hairline) solid var(--line);
   }
 
   .row:last-child {
     border-block-end: var(--hairline) solid var(--line);
+  }
+
+  .index {
+    color: var(--accent);
   }
 
   .index,
@@ -34,26 +84,34 @@
   }
 
   @media (width >= 48rem) {
+    .lead {
+      grid-column: 1 / span 6;
+    }
+
     .index {
       grid-column: 1 / span 1;
     }
 
     .name {
-      grid-column: 2 / span 7;
+      grid-column: 2 / span 3;
     }
 
     .proof {
-      grid-column: 2 / span 7;
+      grid-column: 5 / -1;
     }
   }
 
   @media (width >= 75rem) {
+    .lead {
+      grid-column: 1 / span 5;
+    }
+
     .name {
-      grid-column: 2 / span 6;
+      grid-column: 2 / span 4;
     }
 
     .proof {
-      grid-column: 9 / span 4;
+      grid-column: 7 / -1;
     }
   }
 }

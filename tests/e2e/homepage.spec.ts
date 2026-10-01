@@ -57,7 +57,7 @@ test.describe('homepage scenes', () => {
     await bringSceneUnderHeader(page, '#on-title')
     await expect.poll(() => headerBackground(page)).toBe('rgb(246, 240, 229)')
     await bringSceneUnderHeader(page, '#mi-ma-mo-title')
-    await expect.poll(() => headerBackground(page)).toBe('rgb(11, 13, 16)')
+    await expect.poll(() => headerBackground(page)).toBe('rgb(11, 18, 28)')
     await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }))
     await expect.poll(() => headerBackground(page)).toBe('rgb(6, 6, 6)')
   })

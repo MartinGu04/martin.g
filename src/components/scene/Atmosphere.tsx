@@ -38,7 +38,7 @@ export function Atmosphere({
       {light !== 'none' ? (
         <>
           <span className={styles[light]} data-layer="light" />
-          <span className={styles.haze} data-layer="haze" />
+          <span className={styles.haze} data-layer="haze" data-loop="" />
         </>
       ) : null}
       {grid !== 'hidden' ? (

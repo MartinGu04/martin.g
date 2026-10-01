@@ -21,7 +21,7 @@ test.describe('real project showcase', () => {
       await expect(title.locator('bdi')).toHaveAttribute('lang', 'he')
       await expect(title.locator('bdi')).toHaveAttribute('dir', 'rtl')
       await expect(title.getByRole('link')).toHaveAttribute('href', `/${locale}/work/mi-ma-mo`)
-      await expect(page.locator('#work ol')).toContainText('המחלבה')
+      await expect(page.locator('#work ol').first()).toContainText('המחלבה')
       expect(await page.locator('main').innerText()).not.toMatch(/mi-ma-mo/i)
     }
     await page.goto('/en/work/mi-ma-mo')
@@ -143,23 +143,24 @@ test.describe('real project showcase', () => {
     await expect(first).not.toHaveAttribute('loading', 'lazy')
   })
 
-  test('art direction serves a phone screen on phones, not a shrunken desktop', async ({
+  test('art direction serves phone crops on phones, not shrunken desktops', async ({
     page,
     isMobile,
   }) => {
     await page.goto('/en')
     await walk(page)
-    const site = page.locator('#on picture img')
-    await site.scrollIntoViewIfNeeded()
+    const stage = page.locator('#on picture img').first()
+    // The photograph drifts while visible, so it is never "stable": scroll its scene instead.
+    await page.locator('#on').evaluate((el) => el.scrollIntoView())
     await expect
-      .poll(() => site.evaluate((img: HTMLImageElement) => img.currentSrc))
-      .toMatch(isMobile ? /site-mobile/ : /site-home/)
-    const dashboard = page.locator('#mi-ma-mo figure').first()
-    if (isMobile) await expect(dashboard).toBeHidden()
-    else await expect(dashboard).toBeVisible()
+      .poll(() => stage.evaluate((img: HTMLImageElement) => img.currentSrc))
+      .toMatch(isMobile ? /venue-portrait/ : /venue\./)
+    const productFrame = page.locator('#mi-ma-mo [data-fallback]')
+    if (isMobile) await expect(productFrame).toBeHidden()
+    else await expect(productFrame).toBeVisible()
   })
 
-  test('Restricted Work stays text and generated geometry only', async ({ page }) => {
+  test('Defense Systems stays text and generated geometry only', async ({ page }) => {
     for (const locale of ['en', 'he']) {
       await page.goto(`/${locale}`)
       const scene = page.locator('#confidential')
@@ -234,5 +235,82 @@ test.describe('preview film', () => {
     await expect(
       page.getByRole('button', { name: 'הפעלת התצוגה המקדימה של סרט המותג' }),
     ).toBeVisible()
+  })
+})
+
+test.describe('ambient motion', () => {
+  const loops = (page: Page, scope: string) =>
+    page.locator(scope).evaluate((root) =>
+      root
+        .getAnimations({ subtree: true })
+        .filter(
+          (a) => a instanceof CSSAnimation && a.effect?.getComputedTiming().iterations === Infinity,
+        )
+        .map((a) => a.playState),
+    )
+
+  test('loops run while their scene is visible and pause offscreen', async ({ page }) => {
+    await page.goto('/en')
+    for (const scene of ['#mi-ma-mo', '#confidential', '[aria-labelledby="process-title"]']) {
+      await page.locator(scene).scrollIntoViewIfNeeded()
+      await expect.poll(() => page.locator(scene).getAttribute('data-live')).toBe('')
+      const states = await loops(page, scene)
+      expect(states.length, scene).toBeGreaterThan(0)
+      expect(new Set(states), scene).toEqual(new Set(['running']))
+    }
+    await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }))
+    await expect.poll(() => page.locator('#mi-ma-mo').getAttribute('data-live')).toBeNull()
+    expect(new Set(await loops(page, '#mi-ma-mo'))).toEqual(new Set(['paused']))
+  })
+
+  test('the process advances on its own, without scrolling', async ({ page }) => {
+    await page.goto('/he')
+    const scene = page.locator('[aria-labelledby="process-title"]')
+    await scene.scrollIntoViewIfNeeded()
+    const current = () =>
+      scene
+        .locator('[aria-hidden="true"] .t-display')
+        .evaluateAll((words) =>
+          words.findIndex((w) => Number(getComputedStyle(w.parentElement!).opacity) > 0.5),
+        )
+    const first = await current()
+    await expect.poll(current, { timeout: 8000 }).not.toBe(first)
+  })
+
+  test('with reduced motion nothing loops and every product view is set out', async ({
+    browser,
+    isMobile,
+  }) => {
+    const context = await browser.newContext({ reducedMotion: 'reduce' })
+    const page = await context.newPage()
+    await page.goto('/en')
+    await walk(page)
+    const infinite = await page.evaluate(
+      () =>
+        document
+          .getAnimations()
+          .filter((a) => a.effect?.getComputedTiming().iterations === Infinity).length,
+    )
+    expect(infinite).toBe(0)
+    const views = page.locator('#mi-ma-mo [data-fallback="grid"] img')
+    await expect(views).toHaveCount(3)
+    // Phones show the phone and a legible Team Week crop instead of desktop screens.
+    if (!isMobile) for (const view of await views.all()) await expect(view).toBeVisible()
+    await expect(
+      page.locator('[aria-labelledby="process-title"] [aria-hidden="true"] .t-display').first(),
+    ).toBeHidden()
+    await context.close()
+  })
+
+  test('without JavaScript the process is its list and the views are all present', async ({
+    browser,
+  }) => {
+    const context = await browser.newContext({ javaScriptEnabled: false })
+    const page = await context.newPage()
+    await page.goto('/he')
+    const steps = page.locator('[aria-labelledby="process-title"] ol h3')
+    await expect(steps).toHaveCount(5)
+    await expect(page.locator('#mi-ma-mo [data-fallback="grid"] img')).toHaveCount(3)
+    await context.close()
   })
 })

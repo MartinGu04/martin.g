@@ -3,8 +3,8 @@
      margins, so the change reads as a mood, not a slam. */
   .scene {
     --wipe-inset: var(--margin);
-    --scene-pad-start: var(--section-space);
-    --scene-pad-end: var(--section-space);
+    --scene-pad-start: var(--section-space-sm);
+    --scene-pad-end: var(--section-space-sm);
   }
 
   .grid {
@@ -64,9 +64,8 @@
   }
 
   /*
-   * Editorial pair. Phones: one strong photograph, with the website's phone screen set
-   * below it on the bordeaux mat, overlapping only the bottom of the print (the hand in the
-   * photograph stays clear in both directions).
+   * The composition. Phones: the garden as one strong 4:5 photograph, the website's phone
+   * screen on the bordeaux mat below it, overlapping only the bottom of the print.
    */
   .gallery {
     grid-column: 1 / -1;
@@ -75,57 +74,97 @@
   }
 
   .photoMain {
-    --parallax-shift: 1.5rem;
+    --parallax-shift: 1.25rem;
     grid-column: 1 / -1;
     grid-row: 1;
   }
 
+  .photoDetail {
+    display: none;
+  }
+
   .photoSecond {
-    --parallax-shift: 3rem;
+    --parallax-shift: 2.5rem;
     grid-column: 4 / -1;
     grid-row: 2;
-    z-index: 1;
+    z-index: 2;
     margin-block-start: -36%;
     margin-inline-end: var(--space-4);
     box-shadow: calc(-0.875rem * var(--dir)) 0.875rem 0 0 var(--accent);
   }
 
-  /* Tablet: the pair takes the full width under the text, the website as a landscape print
-     overlapping the photograph's lower inline-start corner. */
+  /* The website print shows its pages from the top. */
+  .print img {
+    object-position: top;
+  }
+
+  /*
+   * Tablet and desktop: three prints on an eight-column sub-grid. The garden dominant; the
+   * website on the bordeaux mat over its lower inline-start corner; a small print of a stop
+   * on the route laid over its upper inline-end corner, on a cream border like a print.
+   */
   @media (width >= 48rem) {
     .text {
       grid-column: 1 / span 6;
     }
 
     .gallery {
-      grid-column: 1 / -1;
-      align-items: end;
+      grid-template-columns: repeat(8, minmax(0, 1fr));
     }
 
     .photoMain {
-      grid-column: 3 / -1;
+      grid-column: 2 / -1;
+    }
+
+    .photoDetail {
+      --parallax-shift: 3.5rem;
+      display: block;
+      grid-column: 7 / -1;
+      grid-row: 1;
+      align-self: start;
+      z-index: 1;
+      margin-block-start: -9%;
+      margin-inline-end: calc(var(--space-5) * -1);
+      box-shadow: 0 0 0 0.5rem var(--surface-0);
     }
 
     .photoSecond {
       grid-column: 1 / span 4;
       grid-row: 1;
+      align-self: end;
       margin-block: 0 -12%;
       margin-inline-end: 0;
     }
   }
 
-  /* Desktop: side by side, as before; the photograph is the dominant frame. */
   @media (width >= 75rem) {
     .text {
-      grid-column: 1 / span 5;
+      grid-column: 1 / span 4;
     }
 
     .gallery {
-      grid-column: 7 / -1;
+      grid-column: 5 / -1;
+    }
+  }
+
+  /* Entering the world: the photograph develops into place (scale only, never hidden). */
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .develop {
+        animation: on-develop linear both;
+        animation-timeline: view();
+        animation-range: entry 0% cover 45%;
+      }
+    }
+  }
+
+  @keyframes on-develop {
+    from {
+      scale: 1.07;
     }
 
-    .photoMain {
-      grid-column: 2 / -1;
+    to {
+      scale: 1;
     }
   }
 }

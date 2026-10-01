@@ -4,8 +4,9 @@ import dashboard from '@/assets/work/mi-ma-mo/dashboard.png'
 import dashboardFocus from '@/assets/work/mi-ma-mo/dashboard-focus.png'
 import teamWeek from '@/assets/work/mi-ma-mo/team-week.png'
 import teamWeekNarrow from '@/assets/work/mi-ma-mo/team-week-narrow.png'
-import teamWeekStrip from '@/assets/work/mi-ma-mo/team-week-strip.png'
 import manager from '@/assets/work/mi-ma-mo/admin.png'
+import managerView from '@/assets/work/mi-ma-mo/manager-view.png'
+import teamWeekView from '@/assets/work/mi-ma-mo/team-week-view.png'
 import mobile from '@/assets/work/mi-ma-mo/mobile.png'
 
 const alt = mediaCopy.miMaMo
@@ -21,17 +22,12 @@ export const miMaMoMedia = {
   /** The hero visual: the home screen, cropped to the part that reads at real scale. */
   dashboard: { kind: 'image', src: dashboardFocus, alt: alt.dashboard },
   dashboardFull: { kind: 'image', src: dashboard, alt: alt.dashboard },
-  /**
-   * A cropped interface detail at a readable scale: four days across seven people on
-   * desktop; on tablets and phones, the few columns that stay legible at their width.
-   */
-  teamWeek: {
-    kind: 'image',
-    src: teamWeekStrip,
-    alt: alt.teamWeek,
-    art: { mobile: teamWeekNarrow, tablet: teamWeekNarrow },
-  },
+  /** On phones: the few Team Week columns that stay legible at that width. */
+  teamWeekNarrow: { kind: 'image', src: teamWeekNarrow, alt: alt.teamWeek },
   teamWeekFull: { kind: 'image', src: teamWeek, alt: alt.teamWeek },
+  /** The homepage cycle's views, cropped to the home screen's ratio so they share a frame. */
+  teamWeekView: { kind: 'image', src: teamWeekView, alt: alt.teamWeek },
+  managerView: { kind: 'image', src: managerView, alt: alt.manager },
   manager: { kind: 'image', src: manager, alt: alt.manager },
   /** The one device frame: the home screen on a phone. */
   mobile: { kind: 'image', src: mobile, alt: alt.mobile, fit: 'contain' },

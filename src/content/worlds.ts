@@ -39,33 +39,38 @@ export const worlds = {
     },
     atmosphere: { light: 'pool', grid: 'hidden', texture: 'paper', marks: false, vignette: true },
   },
-  /** המחלבה (id mi-ma-mo): darker, cooler, structured; the grid is drawn, the product is the imagery. */
+  /**
+   * המחלבה (id mi-ma-mo): midnight blue, structured; the grid is drawn, the product is the
+   * imagery. Values come from the real interface: its midnight ground and deep card blue,
+   * its amber and its operational green ("full coverage").
+   */
   miMaMo: {
     scheme: 'dark',
     colors: {
-      surface0: '#0b0d10',
-      surface1: '#13171b',
-      text: '#e8ecef',
-      textMuted: '#9ba5ad',
-      accent: '#e2a13f',
-      accent2: '#86a3b5',
-      light: '#c9d5de',
+      surface0: '#0b121c',
+      surface1: '#0f1d2e',
+      text: '#e6edf5',
+      textMuted: '#9aabbf',
+      accent: '#ffac4f',
+      accent2: '#3ecf8e',
+      light: '#7fa6d6',
       shade: '#000000',
     },
     atmosphere: { light: 'side', grid: 'visible', texture: 'dots', marks: true, vignette: true },
   },
   /**
-   * Restricted Work: a premium restricted archive. A slightly deeper, faintly cool graphite
-   * than the brand's own, flat and monochrome: no light, no texture, a fading trace of the
-   * grid and a soft vignette for depth. No classified or military visual language.
+   * Defense Systems: gunmetal and steel with one restrained cold technical accent, flat:
+   * no light, no texture, a fading trace of the grid and a soft vignette for depth. Never
+   * classified, warning or dossier styling.
    */
   confidential: {
     scheme: 'dark',
     colors: {
-      surface0: '#111214',
-      surface1: '#17181b',
-      text: '#ecebe8',
-      textMuted: '#a9a8a4',
+      surface0: '#15181c',
+      surface1: '#1c2026',
+      text: '#eceff2',
+      textMuted: '#a6aeb7',
+      accent: '#7fb4cc',
     },
     atmosphere: { light: 'none', grid: 'fade', texture: 'none', marks: false, vignette: true },
   },
@@ -75,7 +80,7 @@ export const worlds = {
    * beginning to end. Same grammar, same identity, different tone.
    */
 
-  /** A lighter graphite: bridges and the closing scene. */
+  /** A lighter graphite: bridges and the closing scene, with a restrained amber. */
   graphite: {
     scheme: 'dark',
     colors: {
@@ -83,6 +88,7 @@ export const worlds = {
       surface1: '#222225',
       text: '#f5f3ee',
       textMuted: '#bcb9b3',
+      accent: '#d9a35b',
       light: '#fff4e6',
     },
     atmosphere: { light: 'pool', grid: 'hidden', texture: 'grain', marks: false, vignette: true },
@@ -95,6 +101,7 @@ export const worlds = {
       surface1: '#e1ddd4',
       text: '#141414',
       textMuted: '#55524c',
+      accent: '#9a4a1e',
       light: '#ffffff',
       shade: '#3a3834',
     },

@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import type { Locale } from '@/i18n/config'
 import type { ImageMedia, Media, VideoSource } from '@/content/schema'
 import { MediaShell, type AspectRatio } from './MediaShell'
+import shellStyles from './MediaShell.module.css'
 import { PreviewVideo, type PreviewVideoLabels } from './PreviewVideo'
 
 interface MediaFrameProps {
@@ -16,6 +17,11 @@ interface MediaFrameProps {
   className?: string
   /** Required for video: the preview player's control labels. */
   videoLabels?: PreviewVideoLabels
+  /**
+   * 'drift': a very slow ambient move inside the frame (a loop: it runs only while its
+   * scene is visible, never without scripting or with reduced motion).
+   */
+  motion?: 'drift'
 }
 
 /** Mirrors the tier breakpoints (48rem and 75rem); a source applies below its tier's end. */
@@ -33,7 +39,7 @@ function videoFiles(source: VideoSource) {
 
 const ratio = (img: StaticImageData) => img.width / img.height
 
-function aspectOf(media: Media): AspectRatio {
+export function aspectOf(media: Media): AspectRatio {
   switch (media.kind) {
     case 'pending':
       return media.aspectRatio
@@ -53,7 +59,7 @@ function aspectOf(media: Media): AspectRatio {
  * example a phone screen instead of the desktop one), not a scaled-down copy. Every source
  * carries its intrinsic size and the frame reserves the tier's ratio, so nothing shifts.
  */
-function ArtImage({
+export function ArtImage({
   media,
   locale,
   sizes,
@@ -105,6 +111,7 @@ export function MediaFrame({
   caption,
   className,
   videoLabels,
+  motion,
 }: MediaFrameProps) {
   if (media.kind === 'video') {
     if (!videoLabels) throw new Error('MediaFrame: video needs its player labels.')
@@ -131,6 +138,10 @@ export function MediaFrame({
     >
       {media.kind === 'pending' ? (
         <div role="img" aria-label={media.alt[locale]} style={{ position: 'absolute', inset: 0 }} />
+      ) : motion === 'drift' ? (
+        <span className={shellStyles.drift} data-loop="">
+          <ArtImage media={media} locale={locale} sizes={sizes} priority={priority ?? false} />
+        </span>
       ) : (
         <ArtImage media={media} locale={locale} sizes={sizes} priority={priority ?? false} />
       )}

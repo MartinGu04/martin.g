@@ -1,12 +1,12 @@
 @layer components {
   .scene {
-    --scene-align: end;
-    --scene-pad-end: var(--space-9);
+    --scene-pad-start: var(--section-space);
+    --scene-pad-end: var(--section-space-sm);
   }
 
   .grid {
     container-type: inline-size;
-    row-gap: var(--space-7);
+    row-gap: var(--space-6);
   }
 
   .mark {
@@ -16,11 +16,10 @@
     color: var(--text);
   }
 
-  /* Echoes the hero: large, heavy, running toward the inline-end edge. */
+  /* Echoes the hero, a clear step below it. */
   .title {
     grid-column: 1 / -1;
-    max-inline-size: 11em;
-    margin-inline-end: calc(var(--margin) * -1);
+    max-inline-size: 13em;
     text-wrap: balance;
   }
 
@@ -28,15 +27,116 @@
     grid-column: 1 / -1;
   }
 
+  /* The ambient line: a hairline and the word beside it, both decorative. */
+  .ambient {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+    margin-block-start: var(--space-6);
+    color: var(--accent);
+  }
+
+  .draw {
+    flex: 1;
+    block-size: var(--hairline);
+    background: var(--line);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .draw::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--accent);
+    transform: scaleX(0.35);
+    transform-origin: var(--draw-origin, left);
+  }
+
+  :root[dir='rtl'] .draw {
+    --draw-origin: right;
+  }
+
+  /* Static: the three words together. */
+  .words {
+    display: flex;
+    gap: var(--space-4);
+    white-space: nowrap;
+  }
+
   @media (width >= 48rem) {
     .line {
       grid-column: 5 / span 4;
+    }
+
+    .ambient {
+      grid-column: 1 / span 8;
     }
   }
 
   @media (width >= 75rem) {
     .line {
       grid-column: 8 / span 5;
+      align-self: end;
+    }
+
+    .ambient {
+      grid-column: 1 / span 7;
+    }
+  }
+
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    .draw::after {
+      animation: contact-draw 9s var(--ease-out) infinite;
+    }
+
+    :root:is([data-motion='pending'], [data-motion='on']) .words {
+      display: grid;
+      grid-template-areas: 'stack';
+      min-inline-size: 9em;
+    }
+
+    :root:is([data-motion='pending'], [data-motion='on']) .word {
+      grid-area: stack;
+      animation: contact-word 10.5s linear infinite;
+      animation-delay: calc((var(--i) - 3) * 3.5s - 0.6s);
+    }
+  }
+
+  @keyframes contact-draw {
+    0% {
+      transform: scaleX(0);
+      opacity: 1;
+    }
+
+    70% {
+      transform: scaleX(1);
+      opacity: 1;
+    }
+
+    100% {
+      transform: scaleX(1);
+      opacity: 0;
+    }
+  }
+
+  @keyframes contact-word {
+    0% {
+      opacity: 0;
+      transform: translate3d(0, 0.4em, 0);
+    }
+
+    6%,
+    30% {
+      opacity: 1;
+      transform: none;
+    }
+
+    35%,
+    100% {
+      opacity: 0;
+      transform: translate3d(0, -0.3em, 0);
     }
   }
 }

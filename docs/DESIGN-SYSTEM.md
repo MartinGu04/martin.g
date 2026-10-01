@@ -140,9 +140,10 @@ viewport.
 - An entering scene slides `--scene-overlap` over the tail of the previous one, so the
   previous world stays visible around it while it opens. Every scene's end padding is at
   least the overlap, so it only ever covers empty space.
+- `ambient` marks a scene whose continuous loops run only while it is on screen (motion.css,
+  docs/HOMEPAGE.md, "Ambient loops").
 - Stages (a tall scene with a sticky frame on a named view timeline) are compositions, not a
-  primitive: How I work uses one, only under scripting, motion allowed,
-  `height >= 34rem` and scroll-timeline support; otherwise the same markup is static.
+  primitive; the homepage no longer uses one (How I work advances on its own since 4.5).
 - Atmosphere layers carry `data-layer` (`base`, `light`, `haze`, `grid`, `texture`,
   `vignette`, `marks`) so a composition can move or fade one layer on its own timeline.
 
@@ -189,18 +190,18 @@ are `#rrggbb` so `themeIssues()` validates every world in tests: text and muted 
 4.5:1 on both surfaces, accents at 3:1, scheme matching the background. Worlds are
 server-rendered: the first paint already shows the right world.
 
-| World        | Character                                                    | Status     |
-| ------------ | ------------------------------------------------------------ | ---------- |
-| MARTIN.G     | cinematic dark, warm key light, grain, depth type            | production |
-| ON           | cream, bordeaux, olive, warm black; photography; paper; soft | homepage   |
-| המחלבה       | darker, cooler, structured; drawn grid, dots, marks, real UI | homepage   |
-| Confidential | deeper graphite restricted archive; no light, no texture     | production |
+| World    | Character                                                    | Status     |
+| -------- | ------------------------------------------------------------ | ---------- |
+| MARTIN.G | cinematic dark, warm key light, grain, depth type            | production |
+| ON       | cream, bordeaux, olive, warm black; photography; paper; soft | homepage   |
+| המחלבה   | darker, cooler, structured; drawn grid, dots, marks, real UI | homepage   |
+| Defense  | gunmetal archive, one cold accent; generated system diagrams | production |
 
 ON uses its real brand values (sampled from the live site); the המחלבה world keeps its
 technical register; they are not attached to content yet. Industrial
 detail (visible grid, dots, marks, data fragments, technical motion) belongs to the
-mi-ma-mo world, not to the MARTIN.G identity. Confidential work never uses classified or
-military visual language.
+mi-ma-mo world, not to the MARTIN.G identity. Defense Systems (the confidential work) never
+uses classified, warning, clearance or dossier language or styling.
 
 ## Primitives (deliberately few)
 
@@ -208,7 +209,9 @@ military visual language.
 `SectionHeading`, `Eyebrow`, `IndexNumber`, `TextBlock`, `Name` (bidi-isolated proper
 names), `MediaShell` (aspect-ratio frame, per tier when art directed; `contain` for
 cut-outs; `MediaFrame` renders all media into it, with `<picture>` art direction and
-`PreviewVideo` for watermarked preview films), `LiveSiteLink` (the quiet external action), `Arrow` (mirrors in RTL), `ProjectIndex`,
+`PreviewVideo` for watermarked preview films), `ViewCycle` (real views taking turns in one
+frame), `SystemDiagram` (generated, abstract system geometry for confidential work),
+`LiveSiteLink` (the quiet external action), `Arrow` (mirrors in RTL), `ProjectIndex`,
 `ThemeScope`, `Scene`, `Atmosphere`, `DepthType`, `Reveal`, surface utilities (`.surface`,
 `.surface-outline`). No card library, no UI kit.
 
@@ -256,6 +259,13 @@ cut-outs; `MediaFrame` renders all media into it, with `<picture>` art direction
 
 ## Motion
 
+- **Ambient loops** (since 4.5): continuous motion while a scene is visible and the visitor
+  does nothing: slow drifts, crossfades between real views, a process that advances, a scan,
+  a typographic rail. Only inside `<Scene ambient>`, on elements marked `data-loop`, paused
+  offscreen, never without scripting or with reduced motion; a loop that hides anything also
+  needs `:root[data-motion]` pending or on. Periods of seconds to minutes, never fast cuts;
+  never bouncing, floating cards, particles or cursor effects. `ViewCycle` is the shared
+  crossfade for real views; `MediaFrame motion="drift"` the shared photograph drift.
 - Vocabulary: large mask reveals, typography entrances, scene-scale transitions (`wipe`,
   `split`), layered depth (depth type panning and receding), atmospheric movement (haze
   drift), restrained technical motion inside technical worlds (grid drawing, data filling),

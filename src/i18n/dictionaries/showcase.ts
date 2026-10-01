@@ -1,11 +1,12 @@
 import type { Localized, ReviewStatus } from '../config'
 
 /**
- * Phase 4 copy around the real project media: alternative text, captions, technical
- * annotations and the preview player's controls. Written for review, not yet approved by
- * Martin, so it is 'draft' in both locales and a Vercel production build refuses it
- * (src/i18n/release-gate.ts) until it is approved. The action labels "Visit live site" /
- * "לאתר החי" were supplied by Martin and live in the main dictionaries.
+ * Copy around the real project media (Phase 4, revised in 4.5): alternative text, captions,
+ * technical annotations, the preview player's controls and the closing scene's word cycle.
+ * Martin's Hebrew corrections are applied and the rest was reviewed for literal phrasing;
+ * it stays 'draft' until Martin approves it, and a Vercel production build refuses it
+ * (src/i18n/release-gate.ts) until then. The action labels "Visit live site" / "לאתר החי"
+ * and the Defense Systems wording were supplied by Martin and live in the main dictionaries.
  */
 export const showcaseReview: Localized<ReviewStatus> = {
   en: 'draft',
@@ -26,6 +27,8 @@ export interface ShowcaseCopy {
     sanitized: string
     views: { home: string; teamWeek: string; manager: string; mobile: string }
   }
+  /** The closing scene's slow word cycle, from the approved positioning. Decorative. */
+  contactCycle: readonly string[]
 }
 
 export const showcaseCopy: Localized<ShowcaseCopy> = {
@@ -41,6 +44,7 @@ export const showcaseCopy: Localized<ShowcaseCopy> = {
       sanitized: 'Real product screens. Personnel names and identifying marks removed.',
       views: { home: 'Home', teamWeek: 'Team Week', manager: 'Manager area', mobile: 'Mobile' },
     },
+    contactCycle: ['Product', 'System', 'Experience'],
   },
   he: {
     opensInNewTab: '(נפתח בלשונית חדשה)',
@@ -54,6 +58,7 @@ export const showcaseCopy: Localized<ShowcaseCopy> = {
       sanitized: 'מסכי מוצר אמיתיים. שמות אנשי צוות וסימנים מזהים הוסרו.',
       views: { home: 'מסך הבית', teamWeek: 'צוות השבוע', manager: 'אזור המנהל', mobile: 'מובייל' },
     },
+    contactCycle: ['מוצר', 'מערכת', 'חוויה'],
   },
 }
 
@@ -74,7 +79,7 @@ export const mediaCopy = {
     },
     siteStory: {
       en: 'A section of the ON website: the retreat in numbers, and an arched photograph of the Galilee view.',
-      he: 'קטע מאתר ON: הריטריט במספרים, ותמונה מקושתת של הנוף בגליל.',
+      he: 'קטע מאתר ON: הריטריט במספרים, ונוף הגליל בתמונה בחלון מקושת.',
     },
     siteMobile: {
       en: 'The ON website’s opening screen on a phone.',
@@ -82,11 +87,11 @@ export const mediaCopy = {
     },
     film: {
       en: 'ON brand film, a silent watermarked preview: the ON mark, the retreat’s promise in short words, the Galilee and the website.',
-      he: 'סרט המותג של ON, תצוגה מקדימה שקטה עם סימן מים: סמל ON, ההבטחה של הריטריט במילים קצרות, הגליל והאתר.',
+      he: 'סרט המותג של ON בתצוגה מקדימה, ללא קול ועם סימן מים: סמל ON, הבטחת הריטריט במילים ספורות, נופי הגליל והאתר.',
     },
   },
   onCaptions: {
-    siteHome: { en: 'The website, opening screen.', he: 'האתר, מסך הפתיחה.' },
+    siteHome: { en: 'The website, opening screen.', he: 'מסך הפתיחה של האתר.' },
     siteStory: { en: 'The website: the retreat in numbers.', he: 'האתר: הריטריט במספרים.' },
     siteMobile: { en: 'The website on a phone.', he: 'האתר בטלפון.' },
     venue: { en: 'The guesthouse garden.', he: 'הגינה של בית האירוח.' },
@@ -99,11 +104,11 @@ export const mediaCopy = {
     },
     teamWeek: {
       en: 'Team Week: a week of shifts, leave and duties for the whole team, grouped by role, names removed.',
-      he: 'צוות השבוע: שבוע של משמרות, חופשות ותורנויות לכל הצוות, לפי תפקיד, בלי שמות.',
+      he: 'צוות השבוע: המשמרות, החופשות והתורנויות של כל הצוות לאורך השבוע, לפי תפקיד ובלי שמות.',
     },
     manager: {
-      en: 'The manager area: coverage of the previous, current and next shift, and an emergency mode.',
-      he: 'אזור המנהל: כיסוי המשמרת הקודמת, הנוכחית והבאה, ומצב חירום.',
+      en: 'The manager area: a snapshot of the previous, current and next shift, alongside an emergency mode.',
+      he: 'אזור המנהל: תמונת מצב של המשמרת הקודמת, הנוכחית והבאה, לצד מצב חירום.',
     },
     mobile: {
       en: 'The home screen of המחלבה on a phone.',
@@ -117,15 +122,15 @@ export const mediaCopy = {
     },
     teamWeek: { en: 'Team Week, by role.', he: 'צוות השבוע, לפי תפקיד.' },
     manager: {
-      en: 'Manager area: coverage at a glance.',
-      he: 'אזור המנהל: תמונת הכיסוי במבט אחד.',
+      en: 'Manager area: the operational picture at a glance.',
+      he: 'אזור המנהל: תמונת מצב תפעולית במבט אחד.',
     },
     mobile: { en: 'Home on a phone.', he: 'מסך הבית בטלפון.' },
   },
   about: {
     portrait: {
       en: 'Portrait of Martin Gusin in a light jacket.',
-      he: 'דיוקן של Martin Gusin בז׳קט בהיר.',
+      he: 'דיוקן של מרטין גוסין בז׳קט בהיר.',
     },
   },
 } as const satisfies Record<string, Record<string, Localized>>

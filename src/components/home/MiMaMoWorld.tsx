@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import type { ReactNode } from 'react'
 import type { Locale } from '@/i18n/config'
 import type { Dictionary } from '@/i18n/dictionaries'
 import type { ShowcaseCopy } from '@/i18n/dictionaries/showcase'
@@ -10,6 +9,7 @@ import { Grid } from '@/components/layout/Grid'
 import { IndexNumber } from '@/components/type/IndexNumber'
 import { Name } from '@/components/type/Name'
 import { MediaFrame } from '@/components/media/MediaFrame'
+import { ViewCycle } from '@/components/media/ViewCycle'
 import { Reveal } from '@/components/motion/Reveal'
 import { Scene } from '@/components/scene/Scene'
 import { ProjectLink } from './ProjectLink'
@@ -24,24 +24,14 @@ interface MiMaMoWorldProps {
   locale: Locale
 }
 
-/** A technical annotation under a product view: its index and its name. */
-function ViewLabel({ index, children }: { index: string; children: ReactNode }) {
-  return (
-    <figcaption className={`t-micro ${styles.label}`}>
-      <IndexNumber value={index} />
-      <span className={styles.labelRule} aria-hidden="true" />
-      {children}
-    </figcaption>
-  )
-}
-
 /**
- * Scene 04: המחלבה (id `mi-ma-mo`), radically different from ON. A darker, cooler,
- * structured world opens from a center seam while its grid draws in. The product itself is
- * the imagery, treated like product photography: the home screen large, at a scale where
- * it reads; one phone; a cropped detail of Team Week. Every screen is real and sanitized in
- * its pixels (src/content/projects/mi-ma-mo.ts). As the world leaves, its grid and dots
- * fade, the accent drains out and it contracts back into the seam.
+ * Scene 04: המחלבה (id `mi-ma-mo`), radically different from ON. A midnight, structured
+ * world opens from a center seam while its grid draws in, and the product screen opens
+ * from the same seam. The product carries the scene: one large frame in which three real
+ * views take turns while the visitor stays (home, Team Week, the manager area), labelled
+ * like technical annotations, and one phone standing over its corner. Every screen is real
+ * and sanitized in its pixels (src/content/projects/mi-ma-mo.ts). As the world leaves, its
+ * grid and dots fade, the accent drains and it contracts back into the seam.
  */
 export function MiMaMoWorld({ project, dict, showcase, locale }: MiMaMoWorldProps) {
   const views = showcase.miMaMo.views
@@ -51,6 +41,7 @@ export function MiMaMoWorld({ project, dict, showcase, locale }: MiMaMoWorldProp
       enter="split"
       exit="split"
       size="frame"
+      ambient
       as="article"
       id="mi-ma-mo"
       aria-labelledby="mi-ma-mo-title"
@@ -62,7 +53,7 @@ export function MiMaMoWorld({ project, dict, showcase, locale }: MiMaMoWorldProp
           <span aria-hidden="true"> / </span>
           {project.disciplines.join(' · ')}
         </p>
-        <h3 id="mi-ma-mo-title" className={`t-display-xl ${styles.title}`}>
+        <h3 id="mi-ma-mo-title" className={`t-display ${styles.title}`}>
           <Link href={project.href} className={styles.titleLink}>
             <Name>{project.title}</Name>
           </Link>
@@ -73,32 +64,40 @@ export function MiMaMoWorld({ project, dict, showcase, locale }: MiMaMoWorldProp
           <p className={`t-micro muted ${styles.note}`}>{showcase.miMaMo.sanitized}</p>
         </Reveal>
 
-        <Reveal as="figure" variant="mask" className={styles.dashboard}>
-          <MediaFrame
-            media={miMaMoMedia.dashboard}
+        <div className={styles.stage}>
+          <ViewCycle
+            items={[
+              { media: miMaMoMedia.dashboard, label: views.home },
+              { media: miMaMoMedia.teamWeekView, label: views.teamWeek },
+              { media: miMaMoMedia.managerView, label: views.manager },
+            ]}
             locale={locale}
+            step={5}
+            fallback="grid"
+            labels
             sizes="(width >= 75rem) 62vw, 100vw"
           />
-          <ViewLabel index="01">{views.home}</ViewLabel>
-        </Reveal>
+        </div>
 
-        <Reveal as="figure" order={1} className={styles.detail}>
-          <MediaFrame
-            media={miMaMoMedia.teamWeek}
-            locale={locale}
-            sizes="(width >= 75rem) 30vw, (width >= 48rem) 60vw, 100vw"
-          />
-          <ViewLabel index="02">{views.teamWeek}</ViewLabel>
-        </Reveal>
-
-        <Reveal as="figure" order={2} className={styles.phone}>
+        <figure className={styles.phone}>
           <MediaFrame
             media={miMaMoMedia.mobile}
             locale={locale}
             sizes="(width >= 75rem) 16vw, (width >= 48rem) 30vw, 64vw"
           />
-          <ViewLabel index="03">{views.mobile}</ViewLabel>
-        </Reveal>
+          <figcaption className={`t-micro ${styles.label}`}>
+            <span className={styles.labelRule} aria-hidden="true" />
+            {views.mobile}
+          </figcaption>
+        </figure>
+
+        <figure className={styles.detail}>
+          <MediaFrame media={miMaMoMedia.teamWeekNarrow} locale={locale} sizes="100vw" />
+          <figcaption className={`t-micro ${styles.label}`}>
+            <span className={styles.labelRule} aria-hidden="true" />
+            {views.teamWeek}
+          </figcaption>
+        </figure>
       </Grid>
     </Scene>
   )

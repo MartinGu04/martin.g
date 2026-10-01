@@ -32,12 +32,14 @@ const capabilityKeys: readonly DisciplineKey[] = [
  *
  *   identity and principle (dark graphite)     one frame, timed beats
  *   index of the work (lighter graphite)       cut
- *   ON (cream, editorial)                      soft wipe
- *   המחלבה, id mi-ma-mo (technical dark)       split in, split out
- *   confidential work (soft neutral)           cut
- *   how I work (dark)                          dissolve
+ *   ON (cream, the retreat)                    soft wipe
+ *   המחלבה, id mi-ma-mo (midnight, technical)  split in, split out
+ *   Defense Systems (gunmetal)                 cut
+ *   how I work (graphite, advances on its own) dissolve
  *   capabilities (bone), about (warm)          cut
  *   the closing call to action (graphite)      cut
+ *
+ * Several scenes are ambient: they keep moving while visible (docs/HOMEPAGE.md).
  */
 export default async function HomePage({ params }: PageProps<'/[locale]'>) {
   const { locale } = await params
@@ -93,7 +95,7 @@ export default async function HomePage({ params }: PageProps<'/[locale]'>) {
       <ProcessStage copy={copy.process} />
       <Capabilities copy={copy.capabilities} items={capabilities} />
       <AboutScene copy={copy.about} locale={locale} />
-      <ContactScene copy={copy.contact} />
+      <ContactScene copy={copy.contact} cycle={showcase.contactCycle} />
     </>
   )
 }

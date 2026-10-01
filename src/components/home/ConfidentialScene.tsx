@@ -6,19 +6,20 @@ import { Eyebrow } from '@/components/type/Eyebrow'
 import { IndexNumber } from '@/components/type/IndexNumber'
 import { Ltr } from '@/components/type/Ltr'
 import { Reveal } from '@/components/motion/Reveal'
-import { AbstractCover } from '@/components/project/AbstractCover'
+import { SystemDiagram } from '@/components/project/SystemDiagram'
 import { Scene } from '@/components/scene/Scene'
 import styles from './ConfidentialScene.module.css'
 
 type Item = ConfidentialProjectSummary & { number: string }
 
 /**
- * Scene 06: Restricted Work, a premium restricted archive rather than another cinematic
- * world. A deeper graphite register holds a framed archive: restrained corner marks, a
- * hairline boundary that draws closed from its corners on arrival, technical micro type,
- * and abstract geometry that fades out before its own frame ends, so there is visibly
- * more than is shown. Quieter than ON and mi-ma-mo. Truthful: the page is not access
- * controlled and does not pretend to be.
+ * Scene 05: Defense Systems, operational systems built for a defense environment. A
+ * gunmetal register holds a framed archive: restrained corner marks, a hairline boundary
+ * that draws closed from its corners on arrival, technical micro type, and a generated
+ * system diagram per project (topology, data pathways, masked structural blocks) with a
+ * slow scan while the scene is visible. The diagrams are abstract and say so by being
+ * abstract: no fake interface, no labels, no data. Truthful: the page is not access
+ * controlled and does not pretend to be; no classified, warning or dossier language.
  *
  * Sanitized summaries only: no links, no routes, no media, no identifying detail. The
  * items are not interactive, so nothing here takes focus; hover only brightens geometry.
@@ -26,7 +27,13 @@ type Item = ConfidentialProjectSummary & { number: string }
 export function ConfidentialScene({ items, dict }: { items: Item[]; dict: Dictionary }) {
   const range = items.map((item) => item.number).join('–')
   return (
-    <Scene theme={worlds.confidential} id="confidential" aria-labelledby="confidential-title">
+    <Scene
+      theme={worlds.confidential}
+      ambient
+      id="confidential"
+      className={styles.scene}
+      aria-labelledby="confidential-title"
+    >
       <Grid>
         <div className={`col-full ${styles.archive}`}>
           <span className={styles.boundary} aria-hidden="true" />
@@ -43,7 +50,7 @@ export function ConfidentialScene({ items, dict }: { items: Item[]; dict: Dictio
             {items.map((item, i) => (
               <Reveal as="li" key={item.id} order={i} variant="fade" className={styles.item}>
                 <div className={styles.cover} data-parallax>
-                  <AbstractCover pattern={item.pattern} />
+                  <SystemDiagram pattern={item.pattern} />
                 </div>
                 <p className={`t-micro ${styles.index}`}>
                   <IndexNumber value={item.number} />

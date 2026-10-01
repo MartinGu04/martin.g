@@ -9,6 +9,7 @@ import { worlds } from '@/content/worlds'
 import { Grid } from '@/components/layout/Grid'
 import { IndexNumber } from '@/components/type/IndexNumber'
 import { MediaFrame } from '@/components/media/MediaFrame'
+import { ViewCycle } from '@/components/media/ViewCycle'
 import { Reveal } from '@/components/motion/Reveal'
 import { Scene } from '@/components/scene/Scene'
 import { LiveSiteLink } from './LiveSiteLink'
@@ -25,11 +26,11 @@ interface OnWorldProps {
 }
 
 /**
- * Scene 03: ON. The impact is the change of mood, not scale: quiet luxury, editorial
- * hospitality. The cream world opens softly (a short, gentle wipe). The title is the real
- * ON monogram, set at display size. Real material carries the scene: one dominant
- * photograph from the retreat's route, and the live website as a print on a bordeaux mat
- * (on phones, the same opening screen as it appears on a phone). Olive is the detail.
+ * Scene 03: ON, the retreat. Quiet luxury, editorial hospitality: the cream world opens
+ * softly (a gentle wipe) and the photograph develops into place. The title is the real ON
+ * monogram. The retreat's own garden is the dominant frame and breathes slowly while the
+ * visitor stays; the live website sits on a bordeaux mat and turns between two of its real
+ * views; a small print of a stop on the route supports it. Olive is the detail.
  */
 export function OnWorld({ project, dict, showcase, locale }: OnWorldProps) {
   return (
@@ -37,6 +38,7 @@ export function OnWorld({ project, dict, showcase, locale }: OnWorldProps) {
       theme={worlds.on}
       enter="wipe"
       size="frame"
+      ambient
       as="article"
       id="on"
       aria-labelledby="on-title"
@@ -81,17 +83,26 @@ export function OnWorld({ project, dict, showcase, locale }: OnWorldProps) {
         </div>
         <div className={styles.gallery}>
           <div className={styles.photoMain} data-parallax>
-            <MediaFrame
-              media={onMedia.patisserie}
-              locale={locale}
-              sizes="(width >= 75rem) 36vw, (width >= 48rem) 70vw, 100vw"
-            />
+            <div className={styles.develop}>
+              <MediaFrame
+                media={onMedia.stage}
+                locale={locale}
+                motion="drift"
+                sizes="(width >= 75rem) 56vw, (width >= 48rem) 80vw, 100vw"
+              />
+            </div>
+          </div>
+          <div className={styles.photoDetail} data-parallax>
+            <MediaFrame media={onMedia.patisserie} locale={locale} sizes="14rem" />
           </div>
           <div className={styles.photoSecond} data-parallax>
-            <MediaFrame
-              media={onMedia.site}
+            <ViewCycle
+              items={[{ media: onMedia.site }, { media: onMedia.siteStoryPrint }]}
               locale={locale}
-              sizes="(width >= 75rem) 30vw, (width >= 48rem) 56vw, 50vw"
+              step={7}
+              fallback="first"
+              sizes="(width >= 75rem) 32vw, (width >= 48rem) 48vw, 50vw"
+              className={styles.print}
             />
           </div>
         </div>

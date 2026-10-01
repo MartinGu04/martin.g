@@ -8,6 +8,8 @@
 @layer components {
   .scene {
     view-timeline: --mi-ma-mo block;
+    --scene-pad-start: var(--section-space-sm);
+    --scene-pad-end: var(--section-space);
   }
 
   /* The accent, draining toward the muted text color as the world leaves. Declared where
@@ -26,6 +28,7 @@
     color: var(--signal);
   }
 
+  /* One step below the display peak: the product, not the name, carries the scene. */
   .title {
     grid-column: 1 / -1;
   }
@@ -54,10 +57,8 @@
     border-block-start: var(--hairline) solid var(--line);
   }
 
-  /* Product views: figures on the grid, each with a technical label. */
-  .dashboard,
-  .detail,
-  .phone {
+  .phone,
+  .detail {
     margin: 0;
     min-inline-size: 0;
   }
@@ -70,10 +71,6 @@
     color: var(--text-muted);
   }
 
-  .label > :first-child {
-    color: var(--signal);
-  }
-
   .labelRule {
     inline-size: var(--space-6);
     block-size: var(--hairline);
@@ -84,49 +81,51 @@
    * Phones: no scaled-down desktop screen. The phone first, large enough to read, then the
    * few Team Week columns that stay legible at this width.
    */
-  .dashboard {
+  .stage {
     display: none;
   }
 
   .phone {
     grid-column: 1 / span 3;
-    grid-row: 4;
     max-inline-size: 17rem;
   }
 
   .detail {
     grid-column: 1 / -1;
-    grid-row: 5;
     margin-block-start: var(--space-6);
   }
 
-  /* Tablet: the home screen at full width; the detail and the phone below it, the phone
-     lifted over the screen's lower edge. */
+  /* Tablet: the product frame at full width, the phone lifted over its lower corner. */
   @media (width >= 48rem) {
-    .dashboard {
+    .stage {
       display: block;
       grid-column: 1 / -1;
-      grid-row: 4;
-      margin-block-start: var(--space-6);
+      margin-block-start: var(--space-4);
     }
 
     .detail {
-      grid-column: 1 / span 5;
-      grid-row: 5;
-      align-self: start;
+      display: none;
     }
 
+    /* The product's interface reads right to left, so its quiet side is always the
+       physical left: the phone stands there in both directions (inline start in English,
+       inline end in Hebrew) and never covers the screen's content. */
     .phone {
+      grid-column: 1 / span 3;
+      max-inline-size: 16rem;
+      justify-self: start;
+      margin-block-start: -14rem;
+      z-index: 3;
+    }
+
+    :dir(rtl) .phone {
       grid-column: 6 / -1;
-      grid-row: 5;
-      max-inline-size: none;
-      margin-block-start: -30%;
-      z-index: 1;
+      justify-self: end;
     }
   }
 
-  /* Desktop: text beside the home screen, as before; under the screen, the Team Week
-     strip, and the phone standing over the screen's lower inline-end corner. */
+  /* Desktop: text beside the product frame; the phone stands over its quiet lower corner
+     (the physical left, as above) and hangs below it. */
   @media (width >= 75rem) {
     .text {
       grid-column: 1 / span 4;
@@ -134,30 +133,38 @@
       align-self: start;
     }
 
-    .dashboard {
+    .stage {
       grid-column: 5 / -1;
       grid-row: 3;
       margin-block-start: 0;
     }
 
-    .detail {
-      grid-column: 5 / span 6;
-      grid-row: 4;
-      align-self: start;
-      margin-block-start: var(--space-4);
+    .phone {
+      grid-column: 4 / span 2;
+      grid-row: 3;
+      align-self: end;
+      max-inline-size: none;
+      justify-self: stretch;
+      margin-block: 0 -9rem;
+      margin-inline: var(--space-6) 0;
     }
 
-    .phone {
+    :dir(rtl) .phone {
       grid-column: 11 / -1;
-      grid-row: 4;
-      align-self: start;
-      margin-block-start: -10rem;
+      margin-inline: 0 calc(var(--gutter) * -1);
     }
   }
 
-  /* Leaving: structure fades and the accent drains while the world contracts. */
   @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
     @supports (view-timeline-name: --a) {
+      /* Entering: the product screen opens from the same center seam as the world. */
+      .stage {
+        animation: mm-seam linear both;
+        animation-timeline: view();
+        animation-range: entry 5% cover 35%;
+      }
+
+      /* Leaving: structure fades and the accent drains while the world contracts. */
       .grid {
         animation: mm-signal linear both;
         animation-timeline: --mi-ma-mo;
@@ -169,6 +176,16 @@
         animation-timeline: --mi-ma-mo;
         animation-range: exit 0% exit 55%;
       }
+    }
+  }
+
+  @keyframes mm-seam {
+    from {
+      clip-path: inset(0 50% 0 50%);
+    }
+
+    to {
+      clip-path: inset(0 0 0 0);
     }
   }
 

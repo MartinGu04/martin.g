@@ -65,6 +65,25 @@
     }
   }
 
+  /*
+   * Ambient loops: motion that continues while a scene is visible and the visitor does
+   * nothing (a slow drift, a crossfade between real views, a drawing line). Components
+   * declare them inside (scripting: enabled) and (prefers-reduced-motion: no-preference)
+   * and mark the moving element `data-loop`; a loop that hides anything also requires
+   * :root[data-motion] to be 'pending' or 'on', so it falls back to the static layout.
+   * Offscreen they are paused (the controller marks visible scenes `data-live`), and
+   * before the controller runs they hold their first frame.
+   */
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    [data-ambient]:not([data-live]) [data-loop],
+    [data-ambient]:not([data-live]) [data-loop]::before,
+    [data-ambient]:not([data-live]) [data-loop]::after {
+      /* Important: an important declaration in this earlier layer outranks the components
+         layer's animation shorthands, which would otherwise reset the play state. */
+      animation-play-state: paused !important;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
