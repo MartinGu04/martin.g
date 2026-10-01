@@ -68,10 +68,10 @@ describe('metadata', () => {
 describe('release gate', () => {
   afterEach(() => vi.unstubAllEnvs())
 
-  it('finds only the Phase 4 showcase copy awaiting review', () => {
-    // Alt text, captions and player labels written in Phase 4: Martin approves them by
-    // setting showcaseReview to 'approved', and this list becomes empty again.
-    expect(findDraftCopy()).toEqual(['showcase:en', 'showcase:he'])
+  it('finds no copy awaiting review', () => {
+    // The Phase 4 showcase copy is approved in both locales; any dictionary marked
+    // 'draft' again would appear here and block a Vercel production build.
+    expect(findDraftCopy()).toEqual([])
   })
 
   it('refuses synthetic draft copy in Vercel production builds only', () => {

@@ -5,13 +5,13 @@ import type { Localized, ReviewStatus } from '../config'
  * technical annotations, the preview player's controls, the closing scene's three strands,
  * the Selected Work chapter lines, the explore label and the About discipline marks.
  * Martin's Hebrew corrections are applied and the rest was reviewed for literal phrasing;
- * it stays 'draft' until Martin approves it, and a Vercel production build refuses it
- * (src/i18n/release-gate.ts) until then. The action labels "Visit live site" / "לאתר החי"
+ * Martin approved it in both locales. Marking either locale 'draft' again makes a Vercel
+ * production build refuse it (src/i18n/release-gate.ts). The action labels "Visit live site" / "לאתר החי"
  * and the Defense Systems wording were supplied by Martin and live in the main dictionaries.
  */
 export const showcaseReview: Localized<ReviewStatus> = {
-  en: 'draft',
-  he: 'draft',
+  en: 'approved',
+  he: 'approved',
 }
 
 export interface ShowcaseCopy {
