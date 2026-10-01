@@ -32,6 +32,7 @@ interface Plate {
 export interface OnCaseCopy {
   seo: { title: string; description: string }
   ui: {
+    /** The small visual kicker. Latin in both locales by choice ("CASE STUDY / 01"). */
     caseStudy: string
     allWork: string
     chapters: string
@@ -121,7 +122,7 @@ export const caseOnCopy: Localized<OnCaseCopy> = {
       heading: 'Two days in the Galilee, for people ready to meet for real.',
       body: [
         'ON is a boutique dating retreat: a small, balanced group of single women and men, two days in the Upper Galilee, with wine, food and real time to get to know each other.',
-        'The website is where people meet it first. It had to carry what the retreat promises: quality, warmth, trust and human connection, at a premium level.',
+        'The website is where people meet ON first. It had to carry the same promise: quality, warmth, trust and human connection, without losing the premium feel.',
       ],
       formatLabel: 'The format, as the site presents it',
       format: [
@@ -172,7 +173,7 @@ export const caseOnCopy: Localized<OnCaseCopy> = {
         'A Hebrew, right-to-left website, from the opening question to the suitability check, on desktop and on a phone.',
       structure: {
         label: 'Structure',
-        note: 'Six destinations, and one action that stays in reach.',
+        note: 'Six destinations, and one clear action.',
         items: [
           'The experience',
           'Bella’s house',
@@ -216,7 +217,7 @@ export const caseOnCopy: Localized<OnCaseCopy> = {
           body: 'The limits are stated plainly: 24 participants, 12 women and 12 men, aged 30 and up. Each number sits under a soft icon, with a short line beneath it.',
         },
         application: {
-          title: 'An application that feels intentional',
+          title: 'A suitability check, not a booking',
           body: 'The action is a suitability check, not a booking: a short questionnaire, no payment and no commitment. The same button also sits in the site’s header.',
         },
         mobile: {
@@ -241,7 +242,7 @@ export const caseOnCopy: Localized<OnCaseCopy> = {
     },
     result: {
       heading: 'From identity to launch.',
-      body: 'The identity and the website became one complete digital experience, live and available on desktop and mobile.',
+      body: 'The identity and website came together as one complete digital experience, now live across desktop and mobile.',
     },
   },
   he: {
@@ -251,7 +252,7 @@ export const caseOnCopy: Localized<OnCaseCopy> = {
         'חקר מקרה: המותג והאתר של ON, ריטריט היכרויות בוטיק בגליל. הכיוון, ההחלטות המרכזיות והאתר החי בדסקטופ ובמובייל.',
     },
     ui: {
-      caseStudy: 'חקר מקרה',
+      caseStudy: 'Case study',
       allWork: 'כל העבודות',
       chapters: 'פרקים',
       next: 'הפרויקט הבא',
@@ -278,7 +279,7 @@ export const caseOnCopy: Localized<OnCaseCopy> = {
       heading: 'יומיים בגליל, לאנשים שרוצים להכיר באמת.',
       body: [
         'ON הוא ריטריט היכרויות בוטיק: קבוצה קטנה ומאוזנת של רווקות ורווקים, יומיים בגליל העליון, עם יין, אוכל וזמן אמיתי להכיר.',
-        'האתר הוא המקום הראשון שבו פוגשים אותו. הוא היה צריך לשאת את מה שהריטריט מבטיח: איכות, חום, אמון וחיבור אנושי, ברמה של פרימיום.',
+        'האתר הוא המקום הראשון שבו פוגשים את ON. הוא היה צריך להעביר את אותה הבטחה: איכות, חום, אמון וחיבור אנושי, בלי לאבד את תחושת הפרימיום.',
       ],
       formatLabel: 'הפורמט, כפי שהאתר מציג אותו',
       format: [
@@ -292,12 +293,12 @@ export const caseOnCopy: Localized<OnCaseCopy> = {
       heading: 'האתגר היה בעיקר במה שאסור לו להיות.',
       not: ['אפליקציית היכרויות.', 'עמוד אירוע גנרי.', 'אתר חתונה.', 'דף נחיתה של וולנס.'],
       resolution:
-        'הוא היה צריך למשוך את האנשים הנכונים, ולגרום לריטריט להרגיש אמיתי, אינטימי ומכוון עוד לפני שמישהו מגיע.',
+        'הוא היה צריך למשוך את האנשים הנכונים, ולגרום לריטריט להרגיש אמיתי, אינטימי ומדויק עוד לפני שמישהו מגיע.',
     },
     direction: {
       heading: 'יוקרה שקטה, בחומרים חמים.',
       intro:
-        'הזהות נשענת על כמה חומרים: מונוגרמה זהובה, צבעי יין ואור ערב, קול סריפי לשאלות החשובות, וצילומים של מקומות אמיתיים.',
+        'הזהות נשענת על כמה חומרים: מונוגרמה זהובה, צבעי יין ואור ערב, טיפוגרפיית סריף לשאלות החשובות, וצילומים של מקומות אמיתיים.',
       monogram: { label: 'מונוגרמה', note: 'שתי אותיות, קשורות בקו סרט אחד.' },
       palette: {
         label: 'פלטה',
@@ -320,7 +321,7 @@ export const caseOnCopy: Localized<OnCaseCopy> = {
       intro: 'אתר בעברית, מימין לשמאל, משאלת הפתיחה ועד בדיקת ההתאמה, בדסקטופ ובטלפון.',
       structure: {
         label: 'מבנה',
-        note: 'שש תחנות, ופעולה אחת שתמיד בהישג יד.',
+        note: 'שש תחנות, ופעולה אחת ברורה.',
         items: ['החוויה', 'הבית של בלה', 'הלו״ז', 'היקב', 'קצת עליי', 'שאלות'],
         action: 'בדיקת התאמה',
       },
@@ -354,7 +355,7 @@ export const caseOnCopy: Localized<OnCaseCopy> = {
           body: 'הגבולות נאמרים בפשטות: 24 משתתפים, 12 נשים ו־12 גברים, מגיל 30 ומעלה. כל מספר מופיע מתחת לאייקון רך, עם שורה קצרה מתחתיו.',
         },
         application: {
-          title: 'פנייה שמרגישה מכוונת',
+          title: 'בדיקת התאמה, לא הזמנה',
           body: 'הפעולה היא בדיקת התאמה ולא הזמנה: שאלון קצר, ללא תשלום וללא התחייבות. אותו כפתור מופיע גם בכותרת העליונה של האתר.',
         },
         mobile: {
@@ -379,7 +380,7 @@ export const caseOnCopy: Localized<OnCaseCopy> = {
     },
     result: {
       heading: 'מזהות להשקה.',
-      body: 'הזהות והאתר הפכו לחוויה דיגיטלית אחת ושלמה, באוויר וזמינה בדסקטופ ובמובייל.',
+      body: 'הזהות והאתר התחברו לחוויה דיגיטלית אחת ושלמה, שעלתה לאוויר בדסקטופ ובמובייל.',
     },
   },
 }

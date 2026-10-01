@@ -100,7 +100,8 @@ export function OnCaseStudy({ locale, dict, showcase, copy, project, next }: OnC
               <Arrow className={styles.backArrow} />
               {copy.ui.allWork}
             </Link>
-            <p className={`t-label ${styles.kicker}`}>
+            {/* Latin in both locales: "CASE STUDY / 01" is a visual label, not translated. */}
+            <p className={`t-label ${styles.kicker}`} lang="en" dir="ltr">
               {copy.ui.caseStudy}
               <span aria-hidden="true"> / </span>
               <IndexNumber value={project.number} />

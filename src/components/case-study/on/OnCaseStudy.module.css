@@ -49,6 +49,14 @@
     color: var(--accent);
   }
 
+  /* The kicker is Latin on the Hebrew page too, so it keeps the Latin label treatment that
+     :lang(he) otherwise switches off (tokens.css: uppercase, 0.16em, 12px). */
+  :lang(he) .kicker {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+  }
+
   /* The identity on one centered axis, like the mark on a label. */
   .identity {
     grid-column: 1 / -1;
