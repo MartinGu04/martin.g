@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import type { PublicProjectSummary } from '@/content/resolve'
 import { IndexNumber } from '@/components/type/IndexNumber'
-import { Ltr } from '@/components/type/Ltr'
+import { Name } from '@/components/type/Name'
 import { Reveal } from '@/components/motion/Reveal'
 import { Arrow } from '@/components/type/Arrow'
 import styles from './ProjectIndex.module.css'
@@ -27,7 +27,7 @@ export function ProjectIndex({ projects, titleLevel = 3 }: ProjectIndexProps) {
           <IndexNumber value={project.number} className={`t-label muted ${styles.number}`} />
           <Title className={`t-display-xl ${styles.title}`}>
             <Link href={project.href} className={styles.link}>
-              <Ltr>{project.title}</Ltr>
+              <Name>{project.title}</Name>
             </Link>
           </Title>
           <div className={styles.meta}>

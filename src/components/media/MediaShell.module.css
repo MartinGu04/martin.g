@@ -2,17 +2,49 @@
   .frame {
     position: relative;
     inline-size: 100%;
+    aspect-ratio: var(--ar);
     overflow: clip;
     background: var(--surface-1);
     box-shadow: inset 0 0 0 var(--hairline) var(--line);
   }
 
-  .frame > :is(img, video, picture) {
+  /* A cut-out shows whole, on the world's own surface. */
+  .frame[data-fit='contain'] {
+    background: none;
+    box-shadow: none;
+  }
+
+  .frame :is(img, video) {
     position: absolute;
     inset: 0;
     inline-size: 100%;
     block-size: 100%;
     object-fit: cover;
+  }
+
+  .frame[data-fit='contain'] img {
+    object-fit: contain;
+  }
+
+  /* The hairline edge sits above the media, so light images keep a defined boundary. */
+  .frame:not([data-fit='contain'])::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    box-shadow: inset 0 0 0 var(--hairline) var(--line);
+    pointer-events: none;
+  }
+
+  @media (width >= 48rem) {
+    .frame {
+      aspect-ratio: var(--ar-md, var(--ar));
+    }
+  }
+
+  @media (width >= 75rem) {
+    .frame {
+      aspect-ratio: var(--ar-lg, var(--ar-md, var(--ar)));
+    }
   }
 
   .figure {

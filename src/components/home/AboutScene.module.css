@@ -8,6 +8,7 @@
     row-gap: var(--space-6);
   }
 
+  /* Phones: a square portrait first, then the name, the role and the lines. */
   .name {
     grid-column: 1 / -1;
     margin-block-start: var(--space-7);
@@ -17,31 +18,59 @@
     grid-column: 1 / -1;
   }
 
+  .portrait {
+    grid-column: 1 / -1;
+    max-inline-size: 22rem;
+    margin-block-start: var(--space-4);
+  }
+
   .lines {
     grid-column: 1 / -1;
     display: grid;
     gap: var(--space-6);
-    margin-block-start: var(--space-8);
+    margin-block-start: var(--space-6);
   }
 
   .lines > p {
     max-inline-size: 18em;
   }
 
+  /* Tablet and up: the portrait as a print at the inline start, the text beside it. */
   @media (width >= 48rem) {
+    .portrait {
+      grid-column: 1 / span 3;
+      grid-row: 2 / span 3;
+      align-self: start;
+      max-inline-size: none;
+      margin-block-start: var(--space-7);
+    }
+
+    .name,
+    .role,
     .lines {
-      grid-column: 3 / span 6;
+      grid-column: 4 / -1;
+    }
+
+    .lines {
+      margin-block-start: var(--space-4);
     }
   }
 
   @media (width >= 75rem) {
+    .portrait {
+      grid-column: 1 / span 4;
+    }
+
+    .name {
+      grid-column: 6 / -1;
+    }
+
     .role {
-      grid-column: 1 / span 3;
+      grid-column: 6 / span 4;
     }
 
     .lines {
-      grid-column: 5 / span 7;
-      margin-block-start: 0;
+      grid-column: 6 / span 6;
     }
   }
 }

@@ -30,6 +30,7 @@ export const he: Dictionary = {
     confidentialTitle: 'פרויקטים בחשיפה מוגבלת',
     confidentialNote: 'פרטים מזהים הושמטו במכוון.',
     viewProject: 'לפרויקט',
+    visitLiveSite: 'לאתר החי',
   },
   project: {
     years: 'שנים',

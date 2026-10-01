@@ -4,20 +4,21 @@ import type { ProjectTheme } from './schema'
  * The worlds the homepage moves through. MARTIN.G itself is the root world (tokens.css);
  * these override color, light, texture and atmosphere inside a <Scene>, never the grammar.
  *
- * PROVISIONAL: the ON and mi-ma-mo hex values follow each project's visual direction but
- * are stand-ins until the brand palettes are supplied. They are therefore not attached to
- * the project entries (which would also theme the project pages) yet.
+ * ON uses its real brand values, sampled from the live site (cream, bordeaux, warm black,
+ * blush, deep bordeaux); olive stays as the approved Phase 3 detail color. The המחלבה
+ * world (id mi-ma-mo) keeps its technical register. Neither is attached to the project
+ * entries yet: themed project pages are part of the Phase 5 case studies.
  */
 export const worlds = {
   /** ON: cream, bordeaux, olive and warm black; soft window light and paper texture. */
   on: {
     scheme: 'light',
     colors: {
-      surface0: '#efe7da',
-      surface1: '#e6dccb',
-      text: '#1d1613',
+      surface0: '#f6f0e5',
+      surface1: '#f1e1d5',
+      text: '#231a16',
       textMuted: '#5b4e47',
-      accent: '#6b1d2a',
+      accent: '#6d1f2d',
       accent2: '#575a2e',
       light: '#fff8ec',
       shade: '#3d1a1e',
@@ -28,7 +29,7 @@ export const worlds = {
   onBordeaux: {
     scheme: 'dark',
     colors: {
-      surface0: '#4a141c',
+      surface0: '#501320',
       surface1: '#5a1a23',
       text: '#f3eadc',
       textMuted: '#d8c3b3',
@@ -38,7 +39,7 @@ export const worlds = {
     },
     atmosphere: { light: 'pool', grid: 'hidden', texture: 'paper', marks: false, vignette: true },
   },
-  /** mi-ma-mo: darker, cooler, structured; the grid is drawn, data is the imagery. */
+  /** המחלבה (id mi-ma-mo): darker, cooler, structured; the grid is drawn, the product is the imagery. */
   miMaMo: {
     scheme: 'dark',
     colors: {

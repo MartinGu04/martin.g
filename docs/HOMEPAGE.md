@@ -1,4 +1,4 @@
-# Homepage choreography (Phase 3)
+# Homepage choreography (Phase 3, real media in Phase 4)
 
 The homepage is one continuous sequence of scenes, `scene → scene → scene`, held together by
 the MARTIN.G grammar (docs/DESIGN-SYSTEM.md). Scrolling is always native: every movement is
@@ -13,7 +13,7 @@ Composition: `src/app/[locale]/page.tsx`; scenes: `src/components/home/`.
   MARTIN.G, Martin Gusin, Product Builder, the positioning and the principle. The work
   starts about one viewport later, with an index of everything that was built.
 - **Loud and quiet.** Extreme scale is reserved for one moment (the principle) and one world
-  (mi-ma-mo). Everything else is a step or two below: project titles are confident, not
+  (המחלבה). Everything else is a step or two below: project titles are confident, not
   gigantic; How I work, About and Contact are strong but calmer than the statement.
 - **Light and color.** MARTIN.G stays fundamentally dark, but the page moves through tones:
   dark graphite, lighter graphite, ON cream, technical dark, soft neutral, bone, warm.
@@ -27,7 +27,7 @@ Composition: `src/app/[locale]/page.tsx`; scenes: `src/components/home/`.
 | 01  | Identity (`HeroScene`)           | strong, clear   | MARTIN.G dark    | timed     |           |
 | 02  | Index of the work (`WorkBridge`) | quiet bridge    | lighter graphite | cut       |           |
 | 03  | ON (`OnWorld`)                   | warm, intimate  | ON cream         | soft wipe |           |
-| 04  | mi-ma-mo                         | technical peak  | mi-ma-mo         | split     | split     |
+| 04  | המחלבה (`MiMaMoWorld`)           | technical peak  | mi-ma-mo         | split     | split     |
 | 05  | Restricted Work                  | controlled drop | deep graphite    | cut       |           |
 | 06  | How I work                       | rhythmic        | MARTIN.G dark    | dissolve  |           |
 | 07  | Capabilities                     | calm, daylight  | bone             | cut       |           |
@@ -72,14 +72,24 @@ reflowing layout.
   the hero. Grid only inside the light, registration marks only in the hero. Registers
   (`src/content/worlds.ts`): lighter graphite (index, contact), bone (capabilities), warm
   (about).
-- **ON**: quiet luxury, editorial hospitality. Cream, breathing room, an editorial pair of
-  photographs (stand-ins until Phase 4), bordeaux as an accent (a mat behind one print),
-  olive details, paper texture, soft side light. The title is confident but modest; the
-  impact is the change of mood.
-- **mi-ma-mo**: cool dark graphite, drawn grid, dot field, registration marks, an
-  operational board (lanes on a time axis, a day's load rhythm) that fills in along the axis.
-  On exit its grid, dots and marks fade and its accent drains (`--world-signal`, 1 to 0), so
-  the frame is near-monochrome before the confidential scene.
+- **ON**: quiet luxury, editorial hospitality. Cream, breathing room, olive details, paper
+  texture, soft side light. The title is the real ON monogram at display size. One dominant
+  photograph from the retreat's route (4:5), and the live website as a print on a bordeaux
+  mat overlapping its lower inline-start corner. Actions: `View project` (primary), then
+  `Visit live site` (secondary: muted, underlined, a diagonal arrow, new tab, no opener or
+  referrer). Phones: the photograph full width, then the website's phone screen on the mat,
+  overlapping only the bottom of the print so the hand in the photograph stays clear in both
+  directions. Tablet: the pair under the text, full width.
+- **המחלבה** (id `mi-ma-mo`): cool dark graphite, drawn grid, dot field, registration marks.
+  The product is the imagery, treated like product photography: the home screen as the hero
+  (cropped to the part that reads at about real scale), one phone, a Team Week strip, each
+  with a technical label (`01 / Home`), and a note that names and identifying marks were
+  removed. Desktop: text beside the home screen, the strip under it, the phone standing over
+  its lower inline-end corner. Tablet: the screen full width, strip and phone below. Phones:
+  no desktop screen at all; the phone, then the few Team Week columns that stay legible.
+  On exit its grid, dots and marks fade and its accent drains from the eyebrow and labels
+  (`--world-signal`, 1 to 0), so the frame is near-monochrome before the confidential scene.
+  No live-site link: the product is a signed-in tool, not a public destination.
 - **Restricted Work** (the confidential projects): a premium restricted archive, quieter than
   ON and mi-ma-mo. A slightly deeper, faintly cool graphite; the work sits in one framed
   archive (a lighter inner surface, a hairline boundary, restrained corner marks), with a
@@ -93,9 +103,13 @@ reflowing layout.
   is not access controlled and does not pretend to be. Sanitized summaries only; no links,
   routes, media or identifying detail.
 
-ON and mi-ma-mo palettes are provisional (`src/content/worlds.ts`) until the brand values are
-supplied. The public name of mi-ma-mo becomes המחלבה in Phase 4; the id and slug stay
-`mi-ma-mo`.
+- **About**: Martin's portrait (the real photograph, cropped and graded only) as one quiet
+  print at the inline start, 4:5 from tablet up, a closer square crop first on phones.
+
+The world palettes stay in `src/content/worlds.ts`. The public name of the second project is
+המחלבה; its id, slug and code identifiers stay `mi-ma-mo`. Project names render through
+`<Name>`, which isolates Latin names left to right and Hebrew names right to left (with
+`lang="he"` on English pages).
 
 ## Header
 
@@ -133,8 +147,8 @@ start (right in Hebrew); the identity signature at the inline end. Project names
   unchanged; scrolling is natural.
 - **No JavaScript**: the CSS choreography still works where supported (it needs no script),
   reveals never hide anything, and the header keeps the MARTIN.G colors.
-- **Forced colors**: atmosphere, depth type and the operational board are removed; text,
-  focus and structure remain.
+- **Forced colors**: atmosphere and depth type are removed; photographs, product screens,
+  text, focus and structure remain.
 
 ## Performance and accessibility notes (compromises)
 
@@ -157,3 +171,23 @@ The homepage copy (How I work, Capabilities, About, Contact) lives in
 review state: marking either locale `draft` again makes the release gate refuse a Vercel
 production build. Hebrew is a natural equivalent (infinitives and plural address rather
 than gendered first person), not a literal translation.
+
+## Real media (Phase 4)
+
+- **Sources.** Only supplied, approved assets, processed outside the repository and committed
+  as sRGB, metadata-free sources in `src/assets/` (static imports, so every image has
+  intrinsic dimensions and a blur placeholder). Next serves them as AVIF or WebP at the
+  requested width (`images.formats`); the originals never ship.
+- **Art direction.** `MediaFrame` renders a `<picture>` when an image has per-tier sources
+  (`art.mobile`, `art.tablet`), and the frame reserves each tier's ratio, so nothing shifts.
+- **Loading.** The homepage opens on type, so none of its images is eager; each project page
+  preloads only its cover.
+- **Privacy.** Product screens are sanitized in their pixels before they enter the repo:
+  personnel names become neutral bars, insignia and one internal module are painted out, and
+  screens dense with personal schedules are not published. Nothing is hidden with CSS.
+- **Video.** Only the client's watermarked, silent preview, re-encoded without metadata and
+  played by `PreviewVideo`: no native controls (one play / pause button), no download,
+  picture-in-picture or casting, context menu and dragging refused on the picture. The
+  `<video>` is mounted only after hydration, because without JavaScript a browser must show
+  native controls. These are deterrents, not protection: the browser has to receive the file
+  to play it. The protection is that the published file is already a preview.

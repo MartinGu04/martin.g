@@ -1,8 +1,10 @@
+import { Fragment } from 'react'
 import type { HomeCopy } from '@/i18n/dictionaries/home'
 import { Grid } from '@/components/layout/Grid'
 import { Eyebrow } from '@/components/type/Eyebrow'
 import { IndexNumber } from '@/components/type/IndexNumber'
 import { Reveal } from '@/components/motion/Reveal'
+import { Name } from '@/components/type/Name'
 import { Scene } from '@/components/scene/Scene'
 import { worlds } from '@/content/worlds'
 import styles from './Capabilities.module.css'
@@ -41,7 +43,14 @@ export function Capabilities({
                 className={`t-label muted ${styles.index}`}
               />
               <p className={`t-heading-2 ${styles.name}`}>{item.label}</p>
-              <p className={`t-small muted ${styles.proof}`}>{item.proof.join(' · ')}</p>
+              <p className={`t-small muted ${styles.proof}`}>
+                {item.proof.map((title, j) => (
+                  <Fragment key={title}>
+                    {j > 0 ? ' · ' : null}
+                    <Name>{title}</Name>
+                  </Fragment>
+                ))}
+              </p>
             </Reveal>
           ))}
         </ul>

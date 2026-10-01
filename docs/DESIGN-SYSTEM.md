@@ -189,15 +189,15 @@ are `#rrggbb` so `themeIssues()` validates every world in tests: text and muted 
 4.5:1 on both surfaces, accents at 3:1, scheme matching the background. Worlds are
 server-rendered: the first paint already shows the right world.
 
-| World        | Character                                                    | Status            |
-| ------------ | ------------------------------------------------------------ | ----------------- |
-| MARTIN.G     | cinematic dark, warm key light, grain, depth type            | production        |
-| ON           | cream, bordeaux, olive, warm black; photography; paper; soft | demo, provisional |
-| mi-ma-mo     | darker, cooler, structured; drawn grid, dots, marks, data    | demo, provisional |
-| Confidential | deeper graphite restricted archive; no light, no texture     | production        |
+| World        | Character                                                    | Status     |
+| ------------ | ------------------------------------------------------------ | ---------- |
+| MARTIN.G     | cinematic dark, warm key light, grain, depth type            | production |
+| ON           | cream, bordeaux, olive, warm black; photography; paper; soft | homepage   |
+| המחלבה       | darker, cooler, structured; drawn grid, dots, marks, real UI | homepage   |
+| Confidential | deeper graphite restricted archive; no light, no texture     | production |
 
-ON and mi-ma-mo palettes are provisional stand-ins (`system/world-themes.ts`) until each
-project's brand values are supplied; they are not attached to content yet. Industrial
+ON uses its real brand values (sampled from the live site); the המחלבה world keeps its
+technical register; they are not attached to content yet. Industrial
 detail (visible grid, dots, marks, data fragments, technical motion) belongs to the
 mi-ma-mo world, not to the MARTIN.G identity. Confidential work never uses classified or
 military visual language.
@@ -205,8 +205,10 @@ military visual language.
 ## Primitives (deliberately few)
 
 `Grid`/`Cell`, `GridLines` (the visible grid, drawn from the real grid tokens), `Rule`,
-`SectionHeading`, `Eyebrow`, `IndexNumber`, `TextBlock`, `MediaShell` (aspect-ratio frame;
-`MediaFrame` renders all media into it), `Arrow` (mirrors in RTL), `ProjectIndex`,
+`SectionHeading`, `Eyebrow`, `IndexNumber`, `TextBlock`, `Name` (bidi-isolated proper
+names), `MediaShell` (aspect-ratio frame, per tier when art directed; `contain` for
+cut-outs; `MediaFrame` renders all media into it, with `<picture>` art direction and
+`PreviewVideo` for watermarked preview films), `LiveSiteLink` (the quiet external action), `Arrow` (mirrors in RTL), `ProjectIndex`,
 `ThemeScope`, `Scene`, `Atmosphere`, `DepthType`, `Reveal`, surface utilities (`.surface`,
 `.surface-outline`). No card library, no UI kit.
 

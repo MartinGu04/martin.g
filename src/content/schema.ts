@@ -16,6 +16,11 @@ export interface ImageMedia {
   focal?: { x: number; y: number }
   /** Real art direction per tier, not scaled-down desktop crops. */
   art?: { tablet?: StaticImageData; mobile?: StaticImageData }
+  /**
+   * 'cover' (default) fills its frame; 'contain' shows a cut-out (a device with a
+   * transparent surround) whole, without a frame surface or edge.
+   */
+  fit?: 'cover' | 'contain'
 }
 
 /**
@@ -28,6 +33,11 @@ export type VideoSource = {
   files: readonly { src: `/${string}`; type: 'video/mp4' | 'video/webm' }[]
 }
 
+/**
+ * Video is only ever a watermarked preview made for publication (never a master): the
+ * player has no native controls, no download, no picture-in-picture and no remote
+ * playback (src/components/media/PreviewVideo.tsx).
+ */
 export interface VideoMedia {
   kind: 'video'
   source: VideoSource
@@ -113,7 +123,7 @@ export type Block =
       caption?: Localized
     }
   | { type: 'split'; media: Media; body: Localized<readonly string[]>; mediaSide: 'start' | 'end' }
-  | { type: 'sequence'; items: readonly Media[] }
+  | { type: 'sequence'; items: readonly { media: Media; caption?: Localized }[] }
   | { type: 'facts'; items: readonly { label: Localized; value: Localized }[] }
   | { type: 'metrics'; items: readonly { value: string; label: Localized }[] }
   | { type: 'quote'; text: Localized; attribution?: Localized }
@@ -122,6 +132,9 @@ export type Block =
 /* ------------------------------------------------------------------ */
 /* Projects                                                            */
 /* ------------------------------------------------------------------ */
+
+/** An absolute https URL outside MARTIN.G. */
+export type ExternalUrl = `https://${string}`
 
 export interface ProjectYears {
   from: number
@@ -146,6 +159,11 @@ export interface PublicProject extends ProjectCore {
   years?: ProjectYears
   theme?: ProjectTheme
   cover: Media
+  /**
+   * Destinations outside MARTIN.G. Only URLs approved for public visitors: never a
+   * login-gated or internal deployment.
+   */
+  links?: { live?: ExternalUrl }
   story: readonly Block[]
   seo: { title: Localized; description: Localized }
 }

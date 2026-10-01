@@ -39,6 +39,10 @@ const nextConfig: NextConfig = {
   // with its own reviewed working rules).
   agentRules: false,
   typedRoutes: true,
+  images: {
+    // Real photography and product screens ship as AVIF, then WebP, never as the sources.
+    formats: ['image/avif', 'image/webp'],
+  },
   experimental: {
     // The root layout lives under [locale]; this handles URLs outside it.
     globalNotFound: true,

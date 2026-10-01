@@ -1,7 +1,7 @@
 import 'server-only'
 import type { Locale } from '@/i18n/config'
 import type { Dictionary } from '@/i18n/dictionaries'
-import type { ConfidentialProject, ProjectYears, PublicProject } from './schema'
+import type { ConfidentialProject, ExternalUrl, ProjectYears, PublicProject } from './schema'
 
 /*
  * Flattens localized content to a single locale on the server. Only these view models
@@ -15,6 +15,8 @@ export interface PublicProjectSummary {
   summary: string
   disciplines: string[]
   years?: string
+  /** The live site, when it is approved for public visitors. */
+  liveHref?: ExternalUrl
 }
 
 export interface ConfidentialProjectSummary {
@@ -46,6 +48,7 @@ export function resolvePublicSummary(
     summary: project.summary[locale],
     disciplines: project.disciplines.map((d) => dict.disciplines[d]),
     ...(years ? { years } : {}),
+    ...(project.links?.live ? { liveHref: project.links.live } : {}),
   }
 }
 

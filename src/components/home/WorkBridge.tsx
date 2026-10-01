@@ -3,7 +3,7 @@ import { worlds } from '@/content/worlds'
 import { Grid } from '@/components/layout/Grid'
 import { Eyebrow } from '@/components/type/Eyebrow'
 import { IndexNumber } from '@/components/type/IndexNumber'
-import { Ltr } from '@/components/type/Ltr'
+import { Name } from '@/components/type/Name'
 import { Scene } from '@/components/scene/Scene'
 import styles from './WorkBridge.module.css'
 
@@ -36,7 +36,7 @@ export function WorkBridge({ dict, entries }: { dict: Dictionary; entries: WorkI
               <a href={entry.href} className={styles.link}>
                 <IndexNumber value={entry.number} className="t-label muted" />
                 <span className="t-heading-3">
-                  <Ltr>{entry.title}</Ltr>
+                  <Name>{entry.title}</Name>
                 </span>
               </a>
             </li>

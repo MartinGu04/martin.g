@@ -24,7 +24,17 @@ function strings(value: unknown, out: string[] = []): string[] {
 }
 
 function media(project: Project): Media[] {
-  return project.visibility === 'public' ? [project.cover] : []
+  if (project.visibility !== 'public') return []
+  return [
+    project.cover,
+    ...project.story.flatMap((block) =>
+      block.type === 'media'
+        ? [block.media]
+        : block.type === 'sequence'
+          ? block.items.map((item) => item.media)
+          : [],
+    ),
+  ]
 }
 
 describe('project registry', () => {
@@ -46,9 +56,17 @@ describe('project registry', () => {
     }
   })
 
-  it('uses the public brand spelling mi-ma-mo', () => {
+  it('presents mi-ma-mo publicly as המחלבה, keeping its id and slug', () => {
     const project = all.find((p) => p.id === 'mi-ma-mo')
-    expect(project?.title.en).toBe('mi-ma-mo')
+    expect(project?.title).toEqual({ en: 'המחלבה', he: 'המחלבה' })
+    expect(getPublicProject('mi-ma-mo')?.id).toBe('mi-ma-mo')
+  })
+
+  it('links only to approved live sites, over https', () => {
+    const live = Object.fromEntries(
+      getPublicProjects().map((p) => [p.id, p.links?.live ?? null] as const),
+    )
+    expect(live).toEqual({ on: 'https://www.onbyortal.com/', 'mi-ma-mo': null })
   })
 
   it('has no em dashes in any project copy', () => {

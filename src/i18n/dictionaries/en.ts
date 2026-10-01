@@ -26,6 +26,7 @@ export const en = {
     confidentialTitle: 'Restricted Work',
     confidentialNote: 'Identifying details are withheld by design.',
     viewProject: 'View project',
+    visitLiveSite: 'Visit live site',
   },
   project: {
     years: 'Years',

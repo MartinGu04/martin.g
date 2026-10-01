@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import { isLocale } from '@/i18n/config'
 import { getDictionary } from '@/i18n/get-dictionary'
 import { homeCopy } from '@/i18n/dictionaries/home'
+import { showcaseCopy } from '@/i18n/dictionaries/showcase'
 import type { DisciplineKey } from '@/i18n/dictionaries'
 import { getProjectSequence } from '@/content/registry'
 import { resolveConfidentialSummary, resolvePublicSummary } from '@/content/resolve'
@@ -32,7 +33,7 @@ const capabilityKeys: readonly DisciplineKey[] = [
  *   identity and principle (dark graphite)     one frame, timed beats
  *   index of the work (lighter graphite)       cut
  *   ON (cream, editorial)                      soft wipe
- *   mi-ma-mo (technical dark)                  split in, split out
+ *   המחלבה, id mi-ma-mo (technical dark)       split in, split out
  *   confidential work (soft neutral)           cut
  *   how I work (dark)                          dissolve
  *   capabilities (bone), about (warm)          cut
@@ -43,6 +44,7 @@ export default async function HomePage({ params }: PageProps<'/[locale]'>) {
   if (!isLocale(locale)) notFound()
   const dict = getDictionary(locale)
   const copy = homeCopy[locale]
+  const showcase = showcaseCopy[locale]
   const sequence = getProjectSequence()
 
   const work = sequence.flatMap(({ project, number }) =>
@@ -83,14 +85,14 @@ export default async function HomePage({ params }: PageProps<'/[locale]'>) {
 
       <section id="work" aria-labelledby="work-title">
         <WorkBridge dict={dict} entries={index} />
-        <OnWorld project={on} dict={dict} />
-        <MiMaMoWorld project={miMaMo} dict={dict} />
+        <OnWorld project={on} dict={dict} showcase={showcase} locale={locale} />
+        <MiMaMoWorld project={miMaMo} dict={dict} showcase={showcase} locale={locale} />
       </section>
 
       <ConfidentialScene items={confidential} dict={dict} />
       <ProcessStage copy={copy.process} />
       <Capabilities copy={copy.capabilities} items={capabilities} />
-      <AboutScene copy={copy.about} />
+      <AboutScene copy={copy.about} locale={locale} />
       <ContactScene copy={copy.contact} />
     </>
   )

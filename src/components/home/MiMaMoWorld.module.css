@@ -10,13 +10,20 @@
     view-timeline: --mi-ma-mo block;
   }
 
+  /* The accent, draining toward the muted text color as the world leaves. Declared where
+     --world-signal is animated, so it follows it. */
   .grid {
+    --signal: color-mix(
+      in srgb,
+      var(--accent) calc(var(--world-signal, 1) * 100%),
+      var(--text-muted)
+    );
     row-gap: var(--space-6);
   }
 
   .eyebrow {
     grid-column: 1 / -1;
-    color: var(--accent);
+    color: var(--signal);
   }
 
   .title {
@@ -41,23 +48,110 @@
     max-inline-size: var(--measure-lead);
   }
 
-  .board {
-    grid-column: 1 / -1;
+  .note {
+    max-inline-size: 22em;
+    padding-block-start: var(--space-4);
+    border-block-start: var(--hairline) solid var(--line);
   }
 
-  @media (width >= 75rem) {
-    .text {
-      grid-column: 1 / span 4;
+  /* Product views: figures on the grid, each with a technical label. */
+  .dashboard,
+  .detail,
+  .phone {
+    margin: 0;
+    min-inline-size: 0;
+  }
+
+  .label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-block-start: var(--space-3);
+    color: var(--text-muted);
+  }
+
+  .label > :first-child {
+    color: var(--signal);
+  }
+
+  .labelRule {
+    inline-size: var(--space-6);
+    block-size: var(--hairline);
+    background: var(--line-strong);
+  }
+
+  /*
+   * Phones: no scaled-down desktop screen. The phone first, large enough to read, then the
+   * few Team Week columns that stay legible at this width.
+   */
+  .dashboard {
+    display: none;
+  }
+
+  .phone {
+    grid-column: 1 / span 3;
+    grid-row: 4;
+    max-inline-size: 17rem;
+  }
+
+  .detail {
+    grid-column: 1 / -1;
+    grid-row: 5;
+    margin-block-start: var(--space-6);
+  }
+
+  /* Tablet: the home screen at full width; the detail and the phone below it, the phone
+     lifted over the screen's lower edge. */
+  @media (width >= 48rem) {
+    .dashboard {
+      display: block;
+      grid-column: 1 / -1;
+      grid-row: 4;
+      margin-block-start: var(--space-6);
+    }
+
+    .detail {
+      grid-column: 1 / span 5;
+      grid-row: 5;
       align-self: start;
     }
 
-    .board {
-      grid-column: 6 / span 7;
+    .phone {
+      grid-column: 6 / -1;
+      grid-row: 5;
+      max-inline-size: none;
+      margin-block-start: -30%;
+      z-index: 1;
+    }
+  }
+
+  /* Desktop: text beside the home screen, as before; under the screen, the Team Week
+     strip, and the phone standing over the screen's lower inline-end corner. */
+  @media (width >= 75rem) {
+    .text {
+      grid-column: 1 / span 4;
+      grid-row: 3;
+      align-self: start;
     }
 
-    .text,
-    .board {
+    .dashboard {
+      grid-column: 5 / -1;
       grid-row: 3;
+      margin-block-start: 0;
+    }
+
+    .detail {
+      grid-column: 5 / span 6;
+      grid-row: 4;
+      align-self: start;
+      margin-block-start: var(--space-4);
+    }
+
+    .phone {
+      grid-column: 11 / -1;
+      grid-row: 4;
+      align-self: start;
+      margin-block-start: -10rem;
     }
   }
 

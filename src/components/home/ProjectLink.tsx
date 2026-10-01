@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import type { PublicProjectSummary } from '@/content/resolve'
 import { Arrow } from '@/components/type/Arrow'
-import { Ltr } from '@/components/type/Ltr'
+import { Name } from '@/components/type/Name'
 import styles from './ProjectLink.module.css'
 
 interface ProjectLinkProps {
@@ -19,7 +19,7 @@ export function ProjectLink({ href, label, title, className }: ProjectLinkProps)
       {label}
       <span className="visually-hidden">
         {' '}
-        <Ltr>{title}</Ltr>
+        <Name>{title}</Name>
       </span>
       <Arrow className={styles.arrow} />
     </Link>
