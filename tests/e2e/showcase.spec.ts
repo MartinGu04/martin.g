@@ -226,13 +226,18 @@ test.describe('preview film', () => {
     // the player: a browser must receive a file to play it, see PreviewVideo.)
     expect(html).not.toContain('<video')
     const context = await browser.newContext({ javaScriptEnabled: false })
-    const page = await context.newPage()
-    await page.goto('/en/work/on')
-    await expect(page.locator('video')).toHaveCount(0)
-    await expect(
-      page.locator('figure:has(figcaption:text("Watermarked preview")) img'),
-    ).toHaveCount(1)
-    await context.close()
+    try {
+      const page = await context.newPage()
+      // Server-rendered DOM only: without scripting lazy images load eagerly, and the full
+      // load event would wait for all of them.
+      await page.goto('/en/work/on', { waitUntil: 'domcontentloaded' })
+      await expect(page.locator('video')).toHaveCount(0)
+      await expect(
+        page.locator('figure:has(figcaption:text("Watermarked preview")) img'),
+      ).toHaveCount(1)
+    } finally {
+      await context.close()
+    }
   })
 
   test('the Hebrew page labels the control in Hebrew', async ({ page }) => {

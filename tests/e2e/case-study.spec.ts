@@ -207,20 +207,23 @@ test.describe('ON case study: motion and accessibility', () => {
 
   test('reduced motion: everything visible, nothing loops, no reading bar', async ({ browser }) => {
     const context = await browser.newContext({ reducedMotion: 'reduce' })
-    const page = await context.newPage()
-    await page.goto('/en/work/on')
-    await walk(page)
-    await expect(page.locator('[data-reveal]:not([data-revealed])')).toHaveCount(0)
-    const infinite = await page.evaluate(
-      () =>
-        document
-          .getAnimations()
-          .filter((a) => a.effect?.getComputedTiming().iterations === Infinity).length,
-    )
-    expect(infinite).toBe(0)
-    const bar = page.locator('main > article > div[aria-hidden="true"]').first()
-    await expect(bar).toBeHidden()
-    await context.close()
+    try {
+      const page = await context.newPage()
+      await page.goto('/en/work/on')
+      await walk(page)
+      await expect(page.locator('[data-reveal]:not([data-revealed])')).toHaveCount(0)
+      const infinite = await page.evaluate(
+        () =>
+          document
+            .getAnimations()
+            .filter((a) => a.effect?.getComputedTiming().iterations === Infinity).length,
+      )
+      expect(infinite).toBe(0)
+      const bar = page.locator('main > article > div[aria-hidden="true"]').first()
+      await expect(bar).toBeHidden()
+    } finally {
+      await context.close()
+    }
   })
 
   test('the reading bar follows the scroll and stays out of the accessibility tree', async ({
@@ -244,11 +247,16 @@ test.describe('ON case study: motion and accessibility', () => {
 
   test('without JavaScript every chapter and the film poster are there', async ({ browser }) => {
     const context = await browser.newContext({ javaScriptEnabled: false })
-    const page = await context.newPage()
-    await page.goto('/he/work/on')
-    for (const id of chapters) await expect(page.locator(`#${id}-title`)).toBeVisible()
-    await expect(page.locator('#film video')).toHaveCount(0)
-    await expect(page.locator('#film img')).toHaveCount(1)
-    await context.close()
+    try {
+      const page = await context.newPage()
+      // Server-rendered DOM only. Without scripting Chromium ignores loading="lazy", so the
+      // full load event would wait for every image on this long page; nothing here needs them.
+      await page.goto('/he/work/on', { waitUntil: 'domcontentloaded' })
+      for (const id of chapters) await expect(page.locator(`#${id}-title`)).toBeVisible()
+      await expect(page.locator('#film video')).toHaveCount(0)
+      await expect(page.locator('#film img')).toHaveCount(1)
+    } finally {
+      await context.close()
+    }
   })
 })

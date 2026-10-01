@@ -11,6 +11,16 @@ const localePages = [
   '/he/system/scenes',
 ]
 
+/**
+ * Opens a page for a layout measurement: the DOM and its stylesheets (domcontentloaded),
+ * then the web fonts, which decide text widths. Images and media are not awaited: every
+ * frame reserves its aspect ratio, so they cannot change the layout being measured.
+ */
+async function openForLayout(page: Page, url: string) {
+  await page.goto(url, { waitUntil: 'domcontentloaded' })
+  await page.evaluate(() => document.fonts.ready)
+}
+
 async function horizontalOverflow(page: Page) {
   return page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)
 }
@@ -204,7 +214,7 @@ test.describe('responsive and zoom', () => {
     test(`no horizontal overflow at any tier: ${url}`, async ({ page }) => {
       for (const width of widths) {
         await page.setViewportSize({ width, height: 900 })
-        await page.goto(url)
+        await openForLayout(page, url)
         expect(await horizontalOverflow(page), `${url} at ${width}px`).toBeLessThanOrEqual(0)
       }
     })
@@ -221,13 +231,16 @@ test.describe('responsive and zoom', () => {
         viewport: { width, height: 400 },
         deviceScaleFactor: dpr,
       })
-      const page = await context.newPage()
-      for (const url of ['/en', '/he', '/en/work/on', '/he/system']) {
-        await page.goto(url)
-        expect(await horizontalOverflow(page), `${url} at ${label}`).toBeLessThanOrEqual(0)
-        await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+      try {
+        const page = await context.newPage()
+        for (const url of ['/en', '/he', '/en/work/on', '/he/system']) {
+          await openForLayout(page, url)
+          expect(await horizontalOverflow(page), `${url} at ${label}`).toBeLessThanOrEqual(0)
+          await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+        }
+      } finally {
+        await context.close()
       }
-      await context.close()
     })
   }
 })
