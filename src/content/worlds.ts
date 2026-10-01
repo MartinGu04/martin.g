@@ -6,8 +6,8 @@ import type { ProjectTheme } from './schema'
  *
  * ON uses its real brand values, sampled from the live site (cream, bordeaux, warm black,
  * blush, deep bordeaux); olive stays as the approved Phase 3 detail color. The המחלבה
- * world (id mi-ma-mo) keeps its technical register. Neither is attached to the project
- * entries yet: themed project pages are part of the Phase 5 case studies.
+ * world (id mi-ma-mo) keeps its technical register. The ON case study (Phase 5) moves
+ * through the ON registers chapter by chapter (src/components/case-study/on).
  */
 export const worlds = {
   /** ON: cream, bordeaux, olive and warm black; soft window light and paper texture. */
@@ -38,6 +38,23 @@ export const worlds = {
       shade: '#1d0a0d',
     },
     atmosphere: { light: 'pool', grid: 'hidden', texture: 'paper', marks: false, vignette: true },
+  },
+  /**
+   * ON, the screening room: the bordeaux taken almost to black, for the brand film. The
+   * picture is the light; cream text, the monogram's gold as the one accent.
+   */
+  onNight: {
+    scheme: 'dark',
+    colors: {
+      surface0: '#170a0d',
+      surface1: '#231116',
+      text: '#f3eadc',
+      textMuted: '#cdb9a9',
+      accent: '#c39a5b',
+      light: '#ffe2c4',
+      shade: '#000000',
+    },
+    atmosphere: { light: 'pool', grid: 'hidden', texture: 'grain', marks: false, vignette: true },
   },
   /**
    * המחלבה (id mi-ma-mo): midnight blue, structured; the grid is drawn, the product is the

@@ -54,11 +54,12 @@ test.describe('real project showcase', () => {
       )
       await expect(scene.locator('a img')).toHaveCount(1) // the ON title mark only
     }
+    // The case study offers the live site where it opens and where it closes.
     await page.goto('/en/work/on')
-    await expect(page.getByRole('link', { name: /^Visit live site/ })).toHaveAttribute(
-      'href',
-      'https://www.onbyortal.com/',
-    )
+    const live = page.getByRole('link', { name: /^Visit live site/ })
+    expect(await live.count()).toBeGreaterThan(0)
+    for (const link of await live.all())
+      await expect(link).toHaveAttribute('href', 'https://www.onbyortal.com/')
   })
 
   test('המחלבה has no live-site link anywhere: it is not a public destination', async ({

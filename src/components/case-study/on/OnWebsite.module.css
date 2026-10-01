@@ -1,0 +1,168 @@
+@layer components {
+  .grid {
+    row-gap: var(--space-9);
+    align-items: start;
+  }
+
+  .heading,
+  .intro,
+  .structure,
+  .rhythm,
+  .mobile {
+    grid-column: 1 / -1;
+    min-inline-size: 0;
+  }
+
+  .intro {
+    max-inline-size: var(--measure-text);
+    margin-block-start: calc(var(--space-8) * -1);
+  }
+
+  .label {
+    color: var(--accent);
+  }
+
+  /* Structure: the real navigation, then its destinations as readable text. */
+  .structure {
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  .note {
+    display: grid;
+    gap: var(--space-3);
+    max-inline-size: 22rem;
+  }
+
+  .navView {
+    display: grid;
+    gap: var(--space-5);
+    min-inline-size: 0;
+  }
+
+  .destinations {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3) var(--space-6);
+    margin: 0;
+    padding: 0;
+  }
+
+  .destinations li {
+    display: inline-flex;
+    align-items: baseline;
+    gap: var(--space-2);
+  }
+
+  .step {
+    color: var(--text-muted);
+  }
+
+  /* The one action, set apart as the site sets it apart: an outlined pill. */
+  .action {
+    padding-inline: var(--space-4);
+    border: var(--hairline) solid var(--accent);
+    border-radius: 999px;
+  }
+
+  .grid figure {
+    margin: 0;
+  }
+
+  .caption {
+    display: grid;
+    gap: var(--space-2);
+    max-inline-size: var(--measure-text);
+    margin-block-start: var(--space-5);
+  }
+
+  /* Phones: the story view edge to edge, the text back inside the margins. */
+  .bleed {
+    margin-inline: calc(var(--margin) * -1);
+    box-shadow: 0 2.5rem 4rem -2rem var(--shade);
+  }
+
+  .mobile {
+    display: grid;
+    gap: var(--space-7);
+  }
+
+  /* The phone layout at a phone's own size, in a cream mat with a gold edge. */
+  .device {
+    justify-self: center;
+    inline-size: min(100%, 22rem);
+    border-radius: 1.75rem;
+    overflow: clip;
+    box-shadow:
+      0 0 0 0.5rem var(--text),
+      0 0 0 calc(0.5rem + var(--hairline)) var(--accent),
+      0 2.5rem 3.5rem -1.5rem var(--shade);
+  }
+
+  .mobileText {
+    display: grid;
+    gap: var(--space-4);
+    max-inline-size: 26em;
+  }
+
+  @media (width >= 48rem) {
+    .bleed {
+      margin-inline: 0;
+    }
+
+    .mobile {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      align-items: center;
+    }
+
+    .device {
+      order: 2;
+    }
+  }
+
+  @media (width >= 75rem) {
+    .heading {
+      grid-column: 1 / span 9;
+    }
+
+    .intro {
+      grid-column: 1 / span 6;
+    }
+
+    .structure {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: var(--gutter);
+      align-items: start;
+    }
+
+    .note {
+      grid-column: 1 / span 3;
+    }
+
+    .navView {
+      grid-column: 5 / -1;
+    }
+
+    .rhythm {
+      grid-column: 1 / -1;
+    }
+
+    .mobile {
+      grid-column: 2 / span 10;
+      grid-template-columns: repeat(10, minmax(0, 1fr));
+      column-gap: var(--gutter);
+    }
+
+    .device {
+      order: 0;
+      grid-column: 1 / span 4;
+      justify-self: stretch;
+      inline-size: auto;
+      max-inline-size: 24rem;
+    }
+
+    .mobileText {
+      grid-column: 6 / -1;
+    }
+  }
+}
