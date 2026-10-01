@@ -1,9 +1,11 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { isLocale } from '@/i18n/config'
+import { isLocale, localeMeta, type Locale } from '@/i18n/config'
 import { getDictionary } from '@/i18n/get-dictionary'
-import { getPublicProject, getPublicProjects } from '@/content/registry'
-import { formatYears } from '@/content/resolve'
+import { getProjectSequence, getPublicProject, getPublicProjects } from '@/content/registry'
+import { formatYears, resolvePublicSummary } from '@/content/resolve'
+import type { PublicProject } from '@/content/schema'
+import { onMedia } from '@/content/projects/on'
 import { localeAlternates } from '@/lib/site'
 import { Grid } from '@/components/layout/Grid'
 import { Eyebrow } from '@/components/type/Eyebrow'
@@ -13,7 +15,9 @@ import { MediaFrame } from '@/components/media/MediaFrame'
 import { ThemeScope } from '@/components/theme/ThemeScope'
 import { ProjectMedia } from '@/components/project/ProjectMedia'
 import { LiveSiteLink } from '@/components/home/LiveSiteLink'
+import { OnCaseStudy } from '@/components/case-study/on/OnCaseStudy'
 import { showcaseCopy } from '@/i18n/dictionaries/showcase'
+import { caseOnCopy } from '@/i18n/dictionaries/case-on'
 import styles from './page.module.css'
 
 /** Only public, published projects are built. Anything else is a 404, never a hidden page. */
@@ -23,27 +27,103 @@ export function generateStaticParams() {
   return getPublicProjects().map((project) => ({ slug: project.id }))
 }
 
+/**
+ * Projects with a composed case study (Phase 5). Each world tells its story its own way,
+ * so a case study is a composition of shared case-study primitives, not a block template.
+ * Projects without one keep the media page below.
+ */
+const caseStudies = {
+  on: {
+    seo: (locale: Locale) => caseOnCopy[locale].seo,
+    image: onMedia.siteHome,
+  },
+} as const
+
+function hasCaseStudy(id: string): id is keyof typeof caseStudies {
+  return id in caseStudies
+}
+
 export async function generateMetadata({
   params,
 }: PageProps<'/[locale]/work/[slug]'>): Promise<Metadata> {
   const { locale, slug } = await params
   const project = getPublicProject(slug)
   if (!isLocale(locale) || !project) return {}
+  const alternates = localeAlternates(locale, `/work/${project.id}`)
+  if (!hasCaseStudy(project.id)) {
+    return {
+      title: project.seo.title[locale],
+      description: project.seo.description[locale],
+      alternates,
+    }
+  }
+  const { seo, image } = caseStudies[project.id]
+  const { title, description } = seo(locale)
+  const dict = getDictionary(locale)
   return {
-    title: project.seo.title[locale],
-    description: project.seo.description[locale],
-    alternates: localeAlternates(locale, `/work/${project.id}`),
+    title,
+    description,
+    alternates,
+    // The layout's Open Graph block is replaced, not merged, so it is restated here.
+    openGraph: {
+      title,
+      description,
+      siteName: dict.site.name,
+      locale: localeMeta[locale].ogLocale,
+      type: 'article',
+      url: `/${locale}/work/${project.id}`,
+      images: [
+        {
+          url: image.src.src,
+          width: image.src.width,
+          height: image.src.height,
+          alt: image.alt[locale],
+        },
+      ],
+    },
   }
 }
 
-/**
- * The project page before its case study (Phase 5): header, the live site when there is
- * one, the real cover, and the project's media in order with short captions.
- */
 export default async function ProjectPage({ params }: PageProps<'/[locale]/work/[slug]'>) {
   const { locale, slug } = await params
   const project = getPublicProject(slug)
   if (!isLocale(locale) || !project) notFound()
+  const dict = getDictionary(locale)
+  const showcase = showcaseCopy[locale]
+
+  if (hasCaseStudy(project.id)) {
+    // The public sequence numbers the work (01 ON, 02 המחלבה) and names the next world.
+    const sequence = getProjectSequence().flatMap(({ project: p, number }) =>
+      p.visibility === 'public' ? [{ number, ...resolvePublicSummary(p, locale, dict) }] : [],
+    )
+    const index = sequence.findIndex((p) => p.id === project.id)
+    const current = sequence[index]
+    const next = sequence[(index + 1) % sequence.length]
+    if (!current || !next || next.id === current.id)
+      throw new Error('The ON case study expects a next public project.')
+    return (
+      <article>
+        <OnCaseStudy
+          locale={locale}
+          dict={dict}
+          showcase={showcase}
+          copy={caseOnCopy[locale]}
+          project={current}
+          next={next}
+        />
+      </article>
+    )
+  }
+
+  return <MediaPage project={project} locale={locale} />
+}
+
+/**
+ * The project page before its case study: header, the live site when there is one, the
+ * real cover, and the project's media in order with short captions. המחלבה keeps it until
+ * its case study (Phase 5B).
+ */
+function MediaPage({ project, locale }: { project: PublicProject; locale: Locale }) {
   const dict = getDictionary(locale)
   const years = formatYears(project.years, dict)
   const showcase = showcaseCopy[locale]

@@ -57,6 +57,28 @@ export interface PendingMedia {
 
 export type Media = ImageMedia | VideoMedia | PendingMedia
 
+/**
+ * A region of a real, approved image shown at its own ratio: a detail of a screen or a
+ * mark examined up close. Never a new asset: the browser loads the same source as every
+ * other use of it, and the region is applied in the frame (src/components/case-study/Crop).
+ */
+export interface ImageCrop {
+  kind: 'crop'
+  src: StaticImageData
+  /** In source pixels, from the image's top-left corner (images are not mirrored in RTL). */
+  region: CropRegion
+  /** A different region of the same source for phones (art direction without a new file). */
+  mobile?: CropRegion
+  alt: Localized
+}
+
+export interface CropRegion {
+  x: number
+  y: number
+  width: number
+  height: number
+}
+
 /* ------------------------------------------------------------------ */
 /* Themes                                                              */
 /* ------------------------------------------------------------------ */

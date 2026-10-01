@@ -1,5 +1,6 @@
 import AxeBuilder from '@axe-core/playwright'
 import { expect, test } from '@playwright/test'
+import { openRendered } from '../support/navigation'
 
 const pages = [
   '/en',
@@ -18,24 +19,26 @@ test.describe('locale routing', () => {
   }) => {
     for (const locale of ['en-US', 'he-IL', 'fr-FR']) {
       const context = await browser.newContext({ locale })
+      try {
+        // The server answers / with a redirect and no document: nothing renders in English first.
+        const direct = await context.request.get('/', { maxRedirects: 0 })
+        expect(direct.status()).toBe(307)
+        expect(new URL(direct.headers()['location']!, 'http://x').pathname).toBe('/he')
+        expect(direct.headers()['vary']).toContain('Cookie')
 
-      // The server answers / with a redirect and no document: nothing renders in English first.
-      const direct = await context.request.get('/', { maxRedirects: 0 })
-      expect(direct.status()).toBe(307)
-      expect(new URL(direct.headers()['location']!, 'http://x').pathname).toBe('/he')
-      expect(direct.headers()['vary']).toContain('Cookie')
+        const page = await context.newPage()
+        const response = await page.goto('/')
+        await expect(page).toHaveURL(/\/he$/)
+        expect(response?.status()).toBe(200)
+        expect(response?.request().redirectedFrom()?.redirectedFrom()).toBeNull()
+        await expect(page.locator('html')).toHaveAttribute('lang', 'he')
+        await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
 
-      const page = await context.newPage()
-      const response = await page.goto('/')
-      await expect(page).toHaveURL(/\/he$/)
-      expect(response?.status()).toBe(200)
-      expect(response?.request().redirectedFrom()?.redirectedFrom()).toBeNull()
-      await expect(page.locator('html')).toHaveAttribute('lang', 'he')
-      await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
-
-      await page.goto('/work/on')
-      await expect(page).toHaveURL(/\/he\/work\/on$/)
-      await context.close()
+        await page.goto('/work/on')
+        await expect(page).toHaveURL(/\/he\/work\/on$/)
+      } finally {
+        await context.close()
+      }
     }
   })
 
@@ -65,15 +68,18 @@ test.describe('locale routing', () => {
 
   test('an explicit locale cookie wins over the Hebrew default', async ({ browser }) => {
     const context = await browser.newContext({ locale: 'he-IL' })
-    await context.addCookies([
-      { name: 'NEXT_LOCALE', value: 'en', url: test.info().project.use.baseURL! },
-    ])
-    const page = await context.newPage()
-    await page.goto('/')
-    await expect(page).toHaveURL(/\/en$/)
-    await page.goto('/work/mi-ma-mo')
-    await expect(page).toHaveURL(/\/en\/work\/mi-ma-mo$/)
-    await context.close()
+    try {
+      await context.addCookies([
+        { name: 'NEXT_LOCALE', value: 'en', url: test.info().project.use.baseURL! },
+      ])
+      const page = await context.newPage()
+      await page.goto('/')
+      await expect(page).toHaveURL(/\/en$/)
+      await page.goto('/work/mi-ma-mo')
+      await expect(page).toHaveURL(/\/en\/work\/mi-ma-mo$/)
+    } finally {
+      await context.close()
+    }
   })
 
   test('switching language works both ways and is remembered for /', async ({ page }) => {
@@ -244,20 +250,26 @@ test.describe('accessibility foundation', () => {
 
   test('content is visible without JavaScript', async ({ browser }) => {
     const context = await browser.newContext({ javaScriptEnabled: false })
-    const page = await context.newPage()
-    await page.goto('/en')
-    await expect(page.getByRole('heading', { name: 'Selected Work' })).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'ON', exact: true, level: 3 })).toBeVisible()
-    await context.close()
+    try {
+      const page = await context.newPage()
+      await openRendered(page, '/en')
+      await expect(page.getByRole('heading', { name: 'Selected Work' })).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'ON', exact: true, level: 3 })).toBeVisible()
+    } finally {
+      await context.close()
+    }
   })
 
   test('reduced motion keeps all content visible', async ({ browser }) => {
     const context = await browser.newContext({ reducedMotion: 'reduce' })
-    const page = await context.newPage()
-    await page.goto('/he')
-    await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
-    await expect(page.locator('[data-reveal]:not([data-revealed])')).toHaveCount(0)
-    await context.close()
+    try {
+      const page = await context.newPage()
+      await page.goto('/he')
+      await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+      await expect(page.locator('[data-reveal]:not([data-revealed])')).toHaveCount(0)
+    } finally {
+      await context.close()
+    }
   })
 })
 

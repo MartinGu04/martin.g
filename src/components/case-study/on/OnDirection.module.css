@@ -1,0 +1,185 @@
+@layer components {
+  .scene {
+    --scene-pad-start: var(--section-space-sm);
+  }
+
+  /*
+   * An editorial spread, not a component sheet: plates of different sizes and weights on
+   * the cream page, each with its name and one line. Phones: one plate after another.
+   */
+  .grid {
+    row-gap: var(--space-8);
+    align-items: start;
+  }
+
+  .heading,
+  .intro {
+    grid-column: 1 / -1;
+  }
+
+  .intro {
+    max-inline-size: var(--measure-text);
+    margin-block-start: calc(var(--space-6) * -1);
+  }
+
+  .grid figure {
+    margin: 0;
+    min-inline-size: 0;
+  }
+
+  .monogram,
+  .palette,
+  .type,
+  .photo,
+  .arch {
+    grid-column: 1 / -1;
+  }
+
+  .plateLabel {
+    display: grid;
+    gap: var(--space-1);
+    margin-block-start: var(--space-4);
+    padding-block-start: var(--space-3);
+    border-block-start: var(--hairline) solid var(--line);
+  }
+
+  .plateName {
+    color: var(--accent);
+  }
+
+  /* The monogram on the wine it lives on: a deep plate with generous margins. */
+  .monogramPlate {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 4 / 3;
+    padding: 14%;
+    background:
+      radial-gradient(
+        70% 60% at 50% 40%,
+        color-mix(in srgb, var(--light) 9%, transparent),
+        transparent 70%
+      ),
+      var(--surface-0);
+    box-shadow: 0 2rem 3rem -2rem color-mix(in srgb, var(--shade) 60%, transparent);
+  }
+
+  .monogramPlate > * {
+    inline-size: 100%;
+  }
+
+  .swatches {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-5) var(--gutter);
+    margin: 0;
+    padding: 0;
+  }
+
+  .swatch {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .chip {
+    display: block;
+    aspect-ratio: 3 / 2;
+    background: var(--chip);
+    box-shadow: inset 0 0 0 var(--hairline) var(--line);
+  }
+
+  .hex {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Type as the site sets it: the serif question large, the signature beside it. */
+  .typeSet {
+    display: grid;
+    gap: var(--gutter);
+    align-items: end;
+  }
+
+  .lockup {
+    inline-size: min(100%, 16rem);
+  }
+
+  .arch {
+    max-inline-size: 26rem;
+  }
+
+  @media (width >= 48rem) {
+    .monogram {
+      grid-column: 1 / span 5;
+    }
+
+    .palette {
+      grid-column: 6 / -1;
+    }
+
+    .swatches {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .typeSet {
+      grid-template-columns: minmax(0, 3fr) minmax(0, 1fr);
+    }
+
+    .lockup {
+      inline-size: 100%;
+    }
+
+    .photo {
+      grid-column: 1 / span 4;
+    }
+
+    .arch {
+      grid-column: 5 / -1;
+      justify-self: end;
+      inline-size: 80%;
+      margin-block-start: var(--space-9);
+    }
+  }
+
+  @media (width >= 75rem) {
+    .heading {
+      grid-column: 1 / span 9;
+    }
+
+    .intro {
+      grid-column: 1 / span 6;
+    }
+
+    .monogram {
+      grid-column: 1 / span 7;
+    }
+
+    .palette {
+      grid-column: 9 / -1;
+      align-self: center;
+    }
+
+    .swatches {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .type {
+      grid-column: 1 / -1;
+    }
+
+    .typeSet {
+      grid-template-columns: minmax(0, 8fr) minmax(0, 3fr);
+      column-gap: calc(var(--gutter) * 3);
+    }
+
+    .photo {
+      grid-column: 2 / span 5;
+    }
+
+    .arch {
+      grid-column: 8 / span 4;
+      justify-self: stretch;
+      inline-size: auto;
+      max-inline-size: none;
+      margin-block-start: var(--space-10);
+    }
+  }
+}

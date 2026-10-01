@@ -1,0 +1,43 @@
+@layer components {
+  .progress {
+    display: none;
+  }
+
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: scroll()) {
+      .progress {
+        position: fixed;
+        z-index: calc(var(--z-header) + 1);
+        inset-block-start: calc(var(--header-block-size) - 2px);
+        inset-inline: 0;
+        display: block;
+        block-size: 2px;
+        background: var(--progress-color);
+        transform-origin: left center;
+        pointer-events: none;
+        animation: reading-progress linear both;
+        animation-timeline: scroll(root block);
+      }
+
+      :dir(rtl).progress {
+        transform-origin: right center;
+      }
+    }
+  }
+
+  @keyframes reading-progress {
+    from {
+      scale: 0 1;
+    }
+
+    to {
+      scale: 1 1;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .progress {
+      display: none;
+    }
+  }
+}

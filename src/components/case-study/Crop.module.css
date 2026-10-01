@@ -1,0 +1,63 @@
+@layer components {
+  /* The region's ratio, physical left-to-right placement (the source is never mirrored). */
+  .frame {
+    position: relative;
+    direction: ltr;
+    inline-size: 100%;
+    aspect-ratio: var(--crop-ratio-sm);
+    overflow: clip;
+    background: var(--surface-1);
+    box-shadow: inset 0 0 0 var(--hairline) var(--line);
+  }
+
+  .frame[data-ground='none'] {
+    background: none;
+    box-shadow: none;
+  }
+
+  /* The lens is the frame's own box, so a closer look scales around the detail's center. */
+  .lens {
+    position: absolute;
+    inset: 0;
+    transition: scale var(--dur-cinematic) var(--ease-out);
+  }
+
+  .image {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    inline-size: calc(var(--crop-scale-sm) * 100%);
+    max-inline-size: none;
+    block-size: auto;
+    translate: var(--crop-x-sm) var(--crop-y-sm);
+    user-select: none;
+  }
+
+  /* From tablets up, the main region (phones may frame another part of the source). */
+  @media (width >= 48rem) {
+    .frame {
+      aspect-ratio: var(--crop-ratio);
+    }
+
+    .image {
+      inline-size: calc(var(--crop-scale) * 100%);
+      translate: var(--crop-x) var(--crop-y);
+    }
+  }
+
+  /* Examining craft: a fine pointer leans in a little. Decorative; nothing depends on it. */
+  @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    .frame:hover .lens {
+      scale: 1.05;
+    }
+  }
+
+  .figure {
+    margin: 0;
+  }
+
+  .caption {
+    margin-block-start: var(--space-3);
+    max-inline-size: var(--measure-text);
+  }
+}

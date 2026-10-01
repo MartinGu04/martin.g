@@ -4,6 +4,7 @@ import { dictionaries } from './dictionaries'
 import { notFoundReview } from './dictionaries/not-found'
 import { homeReview } from './dictionaries/home'
 import { showcaseReview } from './dictionaries/showcase'
+import { caseOnReview } from './dictionaries/case-on'
 import { getAllProjectsForChecks } from '@/content/registry'
 
 /** Lists every piece of copy still marked 'draft'. */
@@ -14,6 +15,7 @@ export function findDraftCopy(): string[] {
     if (notFoundReview[locale] === 'draft') drafts.push(`not-found:${locale}`)
     if (homeReview[locale] === 'draft') drafts.push(`home:${locale}`)
     if (showcaseReview[locale] === 'draft') drafts.push(`showcase:${locale}`)
+    if (caseOnReview[locale] === 'draft') drafts.push(`case-study:on:${locale}`)
   }
   for (const project of getAllProjectsForChecks()) {
     if (project.status !== 'published') continue

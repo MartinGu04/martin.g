@@ -1,0 +1,124 @@
+@layer components {
+  .grid {
+    row-gap: var(--heading-gap);
+  }
+
+  .heading,
+  .mosaic {
+    grid-column: 1 / -1;
+  }
+
+  /*
+   * A loupe sequence: one large detail and four small ones, each at the size its
+   * material allows. Phones: one after another, the small ones at their own width.
+   */
+  .mosaic {
+    display: grid;
+    gap: var(--space-8) var(--gutter);
+    margin: 0;
+    padding: 0;
+  }
+
+  .mosaic figure {
+    margin: 0;
+  }
+
+  .caption {
+    display: block;
+    margin-block-start: var(--space-3);
+    padding-block-start: var(--space-3);
+    border-block-start: var(--hairline) solid var(--line);
+    color: var(--text-muted);
+    max-inline-size: 24rem;
+  }
+
+  /* The ribbon on the wine it lives on. */
+  .plate {
+    padding: 8%;
+    background:
+      radial-gradient(
+        60% 60% at 55% 45%,
+        color-mix(in srgb, var(--light) 10%, transparent),
+        transparent 70%
+      ),
+      var(--surface-0);
+  }
+
+  /* A small source region: never drawn much larger than the site draws it. */
+  .numerals {
+    max-inline-size: 13rem;
+  }
+
+  .eyebrow {
+    max-inline-size: 22rem;
+  }
+
+  .pair {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--gutter);
+    max-inline-size: 26rem;
+  }
+
+  .mobileAction {
+    max-inline-size: 24rem;
+  }
+
+  @media (width >= 48rem) {
+    .mosaic {
+      grid-template-columns: repeat(8, minmax(0, 1fr));
+      align-items: end;
+    }
+
+    .ribbon {
+      grid-column: 1 / span 5;
+      grid-row: span 2;
+      align-self: start;
+    }
+
+    .numerals,
+    .eyebrow {
+      grid-column: 6 / -1;
+    }
+
+    .actions {
+      grid-column: 1 / span 4;
+    }
+
+    .mobileAction {
+      grid-column: 5 / -1;
+    }
+  }
+
+  @media (width >= 75rem) {
+    .heading {
+      grid-column: 1 / span 8;
+    }
+
+    .mosaic {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      row-gap: var(--space-9);
+    }
+
+    .ribbon {
+      grid-column: 1 / span 7;
+    }
+
+    .numerals {
+      grid-column: 9 / span 3;
+      align-self: start;
+    }
+
+    .eyebrow {
+      grid-column: 9 / span 4;
+    }
+
+    .actions {
+      grid-column: 2 / span 5;
+    }
+
+    .mobileAction {
+      grid-column: 8 / span 4;
+    }
+  }
+}

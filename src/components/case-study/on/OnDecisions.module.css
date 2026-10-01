@@ -1,0 +1,100 @@
+@layer components {
+  .grid {
+    row-gap: var(--heading-gap);
+  }
+
+  .heading,
+  .list {
+    grid-column: 1 / -1;
+  }
+
+  .list {
+    margin: 0;
+    padding: 0;
+  }
+
+  /* One decision per row, separated by a hairline: number, reasoning, evidence. */
+  .item {
+    display: grid;
+    gap: var(--space-4) var(--gutter);
+    padding-block: var(--space-7);
+    border-block-start: var(--hairline) solid var(--line);
+  }
+
+  .item:last-child {
+    border-block-end: var(--hairline) solid var(--line);
+  }
+
+  .number {
+    color: var(--accent);
+  }
+
+  .reasoning {
+    display: grid;
+    gap: var(--space-3);
+    max-inline-size: 34rem;
+  }
+
+  .reasoning h3 {
+    margin: 0;
+  }
+
+  .evidence {
+    display: grid;
+    gap: var(--space-4);
+    min-inline-size: 0;
+    margin-block-start: var(--space-3);
+  }
+
+  /* The site's own words, in its bordeaux. */
+  .quote {
+    margin: 0;
+    padding-inline-start: var(--space-5);
+    border-inline-start: 2px solid var(--accent);
+  }
+
+  .quote > p:first-child {
+    margin: 0;
+    color: var(--accent);
+  }
+
+  .quote > p + p {
+    margin-block-start: var(--space-2);
+  }
+
+  /* Details are shown at about the size the site draws them, never blown up. */
+  .crop {
+    max-inline-size: 30rem;
+    box-shadow: 0 1.5rem 2.5rem -1.75rem color-mix(in srgb, var(--shade) 55%, transparent);
+  }
+
+  .item[data-wide] .crop {
+    max-inline-size: none;
+  }
+
+  @media (width >= 75rem) {
+    .item {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      align-items: start;
+    }
+
+    .number {
+      grid-column: 1 / span 1;
+      padding-block-start: 0.35em;
+    }
+
+    .reasoning {
+      grid-column: 2 / span 5;
+    }
+
+    .evidence {
+      grid-column: 8 / -1;
+      margin-block-start: 0;
+    }
+
+    .item[data-wide] .evidence {
+      grid-column: 2 / -1;
+      margin-block-start: var(--space-5);
+    }
+  }
+}

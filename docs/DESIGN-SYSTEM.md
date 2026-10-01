@@ -213,12 +213,13 @@ server-rendered: the first paint already shows the right world.
 | World    | Character                                                    | Status     |
 | -------- | ------------------------------------------------------------ | ---------- |
 | MARTIN.G | cinematic dark, warm key light, grain, depth type            | production |
-| ON       | cream, bordeaux, olive, warm black; photography; paper; soft | homepage   |
+| ON       | cream, bordeaux, olive, warm black; photography; paper; soft | production |
 | המחלבה   | darker, cooler, structured; drawn grid, dots, marks, real UI | homepage   |
 | Defense  | gunmetal archive, one cold accent; generated system diagrams | production |
 
-ON uses its real brand values (sampled from the live site); the המחלבה world keeps its
-technical register; they are not attached to content yet. Industrial
+ON uses its real brand values (sampled from the live site), in three registers: cream
+(`on`), wine (`onBordeaux`) and the near-black screening room of its case study's film
+(`onNight`); the המחלבה world keeps its technical register. Industrial
 detail (visible grid, dots, marks, data fragments, technical motion) belongs to the
 mi-ma-mo world, not to the MARTIN.G identity. Defense Systems (the confidential work) never
 uses classified, warning, clearance or dossier language or styling.

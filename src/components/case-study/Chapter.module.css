@@ -1,0 +1,27 @@
+@layer components {
+  .heading {
+    display: grid;
+    justify-items: start;
+    gap: var(--space-5);
+    margin: 0;
+  }
+
+  .marker {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    color: var(--accent);
+  }
+
+  .rule {
+    inline-size: var(--space-7);
+    block-size: var(--hairline);
+    background: currentColor;
+  }
+
+  .statement {
+    display: block;
+    max-inline-size: var(--measure-heading);
+    text-wrap: balance;
+  }
+}

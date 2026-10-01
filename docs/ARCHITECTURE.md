@@ -25,7 +25,8 @@ src/
   i18n/                    config, negotiation, dictionaries, release gate
   content/                 schema, registry (server-only), resolve (view models), projects/
   components/              brand, layout (grid, rule, header, footer), nav, type, theme, media,
-                           motion, project, hero
+                           motion, project, home, scene, case-study (shared primitives and
+                           one composition per case study, e.g. case-study/on)
   fonts/                   self-hosted OFL fonts and licenses
   lib/                     site URL and metadata helpers, CSS var typing
   styles/                  layers, tokens, fonts, reset, base, typography, layout, motion
@@ -81,11 +82,20 @@ changing case-study components. Images can be art directed per tier (`art`) and 
 URL approved for visitors (ON has one; המחלבה deliberately has none).
 
 Project media lives in `src/assets/` (sanitized, metadata-free sources) and is referenced
-from each project module. Until the Phase 5 block renderer, project pages render only the
-`media` and `sequence` blocks of a story (`ProjectMedia`); any other block fails the build.
-Alt text, captions and player labels written in Phase 4 live in
-`src/i18n/dictionaries/showcase.ts`, marked `draft` until Martin approves them, so the
-release gate refuses a Vercel production build until then.
+from each project module. Alt text, captions and player labels written in Phase 4 live in
+`src/i18n/dictionaries/showcase.ts` (approved).
+
+**Case studies (Phase 5).** A case study is a composition, not a block template: each world
+tells its story its own way, from shared primitives in `src/components/case-study/`
+(`ChapterHeading`, `ChapterIndex`, `Crop`, `ReadingProgress`, `NextProject`) and the scene
+grammar. `src/app/[locale]/work/[slug]/page.tsx` renders the composed case study when a
+project has one (ON since 5A) and the Phase 4 media page otherwise (המחלבה until 5B, through
+`ProjectMedia`, which still accepts only `media` and `sequence` blocks). A project with a
+composed case study carries no generic `story` blocks. Details of real images are
+`ImageCrop`s: a region of an existing approved asset (optionally another region for phones),
+never a new file. Case-study copy lives in its own dictionary (`case-on.ts`) with its own
+review state; it is written as `draft` and stays draft until Martin approves it, so the
+release gate refuses a Vercel production build meanwhile. See docs/CASE-STUDIES.md.
 
 ## Contact (Phase 6, not built)
 
@@ -122,9 +132,9 @@ destination exists (Phase 6); no placeholder or dead links.
 
 - Phase 0: Decisions (done)
 - Phase 1: Foundation (done)
-- Phase 2: Design system (this)
-- Phase 3: Content engine
-- Phase 4: Hero and home choreography
-- Phase 5: ON case study
+- Phase 2: Design system (done)
+- Phase 3: Content engine (done)
+- Phase 4: Hero, home choreography and real projects (done)
+- Phase 5: Case studies (5A ON: copy approved, in PR; 5B המחלבה next)
 - Phase 6: Contact
 - Phase 7: Launch hardening
