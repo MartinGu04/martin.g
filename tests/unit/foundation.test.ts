@@ -68,11 +68,11 @@ describe('metadata', () => {
 describe('release gate', () => {
   afterEach(() => vi.unstubAllEnvs())
 
-  it('finds only the ON case study awaiting review', () => {
-    // The Phase 4 showcase copy is approved in both locales. The Phase 5A case study copy
-    // is draft until Martin reviews it, so a Vercel production build refuses it; any other
-    // dictionary marked 'draft' again would appear here too.
-    expect(findDraftCopy()).toEqual(['case-study:on:en', 'case-study:on:he'])
+  it('finds no copy awaiting review', () => {
+    // The Phase 4 showcase copy and the Phase 5A ON case study copy are approved in both
+    // locales; any dictionary marked 'draft' again would appear here and block a Vercel
+    // production build.
+    expect(findDraftCopy()).toEqual([])
   })
 
   it('refuses synthetic draft copy in Vercel production builds only', () => {

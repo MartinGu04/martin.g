@@ -2,17 +2,16 @@ import type { Localized, ReviewStatus } from '../config'
 
 /**
  * The ON case study (Phase 5A): chapter copy, decisions, labels, metadata and the
- * alternative text of every detail. Written for Martin's review in both locales and NOT
- * approved yet: while either locale is 'draft' a Vercel production build refuses it
- * (src/i18n/release-gate.ts); preview and local builds are unaffected.
+ * alternative text of every detail. Approved by Martin in both locales. Marking either
+ * locale 'draft' again makes a Vercel production build refuse it (src/i18n/release-gate.ts).
  *
  * Everything here describes what the real material shows: the live site's own words are
  * quoted, the format is the one the site states, and nothing is claimed as a result that
  * is not objectively true (the site is live, on desktop and mobile).
  */
 export const caseOnReview: Localized<ReviewStatus> = {
-  en: 'draft',
-  he: 'draft',
+  en: 'approved',
+  he: 'approved',
 }
 
 export type OnChapterKey =

@@ -22,9 +22,9 @@ study. Copy: one dictionary per case study, `draft` until Martin approves it.
 Exploration is deliberately light: chapter index, numbered chapter markers, a reading
 hairline. No scroll locking, no pinned choreography, no carousel.
 
-## ON (Phase 5A, in review)
+## ON (Phase 5A, copy approved)
 
-Route `/[locale]/work/on`. Copy `src/i18n/dictionaries/case-on.ts` (draft, both locales).
+Route `/[locale]/work/on`. Copy `src/i18n/dictionaries/case-on.ts` (approved by Martin, both locales).
 Media: the approved ON assets only (`src/content/projects/on.ts`), plus `onCrops`, regions of
 those same files.
 
@@ -63,10 +63,7 @@ Rules specific to ON:
   no autoplay, nothing before hydration.
 - **Live site.** Linked in the opening and in the result; new tab, no opener or referrer.
 
-### Open for Martin's review
+### Could strengthen it later
 
-- All copy in `case-on.ts` (both locales), including the English renderings of the site's
-  Hebrew lines and the names given to the palette.
-- Whether the site's navigation labels (including the house's name) should be quoted.
 - Material that would strengthen the case study if supplied: the application questionnaire,
   the schedule and winery sections, any process sketches, and measurable results.

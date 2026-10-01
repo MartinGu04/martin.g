@@ -20,9 +20,9 @@ function leaves(value: unknown): string[] {
 }
 
 describe('ON case study copy', () => {
-  it('is draft until Martin reviews it', () => {
-    // New Phase 5 copy never ships as approved by default; the release gate holds it.
-    expect(caseOnReview).toEqual({ en: 'draft', he: 'draft' })
+  it('is approved in both locales', () => {
+    // Approved by Martin after review; the release gate refuses it again if marked draft.
+    expect(caseOnReview).toEqual({ en: 'approved', he: 'approved' })
   })
 
   it('has the same structure in both locales, apart from the translated quote', () => {
