@@ -324,7 +324,8 @@ test.describe('one story, many worlds', () => {
     test.skip(isMobile, 'pointer exploration needs a fine pointer')
     await page.goto('/en')
     const scene = page.locator('[aria-labelledby="process-title"]')
-    await scene.evaluate((el) => el.scrollIntoView())
+    // Instant: the site scrolls smoothly, and a pointer placed mid-scroll ends up elsewhere.
+    await scene.evaluate((el) => el.scrollIntoView({ behavior: 'instant' }))
     const current = () =>
       scene
         .locator('[aria-hidden="true"] .t-display')
@@ -462,7 +463,7 @@ test.describe('exploration and polish', () => {
       await expect(cover).toBeHidden()
       return
     }
-    await scene.evaluate((el) => el.scrollIntoView())
+    await scene.evaluate((el) => el.scrollIntoView({ behavior: 'instant' }))
     await cover.hover()
     await expect(cover.getByText('Explore project')).toHaveCSS('opacity', '1')
   })
