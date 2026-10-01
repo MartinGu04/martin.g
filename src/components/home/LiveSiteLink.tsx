@@ -23,7 +23,7 @@ export function LiveSiteLink({ href, label, title, newTab, className }: LiveSite
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className={[`t-label ${styles.link}`, className].filter(Boolean).join(' ')}
+      className={[`t-action ${styles.link}`, className].filter(Boolean).join(' ')}
     >
       <span className={styles.text}>{label}</span>
       <span className="visually-hidden">

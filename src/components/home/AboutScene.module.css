@@ -1,6 +1,6 @@
 @layer components {
   .scene {
-    --scene-pad-start: var(--section-space);
+    --scene-pad-start: var(--section-space-sm);
     --scene-pad-end: var(--section-space-sm);
   }
 
@@ -8,69 +8,79 @@
     row-gap: var(--space-6);
   }
 
-  /* Phones: a square portrait first, then the name, the role and the lines. */
-  .name {
+  .eyebrow {
     grid-column: 1 / -1;
-    margin-block-start: var(--space-7);
   }
 
-  .role {
+  /* Phones: who (name, role), the portrait, then the statement. */
+  .identity,
+  .portrait,
+  .statement {
     grid-column: 1 / -1;
+  }
+
+  .identity {
+    display: grid;
+    gap: var(--space-2);
   }
 
   .portrait {
-    grid-column: 1 / -1;
-    max-inline-size: 22rem;
+    max-inline-size: 26rem;
+  }
+
+  .statement {
+    display: grid;
+    gap: var(--space-5);
     margin-block-start: var(--space-4);
   }
 
-  .lines {
-    grid-column: 1 / -1;
-    display: grid;
-    gap: var(--space-6);
-    margin-block-start: var(--space-6);
+  .quote {
+    max-inline-size: 14em;
   }
 
-  .lines > p {
-    max-inline-size: 18em;
+  .support {
+    max-inline-size: 30em;
   }
 
-  /* Tablet and up: the portrait as a print at the inline start, the text beside it. */
+  /* Tablet and up: the portrait as a print at the inline start; the name sits at its
+     top edge and the statement below it, on the same column. */
   @media (width >= 48rem) {
     .portrait {
-      grid-column: 1 / span 3;
-      grid-row: 2 / span 3;
+      grid-column: 1 / span 4;
+      grid-row: 3 / span 2;
       align-self: start;
       max-inline-size: none;
+    }
+
+    .identity,
+    .statement {
+      grid-column: 5 / -1;
+    }
+
+    .identity {
+      grid-row: 3;
+      align-self: start;
+    }
+
+    .statement {
+      grid-row: 4;
+      align-self: end;
       margin-block-start: var(--space-7);
-    }
-
-    .name,
-    .role,
-    .lines {
-      grid-column: 4 / -1;
-    }
-
-    .lines {
-      margin-block-start: var(--space-4);
     }
   }
 
   @media (width >= 75rem) {
     .portrait {
-      grid-column: 1 / span 4;
+      grid-column: 1 / span 5;
+      max-inline-size: 32rem;
     }
 
-    .name {
-      grid-column: 6 / -1;
+    .identity {
+      grid-column: 7 / -1;
     }
 
-    .role {
-      grid-column: 6 / span 4;
-    }
-
-    .lines {
-      grid-column: 6 / span 6;
+    .statement {
+      grid-column: 7 / span 5;
     }
   }
 }

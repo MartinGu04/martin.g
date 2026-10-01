@@ -1,4 +1,4 @@
-# Homepage choreography (Phase 3; real media in Phase 4; vitality pass in 4.5)
+# Homepage choreography (Phase 3; real media in Phase 4; vitality in 4.5; continuity in 4.6)
 
 The homepage is one continuous sequence of scenes, `scene → scene → scene`, held together by
 the MARTIN.G grammar (docs/DESIGN-SYSTEM.md). Scrolling is always native: every movement is
@@ -9,6 +9,12 @@ Lenis or Motion.
 Composition: `src/app/[locale]/page.tsx`; scenes: `src/components/home/`.
 
 ## Principles
+
+- **One story, many worlds.** Martin identifies problems; ON shows the human, brand and
+  experience side; המחלבה the operational product; Defense Systems complex systems that
+  cannot be fully shown; How I Work the thinking; Capabilities the disciplines; About the
+  person; Contact the invitation. A thread carries each world's color into the next (see
+  The thread) so the page reads as one builder moving between worlds.
 
 - **Identity, proposition, proof, quickly.** Within the first viewport and about two seconds:
   MARTIN.G, Martin Gusin, Product Builder, the positioning and the principle. The work
@@ -35,7 +41,7 @@ Composition: `src/app/[locale]/page.tsx`; scenes: `src/components/home/`.
 | 03  | ON (`OnWorld`)                        | warm, intimate  | cream, bordeaux, gold  | soft wipe |           |
 | 04  | המחלבה (`MiMaMoWorld`)                | technical peak  | midnight, green, amber | split     | split     |
 | 05  | Defense Systems (`ConfidentialScene`) | controlled drop | gunmetal, steel        | cut       |           |
-| 06  | How I work (`ProcessStage`)           | rhythmic        | graphite, warm white   | dissolve  |           |
+| 06  | How I Work (`ProcessStage`)           | rhythmic        | graphite, warm white   | dissolve  |           |
 | 07  | Capabilities                          | calm, daylight  | bone, ink, warm accent | cut       |           |
 | 08  | About                                 | calm, warm      | warm brown, cream      | cut       |           |
 | 09  | Contact                               | strong close    | graphite, amber        | cut       |           |
@@ -44,9 +50,31 @@ The hero is one frame with three timed beats (about two seconds in all, masks th
 backwards only): the wordmark then Martin Gusin, Product Builder; the positioning; the
 principle. Nothing requires scrolling.
 
-Heights reduced in 4.5: How I work (from a viewport plus 140svh of sticky stage to its
+Heights reduced in 4.5: How I Work (from a viewport plus 140svh of sticky stage to its
 compact content), Contact (no longer a full frame), ON, Defense Systems, Capabilities and
 About (smaller padding), המחלבה (one product frame instead of a frame plus a strip).
+
+## The thread (4.6)
+
+One short hairline at the top of each scene (`<Thread>`, docs/DESIGN-SYSTEM.md), a gradient
+from the previous world's color to the arriving one, drawn in as the scene arrives:
+
+| Handoff                      | From → to                    |
+| ---------------------------- | ---------------------------- |
+| index → ON                   | warm white → ON gold         |
+| ON → המחלבה                  | ON gold → amber              |
+| המחלבה → Defense Systems     | amber → cold steel           |
+| Defense Systems → How I Work | cold steel → warm white      |
+| How I Work → Capabilities    | warm white → the bone accent |
+| Capabilities → About         | the bone accent → lamplight  |
+| About → Contact              | lamplight → amber, resolved  |
+
+In the index the first entry's rule already takes ON's gold, pulling toward the first
+project. Inside the worlds the thread is echoed in each world's own language: the process
+rule (a scan), the capability rail, the evidence rule under each capability. In Contact the
+thread resolves: it draws once, ends in an open square and stays still; only the word cycle
+beside it keeps moving. The hero's one ambient layer is its directional light, drifting
+very slowly (40s, alternate).
 
 ## Transitions (four, each with one meaning)
 
@@ -75,13 +103,14 @@ first frame.
 
 | Scene        | Loop                                                                                                         | Period          |
 | ------------ | ------------------------------------------------------------------------------------------------------------ | --------------- |
+| Hero         | the directional light drifts across the frame                                                                | 40s, alternate  |
 | ON           | the garden photograph drifts (scale 1.04 to 1.1, a slow pan)                                                 | 32s, alternate  |
 | ON           | the website print turns between its opening screen and its story section                                     | 14s (7s each)   |
 | המחלבה       | home, Team Week and the manager area take turns in one frame; the current label brightens and its rule fills | 15s (5s each)   |
 | Defense      | a soft scan crosses each diagram; pulses travel along paths                                                  | 11s / 13s; 7s   |
-| How I work   | the current step advances: list highlight, frame word and line, five-part rule                               | 16s (3.2s each) |
+| How I Work   | the current step advances: list highlight, frame word and line, five-part rule; a pointer takes over         | 16s (3.2s each) |
 | Capabilities | one rail of the capability names                                                                             | 120s            |
-| Contact      | an amber hairline draws and clears; product, system, experience take turns                                   | 9s; 10.5s       |
+| Contact      | product, system, experience take turns beside the resolved thread                                            | 10.5s           |
 | all scenes   | the atmosphere's haze drift (existing), now also paused offscreen in ambient scenes                          | 48s             |
 
 Crossfades lay the incoming view over the outgoing one, which stays opaque beneath it, so
@@ -93,40 +122,57 @@ the frame never dips. Nothing is a carousel: no controls, no swiping, no fast cu
   the hero. Registers (`src/content/worlds.ts`): lighter graphite with a restrained amber
   (index, contact), bone with a warm accent (capabilities), warm (about).
 - **ON**: the retreat. Cream, bordeaux, gold (the monogram), olive details, paper texture,
-  soft side light. The title is the real ON monogram. The retreat's own garden is the
-  dominant frame (3:2, a 4:5 crop on phones) and drifts slowly; the live website sits on a
-  bordeaux mat over its lower inline-start corner and turns between two real views; a small
-  print of a stop on the route (the patisserie) lies over its upper inline-end corner from
-  tablet up. Actions: `View project` (primary), `Visit live site` (secondary: muted,
-  underlined, a diagonal arrow, new tab, no opener or referrer). The client's preview film
-  stays on the project page: its burned-in PREVIEW watermarks would not suit a loop here.
+  soft side light. The title is the real ON monogram; the summary is a statement
+  (`t-statement`). Digital work first: the live website is the primary proof, large on a
+  bordeaux mat (about half the page on a desktop; its phone layout on phones), turning
+  between two real views. The retreat's garden is the atmosphere behind it (smaller, upper
+  inline end, drifting slowly), and a small print of the patisserie lies over its corner
+  from tablet up. The composition sits high in the frame. Actions: `View project`
+  (primary), `Visit live site` (secondary: muted, underlined, a diagonal arrow, new tab, no
+  opener or referrer). The client's preview film stays on the project page: its burned-in
+  PREVIEW watermarks would not suit a loop here.
 - **המחלבה** (id `mi-ma-mo`): midnight blue from the real interface, its operational green
-  and amber; drawn grid, dot field, registration marks. The title is one step below the
-  display peak; the product carries the scene: one large frame where three real sanitized
-  views take turns, labelled like technical annotations, and one phone. The interface reads
+  and amber; drawn grid, dot field, registration marks. The title is a project title (about
+  76px on a 1440px screen), sharing a header line with the statement, the action and the
+  note. The product carries the scene: one frame across ten of the twelve columns where
+  three real sanitized views take turns, labelled like technical annotations, and a phone
+  at a readable size (three columns, about 300px) over its quiet edge. The interface reads
   right to left, so its quiet side is always the physical left: the phone stands there in
-  both directions (inline start in English, inline end in Hebrew). Phones: no desktop
-  screen; the phone, then the few Team Week columns that stay legible. With reduced motion
-  or without scripting the three views are set out as a static grid. On exit its grid, dots
-  and marks fade and its accent drains (`--world-signal`, 1 to 0). No live-site link.
+  both directions (inline start in English, where the view labels start after it; inline
+  end in Hebrew). Phones: no desktop screen; the phone, then the few Team Week columns that
+  stay legible. With reduced motion or without scripting the three views are set out as a
+  static grid. On exit its grid, dots and marks fade and its accent drains
+  (`--world-signal`, 1 to 0). No live-site link.
 - **Defense Systems** (the confidential projects; `מערכות ביטחוניות`): operational systems
   built for a defense environment. Gunmetal and steel with one cold accent; one framed
   archive (a lighter inner surface, a hairline boundary, restrained corner marks), a
   technical header (title, rule, index range 03–04) and the truthful note that identifying
-  details and interfaces are withheld. Each project has a generated system diagram
-  (`SystemDiagram`): topology or data pathways with masked structural blocks, a slow scan
-  and travelling pulses. Abstract and recognisably so: no interface, labels, coordinates or
-  data. Never classified, warning, clearance or dossier language or styling; the page is
-  not access controlled and does not pretend to be. Sanitized summaries only.
-- **How I work**: graphite and warm white. The five steps are a compact ordered list; while
-  visible the process advances on its own and a frame beside the list (above it on phones)
-  shows the current word, its line and a five-part rule. Without motion: the list alone.
-- **Capabilities**: a clear headline and its claim, the six disciplines at a supporting
-  scale with their proof, and one very slow rail of the same names.
-- **About**: Martin's portrait (the full-resolution original, cropped and graded only) as one
-  quiet print at the inline start, 4:5 from tablet up, a closer square crop first on phones.
-- **Contact**: compact; the call to action unchanged, with one amber hairline and a slow word
-  cycle beside it.
+  details and interfaces are withheld (at body size since 4.6). Each project has a
+  generated system diagram (`SystemDiagram`): topology or data pathways with masked
+  structural blocks, a slow scan and travelling pulses. Abstract and recognisably so: no
+  interface, labels, coordinates or data. Never classified, warning, clearance or dossier
+  language or styling; the page is not access controlled and does not pretend to be.
+  Sanitized summaries only.
+- **How I Work** (`דרך העבודה`): graphite and warm white. A real section heading and its
+  thought (`How a problem becomes a product.` / `איך בעיה הופכת למוצר.`), then the five
+  steps as a compact ordered list; while visible the process advances on its own and a
+  frame beside the list (above it on phones) shows the current word (a heading size, not a
+  poster), its line and a five-part rule. A fine pointer over a step makes it current and
+  holds the clock; when the pointer leaves the clock continues where it was. Scroll does
+  not drive the steps: two clocks (scroll and time) on one list fight each other. Without
+  motion: the list alone.
+- **Capabilities**: a clear headline and its claim, one very slow rail of the names, then a
+  proof system: an editorial grid (three columns on a desktop) where each discipline is its
+  name, one sentence of what it means, and the real work that proves it, linked to that
+  work's scene on this page (`src/content/capabilities.ts`). Type and hairlines only: no
+  cards, no metrics.
+- **About**: a clear grid that reads in one pass: Martin Gusin, Product Builder, the
+  portrait as a large print (the full-resolution original, cropped and graded only; 4:5
+  from tablet up, a closer square crop on phones), and one authored statement: the quote
+  (`I don't start with a screen. I start with the problem.`) and the sentence that grounds
+  it. Not a biography, not a testimonial.
+- **Contact**: compact; the call to action unchanged. The thread resolves here, with a slow
+  word cycle beside it.
 
 The public name of the second project is המחלבה; its id, slug and code identifiers stay
 `mi-ma-mo`. Project names render through `<Name>`, which isolates Latin names left to right
@@ -180,11 +226,16 @@ the product's own interface is right to left. Project names and numerals stay is
 
 ## Copy
 
-The homepage copy (How I work, Capabilities, About, Contact) lives in
+The homepage copy (How I Work, Capabilities, About, Contact) lives in
 `src/i18n/dictionaries/home.ts` and is approved by Martin in both locales. It keeps its own
 review state: marking either locale `draft` again makes the release gate refuse a Vercel
 production build. Hebrew is a natural equivalent (infinitives and plural address rather
 than gendered first person), not a literal translation.
+
+The capability statements (4.6) live with the showcase copy (`src/i18n/dictionaries/showcase.ts`):
+English as Martin supplied it, Hebrew written for review, so that dictionary stays `draft`
+until Martin approves it. The process heading, its thought and the About quote and support
+line are Martin's own words in both locales.
 
 ## Real media (Phase 4)
 

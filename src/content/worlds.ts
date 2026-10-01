@@ -121,3 +121,18 @@ export const worlds = {
     atmosphere: { light: 'pool', grid: 'hidden', texture: 'grain', marks: false, vignette: true },
   },
 } as const satisfies Record<string, ProjectTheme>
+
+/**
+ * The thread's color in each world, in page order (src/components/scene/Thread.tsx): a
+ * scene's thread runs from the previous world's color to its own.
+ */
+export const thread = {
+  bridge: '#f5f3ee',
+  on: '#c39a5b',
+  miMaMo: '#ffac4f',
+  defense: '#7fb4cc',
+  process: '#f5f3ee',
+  capabilities: '#9a4a1e',
+  about: '#e6c8a5',
+  contact: '#d9a35b',
+} as const satisfies Record<string, `#${string}`>

@@ -74,11 +74,14 @@ The contrast is the point: the **wordmark is refined and elegant**; every displa
 | `t-heading-1`  | 32 to 76px           | 700 / 800      | 112%  | section and page titles     |
 | `t-heading-2`  | 24 to 52px           | 650 / 700      | 108%  | statements, sub-sections    |
 | `t-heading-3`  | 20 to 30px           | 600 / 700      | 104%  | item titles                 |
-| `t-lead`       | 18 to 24px           | 500            | 100%  | intros, project summaries   |
+| `t-statement`  | 22 to 30px           | 550 / 600      | 100%  | a scene's main statement    |
+| `t-lead`       | 18 to 24px           | 500            | 100%  | intros                      |
+| `t-body-l`     | 17 to 21px           | 400            | 100%  | important body text         |
+| `t-action`     | 16 to 18px           | 600            | 100%  | calls to action, CTAs       |
 | `t-body`       | 16 to 17px           | 400            | 100%  | running text                |
 | `t-small`      | 13 to 14px           | 400            | 100%  | captions, metadata          |
 | `t-label`      | 12px / HE 14px       | 600            | 112%  | eyebrows, nav, "01 / WORK"  |
-| `t-micro`      | 11px / HE 13px       | 600            | 112%  | annotations                 |
+| `t-micro`      | 12px / HE 13px       | 600            | 112%  | annotations                 |
 | `t-numeric`    | inherits             |                |       | tabular lining figures      |
 
 `t-hero` is sized per tier so the longest line runs nearly to the frame edge (it may enter
@@ -89,6 +92,12 @@ the longest line keeps a deliberate gap of about 1.7% of the viewport (21 to 27p
 four lines (English) or two (Hebrew) at near-viewport size. Body, small, label and micro
 sizes are rem-dominant so they scale fully with browser zoom; only display sizes lean on the
 viewport.
+
+Readability targets on a desktop (since 4.6), applied on phones at their own scale: project
+titles about 72 to 90px (a scene overrides `--display-size` for this), statements 24 to
+30px (`t-statement`), important body 18 to 21px (`t-body-l`), calls to action 16 to 18px
+(`t-action`), micro text 12 to 14px. Anything a visitor must read to understand the work
+uses one of the first four; `t-label` and `t-micro` are for orientation only.
 
 ## Grid and spacing
 
@@ -143,9 +152,15 @@ viewport.
 - `ambient` marks a scene whose continuous loops run only while it is on screen (motion.css,
   docs/HOMEPAGE.md, "Ambient loops").
 - Stages (a tall scene with a sticky frame on a named view timeline) are compositions, not a
-  primitive; the homepage no longer uses one (How I work advances on its own since 4.5).
+  primitive; the homepage no longer uses one (How I Work advances on its own since 4.5).
 - Atmosphere layers carry `data-layer` (`base`, `light`, `haze`, `grid`, `texture`,
   `vignette`, `marks`) so a composition can move or fade one layer on its own timeline.
+- `<Thread from to>` (since 4.6) is the visual handoff between scenes: a 2px hairline at a
+  scene's top, a gradient from the previous world's thread color to this one's
+  (`thread` in `src/content/worlds.ts`), with a small head in the arriving color. It draws
+  in from the inline start as its scene arrives (scroll-driven, static without motion,
+  hidden in forced colors) and is decorative. One per scene; the closing scene resolves it
+  (drawn once, an open square, still).
 
 `<DepthType>` adds foreground/background depth: oversized, cropped typography behind the
 content (`line` along the lower edge, panning on scroll; `index`, a huge numeral receding

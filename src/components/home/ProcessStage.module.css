@@ -1,7 +1,8 @@
 /*
- * How I work. Static first: a compact ordered list of five steps. Where motion is welcome,
- * a frame beside the list echoes the current step and the process advances on its own
- * (an ambient loop: five steps of 3.2 seconds, a 16 second cycle, only while visible).
+ * How I Work. Static first: a heading, its thought, and a compact ordered list of five
+ * steps. Where motion is welcome, a frame beside the list echoes the current step and the
+ * process advances on its own (an ambient loop: five steps of 3.2 seconds, a 16 second
+ * cycle, only while visible). A pointer over a step pauses the clock and shows that step.
  */
 @layer components {
   .stage {
@@ -14,8 +15,10 @@
     align-items: center;
   }
 
-  .heading {
+  .head {
     grid-column: 1 / -1;
+    display: grid;
+    gap: var(--space-3);
   }
 
   .steps {
@@ -41,6 +44,10 @@
     grid-row: 1 / span 2;
   }
 
+  .word {
+    transition: color var(--dur-micro) var(--ease-out);
+  }
+
   .line {
     max-inline-size: 30em;
   }
@@ -53,12 +60,12 @@
   @media (width >= 75rem) {
     .steps {
       grid-column: 1 / span 5;
-      grid-row: 2;
+      grid-row: 3;
     }
 
     .frame {
       grid-column: 7 / -1;
-      grid-row: 2;
+      grid-row: 3;
     }
   }
 
@@ -67,13 +74,13 @@
     :root:is([data-motion='pending'], [data-motion='on']) .frame {
       display: grid;
       grid-column: 1 / -1;
-      grid-row: 2;
+      grid-row: 3;
       gap: var(--space-6);
       align-content: center;
     }
 
     :root:is([data-motion='pending'], [data-motion='on']) .steps {
-      grid-row: 3;
+      grid-row: 4;
     }
 
     :root:is([data-motion='pending'], [data-motion='on']) .step {
@@ -85,11 +92,57 @@
   @media (scripting: enabled) and (prefers-reduced-motion: no-preference) and (width >= 75rem) {
     :root:is([data-motion='pending'], [data-motion='on']) .frame {
       grid-column: 7 / -1;
-      grid-row: 2;
+      grid-row: 3;
     }
 
     :root:is([data-motion='pending'], [data-motion='on']) .steps {
-      grid-row: 2;
+      grid-row: 3;
+    }
+  }
+
+  /*
+   * Exploring: a pointer over a step makes it current. Every part of the clock pauses in
+   * place (so it resumes in step when the pointer leaves) and important declarations,
+   * which outrank running animations, show the pointed step in the list, the frame and
+   * the rule.
+   */
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) {
+    .grid:has(.step:hover) :is(.step, .current) {
+      animation-play-state: paused;
+    }
+
+    .grid:has(.step:hover) .progress > i::after {
+      animation-play-state: paused;
+      transform: scaleX(0) !important;
+    }
+
+    .grid:has(.step:hover) .step {
+      color: var(--text-muted) !important;
+    }
+
+    .grid .step:hover {
+      color: var(--text) !important;
+    }
+
+    .grid:has(.step:hover) .current {
+      opacity: 0 !important;
+    }
+
+    .grid:has(.step:nth-child(1):hover) .current:nth-child(1),
+    .grid:has(.step:nth-child(2):hover) .current:nth-child(2),
+    .grid:has(.step:nth-child(3):hover) .current:nth-child(3),
+    .grid:has(.step:nth-child(4):hover) .current:nth-child(4),
+    .grid:has(.step:nth-child(5):hover) .current:nth-child(5) {
+      opacity: 1 !important;
+      transform: none !important;
+    }
+
+    .grid:has(.step:nth-child(1):hover) .progress > i:nth-child(-n + 1)::after,
+    .grid:has(.step:nth-child(2):hover) .progress > i:nth-child(-n + 2)::after,
+    .grid:has(.step:nth-child(3):hover) .progress > i:nth-child(-n + 3)::after,
+    .grid:has(.step:nth-child(4):hover) .progress > i:nth-child(-n + 4)::after,
+    .grid:has(.step:nth-child(5):hover) .progress > i:nth-child(-n + 5)::after {
+      transform: scaleX(1) !important;
     }
   }
 
@@ -108,8 +161,9 @@
     animation-delay: calc((var(--i) - 5) * 3.2s - 0.64s);
   }
 
+  /* Strong, not overpowering: a heading-sized word, not a poster. */
   .big {
-    --display-size: clamp(2.5rem, 1rem + 6vw, 6.5rem);
+    --display-size: clamp(2.25rem, 1.25rem + 3.6vw, 4.75rem);
   }
 
   .bigLine {

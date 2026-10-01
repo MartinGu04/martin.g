@@ -18,10 +18,19 @@ export type ProcessStepKey = 'understand' | 'define' | 'design' | 'build' | 'ref
 export interface HomeCopy {
   process: {
     title: string
+    /** The thought the section answers. */
+    lead: string
     steps: Readonly<Record<ProcessStepKey, { word: string; line: string }>>
   }
   capabilities: { title: string; lead: string }
-  about: { title: string; name: string; role: string; lines: readonly string[] }
+  about: {
+    title: string
+    name: string
+    role: string
+    /** Martin's own words: authored portfolio copy, not a testimonial. */
+    quote: string
+    support: string
+  }
   contact: { title: string; line: string }
 }
 
@@ -36,7 +45,8 @@ export const processOrder: readonly ProcessStepKey[] = [
 export const homeCopy: Localized<HomeCopy> = {
   en: {
     process: {
-      title: 'How I work',
+      title: 'How I Work',
+      lead: 'How a problem becomes a product.',
       steps: {
         understand: { word: 'Understand', line: 'Find the real problem before the first screen.' },
         define: { word: 'Define', line: 'Decide what is worth building, and what is not.' },
@@ -53,10 +63,9 @@ export const homeCopy: Localized<HomeCopy> = {
       title: 'About',
       name: 'Martin Gusin',
       role: 'Product Builder',
-      lines: [
-        'I find the problem worth solving, define the useful answer, and design and build the product end to end.',
-        'Strategy, design and engineering carried through as one process, so nothing gets lost along the way.',
-      ],
+      quote: 'I don’t start with a screen. I start with the problem.',
+      support:
+        'From there, I bring strategy, design and engineering together until it becomes a product that works.',
     },
     contact: {
       title: 'Have a problem worth solving?',
@@ -66,6 +75,7 @@ export const homeCopy: Localized<HomeCopy> = {
   he: {
     process: {
       title: 'דרך העבודה',
+      lead: 'איך בעיה הופכת למוצר.',
       steps: {
         understand: { word: 'להבין', line: 'למצוא את הבעיה האמיתית, לפני המסך הראשון.' },
         define: { word: 'להגדיר', line: 'להחליט מה שווה לבנות, ומה לא.' },
@@ -82,10 +92,8 @@ export const homeCopy: Localized<HomeCopy> = {
       title: 'אודות',
       name: 'Martin Gusin',
       role: 'בונה מוצרים',
-      lines: [
-        'לזהות את הבעיה ששווה לפתור, להגדיר את הפתרון הנכון, ולעצב ולבנות את המוצר מקצה לקצה.',
-        'אסטרטגיה, עיצוב והנדסה בתהליך אחד, כך ששום דבר לא הולך לאיבוד בדרך.',
-      ],
+      quote: 'אני לא מתחיל ממסך. אני מתחיל מהבעיה.',
+      support: 'משם אני מחבר אסטרטגיה, עיצוב והנדסה עד שזה הופך למוצר שעובד.',
     },
     contact: {
       title: 'יש בעיה ששווה לפתור?',

@@ -19,12 +19,14 @@ interface HeroSceneProps {
  *   beat 3  From problem to product. (the visual peak)
  * The beats are timed on arrival, not tied to scrolling, so nobody has to scroll to learn
  * whose site this is. Scrolling then moves straight on to the work. Without scripting or
- * with reduced motion everything is simply there.
+ * with reduced motion everything is simply there. One ambient layer only: the key light
+ * drifts very slowly across the frame, noticed after a few seconds, never demanding.
  */
 export function HeroScene({ dict, name, role }: HeroSceneProps) {
   return (
     <Scene
       size="frame"
+      ambient
       atmosphere={{ light: 'shaft', grid: 'light', texture: 'grain', marks: true }}
       aria-labelledby="hero-title"
       className={styles.hero}

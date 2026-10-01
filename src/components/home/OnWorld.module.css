@@ -1,14 +1,15 @@
 @layer components {
   /* A softer takeover than the grammar's default: the panel starts just inside the page
-     margins, so the change reads as a mood, not a slam. */
+     margins, so the change reads as a mood, not a slam. Weighted high in the frame. */
   .scene {
     --wipe-inset: var(--margin);
-    --scene-pad-start: var(--section-space-sm);
+    --scene-align: start;
+    --scene-pad-start: var(--space-7);
     --scene-pad-end: var(--section-space-sm);
   }
 
   .grid {
-    row-gap: var(--space-8);
+    row-gap: var(--space-7);
     align-items: center;
   }
 
@@ -38,7 +39,7 @@
   .mark {
     display: block;
     inline-size: auto;
-    block-size: clamp(3.25rem, 2.2rem + 4.4vw, 6.5rem);
+    block-size: clamp(3.25rem, 2.4rem + 3.4vw, 5.5rem);
   }
 
   /* A short olive rule: the detail color. */
@@ -51,8 +52,8 @@
   .summary {
     display: grid;
     justify-items: start;
-    gap: var(--space-5);
-    max-inline-size: 22em;
+    gap: var(--space-6);
+    max-inline-size: 17em;
   }
 
   /* Primary, then secondary: one line where it fits, stacked where it does not. */
@@ -60,12 +61,13 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 0 var(--space-6);
+    gap: var(--space-2) var(--space-6);
   }
 
   /*
-   * The composition. Phones: the garden as one strong 4:5 photograph, the website's phone
-   * screen on the bordeaux mat below it, overlapping only the bottom of the print.
+   * The composition: the garden behind, the website in front and larger, the patisserie a
+   * small insert. Phones: the garden as a landscape band, the website's phone screen large
+   * over its lower edge.
    */
   .gallery {
     grid-column: 1 / -1;
@@ -73,36 +75,29 @@
     grid-template-columns: repeat(6, minmax(0, 1fr));
   }
 
-  .photoMain {
+  .atmosphere {
     --parallax-shift: 1.25rem;
     grid-column: 1 / -1;
     grid-row: 1;
   }
 
-  .photoDetail {
+  .detail {
     display: none;
   }
 
-  .photoSecond {
-    --parallax-shift: 2.5rem;
-    grid-column: 4 / -1;
+  .proof {
+    grid-column: 2 / span 4;
     grid-row: 2;
     z-index: 2;
-    margin-block-start: -36%;
-    margin-inline-end: var(--space-4);
+    margin-block-start: -28%;
     box-shadow: calc(-0.875rem * var(--dir)) 0.875rem 0 0 var(--accent);
   }
 
-  /* The website print shows its pages from the top. */
+  /* The website shows its pages from the top. */
   .print img {
     object-position: top;
   }
 
-  /*
-   * Tablet and desktop: three prints on an eight-column sub-grid. The garden dominant; the
-   * website on the bordeaux mat over its lower inline-start corner; a small print of a stop
-   * on the route laid over its upper inline-end corner, on a cream border like a print.
-   */
   @media (width >= 48rem) {
     .text {
       grid-column: 1 / span 6;
@@ -112,28 +107,32 @@
       grid-template-columns: repeat(8, minmax(0, 1fr));
     }
 
-    .photoMain {
-      grid-column: 2 / -1;
+    /* The garden: atmosphere, upper inline end. */
+    .atmosphere {
+      grid-column: 3 / -1;
+      grid-row: 1;
+      align-self: start;
     }
 
-    .photoDetail {
-      --parallax-shift: 3.5rem;
+    /* The website: the proof, large, over the garden's lower part. */
+    .proof {
+      grid-column: 1 / span 7;
+      grid-row: 1;
+      align-self: start;
+      margin-block-start: 20%;
+    }
+
+    /* The patisserie: a small insert over the garden's upper inline-end corner. */
+    .detail {
+      --parallax-shift: 3rem;
       display: block;
       grid-column: 7 / -1;
       grid-row: 1;
       align-self: start;
-      z-index: 1;
-      margin-block-start: -9%;
+      z-index: 3;
+      margin-block-start: -6%;
       margin-inline-end: calc(var(--space-5) * -1);
       box-shadow: 0 0 0 0.5rem var(--surface-0);
-    }
-
-    .photoSecond {
-      grid-column: 1 / span 4;
-      grid-row: 1;
-      align-self: end;
-      margin-block: 0 -12%;
-      margin-inline-end: 0;
     }
   }
 
@@ -147,20 +146,20 @@
     }
   }
 
-  /* Entering the world: the photograph develops into place (scale only, never hidden). */
+  /* Entering the world: the website develops into place (scale only, never hidden). */
   @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
     @supports (animation-timeline: view()) {
       .develop {
         animation: on-develop linear both;
         animation-timeline: view();
-        animation-range: entry 0% cover 45%;
+        animation-range: entry 0% cover 40%;
       }
     }
   }
 
   @keyframes on-develop {
     from {
-      scale: 1.07;
+      scale: 1.05;
     }
 
     to {

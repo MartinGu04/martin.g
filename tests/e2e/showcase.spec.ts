@@ -149,12 +149,13 @@ test.describe('real project showcase', () => {
   }) => {
     await page.goto('/en')
     await walk(page)
-    const stage = page.locator('#on picture img').first()
-    // The photograph drifts while visible, so it is never "stable": scroll its scene instead.
+    // ON's proof is its website: the phone layout on phones, the desktop page elsewhere.
+    const proof = page.locator('#on [data-fallback] picture img').first()
+    // The garden drifts while visible, so the scene is never "stable": scroll it instead.
     await page.locator('#on').evaluate((el) => el.scrollIntoView())
     await expect
-      .poll(() => stage.evaluate((img: HTMLImageElement) => img.currentSrc))
-      .toMatch(isMobile ? /venue-portrait/ : /venue\./)
+      .poll(() => proof.evaluate((img: HTMLImageElement) => img.currentSrc))
+      .toMatch(isMobile ? /site-mobile/ : /site-home/)
     const productFrame = page.locator('#mi-ma-mo [data-fallback]')
     if (isMobile) await expect(productFrame).toBeHidden()
     else await expect(productFrame).toBeVisible()
@@ -312,5 +313,87 @@ test.describe('ambient motion', () => {
     await expect(steps).toHaveCount(5)
     await expect(page.locator('#mi-ma-mo [data-fallback="grid"] img')).toHaveCount(3)
     await context.close()
+  })
+})
+
+test.describe('one story, many worlds', () => {
+  test('pointing at a step makes it current, and the clock continues after', async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, 'pointer exploration needs a fine pointer')
+    await page.goto('/en')
+    const scene = page.locator('[aria-labelledby="process-title"]')
+    await scene.evaluate((el) => el.scrollIntoView())
+    const current = () =>
+      scene
+        .locator('[aria-hidden="true"] .t-display')
+        .evaluateAll((words) =>
+          words.findIndex((w) => Number(getComputedStyle(w.parentElement!).opacity) > 0.5),
+        )
+    await scene.locator('ol > li').nth(3).hover()
+    await expect.poll(current).toBe(3)
+    await page.waitForTimeout(3600)
+    expect(await current()).toBe(3)
+    await page.mouse.move(0, 0)
+    const states = await scene.evaluate((el) =>
+      el.getAnimations({ subtree: true }).map((a) => a.playState),
+    )
+    expect(states).toContain('running')
+  })
+
+  test('each capability is a statement proven by work on the same page', async ({ page }) => {
+    for (const locale of ['en', 'he']) {
+      await page.goto(`/${locale}`)
+      const items = page.locator('[aria-labelledby="capabilities-title"] ul > li')
+      await expect(items).toHaveCount(6)
+      for (const item of await items.all()) {
+        await expect(item.getByRole('heading', { level: 3 })).toHaveCount(1)
+        await expect(item.locator('p.t-body-l')).not.toBeEmpty()
+        const links = item.getByRole('link')
+        expect(await links.count()).toBeGreaterThan(0)
+        for (const href of await links.evaluateAll((as) =>
+          as.map((a) => a.getAttribute('href')!),
+        )) {
+          expect(href).toMatch(/^#/)
+          await expect(page.locator(href)).toHaveCount(1)
+        }
+      }
+    }
+  })
+
+  test('the thread carries each world into the next and resolves at the end', async ({ page }) => {
+    await page.goto('/he')
+    for (const scene of [
+      '#on',
+      '#mi-ma-mo',
+      '#confidential',
+      '[aria-labelledby="process-title"]',
+      '[aria-labelledby="capabilities-title"]',
+      '[aria-labelledby="about-title"]',
+    ]) {
+      const threads = page.locator(`${scene} [class*="thread"][aria-hidden="true"]`)
+      await expect(threads, scene).toHaveCount(1)
+    }
+    // The closing line is drawn and still: no loop runs on it.
+    const close = page.locator('[aria-labelledby="contact-title"] [class*="draw"]')
+    await close.evaluate((el) => el.scrollIntoView())
+    const infinite = await close.evaluate(
+      (el) =>
+        el.getAnimations().filter((a) => a.effect?.getComputedTiming().iterations === Infinity)
+          .length,
+    )
+    expect(infinite).toBe(0)
+  })
+
+  test('About reads as name, role, portrait and one authored statement', async ({ page }) => {
+    await page.goto('/en')
+    const about = page.locator('[aria-labelledby="about-title"]')
+    await expect(about.getByText('Martin Gusin').first()).toBeVisible()
+    await expect(about.getByText('Product Builder')).toBeVisible()
+    await expect(about.locator('img')).toHaveCount(1)
+    await expect(
+      about.getByText('I don’t start with a screen. I start with the problem.'),
+    ).toBeVisible()
   })
 })

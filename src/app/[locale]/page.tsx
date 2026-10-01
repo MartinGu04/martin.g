@@ -3,7 +3,7 @@ import { isLocale } from '@/i18n/config'
 import { getDictionary } from '@/i18n/get-dictionary'
 import { homeCopy } from '@/i18n/dictionaries/home'
 import { showcaseCopy } from '@/i18n/dictionaries/showcase'
-import type { DisciplineKey } from '@/i18n/dictionaries'
+import { capabilityProof, type Evidence } from '@/content/capabilities'
 import { getProjectSequence } from '@/content/registry'
 import { resolveConfidentialSummary, resolvePublicSummary } from '@/content/resolve'
 import { HeroScene } from '@/components/home/HeroScene'
@@ -15,16 +15,6 @@ import { ProcessStage } from '@/components/home/ProcessStage'
 import { Capabilities, type Capability } from '@/components/home/Capabilities'
 import { AboutScene } from '@/components/home/AboutScene'
 import { ContactScene } from '@/components/home/ContactScene'
-
-/** The capabilities shown, in order; each is proven by the projects that list it. */
-const capabilityKeys: readonly DisciplineKey[] = [
-  'product-strategy',
-  'product-design',
-  'system-design',
-  'engineering',
-  'operational-workflows',
-  'brand-experience',
-]
 
 /**
  * The homepage as one continuous sequence of scenes (docs/HOMEPAGE.md): identity, then
@@ -73,12 +63,16 @@ export default async function HomePage({ params }: PageProps<'/[locale]'>) {
     },
   ]
 
-  const capabilities: Capability[] = capabilityKeys.map((key) => ({
+  const proof: Record<Evidence, Capability['evidence'][number]> = {
+    on: { href: '#on', title: on.title },
+    'mi-ma-mo': { href: '#mi-ma-mo', title: miMaMo.title },
+    defense: { href: '#confidential', title: dict.work.confidentialTitle },
+  }
+  const capabilities: Capability[] = capabilityProof.map(({ key, evidence }) => ({
     key,
     label: dict.disciplines[key],
-    proof: sequence
-      .filter(({ project }) => project.disciplines.includes(key))
-      .map(({ project }) => project.title[locale]),
+    statement: showcase.capabilities[key],
+    evidence: evidence.map((place) => proof[place]),
   }))
 
   return (

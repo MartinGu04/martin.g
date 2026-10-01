@@ -2,7 +2,6 @@ import type { ImageMedia, PublicProject, VideoMedia } from '../schema'
 import { mediaCopy } from '@/i18n/dictionaries/showcase'
 import patisserie from '@/assets/work/on/patisserie.jpg'
 import venue from '@/assets/work/on/venue.jpg'
-import venuePortrait from '@/assets/work/on/venue-portrait.jpg'
 import siteHome from '@/assets/work/on/site-home.jpg'
 import siteStory from '@/assets/work/on/site-story.jpg'
 import siteMobile from '@/assets/work/on/site-mobile.jpg'
@@ -20,8 +19,8 @@ const caption = mediaCopy.onCaptions
 export const onMedia = {
   /** The real ON monogram (gold, transparent), used as the project's title mark. */
   mark: { kind: 'image', src: mark, alt: { en: 'ON', he: 'ON' }, fit: 'contain' },
-  /** The dominant photograph: the retreat's own garden; on phones, a 4:5 crop of it. */
-  stage: { kind: 'image', src: venue, alt: alt.venue, art: { mobile: venuePortrait } },
+  /** The atmosphere around the work: the retreat's own garden. */
+  stage: { kind: 'image', src: venue, alt: alt.venue },
   /** Supporting: a local stop on the retreat's route. */
   patisserie: { kind: 'image', src: patisserie, alt: alt.patisserie },
   venue: { kind: 'image', src: venue, alt: alt.venue },

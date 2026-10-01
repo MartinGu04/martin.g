@@ -37,25 +37,31 @@
     color: var(--accent);
   }
 
+  /* The thread, resolved: the full line from About's warm light into the closing amber,
+     ending in an open square. It draws once as the scene arrives, then rests. */
   .draw {
     flex: 1;
-    block-size: var(--hairline);
-    background: var(--line);
     position: relative;
-    overflow: hidden;
+    block-size: 2px;
+    background: linear-gradient(to right, var(--thread-from), var(--thread-to));
+    transform-origin: left center;
+  }
+
+  :root[dir='rtl'] .draw {
+    background: linear-gradient(to left, var(--thread-from), var(--thread-to));
+    transform-origin: right center;
   }
 
   .draw::after {
     content: '';
     position: absolute;
-    inset: 0;
-    background: var(--accent);
-    transform: scaleX(0.35);
-    transform-origin: var(--draw-origin, left);
-  }
-
-  :root[dir='rtl'] .draw {
-    --draw-origin: right;
+    inset-block-start: 50%;
+    inset-inline-end: 0;
+    inline-size: 0.625rem;
+    block-size: 0.625rem;
+    translate: 0 -50%;
+    border: var(--hairline) solid var(--thread-to);
+    background: var(--surface-0);
   }
 
   /* Static: the three words together. */
@@ -87,8 +93,12 @@
   }
 
   @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
-    .draw::after {
-      animation: contact-draw 9s var(--ease-out) infinite;
+    @supports (animation-timeline: view()) {
+      .draw {
+        animation: contact-resolve linear both;
+        animation-timeline: view();
+        animation-range: entry 10% cover 45%;
+      }
     }
 
     :root:is([data-motion='pending'], [data-motion='on']) .words {
@@ -104,20 +114,9 @@
     }
   }
 
-  @keyframes contact-draw {
-    0% {
-      transform: scaleX(0);
-      opacity: 1;
-    }
-
-    70% {
-      transform: scaleX(1);
-      opacity: 1;
-    }
-
-    100% {
-      transform: scaleX(1);
-      opacity: 0;
+  @keyframes contact-resolve {
+    from {
+      scale: 0 1;
     }
   }
 

@@ -29,7 +29,17 @@ export interface ShowcaseCopy {
   }
   /** The closing scene's slow word cycle, from the approved positioning. Decorative. */
   contactCycle: readonly string[]
+  /** What each capability means, one sentence (English supplied by Martin). */
+  capabilities: Readonly<Record<CapabilityKey, string>>
 }
+
+export type CapabilityKey =
+  | 'product-strategy'
+  | 'product-design'
+  | 'system-design'
+  | 'engineering'
+  | 'operational-workflows'
+  | 'brand-experience'
 
 export const showcaseCopy: Localized<ShowcaseCopy> = {
   en: {
@@ -45,6 +55,14 @@ export const showcaseCopy: Localized<ShowcaseCopy> = {
       views: { home: 'Home', teamWeek: 'Team Week', manager: 'Manager area', mobile: 'Mobile' },
     },
     contactCycle: ['Product', 'System', 'Experience'],
+    capabilities: {
+      'product-strategy': 'From problem to a clear product direction.',
+      'product-design': 'From direction to an interface designed for real use.',
+      'system-design': 'From experience to structure, workflows and architecture.',
+      engineering: 'From architecture to a working product.',
+      'operational-workflows': 'Designing systems around real operational work.',
+      'brand-experience': 'Turning identity into a coherent digital experience.',
+    },
   },
   he: {
     opensInNewTab: '(נפתח בלשונית חדשה)',
@@ -59,6 +77,14 @@ export const showcaseCopy: Localized<ShowcaseCopy> = {
       views: { home: 'מסך הבית', teamWeek: 'צוות השבוע', manager: 'אזור המנהל', mobile: 'מובייל' },
     },
     contactCycle: ['מוצר', 'מערכת', 'חוויה'],
+    capabilities: {
+      'product-strategy': 'מבעיה לכיוון מוצר ברור.',
+      'product-design': 'מכיוון לממשק שמעוצב לשימוש אמיתי.',
+      'system-design': 'מחוויה למבנה, לתהליכי עבודה ולארכיטקטורה.',
+      engineering: 'מארכיטקטורה למוצר שעובד.',
+      'operational-workflows': 'מערכות שנבנות סביב עבודה תפעולית אמיתית.',
+      'brand-experience': 'להפוך זהות לחוויה דיגיטלית אחת ושלמה.',
+    },
   },
 }
 

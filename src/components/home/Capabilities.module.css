@@ -5,7 +5,7 @@
   }
 
   .grid {
-    row-gap: var(--space-4);
+    row-gap: var(--space-5);
   }
 
   .title,
@@ -16,7 +16,7 @@
   /* The rail: the capability names in one very slow line, full bleed, quiet ink. */
   .rail {
     overflow: clip;
-    margin-block: var(--space-8) var(--space-6);
+    margin-block: var(--space-7) var(--space-7);
     padding-block: var(--space-4);
     border-block: var(--hairline) solid var(--line);
     color: color-mix(in srgb, var(--text) 26%, var(--surface-0));
@@ -53,34 +53,73 @@
     }
   }
 
+  /*
+   * The proof system: an editorial grid, one column on phones, two on tablets, three on
+   * desktop. Each discipline hangs from a hairline: its number, its name, one sentence,
+   * and the work that proves it. Type and rules only; no cards.
+   */
   .list {
     grid-column: 1 / -1;
     display: grid;
-    grid-template-columns: subgrid;
+    column-gap: var(--gutter);
+    row-gap: var(--space-7);
   }
 
-  .row {
-    grid-column: 1 / -1;
+  .item {
     display: grid;
-    grid-template-columns: subgrid;
-    row-gap: var(--space-1);
-    align-items: baseline;
-    padding-block: var(--space-4);
-    border-block-start: var(--hairline) solid var(--line);
-  }
-
-  .row:last-child {
-    border-block-end: var(--hairline) solid var(--line);
+    grid-template-rows: auto auto 1fr auto;
+    gap: var(--space-3);
+    align-content: start;
+    padding-block-start: var(--space-4);
+    border-block-start: var(--hairline) solid var(--line-strong);
   }
 
   .index {
     color: var(--accent);
   }
 
-  .index,
-  .name,
+  .statement {
+    max-inline-size: 22em;
+  }
+
+  .evidence {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: var(--space-3);
+    margin-block-start: var(--space-2);
+  }
+
+  .evidenceRule {
+    inline-size: var(--space-5);
+    block-size: var(--hairline);
+    background: var(--accent);
+  }
+
+  .sep {
+    color: var(--text-muted);
+  }
+
   .proof {
-    grid-column: 1 / -1;
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 2.75rem;
+    color: var(--text);
+    text-decoration-line: underline;
+    text-decoration-thickness: var(--hairline);
+    text-decoration-color: var(--line-strong);
+    text-underline-offset: 0.3em;
+    transition: text-decoration-color var(--dur-micro) var(--ease-out);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .proof:hover {
+      text-decoration-color: var(--accent);
+    }
+  }
+
+  .proof:focus-visible {
+    text-decoration-color: var(--accent);
   }
 
   @media (width >= 48rem) {
@@ -88,30 +127,19 @@
       grid-column: 1 / span 6;
     }
 
-    .index {
-      grid-column: 1 / span 1;
-    }
-
-    .name {
-      grid-column: 2 / span 3;
-    }
-
-    .proof {
-      grid-column: 5 / -1;
+    .list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 
   @media (width >= 75rem) {
     .lead {
-      grid-column: 1 / span 5;
+      grid-column: 1 / span 7;
     }
 
-    .name {
-      grid-column: 2 / span 4;
-    }
-
-    .proof {
-      grid-column: 7 / -1;
+    .list {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      row-gap: var(--space-8);
     }
   }
 }

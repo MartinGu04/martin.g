@@ -66,7 +66,7 @@ test.describe('homepage scenes', () => {
     const context = await browser.newContext({ reducedMotion: 'reduce' })
     const page = await context.newPage()
     await page.goto('/he')
-    const frame = page.locator('#process-title').locator('xpath=../..')
+    const frame = page.locator('[aria-labelledby="process-title"]')
     expect(await frame.evaluate((el) => getComputedStyle(el).position)).not.toBe('sticky')
     const steps = page
       .getByRole('region', { name: 'דרך העבודה' })
@@ -85,7 +85,7 @@ test.describe('homepage scenes', () => {
     const context = await browser.newContext({ viewport: { width: 640, height: 400 } })
     const page = await context.newPage()
     await page.goto('/en')
-    const frame = page.locator('#process-title').locator('xpath=../..')
+    const frame = page.locator('[aria-labelledby="process-title"]')
     expect(await frame.evaluate((el) => getComputedStyle(el).position)).not.toBe('sticky')
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth - innerWidth),

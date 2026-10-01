@@ -8,7 +8,7 @@
 @layer components {
   .scene {
     view-timeline: --mi-ma-mo block;
-    --scene-pad-start: var(--section-space-sm);
+    --scene-pad-start: var(--space-8);
     --scene-pad-end: var(--section-space);
   }
 
@@ -28,8 +28,10 @@
     color: var(--signal);
   }
 
-  /* One step below the display peak: the product, not the name, carries the scene. */
+  /* A project title, not a poster: one step below the display peak (about 76px on a
+     1440px screen), so the product, not the name, carries the scene. */
   .title {
+    --display-size: clamp(2.75rem, 1.5rem + 3.6vw, 5.5rem);
     grid-column: 1 / -1;
   }
 
@@ -48,11 +50,14 @@
     display: grid;
     justify-items: start;
     gap: var(--space-5);
-    max-inline-size: var(--measure-lead);
+  }
+
+  .text > :first-child {
+    max-inline-size: 22em;
   }
 
   .note {
-    max-inline-size: 22em;
+    max-inline-size: 30em;
     padding-block-start: var(--space-4);
     border-block-start: var(--hairline) solid var(--line);
   }
@@ -86,8 +91,8 @@
   }
 
   .phone {
-    grid-column: 1 / span 3;
-    max-inline-size: 17rem;
+    grid-column: 1 / -1;
+    inline-size: min(100%, 19rem);
   }
 
   .detail {
@@ -112,9 +117,10 @@
        inline end in Hebrew) and never covers the screen's content. */
     .phone {
       grid-column: 1 / span 3;
-      max-inline-size: 16rem;
+      inline-size: 17rem;
+      max-inline-size: 100%;
       justify-self: start;
-      margin-block-start: -14rem;
+      margin-block-start: -16rem;
       z-index: 3;
     }
 
@@ -122,36 +128,56 @@
       grid-column: 6 / -1;
       justify-self: end;
     }
+
+    /* In English the phone stands at the labels' end of the frame: they start after it. */
+    :dir(ltr) .stage {
+      --labels-inset: 18rem;
+    }
   }
 
-  /* Desktop: text beside the product frame; the phone stands over its quiet lower corner
-     (the physical left, as above) and hangs below it. */
+  /* Desktop: the title and the statement share one header line; below it the product
+     frame spans ten of the twelve columns, and the phone (three columns, readable) stands
+     over its quiet edge, the physical left as above, and hangs below it. */
   @media (width >= 75rem) {
-    .text {
-      grid-column: 1 / span 4;
+    .title {
+      grid-column: 1 / span 5;
       grid-row: 3;
-      align-self: start;
+      align-self: end;
+    }
+
+    .text {
+      grid-column: 7 / -1;
+      grid-row: 3;
+      align-self: end;
     }
 
     .stage {
-      grid-column: 5 / -1;
-      grid-row: 3;
-      margin-block-start: 0;
+      grid-column: 3 / -1;
+      grid-row: 4;
+      margin-block-start: var(--space-4);
+    }
+
+    :dir(rtl) .stage {
+      grid-column: 1 / span 10;
+    }
+
+    :dir(ltr) .stage {
+      --labels-inset: calc(var(--space-9) + var(--space-6));
     }
 
     .phone {
-      grid-column: 4 / span 2;
-      grid-row: 3;
+      grid-column: 1 / span 3;
+      grid-row: 4;
       align-self: end;
-      max-inline-size: none;
+      inline-size: auto;
       justify-self: stretch;
-      margin-block: 0 -9rem;
-      margin-inline: var(--space-6) 0;
+      margin-block: 0 -7rem;
+      margin-inline: 0;
     }
 
     :dir(rtl) .phone {
-      grid-column: 11 / -1;
-      margin-inline: 0 calc(var(--gutter) * -1);
+      grid-column: 10 / -1;
+      justify-self: stretch;
     }
   }
 

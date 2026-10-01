@@ -15,7 +15,7 @@ interface ProjectLinkProps {
 /** The explicit way into a project from its scene: label and a direction-aware arrow. */
 export function ProjectLink({ href, label, title, className }: ProjectLinkProps) {
   return (
-    <Link href={href} className={[`t-label ${styles.link}`, className].filter(Boolean).join(' ')}>
+    <Link href={href} className={[`t-action ${styles.link}`, className].filter(Boolean).join(' ')}>
       {label}
       <span className="visually-hidden">
         {' '}

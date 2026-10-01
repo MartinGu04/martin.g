@@ -3,6 +3,10 @@
     --scene-pad-start: var(--section-space-sm);
   }
 
+  .grid {
+    row-gap: var(--space-6);
+  }
+
   /* Defense Systems: a framed archive inside a gunmetal register. */
   .archive {
     --corner: 0.875rem;
@@ -93,6 +97,7 @@
 
   .note {
     grid-column: 1 / -1;
+    max-inline-size: 36em;
   }
 
   .list {
@@ -125,6 +130,10 @@
 
   .name {
     max-inline-size: 9em;
+  }
+
+  .summary {
+    max-inline-size: 28em;
   }
 
   /*

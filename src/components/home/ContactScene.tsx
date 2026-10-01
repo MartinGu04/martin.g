@@ -4,15 +4,16 @@ import { Wordmark } from '@/components/brand/BrandMark'
 import { Grid } from '@/components/layout/Grid'
 import { Reveal } from '@/components/motion/Reveal'
 import { Scene } from '@/components/scene/Scene'
-import { worlds } from '@/content/worlds'
+import { thread, worlds } from '@/content/worlds'
 import styles from './ContactScene.module.css'
 
 /**
  * Final scene: the ending echoes the arrival, compact. The MARTIN.G world in its lighter
  * graphite with a restrained amber, the wordmark again, a confident call to action set
- * calmer than the statement. While the visitor stays, one amber hairline draws and clears
- * and the three things built (product, system, experience) take turns beside it: decorative,
- * an ambient loop. The action itself (the contact flow) arrives with Phase 6; until its
+ * calmer than the statement. Here the thread resolves: it draws once from About's warm
+ * light into the closing amber, ends in an open square, and stays still. Beside it the
+ * three things built (product, system, experience) take turns while the visitor stays:
+ * decorative, an ambient loop. The action itself (the contact flow) arrives with Phase 6; until its
  * destination exists no control is rendered, so there is never a dead link.
  */
 export function ContactScene({
@@ -39,7 +40,12 @@ export function ContactScene({
         </Reveal>
         <p className={`t-heading-2 ${styles.line}`}>{copy.line}</p>
         <div className={styles.ambient} aria-hidden="true">
-          <span className={styles.draw} data-loop="" />
+          <span
+            className={styles.draw}
+            style={
+              { '--thread-from': thread.about, '--thread-to': thread.contact } as StyleWithVars
+            }
+          />
           <span className={`t-label ${styles.words}`}>
             {cycle.map((word, i) => (
               <span

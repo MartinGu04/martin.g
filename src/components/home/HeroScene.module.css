@@ -154,4 +154,23 @@
       translate: 0 0;
     }
   }
+
+  /* The one ambient layer: the key light wanders slowly and breathes (an ambient loop). */
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    .hero [data-layer='light'] {
+      animation: hero-light 40s ease-in-out infinite alternate;
+    }
+  }
+
+  @keyframes hero-light {
+    from {
+      translate: calc(-5% * var(--dir)) 0;
+      opacity: 0.8;
+    }
+
+    to {
+      translate: calc(7% * var(--dir)) 3%;
+      opacity: 1;
+    }
+  }
 }

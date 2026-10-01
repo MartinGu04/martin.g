@@ -5,13 +5,14 @@ import type { Dictionary } from '@/i18n/dictionaries'
 import type { ShowcaseCopy } from '@/i18n/dictionaries/showcase'
 import type { PublicProjectSummary } from '@/content/resolve'
 import { onMedia } from '@/content/projects/on'
-import { worlds } from '@/content/worlds'
+import { thread, worlds } from '@/content/worlds'
 import { Grid } from '@/components/layout/Grid'
 import { IndexNumber } from '@/components/type/IndexNumber'
 import { MediaFrame } from '@/components/media/MediaFrame'
 import { ViewCycle } from '@/components/media/ViewCycle'
 import { Reveal } from '@/components/motion/Reveal'
 import { Scene } from '@/components/scene/Scene'
+import { Thread } from '@/components/scene/Thread'
 import { LiveSiteLink } from './LiveSiteLink'
 import { ProjectLink } from './ProjectLink'
 import styles from './OnWorld.module.css'
@@ -26,11 +27,12 @@ interface OnWorldProps {
 }
 
 /**
- * Scene 03: ON, the retreat. Quiet luxury, editorial hospitality: the cream world opens
- * softly (a gentle wipe) and the photograph develops into place. The title is the real ON
- * monogram. The retreat's own garden is the dominant frame and breathes slowly while the
- * visitor stays; the live website sits on a bordeaux mat and turns between two of its real
- * views; a small print of a stop on the route supports it. Olive is the detail.
+ * Scene 03: ON, the human, brand and experience side of the work. Quiet luxury, editorial
+ * hospitality: the cream world opens softly (a gentle wipe) and the thread arrives in ON's
+ * gold. The proof is the digital work: the live website, large on a bordeaux mat, turning
+ * between two of its real views. The retreat's own garden is the atmosphere behind it,
+ * breathing slowly while the visitor stays; a small print of a stop on the route supports
+ * it. The title is the real ON monogram.
  */
 export function OnWorld({ project, dict, showcase, locale }: OnWorldProps) {
   return (
@@ -45,6 +47,7 @@ export function OnWorld({ project, dict, showcase, locale }: OnWorldProps) {
       className={styles.scene}
     >
       <Grid className={styles.grid}>
+        <Thread from={thread.bridge} to={thread.on} />
         <div className={styles.text}>
           <p className={`t-label ${styles.eyebrow}`}>
             <IndexNumber value={project.number} />
@@ -63,7 +66,7 @@ export function OnWorld({ project, dict, showcase, locale }: OnWorldProps) {
           </h3>
           <span className={styles.rule} aria-hidden="true" />
           <Reveal className={styles.summary}>
-            <p className="t-heading-3">{project.summary}</p>
+            <p className="t-statement">{project.summary}</p>
             <div className={styles.actions}>
               <ProjectLink
                 href={project.href}
@@ -82,28 +85,28 @@ export function OnWorld({ project, dict, showcase, locale }: OnWorldProps) {
           </Reveal>
         </div>
         <div className={styles.gallery}>
-          <div className={styles.photoMain} data-parallax>
+          <div className={styles.atmosphere} data-parallax>
+            <MediaFrame
+              media={onMedia.stage}
+              locale={locale}
+              motion="drift"
+              sizes="(width >= 75rem) 42vw, (width >= 48rem) 70vw, 100vw"
+            />
+          </div>
+          <div className={styles.detail} data-parallax>
+            <MediaFrame media={onMedia.patisserie} locale={locale} sizes="12rem" />
+          </div>
+          <div className={styles.proof}>
             <div className={styles.develop}>
-              <MediaFrame
-                media={onMedia.stage}
+              <ViewCycle
+                items={[{ media: onMedia.site }, { media: onMedia.siteStoryPrint }]}
                 locale={locale}
-                motion="drift"
-                sizes="(width >= 75rem) 56vw, (width >= 48rem) 80vw, 100vw"
+                step={7}
+                fallback="first"
+                sizes="(width >= 75rem) 50vw, (width >= 48rem) 80vw, 70vw"
+                className={styles.print}
               />
             </div>
-          </div>
-          <div className={styles.photoDetail} data-parallax>
-            <MediaFrame media={onMedia.patisserie} locale={locale} sizes="14rem" />
-          </div>
-          <div className={styles.photoSecond} data-parallax>
-            <ViewCycle
-              items={[{ media: onMedia.site }, { media: onMedia.siteStoryPrint }]}
-              locale={locale}
-              step={7}
-              fallback="first"
-              sizes="(width >= 75rem) 32vw, (width >= 48rem) 48vw, 50vw"
-              className={styles.print}
-            />
           </div>
         </div>
       </Grid>

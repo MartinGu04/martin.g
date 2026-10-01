@@ -12,7 +12,7 @@
   .text {
     text-decoration-line: underline;
     text-decoration-thickness: var(--hairline);
-    text-underline-offset: 0.35em;
+    text-underline-offset: 0.3em;
   }
 
   .icon {

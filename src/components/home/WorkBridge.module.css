@@ -60,6 +60,15 @@
     border-block-end-color: var(--text);
   }
 
+  .thread {
+    margin-block-start: var(--space-6);
+  }
+
+  /* The first entry already carries the next world's color. */
+  .index li:first-child .link {
+    border-block-end-color: color-mix(in srgb, var(--next-world) 70%, transparent);
+  }
+
   @media (width >= 48rem) {
     .index {
       grid-template-columns: repeat(3, minmax(0, 1fr));

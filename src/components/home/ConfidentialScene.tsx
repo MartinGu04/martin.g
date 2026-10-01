@@ -1,6 +1,6 @@
 import type { Dictionary } from '@/i18n/dictionaries'
 import type { ConfidentialProjectSummary } from '@/content/resolve'
-import { worlds } from '@/content/worlds'
+import { thread, worlds } from '@/content/worlds'
 import { Grid } from '@/components/layout/Grid'
 import { Eyebrow } from '@/components/type/Eyebrow'
 import { IndexNumber } from '@/components/type/IndexNumber'
@@ -8,6 +8,7 @@ import { Ltr } from '@/components/type/Ltr'
 import { Reveal } from '@/components/motion/Reveal'
 import { SystemDiagram } from '@/components/project/SystemDiagram'
 import { Scene } from '@/components/scene/Scene'
+import { Thread } from '@/components/scene/Thread'
 import styles from './ConfidentialScene.module.css'
 
 type Item = ConfidentialProjectSummary & { number: string }
@@ -17,7 +18,7 @@ type Item = ConfidentialProjectSummary & { number: string }
  * gunmetal register holds a framed archive: restrained corner marks, a hairline boundary
  * that draws closed from its corners on arrival, technical micro type, and a generated
  * system diagram per project (topology, data pathways, masked structural blocks) with a
- * slow scan while the scene is visible. The diagrams are abstract and say so by being
+ * slow scan while the scene is visible. The thread arrives here in cold steel. The diagrams are abstract and say so by being
  * abstract: no fake interface, no labels, no data. Truthful: the page is not access
  * controlled and does not pretend to be; no classified, warning or dossier language.
  *
@@ -34,7 +35,8 @@ export function ConfidentialScene({ items, dict }: { items: Item[]; dict: Dictio
       className={styles.scene}
       aria-labelledby="confidential-title"
     >
-      <Grid>
+      <Grid className={styles.grid}>
+        <Thread from={thread.miMaMo} to={thread.defense} />
         <div className={`col-full ${styles.archive}`}>
           <span className={styles.boundary} aria-hidden="true" />
           <span className={styles.corners} aria-hidden="true" />
@@ -43,8 +45,8 @@ export function ConfidentialScene({ items, dict }: { items: Item[]; dict: Dictio
               {dict.work.confidentialTitle}
             </Eyebrow>
             <span className={styles.rule} aria-hidden="true" />
-            <IndexNumber value={range} className={`t-micro muted ${styles.range}`} />
-            <p className={`t-small muted ${styles.note}`}>{dict.work.confidentialNote}</p>
+            <IndexNumber value={range} className={`t-label muted ${styles.range}`} />
+            <p className={`t-body-l muted ${styles.note}`}>{dict.work.confidentialNote}</p>
           </header>
           <ul role="list" className={styles.list}>
             {items.map((item, i) => (
@@ -52,13 +54,13 @@ export function ConfidentialScene({ items, dict }: { items: Item[]; dict: Dictio
                 <div className={styles.cover} data-parallax>
                   <SystemDiagram pattern={item.pattern} />
                 </div>
-                <p className={`t-micro ${styles.index}`}>
+                <p className={`t-label ${styles.index}`}>
                   <IndexNumber value={item.number} />
                   <span className={styles.rule} aria-hidden="true" />
                 </p>
                 <h3 className={`t-heading-2 ${styles.name}`}>{item.title}</h3>
-                <p className="t-body muted">{item.summary}</p>
-                <p className="t-micro muted">
+                <p className={`t-body-l muted ${styles.summary}`}>{item.summary}</p>
+                <p className="t-small muted">
                   {item.disciplines.join(' · ')}
                   {item.years ? (
                     <>
