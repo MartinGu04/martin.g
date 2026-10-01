@@ -176,8 +176,9 @@ than gendered first person), not a literal translation.
 
 - **Sources.** Only supplied, approved assets, processed outside the repository and committed
   as sRGB, metadata-free sources in `src/assets/` (static imports, so every image has
-  intrinsic dimensions and a blur placeholder). Next serves them as AVIF or WebP at the
-  requested width (`images.formats`); the originals never ship.
+  intrinsic dimensions and a blur placeholder). Next serves them as WebP at the requested
+  width (`images.formats`; AVIF was measured at 5 to 10 times the encode time, which each new
+  deployment's first visitors would wait for); the originals never ship.
 - **Art direction.** `MediaFrame` renders a `<picture>` when an image has per-tier sources
   (`art.mobile`, `art.tablet`), and the frame reserves each tier's ratio, so nothing shifts.
 - **Loading.** The homepage opens on type, so none of its images is eager; each project page
