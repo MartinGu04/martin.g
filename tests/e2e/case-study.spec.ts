@@ -1,5 +1,6 @@
 import AxeBuilder from '@axe-core/playwright'
 import { expect, test, type Page } from '@playwright/test'
+import { openRendered } from '../support/navigation'
 
 const chapters = [
   'context',
@@ -249,9 +250,8 @@ test.describe('ON case study: motion and accessibility', () => {
     const context = await browser.newContext({ javaScriptEnabled: false })
     try {
       const page = await context.newPage()
-      // Server-rendered DOM only. Without scripting Chromium ignores loading="lazy", so the
-      // full load event would wait for every image on this long page; nothing here needs them.
-      await page.goto('/he/work/on', { waitUntil: 'domcontentloaded' })
+      // The server-rendered, styled page (see openRendered): not every image on it.
+      await openRendered(page, '/he/work/on')
       for (const id of chapters) await expect(page.locator(`#${id}-title`)).toBeVisible()
       await expect(page.locator('#film video')).toHaveCount(0)
       await expect(page.locator('#film img')).toHaveCount(1)

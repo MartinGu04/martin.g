@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
+import { openRendered } from '../support/navigation'
 
 /** Scrolls so the scene containing `selector` sits just under the header. */
 async function bringSceneUnderHeader(page: Page, selector: string) {
@@ -64,64 +65,76 @@ test.describe('homepage scenes', () => {
 
   test('stages are static compositions with reduced motion', async ({ browser }) => {
     const context = await browser.newContext({ reducedMotion: 'reduce' })
-    const page = await context.newPage()
-    await page.goto('/he')
-    const frame = page.locator('[aria-labelledby="process-title"]')
-    expect(await frame.evaluate((el) => getComputedStyle(el).position)).not.toBe('sticky')
-    const steps = page
-      .getByRole('region', { name: 'דרך העבודה' })
-      .getByRole('heading', { level: 3 })
-    await expect(steps).toHaveCount(5)
-    for (const opacity of await steps.evaluateAll((els) =>
-      els.map((el) => getComputedStyle(el.closest('li')!).opacity),
-    )) {
-      expect(opacity).toBe('1')
+    try {
+      const page = await context.newPage()
+      await page.goto('/he')
+      const frame = page.locator('[aria-labelledby="process-title"]')
+      expect(await frame.evaluate((el) => getComputedStyle(el).position)).not.toBe('sticky')
+      const steps = page
+        .getByRole('region', { name: 'דרך העבודה' })
+        .getByRole('heading', { level: 3 })
+      await expect(steps).toHaveCount(5)
+      for (const opacity of await steps.evaluateAll((els) =>
+        els.map((el) => getComputedStyle(el.closest('li')!).opacity),
+      )) {
+        expect(opacity).toBe('1')
+      }
+    } finally {
+      await context.close()
     }
-    await context.close()
   })
 
   test('short or zoomed viewports never get a sticky frame', async ({ browser }) => {
     // 200% zoom on a 1280 x 800 window is a 640 x 400 CSS px viewport.
     const context = await browser.newContext({ viewport: { width: 640, height: 400 } })
-    const page = await context.newPage()
-    await page.goto('/en')
-    const frame = page.locator('[aria-labelledby="process-title"]')
-    expect(await frame.evaluate((el) => getComputedStyle(el).position)).not.toBe('sticky')
-    expect(
-      await page.evaluate(() => document.documentElement.scrollWidth - innerWidth),
-    ).toBeLessThanOrEqual(0)
-    await context.close()
+    try {
+      const page = await context.newPage()
+      await page.goto('/en')
+      const frame = page.locator('[aria-labelledby="process-title"]')
+      expect(await frame.evaluate((el) => getComputedStyle(el).position)).not.toBe('sticky')
+      expect(
+        await page.evaluate(() => document.documentElement.scrollWidth - innerWidth),
+      ).toBeLessThanOrEqual(0)
+    } finally {
+      await context.close()
+    }
   })
 
   test('every scene is readable without JavaScript', async ({ browser }) => {
     const context = await browser.newContext({ javaScriptEnabled: false })
-    const page = await context.newPage()
-    await page.goto('/en')
-    for (const name of [
-      'From problem to product.',
-      'Understand',
-      'Refine',
-      'Have a problem worth solving?',
-    ]) {
-      const target = page.getByText(name, { exact: true }).first()
-      await target.scrollIntoViewIfNeeded()
-      await expect(target).toBeVisible()
-      const opacity = await target.evaluate(
-        (el) => getComputedStyle(el.closest('li') ?? el).opacity,
-      )
-      expect(opacity).toBe('1')
+    try {
+      const page = await context.newPage()
+      await openRendered(page, '/en')
+      for (const name of [
+        'From problem to product.',
+        'Understand',
+        'Refine',
+        'Have a problem worth solving?',
+      ]) {
+        const target = page.getByText(name, { exact: true }).first()
+        await target.scrollIntoViewIfNeeded()
+        await expect(target).toBeVisible()
+        const opacity = await target.evaluate(
+          (el) => getComputedStyle(el.closest('li') ?? el).opacity,
+        )
+        expect(opacity).toBe('1')
+      }
+    } finally {
+      await context.close()
     }
-    await context.close()
   })
 
   test('the ON title always sets on one line', async ({ browser }) => {
     for (const width of [1200, 1280, 1440, 1920]) {
       const context = await browser.newContext({ viewport: { width, height: 900 } })
-      const page = await context.newPage()
-      await page.goto('/en')
-      const lines = await page.locator('#on-title a').evaluate((el) => el.getClientRects().length)
-      expect(lines, `at ${width}px`).toBe(1)
-      await context.close()
+      try {
+        const page = await context.newPage()
+        await page.goto('/en')
+        const lines = await page.locator('#on-title a').evaluate((el) => el.getClientRects().length)
+        expect(lines, `at ${width}px`).toBe(1)
+      } finally {
+        await context.close()
+      }
     }
   })
 

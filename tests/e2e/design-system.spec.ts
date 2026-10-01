@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
+import { openForLayout, openRendered } from '../support/navigation'
 
 const localePages = [
   '/en',
@@ -10,16 +11,6 @@ const localePages = [
   '/en/system/scenes',
   '/he/system/scenes',
 ]
-
-/**
- * Opens a page for a layout measurement: the DOM and its stylesheets (domcontentloaded),
- * then the web fonts, which decide text widths. Images and media are not awaited: every
- * frame reserves its aspect ratio, so they cannot change the layout being measured.
- */
-async function openForLayout(page: Page, url: string) {
-  await page.goto(url, { waitUntil: 'domcontentloaded' })
-  await page.evaluate(() => document.fonts.ready)
-}
 
 async function horizontalOverflow(page: Page) {
   return page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)
@@ -36,25 +27,33 @@ test.describe('brand marks', () => {
         viewport: { width: 1440, height: 900 },
         deviceScaleFactor: dpr,
       })
-      const page = await context.newPage()
-      await page.goto('/en')
-      const box = await page.getByRole('banner').locator('[data-mark="wordmark"]').boundingBox()
-      expect(box!.height).toBeGreaterThanOrEqual(minHeight - 0.5)
-      // Proportions come from the asset: 1335 x 228.
-      expect(box!.width / box!.height).toBeCloseTo(1335 / 228, 1)
-      await context.close()
+      try {
+        const page = await context.newPage()
+        await page.goto('/en')
+        const box = await page.getByRole('banner').locator('[data-mark="wordmark"]').boundingBox()
+        expect(box!.height).toBeGreaterThanOrEqual(minHeight - 0.5)
+        // Proportions come from the asset: 1335 x 228.
+        expect(box!.width / box!.height).toBeCloseTo(1335 / 228, 1)
+      } finally {
+        await context.close()
+      }
     })
   }
 
   test('a mark requested below its minimum renders at the minimum', async ({ browser }) => {
     const context = await browser.newContext({ deviceScaleFactor: 1 })
-    const page = await context.newPage()
-    await page.goto('/en/system')
-    const heights = await page
-      .locator('[data-mark="wordmark"]')
-      .evaluateAll((els) => els.map((el) => el.getBoundingClientRect().height).filter((h) => h > 0))
-    expect(Math.min(...heights)).toBeGreaterThanOrEqual(31.5)
-    await context.close()
+    try {
+      const page = await context.newPage()
+      await page.goto('/en/system')
+      const heights = await page
+        .locator('[data-mark="wordmark"]')
+        .evaluateAll((els) =>
+          els.map((el) => el.getBoundingClientRect().height).filter((h) => h > 0),
+        )
+      expect(Math.min(...heights)).toBeGreaterThanOrEqual(31.5)
+    } finally {
+      await context.close()
+    }
   })
 
   test('header wordmark keeps its clear space', async ({ page, isMobile }) => {
@@ -175,14 +174,17 @@ test.describe('motion', () => {
   }) => {
     for (const options of [{ javaScriptEnabled: false }, { reducedMotion: 'reduce' as const }]) {
       const context = await browser.newContext(options)
-      const page = await context.newPage()
-      await page.goto('/en/system/scenes')
-      const clips = await page
-        .locator('[data-enter="wipe"], [data-enter="split"]')
-        .evaluateAll((els) => els.map((el) => getComputedStyle(el).clipPath))
-      expect(clips.length).toBeGreaterThan(0)
-      expect(new Set(clips)).toEqual(new Set(['none']))
-      await context.close()
+      try {
+        const page = await context.newPage()
+        await openRendered(page, '/en/system/scenes')
+        const clips = await page
+          .locator('[data-enter="wipe"], [data-enter="split"]')
+          .evaluateAll((els) => els.map((el) => getComputedStyle(el).clipPath))
+        expect(clips.length).toBeGreaterThan(0)
+        expect(new Set(clips)).toEqual(new Set(['none']))
+      } finally {
+        await context.close()
+      }
     }
   })
 
@@ -196,14 +198,17 @@ test.describe('motion', () => {
 
   test('reduced motion disables parallax and transitions', async ({ browser }) => {
     const context = await browser.newContext({ reducedMotion: 'reduce' })
-    const page = await context.newPage()
-    await page.goto('/en/system')
-    await expect(page.locator('html')).toHaveAttribute('data-motion', 'off')
-    const transform = await page
-      .locator('[data-parallax]')
-      .evaluate((el) => getComputedStyle(el).transform)
-    expect(transform).toBe('none')
-    await context.close()
+    try {
+      const page = await context.newPage()
+      await page.goto('/en/system')
+      await expect(page.locator('html')).toHaveAttribute('data-motion', 'off')
+      const transform = await page
+        .locator('[data-parallax]')
+        .evaluate((el) => getComputedStyle(el).transform)
+      expect(transform).toBe('none')
+    } finally {
+      await context.close()
+    }
   })
 })
 

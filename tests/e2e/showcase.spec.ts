@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
+import { openRendered } from '../support/navigation'
 
 /** Walks the whole page so lazy images load and reveals settle, then returns to the top. */
 async function walk(page: Page) {
@@ -228,9 +229,8 @@ test.describe('preview film', () => {
     const context = await browser.newContext({ javaScriptEnabled: false })
     try {
       const page = await context.newPage()
-      // Server-rendered DOM only: without scripting lazy images load eagerly, and the full
-      // load event would wait for all of them.
-      await page.goto('/en/work/on', { waitUntil: 'domcontentloaded' })
+      // The server-rendered, styled page (see openRendered): not every image on it.
+      await openRendered(page, '/en/work/on')
       await expect(page.locator('video')).toHaveCount(0)
       await expect(
         page.locator('figure:has(figcaption:text("Watermarked preview")) img'),
@@ -292,36 +292,42 @@ test.describe('ambient motion', () => {
     isMobile,
   }) => {
     const context = await browser.newContext({ reducedMotion: 'reduce' })
-    const page = await context.newPage()
-    await page.goto('/en')
-    await walk(page)
-    const infinite = await page.evaluate(
-      () =>
-        document
-          .getAnimations()
-          .filter((a) => a.effect?.getComputedTiming().iterations === Infinity).length,
-    )
-    expect(infinite).toBe(0)
-    const views = page.locator('#mi-ma-mo [data-fallback="grid"] img')
-    await expect(views).toHaveCount(3)
-    // Phones show the phone and a legible Team Week crop instead of desktop screens.
-    if (!isMobile) for (const view of await views.all()) await expect(view).toBeVisible()
-    await expect(
-      page.locator('[aria-labelledby="process-title"] [aria-hidden="true"] .t-display').first(),
-    ).toBeHidden()
-    await context.close()
+    try {
+      const page = await context.newPage()
+      await page.goto('/en')
+      await walk(page)
+      const infinite = await page.evaluate(
+        () =>
+          document
+            .getAnimations()
+            .filter((a) => a.effect?.getComputedTiming().iterations === Infinity).length,
+      )
+      expect(infinite).toBe(0)
+      const views = page.locator('#mi-ma-mo [data-fallback="grid"] img')
+      await expect(views).toHaveCount(3)
+      // Phones show the phone and a legible Team Week crop instead of desktop screens.
+      if (!isMobile) for (const view of await views.all()) await expect(view).toBeVisible()
+      await expect(
+        page.locator('[aria-labelledby="process-title"] [aria-hidden="true"] .t-display').first(),
+      ).toBeHidden()
+    } finally {
+      await context.close()
+    }
   })
 
   test('without JavaScript the process is its list and the views are all present', async ({
     browser,
   }) => {
     const context = await browser.newContext({ javaScriptEnabled: false })
-    const page = await context.newPage()
-    await page.goto('/he')
-    const steps = page.locator('[aria-labelledby="process-title"] ol h3')
-    await expect(steps).toHaveCount(5)
-    await expect(page.locator('#mi-ma-mo [data-fallback="grid"] img')).toHaveCount(3)
-    await context.close()
+    try {
+      const page = await context.newPage()
+      await openRendered(page, '/he')
+      const steps = page.locator('[aria-labelledby="process-title"] ol h3')
+      await expect(steps).toHaveCount(5)
+      await expect(page.locator('#mi-ma-mo [data-fallback="grid"] img')).toHaveCount(3)
+    } finally {
+      await context.close()
+    }
   })
 })
 
