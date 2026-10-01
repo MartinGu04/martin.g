@@ -6,6 +6,7 @@ import { Ltr } from '@/components/type/Ltr'
 import { Scene } from '@/components/scene/Scene'
 import { Thread } from '@/components/scene/Thread'
 import { thread } from '@/content/worlds'
+import { ProcessGlyph } from './ProcessGlyph'
 import styles from './ProcessStage.module.css'
 
 /**
@@ -46,6 +47,7 @@ export function ProcessStage({ copy }: { copy: HomeCopy['process'] }) {
                   <Ltr>{`${String(i + 1).padStart(2, '0')} / ${total}`}</Ltr>
                 </span>
                 <h3 className={`t-heading-3 ${styles.word}`}>{step.word}</h3>
+                <ProcessGlyph step={key} className={styles.glyph} />
                 <p className={`t-body-l muted ${styles.line}`}>{step.line}</p>
               </li>
             )

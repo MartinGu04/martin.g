@@ -33,8 +33,10 @@ interface OnWorldProps {
  * hospitality: the cream world opens softly (a gentle wipe) and the thread arrives in ON's
  * gold. The proof is the digital work, launched like a product: one large frame of the live
  * website on a bordeaux mat, turning between two of its real views, with its phone layout
- * standing in front. The retreat's own garden is the only atmosphere, behind the frame and
- * breathing slowly while the visitor stays. The title is the real ON monogram.
+ * standing in front as a real object on its own contact shadow. The retreat's own garden is
+ * the only photographic atmosphere, behind the frame and breathing slowly while the visitor
+ * stays; behind everything, a far, blurred crop of the same place and faint bordeaux,
+ * olive and gold light give the cream depth. The title is the real ON monogram.
  */
 export function OnWorld({ project, dict, showcase, locale }: OnWorldProps) {
   return (
@@ -48,6 +50,15 @@ export function OnWorld({ project, dict, showcase, locale }: OnWorldProps) {
       aria-labelledby="on-title"
       className={styles.scene}
     >
+      {/* The world's air: a far, heavily blurred crop of the retreat and faint warm light.
+          Decorative, noticed only after a moment, never competing with the work. */}
+      <div
+        className={styles.ambience}
+        style={{ '--gold': thread.on } as StyleWithVars}
+        aria-hidden="true"
+      >
+        <Image src={onMedia.venue.src} alt="" sizes="20vw" className={styles.haze} />
+      </div>
       <Grid className={styles.grid}>
         <Thread from={thread.bridge} to={thread.on} />
         <div className={styles.text}>

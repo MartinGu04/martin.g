@@ -69,7 +69,7 @@ export const homeCopy: Localized<HomeCopy> = {
     },
     contact: {
       title: 'Have a problem worth solving?',
-      line: 'Let’s build something useful.',
+      line: 'Let’s build something worth using.',
     },
   },
   he: {
@@ -97,7 +97,7 @@ export const homeCopy: Localized<HomeCopy> = {
     },
     contact: {
       title: 'יש בעיה ששווה לפתור?',
-      line: 'בואו נבנה משהו שעובד.',
+      line: 'בואו נבנה משהו ששווה להשתמש בו.',
     },
   },
 }

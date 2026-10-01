@@ -13,6 +13,56 @@
     align-items: center;
   }
 
+  /*
+   * Environmental depth behind the whole world: the venue, far away and out of focus, and
+   * three low washes of the world's own colors (bordeaux low at the inline end, olive high
+   * at the inline start, a little gold behind the work). Static; below the content.
+   */
+  .ambience {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    overflow: clip;
+    pointer-events: none;
+  }
+
+  .ambience::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(
+        60% 55% at 85% 95%,
+        color-mix(in srgb, var(--accent) 9%, transparent),
+        transparent 70%
+      ),
+      radial-gradient(
+        45% 50% at 10% 10%,
+        color-mix(in srgb, var(--accent-2) 8%, transparent),
+        transparent 70%
+      ),
+      radial-gradient(
+        40% 40% at 40% 55%,
+        color-mix(in srgb, var(--gold) 10%, transparent),
+        transparent 70%
+      );
+  }
+
+  :root[dir='rtl'] .ambience::after {
+    scale: -1 1;
+  }
+
+  .haze {
+    position: absolute;
+    inset-block: -15%;
+    inset-inline: 20% -20%;
+    inline-size: auto;
+    block-size: 130%;
+    object-fit: cover;
+    filter: blur(64px) sepia(0.55) saturate(0.85);
+    opacity: 0.14;
+  }
+
   .text {
     grid-column: 1 / -1;
     display: grid;
@@ -115,6 +165,7 @@
       grid-row: 1;
       align-self: start;
       opacity: 0.92;
+      box-shadow: 0 1.5rem 3rem -1.75rem color-mix(in srgb, var(--shade) 30%, transparent);
     }
 
     /* The website: the proof, nearly the gallery's width. */
@@ -125,25 +176,30 @@
       margin-block-start: 13%;
       box-shadow:
         0 0 0 var(--hairline) var(--gold),
-        calc(-1rem * var(--dir)) 1rem 0 0 var(--accent);
+        calc(-1rem * var(--dir)) 1rem 0 0 var(--accent),
+        calc(-1rem * var(--dir)) 2.5rem 4rem -1.5rem
+          color-mix(in srgb, var(--shade) 32%, transparent);
     }
 
-    /* Its phone layout: a small device in front of the frame's lower inline-start corner,
-       held in a cream mat with a gold edge. */
+    /* Its phone layout: an object in the foreground, not a mockup. It overlaps the frame's
+       lower inline-start corner deeply, hangs a little below it, sits in a cream mat with a
+       gold edge, and rests on a soft contact shadow so it reads as in front of the site. */
     .phone {
       display: block;
       grid-column: 1 / span 2;
       grid-row: 1;
       align-self: end;
       z-index: 3;
-      inline-size: min(100%, 9.5rem);
-      margin-inline-start: calc(var(--space-7) * -1);
+      inline-size: min(100%, 11.25rem);
+      margin-inline-start: calc(var(--space-6) * -1);
       margin-block-end: calc(var(--space-8) * -1);
-      border-radius: 1.25rem;
+      border-radius: 1.375rem;
       overflow: clip;
       box-shadow:
-        0 0 0 0.375rem var(--surface-0),
-        0 0 0 calc(0.375rem + var(--hairline)) var(--gold);
+        0 0 0 0.4375rem var(--surface-0),
+        0 0 0 calc(0.4375rem + var(--hairline)) var(--gold),
+        0 1.25rem 1.5rem -0.75rem color-mix(in srgb, var(--shade) 45%, transparent),
+        0 3rem 4rem -2rem color-mix(in srgb, var(--shade) 35%, transparent);
     }
   }
 

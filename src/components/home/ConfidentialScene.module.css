@@ -13,7 +13,8 @@
     --archive-pad: var(--space-5);
     position: relative;
     padding: var(--archive-pad);
-    background: var(--surface-1);
+    /* Nearly opaque, so the system field behind is felt at the edges, not read through. */
+    background: color-mix(in srgb, var(--surface-1) 90%, transparent);
   }
 
   /* The boundary: a hairline frame in eight segments, each from a corner to a midpoint,

@@ -1,7 +1,8 @@
 @layer components {
   .bridge {
-    --scene-pad-start: var(--section-space-sm);
-    --scene-pad-end: var(--section-space-sm);
+    --scene-pad-start: var(--space-7);
+    --scene-pad-end: var(--space-8);
+    --scene-align: center;
   }
 
   .grid {
@@ -67,8 +68,18 @@
     color: var(--chapter);
   }
 
+  /* The name, and beside it (wrapping under it where narrow) who the project is. */
   .title {
     grid-area: title;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: var(--space-4);
+    row-gap: var(--space-1);
+  }
+
+  .identity {
+    color: var(--text-muted);
   }
 
   .line {

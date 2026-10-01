@@ -31,7 +31,7 @@ export interface ShowcaseCopy {
   /** The closing scene's three converging paths, from the approved positioning. */
   contactCycle: readonly string[]
   /** Selected Work: one short line per chapter, naming the world it opens. */
-  chapters: { on: string; miMaMo: string; defense: string }
+  chapters: { on: string; onIdentity: string; miMaMo: string; defense: string }
   /** Shown over a project's main proof on hover, beside the explicit project link. */
   explore: string
   /** About: the three disciplines named in Martin's support line, as marks on one line. */
@@ -64,6 +64,7 @@ export const showcaseCopy: Localized<ShowcaseCopy> = {
     contactCycle: ['Product', 'System', 'Experience'],
     chapters: {
       on: 'Brand and digital experience',
+      onIdentity: 'Dating Retreat in the Galilee',
       miMaMo: 'Operational product',
       defense: 'Complex systems',
     },
@@ -93,6 +94,7 @@ export const showcaseCopy: Localized<ShowcaseCopy> = {
     contactCycle: ['מוצר', 'מערכת', 'חוויה'],
     chapters: {
       on: 'מותג וחוויה דיגיטלית',
+      onIdentity: 'ריטריט היכרויות בגליל',
       miMaMo: 'מוצר תפעולי',
       defense: 'מערכות מורכבות',
     },

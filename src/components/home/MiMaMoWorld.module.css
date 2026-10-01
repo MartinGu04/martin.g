@@ -163,6 +163,19 @@
     :dir(rtl) .phone {
       inset-inline: auto 0;
     }
+
+    /* Shared depth: the frame lifts off the midnight on a long soft shadow with a faint
+       edge of the interface's blue; the phone stands in front of it on a contact shadow
+       that follows the device's own outline. No perspective, no gloss. */
+    .stage [data-fallback] > :first-child {
+      box-shadow:
+        0 0 0 var(--hairline) color-mix(in srgb, var(--light) 16%, transparent),
+        0 2.5rem 4rem -2rem color-mix(in srgb, var(--shade) 75%, transparent);
+    }
+
+    .phone > :first-child {
+      filter: drop-shadow(0 1.25rem 1rem color-mix(in srgb, var(--shade) 60%, transparent));
+    }
   }
 
   /* Desktop: the title on its own line; below it the text at the inline start (statement,

@@ -62,6 +62,7 @@ export default async function HomePage({ params }: PageProps<'/[locale]'>) {
       href: '#on',
       number: on.number,
       title: on.title,
+      identity: showcase.chapters.onIdentity,
       line: showcase.chapters.on,
       accent: thread.on,
       preview: { kind: 'image', src: onMedia.siteHome.src },

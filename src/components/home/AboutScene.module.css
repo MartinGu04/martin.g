@@ -32,6 +32,11 @@
     isolation: isolate;
   }
 
+  /* The print rests on the dark wood: a soft, low shadow, no frame effect. */
+  .portrait > :first-child {
+    box-shadow: 0 2rem 3rem -1.75rem color-mix(in srgb, var(--shade) 75%, transparent);
+  }
+
   .portrait::before {
     content: '';
     position: absolute;

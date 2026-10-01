@@ -110,13 +110,16 @@ test.describe('real project showcase', () => {
     })
     await walk(page)
     for (const scene of ['#on', '#mi-ma-mo', '[aria-labelledby="about-title"]']) {
+      // Content images only: decorative layers (aria-hidden, empty alt) are checked apart.
       const images = await page.locator(`${scene} img`).evaluateAll((els) =>
-        els.map((img) => ({
-          alt: img.getAttribute('alt'),
-          width: img.getAttribute('width'),
-          height: img.getAttribute('height'),
-          src: img.getAttribute('src') ?? '',
-        })),
+        els
+          .filter((img) => !img.closest('[aria-hidden="true"]'))
+          .map((img) => ({
+            alt: img.getAttribute('alt'),
+            width: img.getAttribute('width'),
+            height: img.getAttribute('height'),
+            src: img.getAttribute('src') ?? '',
+          })),
       )
       expect(images.length, scene).toBeGreaterThan(0)
       for (const img of images) {
@@ -484,5 +487,26 @@ test.describe('exploration and polish', () => {
     for (const word of ['מוצר', 'מערכת', 'חוויה'])
       await expect(contact.getByText(word)).toBeVisible()
     await expect(contact.getByRole('link')).toHaveCount(0)
+  })
+})
+
+test.describe('depth and texture', () => {
+  test('decorative atmosphere and glyphs stay out of the accessibility tree', async ({ page }) => {
+    await page.goto('/he')
+    // ON's far haze, the Defense system field, and one glyph per process stage.
+    await expect(page.locator('#on [aria-hidden="true"] img[alt=""]')).toHaveCount(1)
+    await expect(page.locator('#confidential > svg[aria-hidden="true"]')).toHaveCount(1)
+    const stages = page.locator('[aria-labelledby="process-title"] ol > li')
+    for (const stage of await stages.all())
+      await expect(stage.locator('svg[aria-hidden="true"]')).toHaveCount(1)
+    // The field is generated geometry only: no text, no images.
+    await expect(page.locator('#confidential > svg :is(text, image)')).toHaveCount(0)
+  })
+
+  test('the closing line is the new invitation in both languages', async ({ page }) => {
+    await page.goto('/he')
+    await expect(page.getByText('בואו נבנה משהו ששווה להשתמש בו.')).toBeVisible()
+    await page.goto('/en')
+    await expect(page.getByText('Let’s build something worth using.')).toBeVisible()
   })
 })

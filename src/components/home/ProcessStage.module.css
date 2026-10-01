@@ -28,7 +28,7 @@
 
   .step {
     display: grid;
-    grid-template-columns: 3.5rem minmax(0, 1fr);
+    grid-template-columns: 3.5rem minmax(0, 1fr) auto;
     column-gap: var(--space-4);
     row-gap: var(--space-1);
     align-items: baseline;
@@ -44,11 +44,24 @@
     grid-row: 1 / span 2;
   }
 
+  /* The stage's glyph at the row's inline end: the step's own color, held back, so it
+     brightens with the step when it becomes current (and on hover). */
+  .glyph {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+    align-self: center;
+    inline-size: 1.375rem;
+    block-size: 1.375rem;
+    opacity: 0.6;
+  }
+
   .word {
+    grid-column: 2;
     transition: color var(--dur-micro) var(--ease-out);
   }
 
   .line {
+    grid-column: 2;
     max-inline-size: 30em;
   }
 

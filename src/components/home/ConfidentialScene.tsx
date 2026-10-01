@@ -9,6 +9,7 @@ import { Reveal } from '@/components/motion/Reveal'
 import { SystemDiagram } from '@/components/project/SystemDiagram'
 import { Scene } from '@/components/scene/Scene'
 import { Thread } from '@/components/scene/Thread'
+import { SystemField } from './SystemField'
 import styles from './ConfidentialScene.module.css'
 
 type Item = ConfidentialProjectSummary & { number: string }
@@ -18,7 +19,9 @@ type Item = ConfidentialProjectSummary & { number: string }
  * gunmetal register holds a framed archive: restrained corner marks, a hairline boundary
  * that draws closed from its corners on arrival, technical micro type, and a generated
  * system diagram per project (topology, data pathways, masked structural blocks) with a
- * slow scan while the scene is visible. The thread arrives here in cold steel. The diagrams are abstract and say so by being
+ * slow scan while the scene is visible. The thread arrives here in cold steel. Behind it all,
+ * a very faint, static field of system geometry (SystemField): out-of-focus panel
+ * silhouettes, grid fragments and topology, never a screen. The diagrams are abstract and say so by being
  * abstract: no fake interface, no labels, no data. Truthful: the page is not access
  * controlled and does not pretend to be; no classified, warning or dossier language.
  *
@@ -35,6 +38,7 @@ export function ConfidentialScene({ items, dict }: { items: Item[]; dict: Dictio
       className={styles.scene}
       aria-labelledby="confidential-title"
     >
+      <SystemField />
       <Grid className={styles.grid}>
         <Thread from={thread.miMaMo} to={thread.defense} />
         <div className={`col-full ${styles.archive}`}>

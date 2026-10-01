@@ -1,4 +1,4 @@
-# Homepage choreography (Phase 3; real media in Phase 4; vitality 4.5; continuity 4.6; polish 4.7)
+# Homepage choreography (Phase 3; real media in Phase 4; vitality 4.5; continuity 4.6; polish 4.7 and 4.8)
 
 The homepage is one continuous sequence of scenes, `scene → scene → scene`, held together by
 the MARTIN.G grammar (docs/DESIGN-SYSTEM.md). Scrolling is always native: every movement is
@@ -80,6 +80,34 @@ one ambient layer is its directional light, drifting very slowly (40s, alternate
 
 The full MARTIN.G wordmark appears only in the header, the hero and the footer (4.7); no
 interior scene uses it as decoration.
+
+## Depth and texture (4.8)
+
+Composition first, then depth, then texture; nothing here is a concept of its own.
+
+- **Hero**: the positioning and the principle sit at the optical center of the frame below
+  the identity (a little more space below than above), no longer anchored low.
+- **Selected Work**: a viewport-tall frame with the chapters at its center. ON's chapter
+  carries its identity beside its name, quieter than it (`ריטריט היכרויות בגליל` /
+  `Dating Retreat in the Galilee`).
+- **Shared image depth** (ON, המחלבה, About): long, soft, low shadows in the world's shade
+  and, on dark worlds, a faint edge of the world's light; foreground devices rest on a
+  contact shadow (ON's phone as a box shadow under its mat, the המחלבה phone as a drop
+  shadow that follows the device). No gloss, no perspective, no floating cards.
+- **ON**: a far, heavily blurred, warmed crop of the venue (one small image, about 16% of
+  the frame's width in pixels) and three faint washes of bordeaux, olive and gold behind
+  the world. The phone is larger, overlaps the site frame more deeply and hangs below it.
+- **Defense Systems**: `SystemField`, a static, very faint SVG field behind the archive:
+  out-of-focus panel silhouettes (some with the rhythm of rows, never content), two grid
+  fragments, orthogonal topology with square nodes and two cold traces. No screenshots,
+  text or data; the archive's surface lets it through only at about 10%.
+- **How I Work**: one line glyph per stage (`ProcessGlyph`: focus, boundary, grid,
+  modules, loop) at the row's inline end, in the step's own color held back, so it
+  brightens with the step.
+- **Capabilities**: unchanged; the bone world already carries its fine light grain (the
+  light scheme's 0.12), so no second texture is added.
+- **Texture per world**: ON paper and its haze, המחלבה its grid and dots, Defense its field,
+  Capabilities its grain, About the warm grain; hero and Selected Work stay mostly clean.
 
 ## Transitions (four, each with one meaning)
 
@@ -179,7 +207,8 @@ the frame never dips. Nothing is a carousel: no controls, no swiping, no fast cu
   (`I don't start with a screen. I start with the problem.`) with the sentence that grounds
   it, and along the portrait's bottom edge the three disciplines that sentence names
   (strategy, design, engineering) as nodes on one line. Not a biography, not a testimonial.
-- **Contact**: compact; the call to action unchanged, its second line in amber. Beside it
+- **Contact**: compact; `Have a problem worth solving?` then, in amber, `Let’s build something
+worth using.` / `בואו נבנה משהו ששווה להשתמש בו.` (4.8), balanced over two lines. Beside it
   the resolution of the page's visual language (`Convergence`): product, system and
   experience arrive as three orthogonal strands in the colors of the worlds that showed them
   (המחלבה's amber, Defense steel, ON's gold), meet at one node and continue as the one
