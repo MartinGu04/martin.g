@@ -235,17 +235,21 @@ test.describe('המחלבה case study: media and privacy', () => {
     test.skip(isMobile, 'measured at a desktop width')
     await page.goto('/en/work/mi-ma-mo')
     await walk(page)
+    // On a fresh server every image's first request is encoded on demand, alongside the
+    // other tests starting up, so loading gets more than the default five seconds.
     await expect
-      .poll(() =>
-        page.locator('main img').evaluateAll((els) =>
-          // Drawn images only: the phones-only frame is not displayed, so never fetched.
-          els
-            .filter((img) => img.getBoundingClientRect().width > 0)
-            .every(
-              (img) =>
-                (img as HTMLImageElement).complete && (img as HTMLImageElement).naturalWidth > 0,
-            ),
-        ),
+      .poll(
+        () =>
+          page.locator('main img').evaluateAll((els) =>
+            // Drawn images only: the phones-only frame is not displayed, so never fetched.
+            els
+              .filter((img) => img.getBoundingClientRect().width > 0)
+              .every(
+                (img) =>
+                  (img as HTMLImageElement).complete && (img as HTMLImageElement).naturalWidth > 0,
+              ),
+          ),
+        { timeout: 20_000 },
       )
       .toBe(true)
     const draws = await page.locator('main img').evaluateAll((els) =>
