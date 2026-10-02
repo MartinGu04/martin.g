@@ -129,9 +129,7 @@ test.describe('project inquiry page', () => {
     const phone = page.getByLabel('Phone (optional)', { exact: true })
     await expect(phone).toHaveAttribute('type', 'tel')
     await expect(phone).toHaveAttribute('autocomplete', 'tel')
-    await expect(phone).toHaveAccessibleDescription(
-      'If you’re comfortable with me getting back to you by phone.',
-    )
+    await expect(phone).toHaveAccessibleDescription('If you’d like me to get back to you by phone.')
     await expect(
       page.getByLabel('Tell me a little about the project', { exact: true }),
     ).toHaveAccessibleDescription(
@@ -397,7 +395,7 @@ test.describe('project inquiry without JavaScript', () => {
     await page.getByLabel('טלפון (רשות)', { exact: true }).fill('אפשר להתקשר')
     await submitNatively(page)
     await expect(page.locator('[aria-labelledby="contact-summary-title"]')).toContainText(
-      'נא למלא מספר טלפון, למשל 050-1234567.',
+      'מספר הטלפון לא נראה תקין. למשל: 050-1234567.',
     )
     await expect(page.locator('#contact-phone')).toHaveAttribute('aria-invalid', 'true')
     await expect(page.locator('#contact-phone')).toHaveAttribute(

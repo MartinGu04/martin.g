@@ -112,7 +112,7 @@ export const contactCopy: Localized<ContactCopy> = {
       },
       phone: {
         label: 'Phone',
-        hint: 'If you’re comfortable with me getting back to you by phone.',
+        hint: 'If you’d like me to get back to you by phone.',
         placeholder: '050-1234567',
       },
       kind: {
@@ -161,7 +161,7 @@ export const contactCopy: Localized<ContactCopy> = {
       },
       failure: {
         title: 'The message wasn’t sent.',
-        body: 'Something went wrong on the way. Your details are still here, so you can try again.',
+        body: 'Something went wrong while sending it. Your details are still here, so you can try again.',
       },
       unavailable: {
         title: 'Sending isn’t available right now.',
@@ -170,7 +170,7 @@ export const contactCopy: Localized<ContactCopy> = {
     },
     success: {
       title: 'Got it.',
-      body: 'Your message reached me. The reply will come to the email you left.',
+      body: 'Your message reached me. I’ll reply to the email you left.',
       back: 'Back to the work',
     },
   },
@@ -230,29 +230,29 @@ export const contactCopy: Localized<ContactCopy> = {
       pending: 'בשליחה…',
       privacyNote: 'הפרטים משמשים רק כדי לחזור אליכם.',
       privacyLink: 'פרטיות',
-      summaryTitle: 'כמה פרטים דורשים תיקון:',
+      summaryTitle: 'יש כמה פרטים שצריך לתקן:',
       errors: {
-        nameRequired: 'נא למלא שם.',
-        emailRequired: 'נא למלא כתובת אימייל.',
-        emailInvalid: 'נא למלא כתובת אימייל תקינה, למשל name@example.com.',
-        phoneInvalid: 'נא למלא מספר טלפון, למשל 050-1234567.',
-        descriptionRequired: 'נא לכתוב כמה מילים על הפרויקט.',
+        nameRequired: 'כתבו שם.',
+        emailRequired: 'כתבו כתובת אימייל.',
+        emailInvalid: 'כתובת האימייל לא נראית תקינה. למשל: name@example.com.',
+        phoneInvalid: 'מספר הטלפון לא נראה תקין. למשל: 050-1234567.',
+        descriptionRequired: 'ספרו לי בכמה מילים על הפרויקט.',
         tooLong: 'עד {max} תווים, בבקשה.',
-        linkInvalid: 'נא למלא קישור מלא, למשל https://example.com.',
-        optionInvalid: 'נא לבחור אחת מהאפשרויות.',
+        linkInvalid: 'הוסיפו קישור מלא, למשל https://example.com.',
+        optionInvalid: 'בחרו אחת מהאפשרויות.',
       },
       failure: {
         title: 'ההודעה לא נשלחה.',
-        body: 'משהו השתבש בדרך. הפרטים עדיין כאן, ואפשר לנסות שוב.',
+        body: 'משהו השתבש בזמן השליחה. הפרטים עדיין כאן, ואפשר לנסות שוב.',
       },
       unavailable: {
         title: 'השליחה לא זמינה כרגע.',
-        body: 'הפרטים עדיין כאן. אפשר לנסות שוב מעט מאוחר יותר.',
+        body: 'הפרטים עדיין כאן. נסו שוב מאוחר יותר.',
       },
     },
     success: {
       title: 'קיבלתי.',
-      body: 'ההודעה הגיעה אליי. התשובה תגיע לאימייל שהשארתם.',
+      body: 'ההודעה הגיעה אליי. אחזור אליכם באימייל שהשארתם.',
       back: 'חזרה לעבודות',
     },
   },
