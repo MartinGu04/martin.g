@@ -228,66 +228,6 @@ test.describe('המחלבה case study: media and privacy', () => {
     await expect(page.locator('main video, main iframe')).toHaveCount(0)
   })
 
-  test('images are requested at the size they are drawn, never far below it', async ({
-    page,
-    isMobile,
-  }) => {
-    test.skip(isMobile, 'measured at a desktop width')
-    await page.goto('/en/work/mi-ma-mo')
-    await walk(page)
-    // Warm-up. On a fresh server every image's first request is encoded on demand, alongside
-    // the other tests starting up, and that time must not count against the measurement.
-    // Request exactly the candidates this page chose and wait for each to be served, so the
-    // encodes are finished (and cached by the optimizer) before anything is measured.
-    const chosen = await page.locator('main img').evaluateAll((els) =>
-      els
-        .filter((img) => img.getBoundingClientRect().width > 0)
-        .map((img) => (img as HTMLImageElement).currentSrc)
-        .filter(Boolean),
-    )
-    expect(chosen.length).toBeGreaterThan(0)
-    for (const src of new Set(chosen)) expect((await page.request.get(src)).status(), src).toBe(200)
-    // The measurement, on a fresh load of the warmed page.
-    await page.reload()
-    await walk(page)
-    await expect
-      .poll(
-        () =>
-          page.locator('main img').evaluateAll((els) =>
-            // Drawn images only: the phones-only frame is not displayed, so never fetched.
-            els
-              .filter((img) => img.getBoundingClientRect().width > 0)
-              .every(
-                (img) =>
-                  (img as HTMLImageElement).complete && (img as HTMLImageElement).naturalWidth > 0,
-              ),
-          ),
-        { timeout: 20_000 },
-      )
-      .toBe(true)
-    const draws = await page.locator('main img').evaluateAll((els) =>
-      els
-        .filter((el) => el.getBoundingClientRect().width > 0)
-        .map((el) => {
-          const img = el as HTMLImageElement
-          return {
-            src: img.currentSrc,
-            drawn: img.getBoundingClientRect().width * window.devicePixelRatio,
-            requested: Number(new URL(img.currentSrc).searchParams.get('w')),
-            intrinsic: Number(img.getAttribute('width')),
-          }
-        }),
-    )
-    for (const d of draws) {
-      // Asked for enough pixels for the drawn size, or the whole source when it is smaller
-      // (the optimizer never enlarges). naturalWidth cannot be used: with width descriptors
-      // it is corrected by the candidate's density. Chromium may take the next smaller
-      // candidate when it is close (a geometric-mean rule), hence the margin.
-      const served = Math.min(d.requested, d.intrinsic)
-      expect(served, d.src).toBeGreaterThanOrEqual(Math.min(d.drawn, d.intrinsic) * 0.85)
-    }
-  })
-
   test('phones see the opening framed for a phone, from the same source', async ({
     page,
     isMobile,
@@ -363,6 +303,82 @@ test.describe('המחלבה case study: media and privacy', () => {
       // Excluded views are not published: no month view, no fairness table.
       expect(text).not.toMatch(/month view|fairness|תצוגה חודשית|טבלת צדק/i)
       await expect(page.locator('main a[href*="confidential"]')).toHaveCount(0)
+    }
+  })
+})
+
+test.describe('המחלבה case study: requested image sizes', () => {
+  // Warm-up, in its own hook and so with its own time budget. On a fresh server every
+  // image's first request is encoded on demand, alongside the other tests starting up, and
+  // that time must not count against the measurement. The page is loaded as the test loads
+  // it, and exactly the candidates it chose are requested until each is served (and cached
+  // by the optimizer).
+  test.beforeAll(async ({ browser }, workerInfo) => {
+    if (workerInfo.project.use.isMobile) return
+    const context = await browser.newContext()
+    try {
+      const page = await context.newPage()
+      await page.goto('/en/work/mi-ma-mo')
+      await walk(page)
+      const chosen = await page.locator('main img').evaluateAll((els) =>
+        els
+          .filter((img) => img.getBoundingClientRect().width > 0)
+          .map((img) => (img as HTMLImageElement).currentSrc)
+          .filter(Boolean),
+      )
+      expect(chosen.length).toBeGreaterThan(0)
+      await Promise.all(
+        [...new Set(chosen)].map(async (src) =>
+          expect((await page.request.get(src)).status(), src).toBe(200),
+        ),
+      )
+    } finally {
+      await context.close()
+    }
+  })
+
+  test('images are requested at the size they are drawn, never far below it', async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, 'measured at a desktop width')
+    await page.goto('/en/work/mi-ma-mo')
+    await walk(page)
+    await expect
+      .poll(
+        () =>
+          page.locator('main img').evaluateAll((els) =>
+            // Drawn images only: the phones-only frame is not displayed, so never fetched.
+            els
+              .filter((img) => img.getBoundingClientRect().width > 0)
+              .every(
+                (img) =>
+                  (img as HTMLImageElement).complete && (img as HTMLImageElement).naturalWidth > 0,
+              ),
+          ),
+        { timeout: 20_000 },
+      )
+      .toBe(true)
+    const draws = await page.locator('main img').evaluateAll((els) =>
+      els
+        .filter((el) => el.getBoundingClientRect().width > 0)
+        .map((el) => {
+          const img = el as HTMLImageElement
+          return {
+            src: img.currentSrc,
+            drawn: img.getBoundingClientRect().width * window.devicePixelRatio,
+            requested: Number(new URL(img.currentSrc).searchParams.get('w')),
+            intrinsic: Number(img.getAttribute('width')),
+          }
+        }),
+    )
+    for (const d of draws) {
+      // Asked for enough pixels for the drawn size, or the whole source when it is smaller
+      // (the optimizer never enlarges). naturalWidth cannot be used: with width descriptors
+      // it is corrected by the candidate's density. Chromium may take the next smaller
+      // candidate when it is close (a geometric-mean rule), hence the margin.
+      const served = Math.min(d.requested, d.intrinsic)
+      expect(served, d.src).toBeGreaterThanOrEqual(Math.min(d.drawn, d.intrinsic) * 0.85)
     }
   })
 })
