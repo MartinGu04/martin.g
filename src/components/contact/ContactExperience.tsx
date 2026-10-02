@@ -201,13 +201,12 @@ export function ContactExperience({
 
   const text = (
     field: Exclude<ContactField, 'kind' | 'timeline'>,
-    label: string,
+    copy: { label: string; hint?: string; placeholder?: string },
     options: {
-      hint?: string
       optional?: boolean
-      type?: 'text' | 'email'
+      type?: 'text' | 'email' | 'tel'
       autoComplete?: string
-      inputMode?: 'text' | 'email' | 'url'
+      inputMode?: 'text' | 'email' | 'url' | 'tel'
       dir?: 'auto' | 'ltr'
       multiline?: boolean
     } = {},
@@ -215,7 +214,7 @@ export function ContactExperience({
     const id = fieldId(field)
     const error = errors[field]
     const describedBy =
-      [options.hint ? `${id}-hint` : '', error ? `${id}-error` : ''].filter(Boolean).join(' ') ||
+      [copy.hint ? `${id}-hint` : '', error ? `${id}-error` : ''].filter(Boolean).join(' ') ||
       undefined
     const shared = {
       id,
@@ -223,6 +222,8 @@ export function ContactExperience({
       value: values[field],
       required: !options.optional,
       dir: options.dir ?? 'auto',
+      // An example of the answer, never the label (the label and hint stay visible).
+      placeholder: copy.placeholder,
       'aria-invalid': error ? true : undefined,
       'aria-describedby': describedBy,
       onBlur: check(field),
@@ -231,18 +232,18 @@ export function ContactExperience({
     return (
       <div className={styles.field}>
         <Label htmlFor={id} optional={options.optional ? form.optional : undefined}>
-          {label}
+          {copy.label}
         </Label>
-        {options.hint ? (
+        {copy.hint ? (
           <p id={`${id}-hint`} className={`t-small muted ${styles.hint}`}>
-            {options.hint}
+            {copy.hint}
           </p>
         ) : null}
         {error ? <ErrorText id={`${id}-error`}>{message(error)}</ErrorText> : null}
         {options.multiline ? (
           <textarea
             {...shared}
-            rows={7}
+            rows={6}
             className={`${styles.control} ${styles.area}`}
             onChange={(event) => update(field, event.target.value)}
           />
@@ -380,26 +381,29 @@ export function ContactExperience({
           </div>
 
           <div className={styles.pair}>
-            {text('name', form.name.label, { autoComplete: 'name' })}
-            {text('email', form.email.label, {
-              hint: form.email.hint,
+            {text('name', form.name, { autoComplete: 'name' })}
+            {text('email', form.email, {
               type: 'email',
               autoComplete: 'email',
               inputMode: 'email',
               dir: 'ltr',
             })}
           </div>
-          {choice('kind', form.kind.legend, projectKinds, form.kind.options)}
-          {text('goal', form.goal.label, { hint: form.goal.hint })}
-          {text('details', form.details.label, { hint: form.details.hint, multiline: true })}
           <div className={styles.pair}>
-            {text('business', form.business.label, {
+            {text('phone', form.phone, {
               optional: true,
-              autoComplete: 'organization',
+              type: 'tel',
+              autoComplete: 'tel',
+              inputMode: 'tel',
+              dir: 'ltr',
             })}
-            {text('link', form.link.label, {
+          </div>
+          {choice('kind', form.kind.legend, projectKinds, form.kind.options)}
+          {text('description', form.description, { multiline: true })}
+          <div className={styles.pair}>
+            {text('business', form.business, { optional: true, autoComplete: 'organization' })}
+            {text('link', form.link, {
               optional: true,
-              hint: form.link.hint,
               autoComplete: 'url',
               inputMode: 'url',
               dir: 'ltr',

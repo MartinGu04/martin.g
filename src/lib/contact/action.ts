@@ -13,7 +13,7 @@ const SUBMISSION_ID = /^[a-z0-9-]{16,64}$/i
 function dedupeKey(id: string, values: ContactValues): string {
   if (SUBMISSION_ID.test(id)) return `id:${id}`
   // Without JavaScript there is no id: the same sender and message count as one inquiry.
-  return `hash:${createHash('sha256').update(`${values.email}\n${values.details}`).digest('hex')}`
+  return `hash:${createHash('sha256').update(`${values.email}\n${values.description}`).digest('hex')}`
 }
 
 /**

@@ -40,24 +40,27 @@ export class DeliveryError extends Error {
 
 const TIMEOUT_MS = 8000
 
-/** The inquiry as plain text, labelled in English for Martin. Never HTML. */
+/**
+ * The inquiry as plain text, labelled in English for Martin. Never HTML. Exactly the
+ * form's fields: nothing deprecated, nothing empty.
+ */
 export function formatInquiry({ values, locale, receivedAt }: Inquiry): string {
   const form = contactCopy.en.form
   const kind = isProjectKind(values.kind) ? form.kind.options[values.kind] : ''
   const timeline = isTimeline(values.timeline) ? form.timeline.options[values.timeline] : ''
   const link = values.link ? (normalizeLink(values.link) ?? '') : ''
   const lines: [string, string][] = [
-    ['Name', values.name],
-    ['Email', values.email],
+    [form.name.label, values.name],
+    [form.email.label, values.email],
+    [form.phone.label, values.phone],
     [form.kind.legend, kind],
-    [form.goal.label, values.goal],
     [form.business.label, values.business],
     [form.link.label, link],
     [form.timeline.legend, timeline],
   ]
   return [
     ...lines.filter(([, value]) => value).map(([label, value]) => `${label}\n${value}\n`),
-    `${form.details.label}\n${values.details}\n`,
+    `${form.description.label}\n${values.description}\n`,
     `Sent from the ${locale === 'he' ? 'Hebrew' : 'English'} site, ${receivedAt.toISOString()}`,
   ].join('\n')
 }

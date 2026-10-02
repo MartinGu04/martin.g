@@ -14,9 +14,9 @@ import {
 export const contactFields = [
   'name',
   'email',
+  'phone',
   'kind',
-  'goal',
-  'details',
+  'description',
   'business',
   'link',
   'timeline',
@@ -28,19 +28,18 @@ export type ContactValues = Record<ContactField, string>
 
 export interface FieldError {
   code: ContactErrorCode
-  /** For codes that name a limit ('tooLong', 'detailsShort'). */
+  /** For codes that name a limit ('tooLong'). */
   limit?: number
 }
 
 export type ContactErrors = Partial<Record<ContactField, FieldError>>
 
-/** Upper bounds keep a message readable and the request small; the minimum asks for context. */
+/** Upper bounds keep a message readable and the request small. */
 export const limits = {
   name: 100,
   email: 254,
-  goal: 200,
-  details: 4000,
-  detailsMin: 20,
+  phone: 32,
+  description: 4000,
   business: 150,
   link: 500,
 } as const
@@ -48,9 +47,9 @@ export const limits = {
 export const emptyValues: ContactValues = {
   name: '',
   email: '',
+  phone: '',
   kind: '',
-  goal: '',
-  details: '',
+  description: '',
   business: '',
   link: '',
   timeline: '',
@@ -75,7 +74,7 @@ export function cleanValue(value: unknown, multiline = false): string {
 export function readValues(data: FormData): ContactValues {
   const values = { ...emptyValues }
   for (const field of contactFields) {
-    values[field] = cleanValue(data.get(field), field === 'details')
+    values[field] = cleanValue(data.get(field), field === 'description')
   }
   return values
 }
@@ -86,6 +85,17 @@ const EMAIL = /^[^\s@<>()[\]\\,;:"]+@[^\s@<>()[\]\\,;:"]+\.[^\s@<>()[\]\\,;:"]{2
 
 export function isEmail(value: string): boolean {
   return value.length <= limits.email && EMAIL.test(value)
+}
+
+// Gentle on purpose: digits with the usual separators, an optional leading +, and 7 to 15
+// digits in all (the international maximum). "050-1234567", "+972 50 123 4567",
+// "(212) 555-0100" and "+44 20 7946 0958" all pass; letters and stray symbols do not.
+const PHONE = /^\+?[\d\s().-]+$/
+
+export function isPhone(value: string): boolean {
+  if (value.length > limits.phone || !PHONE.test(value)) return false
+  const digits = value.replace(/\D/g, '').length
+  return digits >= 7 && digits <= 15
 }
 
 /**
@@ -118,13 +128,10 @@ export function validateField(field: ContactField, values: ContactValues): Field
     case 'email':
       if (!value) return { code: 'emailRequired' }
       return isEmail(value) ? undefined : { code: 'emailInvalid' }
-    case 'goal':
-      return value ? tooLong(value, limits.goal) : { code: 'goalRequired' }
-    case 'details':
-      if (!value) return { code: 'detailsRequired' }
-      if (value.length < limits.detailsMin)
-        return { code: 'detailsShort', limit: limits.detailsMin }
-      return tooLong(value, limits.details)
+    case 'phone':
+      return !value || isPhone(value) ? undefined : { code: 'phoneInvalid' }
+    case 'description':
+      return value ? tooLong(value, limits.description) : { code: 'descriptionRequired' }
     case 'business':
       return tooLong(value, limits.business)
     case 'link':
@@ -163,7 +170,7 @@ export function isTimeline(value: string): value is Timeline {
   return (timelines as readonly string[]).includes(value)
 }
 
-/** Fills a message template's limit: "{min}" or "{max}". */
+/** Fills a message template's limit: "{max}". */
 export function errorMessage(template: string, error: FieldError): string {
-  return template.replace(/\{(min|max)\}/g, String(error.limit ?? ''))
+  return template.replace(/\{max\}/g, String(error.limit ?? ''))
 }

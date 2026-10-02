@@ -15,6 +15,12 @@
     --header-mark: 1.5rem;
   }
 
+  /* The world beneath the header when a page opens is taken at once (HeaderWorld). */
+  .header[data-world-instant],
+  .header[data-world-instant] * {
+    transition: none;
+  }
+
   .header[data-world-scheme='light'] {
     color-scheme: light;
   }

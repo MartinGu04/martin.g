@@ -33,8 +33,7 @@ const valid: ContactValues = {
   ...emptyValues,
   name: 'Dana Example',
   email: 'dana@example.com',
-  goal: 'A booking system for a small studio',
-  details: 'Bookings live in three spreadsheets and nobody knows which one is right.',
+  description: 'A clear website for a new studio that explains what we offer.',
 }
 
 function form(values: Partial<Record<string, string>>): FormData {
@@ -114,6 +113,17 @@ describe('Phase 6 copy', () => {
     for (const service of ['Vercel', 'Resend', 'Enable', 'cdn.enable.co.il', 'NEXT_LOCALE'])
       expect(items).toContain(service)
     expect(items).toMatch(/no analytics/i)
+    // The form's fields, as they are now.
+    expect(items).toContain(
+      'asks for your name, your email address and a few words about the project',
+    )
+    expect(items).toContain(
+      'a phone number, the kind of project, a business or project name, a relevant link and when you would like to start',
+    )
+    expect(items).not.toMatch(/problem/i)
+    const he = privacyCopy.he.sections.flatMap((s) => s.body).join(' ')
+    expect(he).toContain('שם, כתובת אימייל וכמה מילים על הפרויקט')
+    expect(he).toContain('מספר טלפון')
   })
 
   it('shows errors legibly on the contact page’s graphite world', () => {
@@ -133,30 +143,66 @@ describe('contact validation', () => {
     expect(validate(valid)).toEqual({})
   })
 
-  it('requires name, email, goal and details, in form order', () => {
+  it('requires name, email and the project description, in form order', () => {
     expect(Object.entries(validate(emptyValues))).toEqual([
       ['name', { code: 'nameRequired' }],
       ['email', { code: 'emailRequired' }],
-      ['goal', { code: 'goalRequired' }],
-      ['details', { code: 'detailsRequired' }],
+      ['description', { code: 'descriptionRequired' }],
     ])
+  })
+
+  it('takes a phone number only if given, in any reasonable format', () => {
+    for (const phone of [
+      '050-1234567',
+      '0501234567',
+      '+972 50 123 4567',
+      '+972-50-1234567',
+      '(212) 555-0100',
+      '+44 20 7946 0958',
+      '03.123.4567',
+    ])
+      expect(validate({ ...valid, phone }), phone).toEqual({})
+    for (const phone of ['12345', 'call me', '050-123-abc', '+1 (555) 0100 ext 7', '1'.repeat(16)])
+      expect(validate({ ...valid, phone }).phone?.code, phone).toBe('phoneInvalid')
+    expect(validate({ ...valid, phone: '' })).toEqual({})
+  })
+
+  it('offers exactly the new project types and timelines', () => {
+    expect(projectKinds).toEqual(['website', 'landing', 'app', 'existing', 'other'])
+    expect(timelines).toEqual(['asap', 'month', 'quarter', 'later', 'undecided'])
+    expect(contactCopy.en.form.kind.options).toEqual({
+      website: 'Website',
+      landing: 'Landing page',
+      app: 'System / app',
+      existing: 'I have an existing website or system',
+      other: 'Something else / Not sure yet',
+    })
+    expect(contactCopy.he.form.timeline.options).toEqual({
+      asap: 'בהקדם',
+      month: 'בחודש הקרוב',
+      quarter: 'תוך 1–3 חודשים',
+      later: 'בעוד יותר מ־3 חודשים',
+      undecided: 'עדיין אין תאריך',
+    })
+    for (const kind of [...projectKinds, ...timelines])
+      expect(validate({ ...valid, kind, timeline: '' }).kind === undefined).toBe(
+        (projectKinds as readonly string[]).includes(kind),
+      )
   })
 
   it('checks email, length, links and choices', () => {
     expect(validate({ ...valid, email: 'not-an-email' }).email?.code).toBe('emailInvalid')
     expect(validate({ ...valid, email: 'a@b.c' }).email?.code).toBe('emailInvalid')
     expect(validate({ ...valid, email: 'x@y.com\nBcc: z@q.com' }).email?.code).toBe('emailInvalid')
-    expect(validate({ ...valid, details: 'Too short' }).details).toEqual({
-      code: 'detailsShort',
-      limit: 20,
-    })
-    expect(validate({ ...valid, details: 'x'.repeat(4001) }).details).toEqual({
+    expect(validate({ ...valid, description: 'A website' })).toEqual({})
+    expect(validate({ ...valid, description: 'x'.repeat(4001) }).description).toEqual({
       code: 'tooLong',
       limit: 4000,
     })
     expect(validate({ ...valid, link: 'javascript:alert(1)' }).link?.code).toBe('linkInvalid')
     expect(validate({ ...valid, link: 'example.com' })).toEqual({})
-    expect(validate({ ...valid, kind: 'website', timeline: 'soon' })).toEqual({})
+    expect(validate({ ...valid, kind: 'landing', timeline: 'quarter' })).toEqual({})
+    expect(validate({ ...valid, timeline: 'soon' }).timeline?.code).toBe('optionInvalid')
     expect(validate({ ...valid, kind: 'anything' }).kind?.code).toBe('optionInvalid')
   })
 
@@ -173,11 +219,25 @@ describe('contact validation', () => {
     expect(cleanValue('  Dana\u0000 \u202eExample\r\n')).toBe('Dana Example')
     expect(cleanValue('line one\r\nline two\u0007', true)).toBe('line one\nline two')
     expect(cleanValue(42)).toBe('')
-    const data = form({ name: '  Dana  ', details: 'a\n\n\n\n\n\nb', unknown: 'ignored' })
+    const data = form({
+      name: '  Dana  ',
+      description: 'a\n\n\n\n\n\nb',
+      goal: 'a field that no longer exists',
+      unknown: 'ignored',
+    })
     const values = readValues(data)
     expect(values.name).toBe('Dana')
-    expect(values.details).toBe('a\n\n\nb')
-    expect(values).not.toHaveProperty('unknown')
+    expect(values.description).toBe('a\n\n\nb')
+    expect(Object.keys(values)).toEqual([
+      'name',
+      'email',
+      'phone',
+      'kind',
+      'description',
+      'business',
+      'link',
+      'timeline',
+    ])
   })
 
   it('fills limits into localized messages', () => {
@@ -245,14 +305,24 @@ describe('delivery boundary', () => {
 
   it('formats a plain-text message with a header-safe subject', () => {
     const inquiry = {
-      values: { ...valid, kind: 'website', timeline: 'later', link: 'example.com' },
+      values: {
+        ...valid,
+        phone: '+972 50 123 4567',
+        kind: 'landing',
+        timeline: 'quarter',
+        link: 'example.com',
+      },
       locale: 'he' as const,
       receivedAt: new Date('2026-10-02T10:00:00Z'),
     }
     const text = formatInquiry(inquiry)
-    expect(text).toContain('Website or digital experience')
-    expect(text).toContain('Later on')
+    expect(text).toContain('Phone\n+972 50 123 4567')
+    expect(text).toContain('What kind of project is it?\nLanding page')
+    expect(text).toContain('When would you like to start?\nWithin 1–3 months')
+    expect(text).toContain(`Tell me a little about the project\n${valid.description}`)
     expect(text).toContain('https://example.com/')
+    // Only the current fields: nothing from the earlier form.
+    expect(text).not.toMatch(/problem|trying to build/i)
     expect(text).toContain('Sent from the Hebrew site')
     expect(text).not.toMatch(/<[a-z]/i)
     expect(inquirySubject(inquiry)).toBe('New project inquiry: Dana Example')
@@ -283,9 +353,12 @@ describe('the server action', () => {
 
   it('returns field errors and the values, and sends nothing', async () => {
     vi.stubEnv('CONTACT_OUTBOX_FILE', path.join(dir, 'outbox.jsonl'))
-    const state = await sendInquiry(initialContactState, form({ name: 'Dana', email: 'nope' }))
+    const state = await sendInquiry(
+      initialContactState,
+      form({ name: 'Dana', email: 'nope', phone: 'call me' }),
+    )
     expect(state.status).toBe('invalid')
-    expect(Object.keys(state.errors ?? {})).toEqual(['email', 'goal', 'details'])
+    expect(Object.keys(state.errors ?? {})).toEqual(['email', 'phone', 'description'])
     expect(state.values?.name).toBe('Dana')
     expect(outbox()).toEqual([])
   })
@@ -297,7 +370,7 @@ describe('the server action', () => {
     expect(state.values?.email).toBe(valid.email)
     const logged = error.mock.calls.flat().join(' ')
     expect(logged).not.toContain(valid.email)
-    expect(logged).not.toContain(valid.details)
+    expect(logged).not.toContain(valid.description)
   })
 
   it('delivers once per submission id', async () => {
@@ -357,5 +430,7 @@ describe('the server action', () => {
       reply_to: valid.email,
     })
     expect(body).not.toHaveProperty('html')
+    expect(body.text).toContain(valid.description)
+    expect(body.text).not.toMatch(/What is the problem|trying to build/)
   })
 })

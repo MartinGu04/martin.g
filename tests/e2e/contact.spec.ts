@@ -3,7 +3,7 @@ import { expect, test, type Page } from '@playwright/test'
 import { openForLayout, openRendered } from '../support/navigation'
 import { deliveredTo, uniqueEmail } from '../support/outbox'
 
-const details = 'Bookings live in three spreadsheets and nobody knows which one is right.'
+const description = 'A clear website for a new studio that explains what we offer.'
 
 /**
  * Opens the form and waits until it is hydrated (it then validates itself). Before that a
@@ -14,22 +14,21 @@ async function openForm(page: Page, url: string) {
   await expect(page.locator('form[novalidate]')).toHaveCount(1)
 }
 
-/** Fills the required fields (and a choice) through the page, as a visitor would. */
+/** Fills the required fields through the page, by their visible labels, as a visitor would. */
 async function fillRequired(page: Page, email: string, lang: 'en' | 'he' = 'en') {
   const t =
     lang === 'en'
-      ? { name: 'Your name', goal: 'What are you trying to build or improve?' }
-      : { name: 'שם', goal: 'מה רוצים לבנות או לשפר?' }
+      ? { name: 'Name', email: 'Email', about: 'Tell me a little about the project' }
+      : { name: 'שם', email: 'אימייל', about: 'ספרו לי קצת על הפרויקט' }
   await page.getByLabel(t.name, { exact: true }).fill('Dana Example')
-  await page.locator('#contact-email').fill(email)
-  await page.getByLabel(t.goal).fill('A booking system for a small studio')
-  await page.locator('#contact-details').fill(details)
+  await page.getByLabel(t.email, { exact: true }).fill(email)
+  await page.getByLabel(t.about, { exact: true }).fill(description)
 }
 
 test.describe('project inquiry page', () => {
   for (const [locale, title, h1] of [
-    ['en', 'Start a project · MARTIN.G', 'Tell me about the problem.'],
-    ['he', 'מתחילים פרויקט · MARTIN.G', 'ספרו לי על הבעיה.'],
+    ['en', 'Start a project · MARTIN.G', 'Tell me a little about what you want to create.'],
+    ['he', 'מתחילים פרויקט · MARTIN.G', 'ספרו לי קצת על מה שאתם רוצים ליצור.'],
   ] as const) {
     test(`renders in ${locale} with one h1, metadata and alternates`, async ({ page }) => {
       const response = await page.goto(`/${locale}/contact`)
@@ -62,6 +61,15 @@ test.describe('project inquiry page', () => {
       expect(await axe(), `${locale} empty`).toEqual([])
       await page.locator('form button[type="submit"]').click()
       await expect(page.locator('[aria-labelledby="contact-summary-title"]')).toBeFocused()
+      // Focus scrolls smoothly to the summary: measure once the page is at rest, not while
+      // a control passes under the sticky header.
+      await expect
+        .poll(async () => {
+          const before = await page.evaluate(() => scrollY)
+          await page.waitForTimeout(150)
+          return (await page.evaluate(() => scrollY)) === before
+        })
+        .toBe(true)
       expect(await axe(), `${locale} errors`).toEqual([])
     }
     await openForm(page, '/en/contact')
@@ -71,30 +79,83 @@ test.describe('project inquiry page', () => {
     expect(await axe(), 'success').toEqual([])
   })
 
-  test('labels, hints, required and optional fields are programmatic', async ({ page }) => {
-    await openForm(page, '/en/contact')
-    for (const [label, required] of [
-      ['Your name', true],
-      ['Email', true],
-      ['What are you trying to build or improve?', true],
-      ['What is the problem?', true],
-      ['Business or project name (optional)', false],
-      ['Website or relevant link (optional)', false],
+  test('labels, hints, placeholders, required and optional fields are programmatic', async ({
+    page,
+  }) => {
+    for (const [locale, fields, kindName] of [
+      [
+        'en',
+        [
+          ['Name', true, 'Your name'],
+          ['Email', true, 'name@example.com'],
+          ['Phone (optional)', false, '050-1234567'],
+          ['Tell me a little about the project', true, /^For example: I’m starting a new business/],
+          ['Business or project name (optional)', false, 'For example: Studio North'],
+          ['Existing website or relevant link (optional)', false, 'https://example.com'],
+        ],
+        'What kind of project is it? (optional)',
+      ],
+      [
+        'he',
+        [
+          ['שם', true, 'איך קוראים לכם?'],
+          ['אימייל', true, 'name@example.com'],
+          ['טלפון (רשות)', false, '050-1234567'],
+          ['ספרו לי קצת על הפרויקט', true, /^לדוגמה: אני פותח עסק חדש/],
+          ['שם העסק או הפרויקט (רשות)', false, 'לדוגמה: Studio North'],
+          ['אתר קיים או קישור רלוונטי (רשות)', false, 'https://example.com'],
+        ],
+        'איזה סוג פרויקט זה? (רשות)',
+      ],
     ] as const) {
-      const field = page.getByLabel(label, { exact: true })
-      await expect(field, label).toHaveCount(1)
-      if (required) await expect(field, label).toHaveAttribute('required', '')
-      else await expect(field, label).not.toHaveAttribute('required')
+      await openForm(page, `/${locale}/contact`)
+      for (const [label, required, placeholder] of fields) {
+        // Found by its visible label: the placeholder is an example, never the label.
+        const field = page.getByLabel(label, { exact: true })
+        await expect(field, label).toHaveCount(1)
+        await expect(field, label).toHaveAttribute('placeholder', placeholder)
+        const id = await field.getAttribute('id')
+        await expect(page.locator(`label[for="${id}"]`)).toBeVisible()
+        if (required) await expect(field, label).toHaveAttribute('required', '')
+        else await expect(field, label).not.toHaveAttribute('required')
+      }
+      await expect(page.getByRole('group', { name: kindName })).toHaveCount(1)
     }
-    await expect(page.getByLabel('Email', { exact: true })).toHaveAccessibleDescription(
-      'For the reply. Nothing else.',
+    await openForm(page, '/en/contact')
+    const email = page.getByLabel('Email', { exact: true })
+    await expect(email).toHaveAccessibleDescription('So I can get back to you.')
+    await expect(email).toHaveAttribute('type', 'email')
+    await expect(email).toHaveAttribute('autocomplete', 'email')
+    const phone = page.getByLabel('Phone (optional)', { exact: true })
+    await expect(phone).toHaveAttribute('type', 'tel')
+    await expect(phone).toHaveAttribute('autocomplete', 'tel')
+    await expect(phone).toHaveAccessibleDescription(
+      'If you’re comfortable with me getting back to you by phone.',
     )
-    await expect(page.getByLabel('Email', { exact: true })).toHaveAttribute('type', 'email')
-    await expect(page.getByLabel('Email', { exact: true })).toHaveAttribute('autocomplete', 'email')
-    // Choices are real radio groups with a legend; nothing relies on a placeholder.
-    await expect(page.getByRole('group', { name: /What kind of project is this/ })).toHaveCount(1)
-    await expect(page.getByRole('radio')).toHaveCount(9)
-    await expect(page.locator('[placeholder]')).toHaveCount(0)
+    await expect(
+      page.getByLabel('Tell me a little about the project', { exact: true }),
+    ).toHaveAccessibleDescription(
+      'What do you want to create, who is it for, and what should it help you do?',
+    )
+    // The two choices, with exactly the new options; the old fields are gone.
+    const kinds = page.getByRole('group', { name: /What kind of project is it/ }).locator('label')
+    await expect(kinds).toHaveText([
+      'Website',
+      'Landing page',
+      'System / app',
+      'I have an existing website or system',
+      'Something else / Not sure yet',
+    ])
+    const times = page.getByRole('group', { name: /When would you like to start/ }).locator('label')
+    await expect(times).toHaveText([
+      'As soon as possible',
+      'Within the next month',
+      'Within 1–3 months',
+      'More than 3 months from now',
+      'No date yet',
+    ])
+    await expect(page.getByRole('radio')).toHaveCount(10)
+    await expect(page.locator('[name="goal"], [name="details"]')).toHaveCount(0)
     // The spam trap is out of reach: hidden from assistive technology and the tab order.
     const trap = page.locator('input[name="homepage"]')
     await expect(trap).toHaveAttribute('tabindex', '-1')
@@ -104,6 +165,7 @@ test.describe('project inquiry page', () => {
   test('helpful validation: a focused summary that links to each field', async ({ page }) => {
     await openForm(page, '/en/contact')
     await page.getByLabel('Email', { exact: true }).fill('dana@')
+    await page.getByLabel('Phone (optional)', { exact: true }).fill('call me')
     await page.getByRole('button', { name: 'Send' }).click()
 
     const summary = page.locator('[aria-labelledby="contact-summary-title"]')
@@ -114,15 +176,15 @@ test.describe('project inquiry page', () => {
     await expect(summary.getByRole('link')).toHaveText([
       'Enter your name.',
       'Enter an email address like name@example.com.',
-      'Say in a line what you are trying to build or improve.',
-      'Describe the problem in a few words.',
+      'Enter a phone number, like 050-1234567.',
+      'Tell me a few words about the project.',
     ])
 
     // Each field says it is invalid and reads its own error.
     const email = page.getByLabel('Email', { exact: true })
     await expect(email).toHaveAttribute('aria-invalid', 'true')
     await expect(email).toHaveAccessibleDescription(
-      'For the reply. Nothing else. Enter an email address like name@example.com.',
+      'So I can get back to you. Enter an email address like name@example.com.',
     )
 
     // The summary's link moves focus to the field.
@@ -131,9 +193,12 @@ test.describe('project inquiry page', () => {
       .click()
     await expect(email).toBeFocused()
 
-    // Fixing a field clears its error at once.
+    // Fixing a field clears its error at once; an empty optional phone is fine.
     await email.fill('dana@example.com')
     await expect(email).not.toHaveAttribute('aria-invalid')
+    const phone = page.getByLabel('Phone (optional)', { exact: true })
+    await phone.fill('+972 50 123 4567')
+    await expect(phone).not.toHaveAttribute('aria-invalid')
 
     // Nothing was sent.
     expect(deliveredTo('dana@example.com')).toEqual([])
@@ -146,18 +211,21 @@ test.describe('project inquiry page', () => {
     test.skip(isMobile, 'keyboard navigation')
     const email = uniqueEmail('keyboard')
     await openForm(page, '/en/contact')
-    await page.getByLabel('Your name').focus()
+    await page.getByLabel('Name', { exact: true }).focus()
     await page.keyboard.type('Dana Example')
     await page.keyboard.press('Tab')
     await page.keyboard.type(email)
-    await page.keyboard.press('Tab') // the project kinds: arrows choose within the group
+    await page.keyboard.press('Tab')
+    await expect(page.getByLabel('Phone (optional)', { exact: true })).toBeFocused()
+    await page.keyboard.type('050-1234567')
+    await page.keyboard.press('Tab') // the project types: arrows choose within the group
     await page.keyboard.press('ArrowDown')
-    await expect(page.getByRole('radio', { name: 'A product' })).toBeChecked()
+    await expect(page.getByRole('radio', { name: 'Landing page' })).toBeChecked()
     await page.keyboard.press('Tab')
-    await expect(page.getByLabel('What are you trying to build or improve?')).toBeFocused()
-    await page.keyboard.type('A booking system')
-    await page.keyboard.press('Tab')
-    await page.keyboard.type(details)
+    await expect(
+      page.getByLabel('Tell me a little about the project', { exact: true }),
+    ).toBeFocused()
+    await page.keyboard.type(description)
     await page.keyboard.press('Tab') // business (optional)
     await page.keyboard.press('Tab') // link (optional)
     await page.keyboard.press('Tab') // timeline
@@ -183,7 +251,16 @@ test.describe('project inquiry page', () => {
 
     await expect.poll(() => deliveredTo(email).length).toBe(1)
     const [entry] = deliveredTo(email)
-    expect(entry!.values).toMatchObject({ kind: 'product', timeline: 'now', name: 'Dana Example' })
+    expect(entry!.values).toEqual({
+      name: 'Dana Example',
+      email,
+      phone: '050-1234567',
+      kind: 'landing',
+      description,
+      business: '',
+      link: '',
+      timeline: 'asap',
+    })
     expect(entry!.locale).toBe('en')
   })
 
@@ -225,7 +302,7 @@ test.describe('project inquiry page', () => {
     await expect(banner).toBeFocused()
     await expect(banner).toContainText('The message wasn’t sent.')
     await expect(page.locator('#contact-email')).toHaveValue(email)
-    await expect(page.locator('#contact-details')).toHaveValue(details)
+    await expect(page.locator('#contact-description')).toHaveValue(description)
     // The page shows nothing internal.
     expect(await page.locator('main').innerText()).not.toMatch(/error:|stack|ECONN|fetch/i)
 
@@ -241,7 +318,8 @@ test.describe('project inquiry page', () => {
     await openForm(page, '/he/contact')
     await expect(page.locator('#contact-email')).toHaveAttribute('dir', 'ltr')
     await expect(page.locator('#contact-link')).toHaveAttribute('dir', 'ltr')
-    for (const id of ['#contact-name', '#contact-goal', '#contact-details'])
+    await expect(page.locator('#contact-phone')).toHaveAttribute('dir', 'ltr')
+    for (const id of ['#contact-name', '#contact-description', '#contact-business'])
       await expect(page.locator(id)).toHaveAttribute('dir', 'auto')
     // The action's arrow points to the inline end: left in Hebrew.
     const transform = await page
@@ -267,47 +345,70 @@ test.describe('project inquiry page', () => {
   })
 })
 
-test.describe('project inquiry without JavaScript', () => {
-  // A native form submission can be held by the browser's own background services before
-  // it is sent (seen in sandboxed CI); the server answers in milliseconds either way.
-  test.slow()
+/**
+ * Sends a form rendered without JavaScript exactly as the browser would: its own method,
+ * encoding, action and fields (React's action references included), read from the page.
+ * The browser's native POST navigation is not used: in CI's headless browser it leaves the
+ * context unable to close, which hangs the test, not the site. The server's answer is then
+ * shown in the same no-JavaScript page for the assertions.
+ */
+async function submitNatively(page: Page) {
+  const form = await page.locator('form').evaluate((el: HTMLFormElement) => ({
+    action: el.action,
+    method: el.method,
+    enctype: el.enctype,
+    noValidate: el.noValidate,
+    entries: [...new FormData(el)].map(([key, value]) => [key, String(value)] as const),
+  }))
+  // Without JavaScript this is a plain multipart POST to the page itself.
+  expect(form.method).toBe('post')
+  expect(form.enctype).toBe('multipart/form-data')
+  expect(new URL(form.action).pathname).toBe(new URL(page.url()).pathname)
+  expect(form.noValidate).toBe(false) // the browser's own required checks still apply
+  expect(form.entries.some(([key]) => key.startsWith('$ACTION'))).toBe(true)
+  const response = await page.request.post(form.action, {
+    multipart: Object.fromEntries(form.entries),
+    headers: { Origin: new URL(page.url()).origin },
+  })
+  expect(response.status()).toBe(200)
+  await page.setContent(await response.text(), { waitUntil: 'domcontentloaded' })
+}
 
-  test('sends, and the server renders the success state', async ({ browser }) => {
-    const context = await browser.newContext({ javaScriptEnabled: false })
-    try {
-      const page = await context.newPage()
-      const email = uniqueEmail('nojs')
-      await openRendered(page, '/en/contact')
-      await fillRequired(page, email)
-      await page.getByRole('button', { name: 'Send' }).click()
-      await expect(page.getByRole('heading', { level: 1, name: 'Got it.' })).toBeVisible()
-      expect(page.url()).not.toContain(encodeURIComponent(email))
-      expect(page.url()).not.toContain('Dana')
-      await expect.poll(() => deliveredTo(email).length).toBe(1)
-    } finally {
-      await context.close()
-    }
+test.describe('project inquiry without JavaScript', () => {
+  test.use({ javaScriptEnabled: false })
+
+  test('sends, and the server renders the success state', async ({ page }) => {
+    const email = uniqueEmail('nojs')
+    await openRendered(page, '/en/contact')
+    await fillRequired(page, email)
+    await page.getByLabel('Phone (optional)', { exact: true }).fill('+972 50 123 4567')
+    await submitNatively(page)
+    await expect(page.getByRole('heading', { level: 1, name: 'Got it.' })).toBeVisible()
+    await expect(page.locator('form')).toHaveCount(0)
+    await expect.poll(() => deliveredTo(email).length).toBe(1)
+    expect(deliveredTo(email)[0]!.values).toMatchObject({ phone: '+972 50 123 4567', description })
   })
 
-  test('shows the server’s errors with the values kept', async ({ browser }) => {
-    const context = await browser.newContext({ javaScriptEnabled: false })
-    try {
-      const page = await context.newPage()
-      const email = uniqueEmail('nojs-invalid')
-      await openRendered(page, '/he/contact')
-      await fillRequired(page, email, 'he')
-      await page.locator('#contact-details').fill('קצר מדי')
-      await page.locator('form button[type="submit"]').click()
-      await expect(page.locator('[aria-labelledby="contact-summary-title"]')).toContainText(
-        'עוד קצת פרטים, בבקשה: לפחות 20 תווים.',
-      )
-      await expect(page.locator('#contact-details')).toHaveAttribute('aria-invalid', 'true')
-      await expect(page.locator('#contact-email')).toHaveValue(email)
-      await expect(page.locator('#contact-details')).toHaveValue('קצר מדי')
-      expect(deliveredTo(email)).toEqual([])
-    } finally {
-      await context.close()
-    }
+  test('shows the server’s errors with the values kept', async ({ page }) => {
+    const email = uniqueEmail('nojs-invalid')
+    await openRendered(page, '/he/contact')
+    await fillRequired(page, email, 'he')
+    // The browser has no rule for a phone number; the server does.
+    await page.getByLabel('טלפון (רשות)', { exact: true }).fill('אפשר להתקשר')
+    await submitNatively(page)
+    await expect(page.locator('[aria-labelledby="contact-summary-title"]')).toContainText(
+      'נא למלא מספר טלפון, למשל 050-1234567.',
+    )
+    await expect(page.locator('#contact-phone')).toHaveAttribute('aria-invalid', 'true')
+    await expect(page.locator('#contact-phone')).toHaveAttribute(
+      'aria-describedby',
+      /contact-phone-error/,
+    )
+    await expect(page.locator('#contact-name')).toHaveValue('Dana Example')
+    await expect(page.locator('#contact-email')).toHaveValue(email)
+    await expect(page.locator('#contact-description')).toHaveValue(description)
+    await expect(page.locator('#contact-phone')).toHaveValue('אפשר להתקשר')
+    expect(deliveredTo(email)).toEqual([])
   })
 })
 

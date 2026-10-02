@@ -5,7 +5,9 @@ import type { TrustPageCopy } from './legal'
  * The privacy page (Phase 6). It describes only what the site actually does, audited in
  * Phase 6 (docs/ARCHITECTURE.md, "Privacy"):
  *
- *   - the contact form's fields; delivery by email through Resend; no database
+ *   - the contact form's fields (required: name, email, project description; optional:
+ *     phone, project type, business or project name, link, timeline); delivery by email
+ *     through Resend; no database
  *   - Vercel hosting and its ordinary request logs
  *   - one first-party cookie, NEXT_LOCALE, set only by the language switch (one year)
  *   - the Enable accessibility menu, loaded from cdn.enable.co.il
@@ -41,7 +43,7 @@ export const privacyCopy: Localized<TrustPageCopy> = {
       {
         heading: 'When you send a message',
         body: [
-          'The contact form asks for your name, your email address, what you want to build or improve, and a description of the problem. You may also add a business or project name, a link, the kind of project and when you would like to start.',
+          'The contact form asks for your name, your email address and a few words about the project. You may also add a phone number, the kind of project, a business or project name, a relevant link and when you would like to start.',
           'Your message is used only to reply to you and to talk about the project. It is not added to a mailing list, sold or shared for marketing.',
           'The website does not keep messages in a database. Each message is delivered to me by email through Resend, an email delivery service, and stays in my inbox for as long as the conversation needs it.',
           'The form also has a hidden field that catches automated spam, and it notes how long the form was open. Neither identifies you.',
@@ -106,7 +108,7 @@ export const privacyCopy: Localized<TrustPageCopy> = {
       {
         heading: 'כששולחים הודעה',
         body: [
-          'טופס יצירת הקשר מבקש שם, כתובת אימייל, מה רוצים לבנות או לשפר ותיאור של הבעיה. אפשר להוסיף גם שם של עסק או פרויקט, קישור, את סוג הפרויקט ומתי תרצו להתחיל.',
+          'טופס יצירת הקשר מבקש שם, כתובת אימייל וכמה מילים על הפרויקט. אפשר להוסיף גם מספר טלפון, את סוג הפרויקט, שם של עסק או פרויקט, קישור רלוונטי ומתי תרצו להתחיל.',
           'ההודעה משמשת רק כדי לחזור אליכם ולדבר על הפרויקט. היא לא מצורפת לרשימת תפוצה, לא נמכרת ולא מועברת לצורכי שיווק.',
           'האתר לא שומר הודעות במסד נתונים. כל הודעה מגיעה אליי באימייל דרך Resend, שירות לשליחת אימיילים, ונשארת בתיבת הדואר שלי כל עוד השיחה צריכה אותה.',
           'בטופס יש גם שדה נסתר שתופס ספאם אוטומטי, והוא רושם כמה זמן הטופס היה פתוח. אף אחד מהם לא מזהה אתכם.',

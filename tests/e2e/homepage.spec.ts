@@ -63,6 +63,34 @@ test.describe('homepage scenes', () => {
     await expect.poll(() => headerBackground(page)).toBe('rgb(6, 6, 6)')
   })
 
+  test('a page that opens in a light world takes it at once, without fading from dark', async ({
+    page,
+  }) => {
+    // Records the header's state at the moment it first takes on a world.
+    await page.addInitScript(() => {
+      const w = window as unknown as { __firstWorld?: { instant: boolean } }
+      new MutationObserver((records, observer) => {
+        for (const record of records) {
+          const el = record.target as HTMLElement
+          if (record.attributeName === 'data-world-scheme' && el.dataset.worldScheme) {
+            w.__firstWorld = { instant: el.hasAttribute('data-world-instant') }
+            observer.disconnect()
+          }
+        }
+      }).observe(document, { attributes: true, subtree: true })
+    })
+    for (const url of ['/en/privacy', '/he/accessibility']) {
+      await page.goto(url)
+      await expect.poll(() => headerBackground(page)).toBe('rgb(235, 232, 225)')
+      const first = await page.evaluate(
+        () => (window as unknown as { __firstWorld?: { instant: boolean } }).__firstWorld,
+      )
+      expect(first, url).toEqual({ instant: true })
+      // Crossfades return for the scroll that follows.
+      await expect(page.getByRole('banner')).not.toHaveAttribute('data-world-instant')
+    }
+  })
+
   test('stages are static compositions with reduced motion', async ({ browser }) => {
     const context = await browser.newContext({ reducedMotion: 'reduce' })
     try {

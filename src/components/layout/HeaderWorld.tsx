@@ -16,7 +16,9 @@ const TOKENS = [
 /**
  * Lets the header belong to the world it sits over. One IntersectionObserver watches a
  * one-pixel band along the header's lower edge; the scene crossing it lends the header its
- * semantic colors, which the header crossfades (instantly with reduced motion). Worlds are
+ * semantic colors, which the header crossfades (instantly with reduced motion). The first
+ * world, the one beneath the header when the page opens, is taken at once: a page that
+ * starts in a light world never fades in from dark. Worlds are
  * contrast-validated, so the header stays readable in every one of them. Without
  * JavaScript the header simply keeps the MARTIN.G colors. Renders nothing.
  */
@@ -32,6 +34,8 @@ export function HeaderWorld() {
     const crossing = new Set<Element>()
     let current: HTMLElement | null = null
     let observer: IntersectionObserver | null = null
+    let settled = false
+    let frame = 0
 
     const apply = (scene: HTMLElement | null) => {
       if (scene === current) return
@@ -43,6 +47,14 @@ export function HeaderWorld() {
         return
       }
       const computed = getComputedStyle(scene)
+      if (!settled) {
+        // Opening world: no crossfade. Transitions resume after it has been painted.
+        settled = true
+        header.dataset.worldInstant = ''
+        frame = requestAnimationFrame(() => {
+          frame = requestAnimationFrame(() => delete header.dataset.worldInstant)
+        })
+      }
       for (const token of TOKENS) header.style.setProperty(token, computed.getPropertyValue(token))
       header.dataset.worldScheme = scene.dataset.themeScheme ?? 'dark'
       if (themeColor) themeColor.content = computed.getPropertyValue('--surface-0').trim()
@@ -72,6 +84,8 @@ export function HeaderWorld() {
     return () => {
       observer?.disconnect()
       window.removeEventListener('resize', connect)
+      cancelAnimationFrame(frame)
+      delete header.dataset.worldInstant
       apply(null)
     }
   }, [pathname])

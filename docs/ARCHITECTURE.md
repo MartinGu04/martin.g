@@ -106,11 +106,15 @@ release gate refuses a Vercel production build meanwhile. See docs/CASE-STUDIES.
 `/[locale]/contact` is the project inquiry: the homepage's closing scene ("Start a project")
 extended into one calm form, statically generated like every page.
 
-- **Fields.** Required: name, email, what they want to build or improve, the problem.
-  Optional: the kind of project (website or digital experience, product, operational
-  system, improving something that exists, not sure yet), business or project name, a link,
-  when they would like to start. No phone, no budget (premature for a first message, and it
-  would set the wrong tone), nothing else personal.
+- **Fields** (revised in Phase 6 to speak a client's language, not product terminology;
+  nobody has to frame their need as "a problem"). Required: name, email, and one
+  description of the project. Optional: phone (`type="tel"`, any reasonable format: an
+  optional `+`, digits with spaces, dashes, dots or brackets, 7 to 15 digits), the kind of
+  project (website, landing page, system or app, an existing website or system, something
+  else or not sure yet), business or project name, an existing website or relevant link,
+  and when they would like to start (as soon as possible, within the next month, within 1
+  to 3 months, more than 3 months from now, no date yet). No budget (premature for a first
+  message), nothing else personal.
 - **Server action** (`src/lib/contact/action.ts`). Without JavaScript the form posts to it
   and the server renders the answer in place (errors with values kept, or the success
   state). With JavaScript the form validates first (`src/lib/contact/validate.ts`, shared
@@ -122,7 +126,7 @@ extended into one calm form, statically generated like every page.
   (under 3s is software; set in the browser, so without JavaScript only the trap applies).
   Spam is answered like a delivery and never delivered. No CAPTCHA.
 - **Duplicates.** The form allows one submission at a time (`aria-disabled` while sending);
-  the server delivers one submission id (or, without JavaScript, one sender and message)
+  the server delivers one submission id (or, without JavaScript, one sender and description)
   once per ten minutes, in memory per instance (`dedupe.ts`).
 - **Delivery** (`notifiers.ts`): a `ContactNotifier` interface. Resend (email) is the
   primary channel; Telegram (a phone ping) is optional; an outbox file serves the e2e tests
@@ -141,7 +145,8 @@ extended into one calm form, statically generated like every page.
 ## Privacy (Phase 6 audit)
 
 What the site actually does, which `/[locale]/privacy` states (and must keep stating):
-the contact form's fields, delivered by email through Resend; hosting on Vercel with its
+the contact form's fields (required: name, email, project description; optional: phone,
+project type, business or project name, link, timeline), delivered by email through Resend; hosting on Vercel with its
 ordinary request logs; one first-party cookie, `NEXT_LOCALE`, set only by the language
 switch (one year); the Enable menu's script from `cdn.enable.co.il` (and whatever it
 stores in the browser); no analytics (Phase 7 adds Vercel Web Analytics: update the page

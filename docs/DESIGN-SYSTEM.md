@@ -285,7 +285,8 @@ frame), `SystemDiagram` (generated, abstract system geometry for confidential wo
 ## Forms (Phase 6)
 
 The project inquiry (`src/components/contact`) defines the form grammar; there is no form
-library. Visible labels above every control (never a placeholder), hints under the label,
+library. Visible labels above every control, hints under the label, placeholders only as a
+muted example of the answer (never instead of the label or the hint),
 `(optional)` marked rather than every required field (the form says so once). Controls sit
 on `--surface-1` with a `--control-border` boundary (3:1), radius 0, 48px tall, text at
 body size (so phones never zoom into a field); focus is the system ring. Choices are real
@@ -295,7 +296,7 @@ one outlined in the accent. Errors are text first (`--error`, a soft coral teste
 control), listed in a summary that takes focus and links to each field. The action is a
 solid block in the world's accent with the arrow, the one solid control on a page. On phones the
 form keeps a tighter rhythm (2rem between fields instead of 3rem, a five-line problem
-field that still grows by hand), so the single column stays a short inquiry, not a
+description field that still grows by hand), so the single column stays a short inquiry, not a
 questionnaire.
 
 ## Motion
