@@ -21,6 +21,7 @@
     "leak:files": "node scripts/leak-check.mjs files",
     "leak:history": "node scripts/leak-check.mjs history",
     "leak:encode": "node scripts/leak-check.mjs encode",
+    "brand:icons": "node scripts/brand-icons.mjs",
     "check": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm test"
   },
   "dependencies": {

@@ -18,15 +18,16 @@ const headerBackground = (page: Page) =>
 test.describe('homepage scenes', () => {
   test('identity is in the first viewport, without scrolling', async ({ page }) => {
     await page.goto('/en')
-    const hero = page.getByRole('region', { name: 'MARTIN.G' })
+    const hero = page.getByRole('region', { name: /^MARTIN\.G/ })
     for (const text of [
       'Martin Gusin',
       'Product Builder',
       'Digital products, systems & experiences.',
-      'From problem to product.',
     ]) {
       await expect(hero.getByText(text, { exact: true }).first()).toBeInViewport()
     }
+    await expect(hero.getByRole('heading', { level: 1 })).toContainText('From problem to product.')
+    await expect(hero.getByRole('heading', { level: 1 })).toBeInViewport()
   })
 
   test('the work is reached quickly and its index leads to real scenes', async ({ page }) => {

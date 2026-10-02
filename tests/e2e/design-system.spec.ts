@@ -64,49 +64,66 @@ test.describe('brand marks', () => {
     }
   })
 
-  test('narrow phones keep every destination legible and clear of the symbol', async ({
+  test('narrow phones keep one row: every destination legible and clear of the symbol', async ({
     browser,
   }) => {
-    // 390 and 360: one row (the Latin labels tighten below 390). 320: a two-row masthead
-    // that scrolls away. Never a drawer, never an overlap, never a wrapped label.
-    for (const [width, rows, position] of [
-      [390, 1, 'sticky'],
-      [360, 1, 'sticky'],
-      [320, 2, 'relative'],
+    // 390 and 360: both language codes (the Latin labels tighten below 390). Under 360,
+    // including 400% zoom: the header shows only the language to switch to. Always one
+    // sticky row, never a drawer, an overlap or a wrapped label.
+    for (const [width, dpr, codes] of [
+      [390, 2, 2],
+      [360, 2, 2],
+      [320, 2, 1],
+      [320, 4, 1],
     ] as const) {
-      const context = await browser.newContext({ viewport: { width, height: 640 } })
+      const context = await browser.newContext({
+        viewport: { width, height: 640 },
+        deviceScaleFactor: dpr,
+      })
       try {
         const page = await context.newPage()
-        for (const url of ['/en', '/he']) {
+        for (const [url, other] of [
+          ['/en', 'HE'],
+          ['/he', 'EN'],
+        ] as const) {
           await openForLayout(page, url)
           const header = page.getByRole('banner')
-          expect(await header.evaluate((el) => getComputedStyle(el).position)).toBe(position)
+          expect(await header.evaluate((el) => getComputedStyle(el).position)).toBe('sticky')
           const mark = (await header.locator('[data-mark="monogram"]').boundingBox())!
-          const links = header.getByRole('navigation').locator('a')
-          await expect(links).toHaveCount(5)
-          const boxes = await links.evaluateAll((els) =>
-            els.map((el) => {
-              const r = el.getBoundingClientRect()
-              return {
-                left: r.left,
-                right: r.right,
-                top: r.top,
-                bottom: r.bottom,
-                lines: el.getClientRects().length,
-              }
-            }),
-          )
+          const group = header.getByRole('group')
+          const visibleCodes = group.locator('a:visible')
+          await expect(visibleCodes).toHaveCount(codes)
+          if (codes === 1) {
+            await expect(visibleCodes).toHaveAttribute('hreflang', other.toLowerCase())
+            await expect(group).toHaveAccessibleName(
+              url === '/en' ? 'Switch language' : 'החלפת שפה',
+            )
+          }
+          const boxes = await header
+            .getByRole('navigation')
+            .locator('a:visible')
+            .evaluateAll((els) =>
+              els.map((el) => {
+                const r = el.getBoundingClientRect()
+                return {
+                  left: r.left,
+                  right: r.right,
+                  top: r.top,
+                  bottom: r.bottom,
+                  lines: el.getClientRects().length,
+                }
+              }),
+            )
+          expect(boxes).toHaveLength(3 + codes)
           const clear = mark.height * 0.25
           for (const box of boxes) {
-            expect(box.lines, `${url} at ${width}`).toBe(1)
-            expect(box.bottom - box.top, `${url} at ${width}`).toBeGreaterThanOrEqual(44)
-            const sameRow = box.top < mark.y + mark.height && box.bottom > mark.y
-            if (rows === 2) expect(sameRow, `${url} at ${width}`).toBe(false)
-            else if (url === '/en')
-              expect(box.left - (mark.x + mark.width), `${url} at ${width}`).toBeGreaterThanOrEqual(
-                clear,
-              )
-            else expect(mark.x - box.right, `${url} at ${width}`).toBeGreaterThanOrEqual(clear)
+            const where = `${url} at ${width}@${dpr}x`
+            expect(box.lines, where).toBe(1)
+            expect(box.bottom - box.top, where).toBeGreaterThanOrEqual(44)
+            expect(box.top < mark.y + mark.height && box.bottom > mark.y, where).toBe(true)
+            if (url === '/en')
+              expect(box.left - (mark.x + mark.width), where).toBeGreaterThanOrEqual(clear)
+            else expect(mark.x - box.right, where).toBeGreaterThanOrEqual(clear)
           }
           expect(await horizontalOverflow(page), `${url} at ${width}`).toBeLessThanOrEqual(0)
         }
@@ -132,9 +149,10 @@ test.describe('brand marks', () => {
     await page.emulateMedia({ forcedColors: 'active' })
     await page.goto('/en')
     const colors = await page
-      .locator('main [data-mark="wordmark"]')
+      .locator('[data-mark]:visible')
       .evaluateAll((els) => els.map((el) => getComputedStyle(el).backgroundColor))
-    expect(colors.length).toBeGreaterThan(0)
+    // The header's mark (wordmark or, on phones, the symbol) and the footer's wordmark.
+    expect(colors.length).toBeGreaterThanOrEqual(2)
     expect(colors).not.toContain('rgba(0, 0, 0, 0)')
   })
 })

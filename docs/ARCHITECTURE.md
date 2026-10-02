@@ -22,7 +22,7 @@ src/
     [locale]/              root layout: <html lang dir>; home; work/[slug]; contact; privacy;
                            accessibility; not-found
     global-not-found.tsx   URLs outside any locale
-    sitemap.ts robots.ts icon.png apple-icon.png favicon.ico
+    sitemap.ts robots.ts manifest.ts icon.svg icon.png apple-icon.png favicon.ico
   i18n/                    config, negotiation, dictionaries, release gate
   content/                 schema, registry (server-only), resolve (view models), projects/
   components/              brand, layout (grid, rule, header, footer), nav, type, theme, media,
@@ -71,9 +71,10 @@ preview builds only.
   atmosphere (light, grid visibility, texture). Derived tokens are re-declared inside the
   scope; `themeIssues()` validates contrast. Spacing, grid, type and motion are never
   themeable.
-- Brand marks are the approved MARTIN.G wordmark and MG symbol (Phase 6), the supplied
-  artwork's own pixels as alpha masks tinted with `currentColor`, with CSS-enforced minimum
-  sizes per pixel density; the icons are the symbol as supplied, black on white.
+- Brand marks are the approved MARTIN.G wordmark and MG symbol (Phase 6), faithful SVG
+  vectorizations of the supplied artwork used as masks tinted with `currentColor`, with
+  CSS-enforced minimum sizes per pixel density. The icon set (favicon, app icons, manifest
+  icons) is generated from the symbol SVG by `pnpm brand:icons`.
 
 ## Content
 

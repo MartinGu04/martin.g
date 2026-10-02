@@ -149,6 +149,12 @@ test.describe('locale routing', () => {
     for (const url of ['/en/work/does-not-exist', '/en/nothing-here']) {
       const response = await page.goto(url)
       expect(response?.status()).toBe(404)
+      // Signed with the wordmark, which leads home; the copy sits clear of it.
+      const home = page.getByRole('link', { name: 'MARTIN.G' })
+      await expect(home).toBeVisible()
+      const mark = await home.boundingBox()
+      const title = await page.getByRole('heading', { level: 1 }).boundingBox()
+      expect(title!.y).toBeGreaterThan(mark!.y + mark!.height + 48)
     }
   })
 })
@@ -251,9 +257,20 @@ test.describe('accessibility foundation', () => {
     }
   })
 
-  test('the hero heading exposes the brand name as text', async ({ page }) => {
-    await page.goto('/he')
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText('MARTIN.G')
+  test('the hero heading is the visible headline, introduced by the brand name', async ({
+    page,
+  }) => {
+    for (const [url, principle] of [
+      ['/he', 'מבעיה למוצר.'],
+      ['/en', 'From problem to product.'],
+    ] as const) {
+      await page.goto(url)
+      const h1 = page.getByRole('heading', { level: 1 })
+      await expect(h1).toHaveAccessibleName(`MARTIN.G: ${principle}`)
+      await expect(h1).toBeVisible()
+      // The hero no longer repeats the wordmark: the header carries it.
+      await expect(page.locator('main [data-mark]')).toHaveCount(0)
+    }
   })
 
   test('content is visible without JavaScript', async ({ browser }) => {
@@ -327,9 +344,24 @@ test.describe('brand and layout', () => {
   })
 
   test('serves icons and security headers', async ({ request }) => {
-    for (const url of ['/icon.png', '/apple-icon.png', '/favicon.ico']) {
-      expect((await request.get(url)).status()).toBe(200)
+    for (const url of [
+      '/icon.png',
+      '/icon.svg',
+      '/apple-icon.png',
+      '/favicon.ico',
+      '/icons/icon-192.png',
+      '/icons/icon-512.png',
+      '/icons/maskable-512.png',
+    ]) {
+      expect((await request.get(url)).status(), url).toBe(200)
     }
+    const manifest = await (await request.get('/manifest.webmanifest')).json()
+    expect(manifest).toMatchObject({ name: 'MARTIN.G', short_name: 'MARTIN.G' })
+    expect(manifest.icons.map((i: { purpose: string }) => i.purpose)).toEqual([
+      'any',
+      'any',
+      'maskable',
+    ])
     const response = await request.get('/en')
     expect(response.headers()['x-content-type-options']).toBe('nosniff')
     expect(response.headers()['content-security-policy']).toContain("frame-ancestors 'none'")

@@ -30,6 +30,15 @@
     color: var(--text);
   }
 
+  /* Under 360px the header shows only the language to switch to (the divider goes with
+     the current one). Still a 44px target, still labelled "Switch language". */
+  @media (width < 22.5rem) {
+    .compact .item:has(> .link[aria-current='true']),
+    .compact .divider {
+      display: none;
+    }
+  }
+
   @media (hover: hover) and (pointer: fine) {
     .link:hover {
       color: var(--text);

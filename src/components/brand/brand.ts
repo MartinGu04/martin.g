@@ -2,13 +2,14 @@
  * Brand mark manifest. Components read only this. Rules are documented in
  * docs/DESIGN-SYSTEM.md.
  *
- * APPROVED ASSETS (Phase 6): the MARTIN.G wordmark and the MG symbol supplied by Martin.
- * Each file is the supplied artwork's own pixels as an alpha mask: coverage taken from
- * the artwork composited on white (only the wordmark's sub-5% compression noise around
- * the glyphs dropped), trimmed to the ink with a one-pixel margin, no metadata. Nothing is
- * redrawn or traced and the proportions are the artwork's. The marks are one color; the
- * mask is tinted with currentColor, the scene's text color, as the brand system has always
- * rendered its marks, so they read on dark and light worlds alike.
+ * APPROVED ASSETS (Phase 6): the MARTIN.G wordmark and the MG symbol supplied by Martin,
+ * as faithful SVG vectorizations of the supplied rasters (public/brand/*.svg; also the
+ * lockup). Each was traced from the artwork's own coverage on the artwork's pixel grid,
+ * never redrawn, and checked by overlaying a render on the original: IoU 0.9988 (symbol),
+ * 0.9942 (wordmark), 0.9962 (lockup), with no pixel disagreeing by more than half. The
+ * marks are one color; the SVG is a mask tinted with currentColor, the scene's text color,
+ * as the brand system has always rendered its marks, so they read on dark and light
+ * worlds and stay sharp at any size.
  *
  * Legibility: both marks are built from solid strokes. `thinRatio` is the thinnest typical
  * feature (a stroke, or the slit between two) as a share of the mark's height, measured on
@@ -18,7 +19,7 @@
 export const brandMarks = {
   wordmark: {
     name: 'MARTIN.G',
-    src: '/brand/martin-g-wordmark.png',
+    src: '/brand/martin-g-wordmark.svg',
     width: 1090,
     height: 103,
     status: 'approved',
@@ -30,7 +31,7 @@ export const brandMarks = {
   },
   monogram: {
     name: 'MG',
-    src: '/brand/martin-g-symbol.png',
+    src: '/brand/martin-g-symbol.svg',
     width: 752,
     height: 622,
     status: 'approved',

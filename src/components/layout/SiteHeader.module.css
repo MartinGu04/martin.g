@@ -41,8 +41,10 @@
   }
 
   /* Narrow phones (under 390px): the Latin labels' tracking tightens and the gaps narrow,
-     so four destinations still sit on one line beside the symbol. Hebrew labels have no
-     tracking to tighten. Type size and 44px targets are unchanged. */
+     so every destination still sits on one line beside the symbol. Hebrew labels have no
+     tracking to tighten. Type size and 44px targets are unchanged. Under 360px (small
+     phones, 400% zoom) the language switch shows only the other language (LocaleSwitch),
+     so the row still fits: one sticky row at every width, no drawer. */
   @media (width < 24.375rem) {
     .nav:not(:lang(he)) {
       --label-tracking: 0.06em;
@@ -50,32 +52,6 @@
 
     .list {
       gap: var(--space-2);
-    }
-  }
-
-  /* The smallest screens (under 360px, including 400% zoom): one line cannot hold the
-     symbol and four destinations legibly, so the header becomes a masthead of two rows,
-     the symbol above the navigation, and scrolls away with the page rather than covering
-     a quarter of a small screen. */
-  @media (width < 22.5rem) {
-    .header {
-      position: relative;
-    }
-
-    .bar {
-      flex-direction: column;
-      align-items: stretch;
-      gap: 0;
-      padding-block-start: var(--space-2);
-    }
-
-    .nav,
-    .list {
-      justify-content: space-between;
-    }
-
-    .list {
-      flex: 1;
     }
   }
 

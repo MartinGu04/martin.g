@@ -41,16 +41,19 @@ describe('brand marks', () => {
       expect(brandMarks[mark].status).toBe('approved')
       const file = new URL(`../../public${brandMarks[mark].src}`, import.meta.url)
       expect(existsSync(file)).toBe(true)
-      // The manifest states the file's real pixel size (PNG header: width, height).
-      const png = readFileSync(file)
-      expect([png.readUInt32BE(16), png.readUInt32BE(20)]).toEqual([
-        brandMarks[mark].width,
-        brandMarks[mark].height,
-      ])
+      // The manifest states the vector's own proportions (its viewBox).
+      const svg = readFileSync(file, 'utf8')
+      expect(svg).toContain(`viewBox="0 0 ${brandMarks[mark].width} ${brandMarks[mark].height}"`)
+      // One-color artwork, tinted where it is used; no raster inside, no editor metadata.
+      expect(svg).toContain('fill="currentColor"')
+      expect(svg).not.toMatch(/<image|data:|<metadata|inkscape|sodipodi/)
     }
     expect(brandMarks.wordmark.width / brandMarks.wordmark.height).toBeCloseTo(10.58, 2)
     expect(brandMarks.monogram.width / brandMarks.monogram.height).toBeCloseTo(1.209, 2)
     expect(existsSync(new URL('../../public/brand/provisional', import.meta.url))).toBe(false)
+    expect(existsSync(new URL('../../public/brand/martin-g-lockup.svg', import.meta.url))).toBe(
+      true,
+    )
   })
 })
 

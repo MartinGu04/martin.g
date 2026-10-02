@@ -162,8 +162,10 @@ uses one of the first four; `t-label` and `t-micro` are for orientation only.
   in from the inline start as its scene arrives (scroll-driven, static without motion,
   hidden in forced colors) and is decorative. One per scene; the closing scene resolves it
   (drawn once, an open square, still).
-- Brand marks inside scenes (4.7): the full wordmark belongs to the header, the hero and
-  the footer. Interior scenes use grid geometry, lines and nodes instead, or nothing.
+- Brand marks inside scenes (4.7, brand polish): the wordmark belongs to the header and the
+  footer only. The hero carries the identity in type (Martin Gusin, Product Builder) and
+  the symbol as one hairline outline (`HeroSymbol`, below). Interior scenes use grid
+  geometry, lines and nodes instead, or nothing.
 - Glyphs (4.7): small custom inline SVG on the 24-unit grid (hairline strokes, square
   nodes, orthogonal paths, no gradients, no containers), monochrome or a world's second
   accent, about 18 to 24px. Never an icon pack.
@@ -240,15 +242,26 @@ frame), `SystemDiagram` (generated, abstract system geometry for confidential wo
 
 ## Brand marks
 
-- **Wordmark** (MARTIN.G) is primary: tablet/desktop header, hero, footer.
+- **Wordmark** (MARTIN.G) is primary: tablet/desktop header, footer.
   **Symbol** (the MG monogram; `Monogram` in code) is secondary: compact mobile header,
-  favicon and app icons, small details.
-- **Approved artwork** (Phase 6), supplied by Martin: `public/brand/martin-g-wordmark.png`
-  (1090 × 103) and `public/brand/martin-g-symbol.png` (752 × 622). Each is the supplied
-  file's own pixels as an alpha mask (trimmed to the ink, no metadata): nothing redrawn,
-  traced or approximated, proportions untouched. The marks are one color and are tinted
-  with `currentColor` (the scene's text color), so they read on dark and light worlds.
-  The supplied originals stay outside the repository.
+  favicon and app icons, and the hero's outline device.
+- **One strong brand moment over repeated weaker ones.** Per page the wordmark appears once
+  in the header (or the symbol on phones) and once in the footer. The hero names Martin in
+  type and carries the symbol only as a single 1px outline at 30% bone, cropped past the
+  inline end, drawn in once (static without motion, desktop only, absent in forced
+  colors). It is decorative (`aria-hidden`); the hero's `<h1>` keeps the accessible name
+  "MARTIN.G: principle".
+- **Approved artwork** (Phase 6), supplied by Martin, as SVG: `public/brand/`
+  `martin-g-symbol.svg` (752 × 622), `martin-g-wordmark.svg` (1090 × 103) and
+  `martin-g-lockup.svg` (1090 × 675, symbol over wordmark; an asset for others' use, not
+  rendered on the site). Each is a faithful vectorization of the supplied file (potrace, one
+  `currentColor` path, even-odd fill, no metadata): nothing redrawn or re-proportioned.
+  Fidelity is checked by overlay against the source at its native size: intersection over
+  union 0.9988 (symbol), 0.9942 (wordmark), 0.9962 (lockup), and no pixel differs by more
+  than half its coverage. The supplied wordmark is only about 103px tall, so its SVG is as
+  exact as that source allows; a larger master would let it be traced again. The marks are
+  one color, tinted with `currentColor` (the scene's text color), so they read on dark and
+  light worlds. The supplied originals stay outside the repository.
 - **Legibility.** Both marks are built from solid strokes; the thinnest typical features
   are the wordmark's strokes (about 17% of its height) and the slits inside the symbol
   (about 4%). Minimum sizes keep them at 0.75 device pixels or more.
@@ -264,11 +277,15 @@ frame), `SystemDiagram` (generated, abstract system geometry for confidential wo
 - **Clear space**: wordmark 0.5 × its height on every side; symbol 0.25 × its height.
   `withClearSpace` reserves it; the header layout is tested against it.
 - Sizes: header wordmark 18px desktop (about 190px wide), 16px tablet; mobile header symbol
-  24px; footer wordmark 20px (about 210px, so it fits a 320px screen); hero wordmark set by
-  its column's width.
-- **Icons** (`src/app/icon.png` 512, `apple-icon.png` 180, `favicon.ico` 16/32/48): the
-  symbol exactly as supplied, black on white, centered (about 64% of the square, 78% in the
-  favicon so it holds at 16px). White keeps it visible on light and dark browser tabs.
+  24px; footer wordmark 20px (about 210px, so it fits a 320px screen).
+- **Icons** (`pnpm brand:icons`, `scripts/brand-icons.mjs`, from the symbol SVG): a black
+  tile with one warm key light falling from the top inline-start corner, the symbol in bone,
+  optically centered. Rounded tiles carry a hairline warm edge so they stay defined on dark
+  browser chrome; on light chrome the dark tile is the contrast. `src/app/icon.svg`
+  (scalable favicon), `favicon.ico` (16/32/48, symbol at 72% so it holds at 16px),
+  `icon.png` 512, `apple-icon.png` 180 (full bleed; iOS rounds it), and for the web app
+  manifest (`src/app/manifest.ts`) `public/icons/icon-192.png`, `icon-512.png` and
+  `maskable-512.png` (full bleed, symbol inside the 80% safe zone).
 - Never distort, recolor with gradients, outline, add effects, or use the marks as
   decoration or loaders.
 
@@ -279,12 +296,13 @@ frame), `SystemDiagram` (generated, abstract system geometry for confidential wo
   between worlds; without JavaScript it keeps the MARTIN.G colors.
   Wordmark (tablet/desktop) or symbol (mobile), then navigation: `Work`, `About` (the
   homepage's About scene, from any page), `Contact` and the language switch `EN / HE` (no
-  dead links; tests check that every header and footer link resolves). No menu drawer:
-  from 390px the symbol and the navigation share one row; from 360 to 389px the Latin
-  labels' tracking tightens (0.16em to 0.06em) and the gaps narrow; below 360px (small
-  phones, 400% zoom) the header is a two-row masthead, the symbol above the navigation,
-  that scrolls away instead of covering a quarter of the screen. Labels never wrap, keep
-  44px targets and clear the symbol (tested at 320, 360 and 390).
+  dead links; tests check that every header and footer link resolves). No menu drawer, one
+  sticky row at every width: from 390px the symbol and the full navigation; from 360 to
+  389px the Latin labels' tracking tightens (0.16em to 0.06em) and the gaps narrow; below
+  360px (small phones, 400% zoom) the language switch shows only the other language's code
+  (the one a visitor can act on; the current one is already the page's language) and drops
+  the divider. Labels never wrap, keep 44px targets and clear the symbol (tested in both
+  languages at 390, 360, 320 and 320 at 400% zoom).
 - Language switch: codes stay Latin and in `EN / HE` order in both directions; the current
   language has `aria-current`; accessible names start with the visible code ("HE עברית").
 - Footer: rule, wordmark, positioning and principle, copyright, and one labelled navigation:

@@ -1,0 +1,24 @@
+@layer components {
+  /* The one brand moment on a page that has no site header: the wordmark, home, at the
+     header's size and height (its padding is more than the mark's clear space). */
+  .bar {
+    padding-block: var(--space-2);
+    border-block-end: var(--hairline) solid var(--line);
+  }
+
+  .home {
+    display: inline-flex;
+    min-block-size: 2.75rem;
+    align-items: center;
+  }
+
+  /* Stacked on phones, side by side from tablets: one section space above the pair and
+     one below it. */
+  .copy {
+    padding-block: var(--section-space) 0;
+  }
+
+  .copy + .copy {
+    padding-block-end: var(--section-space);
+  }
+}

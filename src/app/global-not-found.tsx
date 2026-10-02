@@ -6,6 +6,8 @@ import { localeMeta } from '@/i18n/config'
 import { notFoundCopy } from '@/i18n/dictionaries/not-found'
 import { Cell, Grid } from '@/components/layout/Grid'
 import { EnableWidget } from '@/components/a11y/EnableWidget'
+import { Wordmark } from '@/components/brand/BrandMark'
+import styles from './global-not-found.module.css'
 
 export const metadata: Metadata = {
   title: `404 · MARTIN.G`,
@@ -16,9 +18,18 @@ export default function GlobalNotFound() {
   return (
     <html lang="en" dir="ltr" className={fontVariables}>
       <body>
+        <header>
+          <Grid className={styles.bar}>
+            <Cell span={{ base: 4, md: 8, lg: 12 }}>
+              <Link href="/en" hrefLang="en" className={styles.home}>
+                <Wordmark height="1.125rem" />
+              </Link>
+            </Cell>
+          </Grid>
+        </header>
         <main id="main">
           <Grid>
-            <Cell span={{ base: 4, md: 4, lg: 6 }} style={{ paddingBlock: 'var(--space-section)' }}>
+            <Cell span={{ base: 4, md: 4, lg: 6 }} className={styles.copy}>
               <p className="t-label muted">404</p>
               <h1 className="t-heading-2">{notFoundCopy.en.title}</h1>
               <p>
@@ -27,7 +38,7 @@ export default function GlobalNotFound() {
                 </Link>
               </p>
             </Cell>
-            <Cell span={{ base: 4, md: 4, lg: 6 }} style={{ paddingBlock: 'var(--space-section)' }}>
+            <Cell span={{ base: 4, md: 4, lg: 6 }} className={styles.copy}>
               <div lang="he" dir={localeMeta.he.dir}>
                 <p className="t-label muted">404</p>
                 <h2 className="t-heading-2">{notFoundCopy.he.title}</h2>

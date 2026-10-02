@@ -42,7 +42,12 @@ export function SiteHeader({ locale, dict, labels }: SiteHeaderProps) {
               </li>
             ))}
             <li>
-              <LocaleSwitch current={locale} label={dict.a11y.switchLanguage} className="t-label" />
+              <LocaleSwitch
+                current={locale}
+                label={dict.a11y.switchLanguage}
+                className="t-label"
+                compact
+              />
             </li>
           </ul>
         </nav>
