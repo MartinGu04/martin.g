@@ -71,9 +71,9 @@ preview builds only.
   atmosphere (light, grid visibility, texture). Derived tokens are re-declared inside the
   scope; `themeIssues()` validates contrast. Spacing, grid, type and motion are never
   themeable.
-- Brand marks are provisional masks with CSS-enforced minimum sizes per pixel density
-  (the hairlines are ~2% of mark height, a property of the design). Production SVGs replace
-  the masks without API changes; small-size legibility needs a brand-owned optical cut.
+- Brand marks are the approved MARTIN.G wordmark and MG symbol (Phase 6), the supplied
+  artwork's own pixels as alpha masks tinted with `currentColor`, with CSS-enforced minimum
+  sizes per pixel density; the icons are the symbol as supplied, black on white.
 
 ## Content
 
@@ -189,9 +189,9 @@ non-clickable and route-less.
 
 ## Navigation
 
-Header: Work, Contact and the language switch. Footer: the same, plus Privacy and
-Accessibility, in a labelled navigation. No About page (About is a homepage scene), no
-placeholder or dead links (tested).
+Header: Work, About, Contact and the language switch. Footer: the same, plus Privacy and
+Accessibility, in a labelled navigation. About is the homepage's About scene (`#about`),
+reached from any page; there is no About page. No placeholder or dead links (tested).
 
 ## Launch hardening backlog
 

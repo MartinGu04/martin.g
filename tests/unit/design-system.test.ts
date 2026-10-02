@@ -1,10 +1,11 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import { brandMarks, hairlineDevicePx, type BrandMarkKey } from '@/components/brand/brand'
+import { brandMarks, thinFeatureDevicePx, type BrandMarkKey } from '@/components/brand/brand'
 import type { ProjectTheme } from '@/content/schema'
 import { dictionaries } from '@/i18n/dictionaries'
 import { primaryNav, trustNav } from '@/lib/navigation'
 import { contactCopy } from '@/i18n/dictionaries/contact'
+import { homeCopy } from '@/i18n/dictionaries/home'
 import { isSpecimenEnabled } from '@/lib/specimen'
 import { themeIssues } from '@/lib/theme'
 import { qaThemes } from '@/app/[locale]/system/qa-themes'
@@ -15,13 +16,13 @@ const read = (path: string) => readFileSync(new URL(`../../${path}`, import.meta
 describe('brand marks', () => {
   const marks = Object.keys(brandMarks) as BrandMarkKey[]
 
-  it('minimum sizes keep a typical hairline at 0.55 device pixels or more', () => {
+  it('minimum sizes keep the thinnest stroke or slit at 0.75 device pixels or more', () => {
     for (const mark of marks) {
       for (const [dpr, height] of Object.entries(brandMarks[mark].minHeight)) {
         expect(
-          hairlineDevicePx(mark, height, Number(dpr)),
+          thinFeatureDevicePx(mark, height, Number(dpr)),
           `${mark} at ${dpr}x`,
-        ).toBeGreaterThanOrEqual(0.55)
+        ).toBeGreaterThanOrEqual(0.75)
       }
     }
   })
@@ -35,12 +36,21 @@ describe('brand marks', () => {
     expect(values).toEqual(expected)
   })
 
-  it('assets exist and keep their proportions', () => {
+  it('uses the approved assets at their own proportions, and nothing provisional remains', () => {
     for (const mark of marks) {
-      expect(existsSync(new URL(`../../public${brandMarks[mark].src}`, import.meta.url))).toBe(true)
+      expect(brandMarks[mark].status).toBe('approved')
+      const file = new URL(`../../public${brandMarks[mark].src}`, import.meta.url)
+      expect(existsSync(file)).toBe(true)
+      // The manifest states the file's real pixel size (PNG header: width, height).
+      const png = readFileSync(file)
+      expect([png.readUInt32BE(16), png.readUInt32BE(20)]).toEqual([
+        brandMarks[mark].width,
+        brandMarks[mark].height,
+      ])
     }
-    expect(brandMarks.wordmark.width / brandMarks.wordmark.height).toBeCloseTo(5.855, 2)
-    expect(brandMarks.monogram.width / brandMarks.monogram.height).toBeCloseTo(1.616, 2)
+    expect(brandMarks.wordmark.width / brandMarks.wordmark.height).toBeCloseTo(10.58, 2)
+    expect(brandMarks.monogram.width / brandMarks.monogram.height).toBeCloseTo(1.209, 2)
+    expect(existsSync(new URL('../../public/brand/provisional', import.meta.url))).toBe(false)
   })
 })
 
@@ -129,9 +139,12 @@ describe('themes', () => {
 
 describe('navigation and specimen', () => {
   it('lists only real destinations', () => {
-    const nav = primaryNav('he', dictionaries.he.messages, contactCopy.he)
-    expect(nav.map((item) => item.href)).toEqual(['/he#work', '/he/contact'])
-    expect(nav.map((item) => item.key)).not.toContain('about')
+    const nav = primaryNav('he', dictionaries.he.messages, {
+      about: homeCopy.he.about.title,
+      contact: contactCopy.he,
+    })
+    expect(nav.map((item) => item.href)).toEqual(['/he#work', '/he#about', '/he/contact'])
+    expect(nav.map((item) => item.label)).toEqual(['עבודות', 'אודות', 'יצירת קשר'])
     expect(trustNav('en', contactCopy.en).map((item) => item.href)).toEqual([
       '/en/privacy',
       '/en/accessibility',

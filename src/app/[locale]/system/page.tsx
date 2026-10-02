@@ -175,7 +175,9 @@ export default async function SystemSpecimenPage({ params }: PageProps<'/[locale
       <Grid as="section" aria-labelledby="marks-title" className="section-sm">
         <SectionHeading id="marks-title" index="04" label={t(copy.sections.marks)} />
         <div className={`col-full ${styles.marks}`}>
-          {['0.5rem', '1.5rem', '2.5rem'].map((height) => (
+          {/* The wordmark is about 10.6 times as wide as tall: its samples stay within a
+              320px screen with their clear space. */}
+          {['0.5rem', '1rem', '1.25rem'].map((height) => (
             <figure key={height} className={styles.markFigure}>
               <div className={styles.clearSpace}>
                 <Wordmark height={height} withClearSpace />

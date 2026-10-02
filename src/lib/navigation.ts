@@ -6,8 +6,8 @@ import { trustHref } from './trust'
 
 /**
  * Navigation. Only destinations that exist are listed: no placeholders, no dead links.
- * Contact arrived with Phase 6; e2e tests assert that every header and footer link
- * resolves.
+ * Contact arrived with Phase 6, and About (the homepage scene, not a page of its own) with
+ * it; e2e tests assert that every header and footer link resolves.
  */
 export interface NavLink {
   key: string
@@ -15,15 +15,22 @@ export interface NavLink {
   label: string
 }
 
-/** Header and footer: the work, then the project inquiry. */
-export function primaryNav(
-  locale: Locale,
-  dict: Dictionary,
-  contact: Pick<ContactCopy, 'nav'>,
-): NavLink[] {
+/** The labels the navigation borrows: About from the approved homepage copy (its scene's own
+ * title), Contact from the Phase 6 copy. */
+export interface NavLabels {
+  about: string
+  contact: Pick<ContactCopy, 'nav'>
+}
+
+/**
+ * Header and footer: the work, who is behind it (the homepage's About scene, from any page),
+ * then the project inquiry.
+ */
+export function primaryNav(locale: Locale, dict: Dictionary, labels: NavLabels): NavLink[] {
   return [
     { key: 'work', href: `/${locale}#work` as Route, label: dict.nav.work },
-    { key: 'contact', href: trustHref(locale, 'contact'), label: contact.nav },
+    { key: 'about', href: `/${locale}#about` as Route, label: labels.about },
+    { key: 'contact', href: trustHref(locale, 'contact'), label: labels.contact.nav },
   ]
 }
 

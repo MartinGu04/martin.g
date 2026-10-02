@@ -30,13 +30,52 @@
     align-items: center;
   }
 
-  /* Phones: the monogram, then the navigation (Work, Contact and the language switch)
-     taking all the remaining width, so it fits down to 320px without a drawer. */
+  /* Phones: the symbol, then the navigation (Work, About, Contact and the language switch)
+     taking all the remaining width. No drawer: every destination stays one tap away. */
   @media (width < 48rem) {
     .bar {
       display: flex;
       justify-content: space-between;
       gap: var(--space-3);
+    }
+  }
+
+  /* Narrow phones (under 390px): the Latin labels' tracking tightens and the gaps narrow,
+     so four destinations still sit on one line beside the symbol. Hebrew labels have no
+     tracking to tighten. Type size and 44px targets are unchanged. */
+  @media (width < 24.375rem) {
+    .nav:not(:lang(he)) {
+      --label-tracking: 0.06em;
+    }
+
+    .list {
+      gap: var(--space-2);
+    }
+  }
+
+  /* The smallest screens (under 360px, including 400% zoom): one line cannot hold the
+     symbol and four destinations legibly, so the header becomes a masthead of two rows,
+     the symbol above the navigation, and scrolls away with the page rather than covering
+     a quarter of a small screen. */
+  @media (width < 22.5rem) {
+    .header {
+      position: relative;
+    }
+
+    .bar {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+      padding-block-start: var(--space-2);
+    }
+
+    .nav,
+    .list {
+      justify-content: space-between;
+    }
+
+    .list {
+      flex: 1;
     }
   }
 
@@ -71,6 +110,7 @@
     display: inline-flex;
     align-items: center;
     min-block-size: 2.75rem;
+    white-space: nowrap;
     color: var(--text-muted);
     transition: color var(--dur-micro) var(--ease-out);
   }
@@ -87,10 +127,12 @@
     text-decoration-line: none;
   }
 
-  /* Tablet and desktop: the wordmark is the primary identity. */
+  /* Tablet and desktop: the wordmark is the primary identity. It is about 10.6 times as
+     wide as it is tall: 16px tall on tablets (about 170px wide), 18px on desktops (about
+     190px). */
   @media (width >= 48rem) {
     .header {
-      --header-mark: 1.25rem;
+      --header-mark: 1rem;
     }
 
     .brand {
@@ -116,7 +158,7 @@
 
   @media (width >= 75rem) {
     .header {
-      --header-mark: 1.5rem;
+      --header-mark: 1.125rem;
     }
 
     .brand {

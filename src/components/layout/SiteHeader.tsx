@@ -1,8 +1,7 @@
 import Link from 'next/link'
 import type { Locale } from '@/i18n/config'
 import type { Dictionary } from '@/i18n/dictionaries'
-import type { ContactCopy } from '@/i18n/dictionaries/contact'
-import { primaryNav } from '@/lib/navigation'
+import { primaryNav, type NavLabels } from '@/lib/navigation'
 import { Monogram, Wordmark } from '@/components/brand/BrandMark'
 import { LocaleSwitch } from '@/components/nav/LocaleSwitch'
 import { Grid } from './Grid'
@@ -12,7 +11,7 @@ import styles from './SiteHeader.module.css'
 interface SiteHeaderProps {
   locale: Locale
   dict: Dictionary
-  contact: Pick<ContactCopy, 'nav'>
+  labels: NavLabels
 }
 
 /**
@@ -22,7 +21,7 @@ interface SiteHeaderProps {
  *   compact (< 768px): MG monogram, minimal navigation, no menu drawer
  *   tablet/desktop:    MARTIN.G wordmark at or above its legible minimum size
  */
-export function SiteHeader({ locale, dict, contact }: SiteHeaderProps) {
+export function SiteHeader({ locale, dict, labels }: SiteHeaderProps) {
   return (
     <header className={styles.header} data-header="">
       <Grid className={styles.bar}>
@@ -35,7 +34,7 @@ export function SiteHeader({ locale, dict, contact }: SiteHeaderProps) {
         </div>
         <nav aria-label={dict.a11y.primaryNav} className={styles.nav}>
           <ul role="list" className={styles.list}>
-            {primaryNav(locale, dict, contact).map((item) => (
+            {primaryNav(locale, dict, labels).map((item) => (
               <li key={item.key}>
                 <Link href={item.href} className={`t-label ${styles.link}`}>
                   {item.label}

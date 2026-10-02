@@ -6,6 +6,7 @@ import { directionOf, isLocale, localeMeta, locales } from '@/i18n/config'
 import { getDictionary } from '@/i18n/get-dictionary'
 import { assertReleasableCopy } from '@/i18n/release-gate'
 import { contactCopy } from '@/i18n/dictionaries/contact'
+import { homeCopy } from '@/i18n/dictionaries/home'
 import { assertContactDelivery } from '@/lib/contact/notifiers'
 import { localeAlternates, siteUrl } from '@/lib/site'
 import { SkipLink } from '@/components/layout/SkipLink'
@@ -50,6 +51,8 @@ export default async function LocaleLayout({ children, params }: LayoutProps<'/[
   if (!isLocale(locale)) notFound()
   const dict = getDictionary(locale)
   const contact = contactCopy[locale]
+  // About's label is the About scene's own approved title ("About" / "אודות").
+  const labels = { about: homeCopy[locale].about.title, contact }
 
   return (
     // suppressHydrationWarning: the motion head script sets data-motion before hydration.
@@ -64,11 +67,11 @@ export default async function LocaleLayout({ children, params }: LayoutProps<'/[
       </head>
       <body>
         <SkipLink label={dict.a11y.skipToContent} />
-        <SiteHeader locale={locale} dict={dict} contact={contact} />
+        <SiteHeader locale={locale} dict={dict} labels={labels} />
         <main id="main" tabIndex={-1}>
           {children}
         </main>
-        <SiteFooter locale={locale} dict={dict} contact={contact} />
+        <SiteFooter locale={locale} dict={dict} labels={labels} contact={contact} />
         <MotionController />
         <EnableWidget />
       </body>

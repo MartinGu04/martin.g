@@ -29,7 +29,7 @@ export function AboutScene({
   locale: Locale
 }) {
   return (
-    <Scene theme={worlds.warm} aria-labelledby="about-title" className={styles.scene}>
+    <Scene theme={worlds.warm} id="about" aria-labelledby="about-title" className={styles.scene}>
       <Grid className={styles.grid}>
         <Thread from={thread.capabilities} to={thread.about} />
         <Eyebrow as="h2" id="about-title" muted={false} className={styles.eyebrow}>

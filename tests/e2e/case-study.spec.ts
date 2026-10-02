@@ -199,6 +199,9 @@ test.describe('ON case study: motion and accessibility', () => {
     test(`no axe violations after reading the whole page: ${url}`, async ({ page }) => {
       await page.goto(url)
       await walk(page)
+      // Measured at rest at the top, once everything has been revealed: wherever a scroll
+      // happens to stop, a link partly under the sticky header would read as "obscured".
+      await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }))
       const results = await new AxeBuilder({ page })
         .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
         .analyze()

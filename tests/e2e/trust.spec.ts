@@ -84,8 +84,8 @@ test.describe('privacy and accessibility pages', () => {
 
 test.describe('footer trust layer', () => {
   for (const [locale, names] of [
-    ['en', ['Work', 'Contact', 'Privacy', 'Accessibility']],
-    ['he', ['עבודות', 'יצירת קשר', 'פרטיות', 'נגישות']],
+    ['en', ['Work', 'About', 'Contact', 'Privacy', 'Accessibility']],
+    ['he', ['עבודות', 'אודות', 'יצירת קשר', 'פרטיות', 'נגישות']],
   ] as const) {
     test(`offers the real destinations in ${locale}, and nothing invented`, async ({ page }) => {
       await page.goto(`/${locale}/contact`)
@@ -96,6 +96,7 @@ test.describe('footer trust layer', () => {
       await expect(links).toHaveText([...names])
       expect(await links.evaluateAll((els) => els.map((a) => a.getAttribute('href')))).toEqual([
         `/${locale}#work`,
+        `/${locale}#about`,
         `/${locale}/contact`,
         `/${locale}/privacy`,
         `/${locale}/accessibility`,

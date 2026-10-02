@@ -240,29 +240,35 @@ frame), `SystemDiagram` (generated, abstract system geometry for confidential wo
 
 ## Brand marks
 
-- **Wordmark** is primary: tablet/desktop header, hero, footer, social.
-  **Monogram** is secondary: compact mobile header, favicon, small details.
-- Assets are **provisional** alpha masks derived from the reference PNGs, tinted with
-  `currentColor`, proportions untouched. They are not production artwork.
-- **Legibility is a property of the design, not only of the raster.** Measured hairlines are
-  about 2% of mark height (wordmark ~4.5px at 228px; monogram ~11px at 599px). At header
-  sizes that is sub-pixel whatever the format: below the minimum the wordmark's M loses its
-  thin stroke and reads as an N. A vector would not fix this; a small-size optical cut of the
-  marks would, and that is a brand decision, not something to fake in code.
-- **Minimum rendered height** (enforced in CSS: a smaller request renders at the minimum;
-  keeps a typical hairline at ~0.55 device px or more):
+- **Wordmark** (MARTIN.G) is primary: tablet/desktop header, hero, footer.
+  **Symbol** (the MG monogram; `Monogram` in code) is secondary: compact mobile header,
+  favicon and app icons, small details.
+- **Approved artwork** (Phase 6), supplied by Martin: `public/brand/martin-g-wordmark.png`
+  (1090 × 103) and `public/brand/martin-g-symbol.png` (752 × 622). Each is the supplied
+  file's own pixels as an alpha mask (trimmed to the ink, no metadata): nothing redrawn,
+  traced or approximated, proportions untouched. The marks are one color and are tinted
+  with `currentColor` (the scene's text color), so they read on dark and light worlds.
+  The supplied originals stay outside the repository.
+- **Legibility.** Both marks are built from solid strokes; the thinnest typical features
+  are the wordmark's strokes (about 17% of its height) and the slits inside the symbol
+  (about 4%). Minimum sizes keep them at 0.75 device pixels or more.
+- **Minimum rendered height** (enforced in CSS: a smaller request renders at the minimum):
 
-  | Device pixel ratio | Wordmark | Monogram |
-  | ------------------ | -------- | -------- |
-  | 1x                 | 32px     | 30px     |
-  | 1.5x               | 21px     | 22px     |
-  | 2x                 | 18px     | 16px     |
-  | 3x                 | 14px     | 12px     |
+  | Device pixel ratio | Wordmark | Symbol |
+  | ------------------ | -------- | ------ |
+  | 1x                 | 14px     | 20px   |
+  | 1.5x               | 12px     | 16px   |
+  | 2x                 | 12px     | 14px   |
+  | 3x                 | 12px     | 12px   |
 
-- **Clear space**: wordmark 0.5 × its height on every side; monogram 0.25 × its height.
+- **Clear space**: wordmark 0.5 × its height on every side; symbol 0.25 × its height.
   `withClearSpace` reserves it; the header layout is tested against it.
-- Header: design size 24px desktop, 20px tablet (1x screens render 32px). Mobile header uses
-  the monogram (24px design size). Real-size tested at 1x, 2x and 3x.
+- Sizes: header wordmark 18px desktop (about 190px wide), 16px tablet; mobile header symbol
+  24px; footer wordmark 20px (about 210px, so it fits a 320px screen); hero wordmark set by
+  its column's width.
+- **Icons** (`src/app/icon.png` 512, `apple-icon.png` 180, `favicon.ico` 16/32/48): the
+  symbol exactly as supplied, black on white, centered (about 64% of the square, 78% in the
+  favicon so it holds at 16px). White keeps it visible on light and dark browser tabs.
 - Never distort, recolor with gradients, outline, add effects, or use the marks as
   decoration or loaders.
 
@@ -271,15 +277,18 @@ frame), `SystemDiagram` (generated, abstract system geometry for confidential wo
 - Header: sticky, solid background, hairline bottom rule, aligned to the page grid. It takes
   on the semantic colors of the scene beneath its lower edge (`HeaderWorld`), crossfading
   between worlds; without JavaScript it keeps the MARTIN.G colors.
-  Wordmark (tablet/desktop) or monogram (mobile), then navigation: `Work`, `Contact` and
-  the language switch `EN / HE` (no dead links; tests check that every header and footer
-  link resolves). No menu drawer: on phones the bar is the monogram and the navigation
-  side by side, with gaps that tighten toward 320px, where it still fits with the
-  monogram's clear space (tested).
+  Wordmark (tablet/desktop) or symbol (mobile), then navigation: `Work`, `About` (the
+  homepage's About scene, from any page), `Contact` and the language switch `EN / HE` (no
+  dead links; tests check that every header and footer link resolves). No menu drawer:
+  from 390px the symbol and the navigation share one row; from 360 to 389px the Latin
+  labels' tracking tightens (0.16em to 0.06em) and the gaps narrow; below 360px (small
+  phones, 400% zoom) the header is a two-row masthead, the symbol above the navigation,
+  that scrolls away instead of covering a quarter of the screen. Labels never wrap, keep
+  44px targets and clear the symbol (tested at 320, 360 and 390).
 - Language switch: codes stay Latin and in `EN / HE` order in both directions; the current
   language has `aria-current`; accessible names start with the visible code ("HE עברית").
 - Footer: rule, wordmark, positioning and principle, copyright, and one labelled navigation:
-  Work, Contact, Privacy, Accessibility and the language switch. No social links, address,
+  Work, About, Contact, Privacy, Accessibility and the language switch. No social links, address,
   phone or registration details (none exist).
 
 ## Forms (Phase 6)

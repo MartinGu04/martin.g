@@ -233,7 +233,8 @@ and Hebrew names right to left (with `lang="he"` on English pages).
 
 ## Header
 
-The header stays sticky and minimal (wordmark or MG, Work, EN / HE). `HeaderWorld` watches a
+The header stays sticky and minimal (wordmark or MG symbol, Work, About, Contact, EN / HE;
+on screens under 360px a two-row masthead that scrolls away). `HeaderWorld` watches a
 one-pixel band along the header's lower edge; the scene crossing it lends the header its
 semantic colors, crossfaded over `--dur-standard` (instant with reduced motion). Every world
 is contrast-validated, so the header is readable over every register and world. Without
