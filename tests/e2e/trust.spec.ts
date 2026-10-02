@@ -190,22 +190,6 @@ test.describe('the Enable accessibility menu', () => {
     expect(csp).toContain("form-action 'self'")
   })
 
-  test('without JavaScript nothing is requested from the vendor', async ({ browser }) => {
-    const context = await browser.newContext({ javaScriptEnabled: false })
-    try {
-      const page = await context.newPage()
-      const vendor: string[] = []
-      page.on('request', (r) => {
-        if (r.url().includes('enable.co.il')) vendor.push(r.url())
-      })
-      await openRendered(page, '/he')
-      await page.waitForLoadState('load')
-      expect(vendor).toEqual([])
-    } finally {
-      await context.close()
-    }
-  })
-
   test('the site stays usable when the menu cannot load', async ({ page, isMobile }) => {
     test.skip(isMobile, 'keyboard navigation')
     // The suite's browsers never resolve the vendor's host (playwright.config.ts).
@@ -215,5 +199,23 @@ test.describe('the Enable accessibility menu', () => {
     await page.goto('/en/contact')
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
     await expect(page.locator('#enable-stub-launcher')).toHaveCount(0)
+  })
+})
+
+test.describe('the Enable accessibility menu without JavaScript', () => {
+  test.use({ javaScriptEnabled: false })
+
+  test('nothing is requested from the vendor', async ({ page }) => {
+    const vendor: string[] = []
+    page.on('request', (r) => {
+      if (r.url().includes('enable.co.il')) vendor.push(r.url())
+    })
+    // Pages without images: without JavaScript the load event waits for every image
+    // (tests/support/navigation.ts), and the full load is what this test needs.
+    for (const url of ['/he/privacy', '/en/contact']) {
+      await openRendered(page, url)
+      await page.waitForLoadState('load')
+    }
+    expect(vendor).toEqual([])
   })
 })
