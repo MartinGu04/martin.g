@@ -293,7 +293,10 @@ radio buttons in a fieldset, each a whole bordered label at least 44px tall, the
 one outlined in the accent. Errors are text first (`--error`, a soft coral tested at
 4.5:1 on the dark registers, with a square mark and a 4px inline-start boundary on the
 control), listed in a summary that takes focus and links to each field. The action is a
-solid block in the world's accent with the arrow, the one solid control on a page.
+solid block in the world's accent with the arrow, the one solid control on a page. On phones the
+form keeps a tighter rhythm (2rem between fields instead of 3rem, a five-line problem
+field that still grows by hand), so the single column stays a short inquiry, not a
+questionnaire.
 
 ## Motion
 

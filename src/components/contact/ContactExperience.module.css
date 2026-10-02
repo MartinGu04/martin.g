@@ -91,6 +91,19 @@
     gap: var(--space-7) var(--space-5);
   }
 
+  /* Phones: one column, so a tighter rhythm keeps the inquiry short. Fields stay clearly
+     apart (2rem, two thirds of the desktop gap); touch targets and type are unchanged. */
+  @media (width < 48rem) {
+    .panel {
+      gap: var(--space-5);
+    }
+
+    .form,
+    .pair {
+      gap: var(--space-6);
+    }
+  }
+
   @media (width >= 48rem) {
     .pair {
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -139,6 +152,14 @@
     min-block-size: 11rem;
     resize: block;
     line-height: var(--body-leading);
+  }
+
+  /* Phones: about five lines to start with; it still grows by hand (resize). */
+  @media (width < 48rem) {
+    .area {
+      min-block-size: 8.5rem;
+      block-size: 8.5rem;
+    }
   }
 
   @media (hover: hover) and (pointer: fine) {

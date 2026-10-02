@@ -4,6 +4,13 @@
     --scene-pad-end: var(--section-space);
   }
 
+  /* Phones: a long page ends closer to the footer; the footer keeps its own spacing. */
+  @media (width < 48rem) {
+    .scene {
+      --scene-pad-end: var(--section-space-sm);
+    }
+  }
+
   .grid {
     row-gap: var(--space-8);
   }
