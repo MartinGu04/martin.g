@@ -9,8 +9,10 @@ export interface Source {
 const a = (path: string, w: number, h: number): Source => ({ src: staticFile(path), w, h })
 
 export const assets = {
-  symbol: a('brand/symbol.png', 968, 599),
-  wordmark: a('brand/wordmark.png', 1335, 228),
+  /** The approved MG identity (second pass): symbol and wordmark, white on transparent. */
+  symbol: a('brand/mg-symbol.png', 766, 636),
+  wordmark: a('brand/mg-wordmark.png', 1106, 118),
+  lockup: a('brand/mg-lockup.png', 1104, 689),
   mm: {
     dashboard: a('work/mi-ma-mo/dashboard.png', 1901, 1033),
     focus: a('work/mi-ma-mo/dashboard-focus.png', 1090, 576),

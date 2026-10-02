@@ -10,42 +10,28 @@ import { s, versions, type SceneId, type VersionId } from './config/timeline'
 import { loadFonts } from './lib/fonts'
 import { Grain, Vignette } from './components/Atmosphere'
 import type { SceneProps } from './scenes/types'
-import { Signal } from './scenes/Signal'
-import { Clarity } from './scenes/Clarity'
-import { Product } from './scenes/Product'
-import { Wall } from './scenes/Wall'
-import { Defense } from './scenes/Defense'
-import { Design } from './scenes/Design'
-import { Build } from './scenes/Build'
-import { Converge } from './scenes/Converge'
+import { Idea } from './scenes/Idea'
+import { Capabilities } from './scenes/Capabilities'
+import { Proof } from './scenes/Proof'
+import { Outcome } from './scenes/Outcome'
+import { Craft } from './scenes/Craft'
+import { World } from './scenes/World'
 import { Signature } from './scenes/Signature'
 
 loadFonts()
 
 const SCENE: Record<SceneId, ComponentType<SceneProps>> = {
-  signal: Signal,
-  clarity: Clarity,
-  product: Product,
-  wall: Wall,
-  defense: Defense,
-  design: Design,
-  build: Build,
-  converge: Converge,
+  idea: Idea,
+  capabilities: Capabilities,
+  proof: Proof,
+  outcome: Outcome,
+  craft: Craft,
+  world: World,
   signature: Signature,
 }
 
-/** Paint order: later scenes over earlier ones, except where a handover says otherwise. */
-const ORDER: SceneId[] = [
-  'signal',
-  'clarity',
-  'product',
-  'wall',
-  'defense',
-  'design',
-  'build',
-  'converge',
-  'signature',
-]
+/** Paint order: later scenes over earlier ones. */
+const ORDER: SceneId[] = ['idea', 'capabilities', 'proof', 'outcome', 'craft', 'world', 'signature']
 
 export interface FilmProps {
   version: VersionId

@@ -243,36 +243,25 @@ def pluck(freq, dur=0.45):
     return x * np.minimum(1, t / 0.002)
 
 
-def bell(freq, dur, decay):
-    """FM bell: the tonal part of the signature."""
+def fx_bloom(e):
+    """Something beginning: a sub swell and air, the brand chord far away. No transient."""
+    dur = e.get('dur', 3.5) + 2.0
     t = t_axis(dur)
-    mod = np.sin(2 * np.pi * freq * 1.414 * t) * 2.2 * np.exp(-t / (decay * 0.35))
-    return np.sin(2 * np.pi * freq * t + mod) * env_exp(dur, decay, 0.001)
+    env = np.clip(t / 1.4, 0, 1) ** 2 * np.exp(-np.clip(t - 1.6, 0, None) / 1.6)
+    sub = (np.sin(2 * np.pi * hz('D1') * t) * 0.8 + np.sin(2 * np.pi * hz('D2') * t) * 0.3) * env
+    chord = pad_chord([hz(n) for n in ['D3', 'A3', 'E4', 'F#4']], dur, 520) * env
+    air = np.stack([lp(hp(noise(dur, 61), 300), 2400), lp(hp(noise(dur, 62), 300), 2400)]) * 0.05 * env
+    return pan_st(soft(sub, 1.1)) + chord * 1.6 + air, 'ambience'
 
 
-# ---------------------------------------------------------------------------------------
-# Sound effects (one function per kind in src/config/timeline.ts)
-# ---------------------------------------------------------------------------------------
-
-def fx_pulse(e):
-    dur = 1.2
-    x = np.zeros(secs(dur))
-    sub = sine_sweep(dur, 95, 38, 14) * env_exp(dur, 0.45, 0.001) * 0.9
-    ping = np.sin(2 * np.pi * 3520 * t_axis(dur)) * env_exp(dur, 0.035, 0.0003) * 0.35
-    click = hp(noise(0.004, 11), 3000) * 0.8
-    x += soft(sub, 1.2) + ping
-    x[: len(click)] += click
-    return pan_st(x), 'impacts'
-
-
-def fx_passby(e):
-    dur = 0.7
-    n = noise(dur, int(e['at'] * 100))
-    x = sweep_filter(n, 300, 2600, 'band', 24)
-    x = x * np.sin(np.pi * np.clip(t_axis(dur) / dur, 0, 1)) ** 2
-    x = x[::-1] if int(e['at'] * 10) % 2 else x
-    p = e.get('pan', 0)
-    return moving_pan(x * 0.9, p, -p * 0.6), 'transitions'
+def fx_trace(e):
+    """A soft tone that follows the line of light across the stereo field."""
+    dur = e.get('dur', 4.0)
+    t = t_axis(dur)
+    x = saw(hz('A3'), dur, 0.0, 3) + saw(hz('A3'), dur, 0.005, 4) * 0.7 + saw(hz('D4'), dur, -0.004, 5) * 0.4
+    x = sweep_filter(x, 260, 1500, 'low', 40)
+    env = np.clip(t / 0.8, 0, 1) * np.clip((dur - t) / 0.9, 0, 1)
+    return moving_pan(x * env * 0.5, -0.6, 0.6), 'ambience'
 
 
 def fx_tick(e):
@@ -285,130 +274,98 @@ def fx_snap(e):
     f = 170 * 2 ** (e.get('pitch', 0) / 12)
     body = np.sin(2 * np.pi * f * t_axis(dur)) * env_exp(dur, 0.025, 0.0005)
     crack = hp(noise(dur, 13), 2500) * env_exp(dur, 0.004, 0.0002)
-    return pan_st(body * 0.8 + crack * 0.7, e.get('pan', 0)), 'ui'
+    return pan_st(body * 0.8 + crack * 0.5, e.get('pan', 0)), 'ui'
 
 
 def fx_lock(e):
-    dur = 0.6
-    p = e.get('pitch', 0)
-    body = sine_sweep(dur, 110, 52, 30) * env_exp(dur, 0.16, 0.001)
-    crack = hp(noise(dur, 17), 3000) * env_exp(dur, 0.005, 0.0002)
-    t = t_axis(dur)
-    ring = sum(np.sin(2 * np.pi * fr * 2 ** (p / 12) * t) * a for fr, a in [(587, 0.5), (1319, 0.3), (2093, 0.18)]) * env_exp(dur, 0.12)
-    return pan_st(soft(body * 1.2, 1.3) + crack * 0.6 + ring * 0.25, e.get('pan', 0)), 'impacts'
+    dur = 0.5
+    body = sine_sweep(dur, 110, 52, 30) * env_exp(dur, 0.15, 0.001)
+    crack = hp(noise(dur, 17), 3000) * env_exp(dur, 0.004, 0.0002)
+    return pan_st(soft(body * 1.2, 1.3) + crack * 0.35, e.get('pan', 0)), 'impacts'
 
 
 def fx_riser(e):
     dur = e.get('dur', 0.8)
     n = noise(dur, int(e['at'] * 77))
-    x = sweep_filter(n, 400, 9000, 'band', 32)
+    x = sweep_filter(n, 400, 7000, 'band', 32)
     t = t_axis(dur)
     x *= (t / dur) ** 2.6
-    # reversed air: the swell stops dead on the hit
-    st = np.stack([x, np.roll(x, 37)])
-    return st * 0.9, 'transitions'
+    return np.stack([x, np.roll(x, 37)]) * 0.8, 'transitions'
 
 
-def signature(scale=1.0, deep=False):
-    dur = 4.0
-    t = t_axis(dur)
-    f0, f1 = (70, 36.7) if deep else (92, 45)
-    sub = sine_sweep(dur, f0, f1, 9) * env_exp(dur, 0.55 if deep else 1.0, 0.001)
-    thump = lp(noise(dur, 21), 180) * env_exp(dur, 0.07, 0.001) * (0.0 if deep else 2.2)
-    crack = hp(noise(dur, 23), 1800) * env_exp(dur, 0.012, 0.0003) * (0.0 if deep else 0.5)
-    base = 1 if deep else 2
-    tones = [(hz(f'D{4 + base - 1}'), 0.32), (hz(f'A{4 + base - 1}'), 0.24), (hz(f'E{5 + base - 1}'), 0.14)]
-    ting = sum(bell(fq, dur, 0.75 if deep else 1.6) * a for fq, a in tones)
-    mono = soft(sub * 1.3, 1.4) * 1.0 + thump + crack
-    st = pan_st(mono)
-    st += np.stack([ting, np.roll(ting, 29)]) * (0.55 if deep else 0.6)
-    return st * scale
-
-
-def fx_impactA(e):
-    return signature(), 'impacts'
-
-
-def fx_final(e):
-    return signature(deep=True), 'impacts'
-
-
-def fx_impactB(e):
+def fx_impact(e):
     dur = 2.0
-    sub = sine_sweep(dur, 85, 50, 12) * env_exp(dur, 0.6, 0.001)
-    thump = lp(noise(dur, 31), 220) * env_exp(dur, 0.05, 0.001) * 1.6
-    crack = hp(noise(dur, 33), 2200) * env_exp(dur, 0.01, 0.0003) * 0.45
-    metal = bell(hz('D6'), dur, 0.35) * 0.12
-    return pan_st(soft(sub * 1.2, 1.3) + thump + crack + metal), 'impacts'
+    sub = sine_sweep(dur, 85, 46, 12) * env_exp(dur, 0.65, 0.001)
+    thump = lp(noise(dur, 31), 200) * env_exp(dur, 0.05, 0.001) * 1.4
+    crack = hp(noise(dur, 33), 2200) * env_exp(dur, 0.008, 0.0003) * 0.25
+    return pan_st(soft(sub * 1.2, 1.3) + thump + crack), 'impacts'
 
 
-def fx_whoosh(e):
-    dur = e.get('dur', 0.6)
-    n = noise(dur, int(e['at'] * 41))
-    up = sweep_filter(n, 250, 5000, 'band', 32)
+def fx_air(e):
+    """Low, quiet air under a camera move: felt more than heard."""
+    dur = e.get('dur', 1.5)
     t = t_axis(dur)
-    shape = np.sin(np.pi * np.clip(t / dur, 0, 1)) ** 1.5
-    x = up * shape
-    return np.stack([x, np.roll(x, 53)]) * 0.8, 'transitions'
-
-
-def fx_sweep(e):
-    dur = e.get('dur', 1.0)
-    n = noise(dur, int(e['at'] * 59))
-    x = sweep_filter(n, 90, 1400, 'low', 32)
-    t = t_axis(dur)
-    shape = np.sin(np.pi * np.clip(t / dur, 0, 1)) ** 1.2
-    rumble = np.sin(2 * np.pi * 42 * t) * shape * 0.5
-    st = np.stack([x * shape + rumble, np.roll(x, 71) * shape + rumble])
-    return st * 1.1, 'transitions'
-
-
-def fx_confirm(e):
-    dur = 0.5
-    a = bell(hz('A5'), dur, 0.18) * 0.6
-    b = bell(hz('D6'), dur, 0.25) * 0.6
-    x = np.zeros(secs(dur))
-    x += a
-    i = secs(0.07)
-    x[i:] += b[: len(x) - i]
-    return pan_st(x * 0.7, e.get('pan', 0)), 'ui'
+    shape = np.sin(np.pi * np.clip(t / dur, 0, 1)) ** 1.6
+    L = sweep_filter(noise(dur, int(e['at'] * 31)), 160, 900, 'low', 24) * shape
+    R = sweep_filter(noise(dur, int(e['at'] * 31) + 1), 160, 900, 'low', 24) * shape
+    return np.stack([L, R]) * 0.9, 'transitions'
 
 
 def fx_tap(e):
     dur = 0.15
     thud = np.sin(2 * np.pi * 120 * t_axis(dur)) * env_exp(dur, 0.03)
     tap = bp(noise(dur, 43), 900, 4000) * env_exp(dur, 0.006)
-    return pan_st(thud * 0.6 + tap * 0.8), 'ui'
+    return pan_st(thud * 0.6 + tap * 0.6), 'ui'
 
 
 def fx_signal(e):
     dur = 0.35
     t = t_axis(dur)
     buzz = np.sign(np.sin(2 * np.pi * 118 * t)) * (np.sin(2 * np.pi * 31 * t) > 0) * env_exp(dur, 0.12)
-    chirp = sine_sweep(dur, 5200, 7600, 8) * env_exp(dur, 0.06) * 0.4
-    return pan_st(lp(buzz, 2400) * 0.35 + chirp, e.get('pan', 0)), 'ui'
+    return pan_st(lp(buzz, 1800) * 0.3, e.get('pan', 0)), 'ui'
 
 
-def fx_ping(e):
-    dur = 1.2
-    return pan_st(bell(hz('B5'), dur, 0.5) * 0.6, e.get('pan', 0)), 'ui'
+def fx_sweep(e):
+    dur = e.get('dur', 1.0)
+    n = noise(dur, int(e['at'] * 59))
+    x = sweep_filter(n, 90, 1200, 'low', 32)
+    t = t_axis(dur)
+    shape = np.sin(np.pi * np.clip(t / dur, 0, 1)) ** 1.2
+    rumble = np.sin(2 * np.pi * 42 * t) * shape * 0.5
+    return np.stack([x * shape + rumble, np.roll(x, 71) * shape + rumble]), 'transitions'
+
+
+def brand_chord(dur, deep=False):
+    """The MG signature: one voiced chord over a sub, warm, no bell, no alarm."""
+    t = t_axis(dur)
+    notes = ['D2', 'A2', 'D3', 'F#3'] if deep else ['D3', 'A3', 'E4', 'F#4', 'A4']
+    pad = pad_chord([hz(n) for n in notes], dur, 900 if deep else 2200, 0.0 if deep else 0.4)
+    env = np.clip(t / 0.06, 0, 1) * np.exp(-t / (0.9 if deep else 1.8))
+    sub = sine_sweep(dur, 74 if deep else 90, hz('D1'), 10) * env_exp(dur, 0.7 if deep else 1.1, 0.002)
+    return pad * env * 2.4 + pan_st(soft(sub * 1.2, 1.2))
+
+
+def fx_chord(e):
+    return brand_chord(4.0), 'impacts'
+
+
+def fx_final(e):
+    return brand_chord(2.0, deep=True), 'impacts'
 
 
 FX = {
-    'pulse': fx_pulse,
-    'passby': fx_passby,
+    'bloom': fx_bloom,
+    'trace': fx_trace,
     'tick': fx_tick,
     'snap': fx_snap,
     'lock': fx_lock,
     'riser': fx_riser,
-    'impactA': fx_impactA,
-    'impactB': fx_impactB,
-    'whoosh': fx_whoosh,
-    'confirm': fx_confirm,
+    'impact': fx_impact,
+    'air': fx_air,
     'tap': fx_tap,
     'signal': fx_signal,
-    'ping': fx_ping,
     'sweep': fx_sweep,
+    'chord': fx_chord,
     'final': fx_final,
 }
 
@@ -430,18 +387,23 @@ CH = {
 
 
 def section_of(t, c):
-    if t < c['groove']:
+    """The score follows the story: curiosity, immersion, rhythm, confidence, climax, silence."""
+    if t < c['structure']:
         return 'intro'
-    if t < c['macro']:
-        return 'pulse'
-    if t < c['systemA']:
-        return 'groove'
-    if t < c['design']:
-        return 'cold'
+    if t < c['web']:
+        return 'rise'
+    if t < c['proof']:
+        return 'caps'
+    if t < c['clutter']:
+        return 'proof'
+    if t < c['collapse']:
+        return 'clutter'
     if t < c['process']:
-        return 'warm'
+        return 'calm'
+    if t < c['live']:
+        return 'craft'
     if t < c['silence']:
-        return 'drive'
+        return 'world'
     if t < c['symbol']:
         return 'silence'
     return 'coda'
@@ -458,108 +420,117 @@ def build(version):
     buses = {k: Bus(dur) for k in ['music', 'ambience', 'impacts', 'transitions', 'ui']}
     music, amb = buses['music'], buses['ambience']
 
-    # --- Ambience: a low drone and air, from the first frame to the signature ----------
+    # --- Ambience: a low drone and air under the whole film, rising out of nothing -------
     d_dur = c['silence']
     t = t_axis(d_dur)
     drone = (np.sin(2 * np.pi * hz('D1') * t) * 0.5 + np.sin(2 * np.pi * hz('D2') * t + 0.3) * 0.25 + np.sin(2 * np.pi * hz('A2') * t) * 0.08)
-    drone *= 0.6 + 0.4 * np.sin(2 * np.pi * 0.11 * t)
-    air = lp(hp(noise(d_dur, 51), 900), 6000) * 0.08
-    air_r = lp(hp(noise(d_dur, 52), 900), 6000) * 0.08
-    shimmer = (np.sin(2 * np.pi * hz('A5') * t) + 0.6 * np.sin(2 * np.pi * hz('D6') * t * 1.0007)) * 0.03 * (0.5 + 0.5 * np.sin(2 * np.pi * 0.37 * t))
-    # the intro breathes up into the impact; after it, the drone sits lower under the score
-    shape = np.interp(t, [0, c['pulse'] + 0.05, c['hush'] - 0.05, c['hush'], c['impact'], c['impact'] + 0.6, d_dur - 0.4, d_dur], [0.0, 0.55, 1.0, 0.0, 0.0, 0.45, 0.35, 0.0])
+    drone *= 0.65 + 0.35 * np.sin(2 * np.pi * 0.11 * t)
     drone = hp(drone, 32)
-    amb.add(0, np.stack([(drone * 0.4 + air + shimmer) * shape, (drone * 0.4 + air_r + np.roll(shimmer, 40)) * shape]), db(-17))
+    air = lp(hp(noise(d_dur, 51), 700), 5000) * 0.07
+    air_r = lp(hp(noise(d_dur, 52), 700), 5000) * 0.07
+    shape = np.interp(t, [0, 1.6, c['structure'], c['web'], d_dur - 0.3, d_dur], [0.0, 0.9, 1.0, 0.45, 0.4, 0.0])
+    amb.add(0, np.stack([(drone * 0.4 + air) * shape, (drone * 0.4 + air_r) * shape]), db(-17))
 
     # --- Drums, bass, pads, plucks on the grid ------------------------------------------
     K, Ks, CL, HC, HO = kick(), kick(True), clap(), hat(), hat(True)
+    sub_pulse = lp(kick(True), 140)
     n_beats = int(dur / beat) + 1
+    prog_caps = ['Dm9', 'Bbmaj7', 'Gm9', 'A7sus']
     for b in range(n_beats):
         tb = b * beat
         sec = section_of(tb, c)
         bar_i = int(tb // bar)
         q = b % 4
-        # a breath before the wall's words and before the launch: drums drop for one beat
-        if c['realWork'] - beat <= tb < c['realWork'] or c['launch'] - beat <= tb < c['launch']:
+        # a breath before the wall's words and before the page goes live
+        if c['realWork'] - beat <= tb < c['realWork'] or c['live'] - beat <= tb < c['live']:
             continue
-        if sec == 'pulse':
-            music.add(tb, Ks, db(-9 + 3 * min(1, (tb - c['groove']) / 4)))
+        if sec == 'intro':
+            # a soft sub pulse, like something waking: every two beats, from the first trace
+            if tb >= c['trace'] + 0.5 and q % 2 == 0:
+                music.add(tb, sub_pulse, db(-17 + 4 * min(1, (tb - c['trace']) / 4)))
+        elif sec == 'rise':
+            music.add(tb, Ks, db(-12 + 4 * (tb - c['structure']) / max(0.1, c['web'] - c['structure'])))
             for s16 in range(4):
-                music.add(tb + s16 * beat / 4, pan_st(HC, -0.3 if s16 % 2 else 0.3), db(-30 + (6 if s16 == 2 else 0)))
-        elif sec == 'groove':
+                music.add(tb + s16 * beat / 4, pan_st(HC, -0.3 if s16 % 2 else 0.3), db(-32 + (5 if s16 == 2 else 0)))
+        elif sec == 'caps':
+            music.add(tb, K, db(-7))
+            music.add(tb + beat / 2, pan_st(HO, 0.25), db(-25))
+            if q == 3:
+                music.add(tb, pan_st(CL, 0.05), db(-17))
+        elif sec == 'proof':
             music.add(tb, K, db(-5))
             if q in (1, 3):
-                music.add(tb, pan_st(CL, 0.05), db(-12))
-            music.add(tb + beat / 2, pan_st(HO, 0.25), db(-22))
+                music.add(tb, pan_st(CL, 0.05), db(-13))
+            music.add(tb + beat / 2, pan_st(HO, 0.25), db(-23))
             for s16 in (1, 3):
-                music.add(tb + s16 * beat / 4, pan_st(HC, -0.35), db(-28))
-        elif sec == 'cold':
+                music.add(tb + s16 * beat / 4, pan_st(HC, -0.35), db(-29))
+        elif sec == 'clutter':
+            # restless: busier, thinner, without the kick's confidence
             if q in (0, 2):
-                music.add(tb, K, db(-7))
-            music.add(tb + beat * 0.75, pan_st(tick_click(5200, 0.02), 0.6 if q % 2 else -0.6), db(-24))
+                music.add(tb, Ks, db(-14))
+            for s16 in range(4):
+                music.add(tb + s16 * beat / 4, pan_st(tick_click(4200 + 600 * ((b + s16) % 3), 0.02), [-0.7, 0.5, -0.2, 0.7][s16]), db(-27))
+        elif sec == 'calm':
+            # the drums stop: the work is simpler now; a soft pulse returns with the people
+            if tb >= c['people'] and q % 2 == 0:
+                music.add(tb, sub_pulse, db(-12))
+        elif sec == 'craft':
+            music.add(tb, K if q in (0, 2) else Ks, db(-6 if q in (0, 2) else -11))
             if q == 3:
-                music.add(tb + beat / 2, pan_st(CL, -0.1), db(-17))
-        elif sec == 'warm':
-            if q in (0, 2):
-                music.add(tb, Ks, db(-10))
+                music.add(tb, pan_st(CL, 0.0), db(-14))
             music.add(tb + beat / 2, pan_st(HC, 0.3), db(-25))
-            if q == 3:
-                music.add(tb, pan_st(clap() * 0.6, 0.0), db(-20))
-        elif sec == 'drive':
+        elif sec == 'world':
             music.add(tb, K, db(-4))
             if q in (1, 3):
-                music.add(tb, pan_st(CL, 0.05), db(-10))
+                music.add(tb, pan_st(CL, 0.05), db(-11))
             for s16 in range(4):
                 music.add(tb + s16 * beat / 4, pan_st(HC if s16 != 2 else HO, 0.35 if s16 % 2 else -0.35), db(-24 + (4 if s16 == 2 else 0)))
-        # bass: eighths
+        # harmony
         prog = None
-        if sec in ('pulse', 'groove'):
-            prog = ['Dm9', 'Bbmaj7', 'Gm9', 'A7sus'][(bar_i // 2) % 4] if sec == 'groove' else 'Dm9'
-        elif sec == 'cold':
+        if sec == 'rise':
+            prog = 'Dm9'
+        elif sec in ('caps', 'proof'):
+            prog = prog_caps[(bar_i // 2) % 4] if sec == 'proof' else prog_caps[bar_i % 4]
+        elif sec == 'clutter':
             prog = 'Dcold'
-        elif sec == 'warm':
+        elif sec == 'calm':
             prog = ['Fmaj9', 'Bbmaj9', 'Dm9', 'Cadd9'][bar_i % 4]
-        elif sec == 'drive':
-            prog = ['Dm9', 'Bbmaj7', 'Gm9', 'A7sus'][bar_i % 4]
-        if prog:
+        elif sec in ('craft', 'world'):
+            prog = prog_caps[bar_i % 4]
+        if prog and sec != 'calm':
             root = hz(CH[prog][0][0])
-            pattern = [1, 1, 2, 1, 1, 1.5, 1, 2] if sec != 'cold' else [1, 0, 1, 0, 1, 0, 1.06, 0]
-            subdiv = 2 if sec != 'drive' else 4
+            pattern = [1, 1, 2, 1, 1, 1.5, 1, 2] if sec != 'clutter' else [1, 0, 1, 0, 1, 0, 1.06, 0]
+            subdiv = 4 if sec == 'world' else 2
             for k in range(subdiv):
                 mult = pattern[(q * subdiv + k) % len(pattern)] if subdiv == 2 else [1, 1, 2, 1][k]
                 if mult == 0:
                     continue
-                if sec == 'pulse':
-                    prog_t = (tb - c['groove']) / max(0.1, c['macro'] - c['groove'])
-                    cutoff = 160 + 900 * prog_t ** 1.5
-                    if tb < c['problem']:
+                if sec == 'rise':
+                    if tb < c['structHe']:
                         continue
+                    pt = (tb - c['structHe']) / max(0.1, c['web'] - c['structHe'])
+                    cutoff = 180 + 800 * pt ** 1.4
                 else:
-                    cutoff = {'groove': 1100, 'cold': 380, 'warm': 700, 'drive': 1600}[sec]
+                    cutoff = {'caps': 900, 'proof': 1100, 'clutter': 380, 'craft': 1200, 'world': 1600}[sec]
                 ln = beat / subdiv * 0.92
-                music.add(tb + k * beat / subdiv, pan_st(bass_note(root * mult, ln, cutoff)), db(-13 if sec != 'drive' else -12))
-        # pads: on each bar's downbeat
-        if q == 0 and prog and sec in ('groove', 'cold', 'warm', 'drive', 'pulse'):
+                music.add(tb + k * beat / subdiv, pan_st(bass_note(root * mult, ln, cutoff)), db(-13 if sec != 'world' else -12))
+        if q == 0 and prog:
             chord = [hz(n) for n in CH[prog][1]]
-            ln = bar if sec != 'groove' else bar
-            bright = {'pulse': 0.0, 'groove': 0.2, 'cold': -0.2, 'warm': 0.35, 'drive': 0.6}[sec]
-            cutoff = {'pulse': 600, 'groove': 1300, 'cold': 700, 'warm': 1500, 'drive': 1900}[sec]
-            if sec == 'pulse' and tb < c['lock'] - 0.01:
-                cutoff = 500
-            music.add(tb, pad_chord(chord, ln + 0.4, cutoff, max(0.0, bright)), db(-15 if sec != 'pulse' else -19))
-        # plucks: the warm world's sixteenths
-        if sec == 'warm' and prog:
+            bright = {'rise': 0.0, 'caps': 0.15, 'proof': 0.2, 'clutter': 0.0, 'calm': 0.35, 'craft': 0.3, 'world': 0.6}[sec]
+            cutoff = {'rise': 600, 'caps': 1200, 'proof': 1300, 'clutter': 650, 'calm': 1500, 'craft': 1500, 'world': 1900}[sec]
+            music.add(tb, pad_chord(chord, bar + 0.4, cutoff, bright), db(2 if sec == 'calm' else -15 if sec != 'rise' else -18))
+        if sec == 'calm' and prog and q == 0:
+            # one long, warm bass note per bar under the calm
+            music.add(tb, pan_st(bass_note(hz(CH[prog][0][0]), bar * 0.95, 420, 1.2)), db(-9))
+        if sec == 'calm' and prog and tb >= c['collapse'] + beat - 0.01:
             chord = [hz(n) * 2 for n in CH[prog][1]]
             for s16 in range(4):
                 nidx = (b * 4 + s16) * 3 % len(chord)
-                music.add(tb + s16 * beat / 4, pan_st(pluck(chord[nidx]), -0.5 + (s16 % 4) / 3), db(-23))
-        if sec == 'drive' and prog and b % 2 == 1:
+                music.add(tb + s16 * beat / 4, pan_st(pluck(chord[nidx]), -0.5 + (s16 % 4) / 3), db(-18))
+        if sec == 'world' and prog and b % 2 == 1:
             chord = [hz(n) * 2 for n in CH[prog][1]]
             for s16 in range(4):
                 music.add(tb + s16 * beat / 4, pan_st(pluck(chord[(b + s16) % len(chord)], 0.3), 0.6 - (s16 % 4) * 0.4), db(-25))
-
-    # the lock of PROBLEM -> PRODUCT: a bright chord stab
-    music.add(c['lock'], pad_chord([hz(n) for n in ['D4', 'F4', 'A4', 'C5', 'E5']], 0.7, 3200, 0.6), db(-14))
 
     # --- Coda: one sustained fifth after the symbol, decaying into the final note -------
     coda_dur = dur - c['symbol']
@@ -572,16 +543,9 @@ def build(version):
     # --- Sound effects --------------------------------------------------------------------
     for e in data['sfx']:
         buf, bus = FX[e['kind']](e)
-        if e['kind'] == 'riser':
-            at = e['at']
-        else:
-            at = e['at']
-        g = db(e.get('gain', 0))
-        if e['kind'] in ('riser', 'whoosh', 'sweep') and 'dur' in e:
-            pass
-        buses[bus].add(at, buf, g)
+        buses[bus].add(e['at'], buf, db(e.get('gain', 0)))
 
-    # --- Silences: everything but the impacts' own tails is pulled out ----------------
+    # --- Silence: everything but the impacts' own tails is pulled out ------------------
     def carve(bus, a, b, fade=0.012):
         i0, i1 = secs(a), secs(b)
         f = secs(fade)
@@ -594,17 +558,14 @@ def build(version):
         g[i1:i1 + k] = np.linspace(0, 1, f)[:k]
         bus.x *= g
 
-    for k in ['music', 'ambience', 'ui']:
-        carve(buses[k], c['hush'], c['impact'])
+    for k in ['music', 'ambience', 'ui', 'transitions']:
         carve(buses[k], c['silence'], c['symbol'])
-    # after the final note only its own tail remains
     carve(buses['music'], c['symbol'], dur + 4)
-    carve(buses['transitions'], c['silence'], c['symbol'])
 
     # --- Section dynamics: restraint first, the strongest pulse at the peak --------------
     tt = np.arange(buses['music'].x.shape[1]) / SR
-    curve_t = [0, c['groove'], c['lock'] - 0.05, c['lock'], c['macro'], c['systemA'], c['systemA'] + 0.5, c['design'], c['process'], c['launch'], c['silence'], dur + 4]
-    curve_g = [-9, -9, -5, -2.5, -2, -1.5, -3.5, -2, -1.5, 0, 0.5, 0.5]
+    curve_t = [0, c['structure'], c['web'], c['proof'], c['clutter'], c['collapse'], c['process'], c['live'], c['silence'], dur + 4]
+    curve_g = [-6, -6, -3, -1.5, -4, -2, -2, 0, 0.5, 0.5]
     buses['music'].x *= db(np.interp(tt, curve_t, curve_g))
 
     # --- Rooms --------------------------------------------------------------------------
@@ -618,10 +579,10 @@ def build(version):
     # --- Ducking: the score makes room for every impact ----------------------------------
     duck = np.ones(buses['music'].x.shape[1])
     for e in data['sfx']:
-        if e['kind'] in ('impactA', 'impactB', 'final', 'lock', 'pulse'):
+        if e['kind'] in ('impact', 'final', 'chord', 'lock'):
             i = secs(e['at'])
             n = secs(0.6)
-            depth = 0.45 if e['kind'] in ('impactA', 'impactB', 'final') else 0.7
+            depth = 0.45 if e['kind'] in ('impact', 'final', 'chord') else 0.7
             curve = 1 - (1 - depth) * np.exp(-np.arange(n) / secs(0.18))
             j = min(len(duck), i + n)
             duck[i:j] = np.minimum(duck[i:j], curve[: j - i])

@@ -2,7 +2,7 @@
 /**
  * Prepares film/public from the site's own approved sources, so the film never keeps a
  * second copy of any asset in Git:
- *   brand marks   ../public/brand/provisional (the supplied MARTIN.G symbol and wordmark)
+ *   brand marks   film/brand (the approved MG symbol and MARTIN.G wordmark)
  *   project media ../src/assets/work (sanitized, approved)
  *   fonts         ../src/fonts (Archivo, Noto Sans Hebrew; SIL OFL)
  * It also generates the film grain tiles and samples the symbol into the mosaic cells the
@@ -22,14 +22,10 @@ function copy(from, to) {
   copyFileSync(from, to)
 }
 
-copy(
-  path.join(site, 'public/brand/provisional/monogram-mask.png'),
-  path.join(pub, 'brand/symbol.png'),
-)
-copy(
-  path.join(site, 'public/brand/provisional/wordmark-mask.png'),
-  path.join(pub, 'brand/wordmark.png'),
-)
+// The approved MG identity lives with the film (film/brand): the supplied symbol, wordmark and
+// lockup, never redrawn; only their black ink became white on transparent for the dark film.
+for (const f of ['mg-symbol.png', 'mg-wordmark.png', 'mg-lockup.png'])
+  copy(path.join(film, 'brand', f), path.join(pub, 'brand', f))
 for (const project of ['mi-ma-mo', 'on']) {
   const dir = path.join(site, 'src/assets/work', project)
   for (const f of readdirSync(dir)) copy(path.join(dir, f), path.join(pub, 'work', project, f))
@@ -56,8 +52,8 @@ for (let t = 0; t < 4; t++) {
 }
 
 /* The symbol, sampled into cells: a cell is in the mark when most of it is covered. */
-const mark = decodePng(readFileSync(path.join(pub, 'brand/symbol.png')))
-const COLS = 56
+const mark = decodePng(readFileSync(path.join(pub, 'brand/mg-symbol.png')))
+const COLS = 48
 const cell = mark.width / COLS
 const ROWS = Math.round(mark.height / cell)
 const cells = []

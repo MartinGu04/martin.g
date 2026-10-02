@@ -4,3 +4,4 @@ public
 # Renders and generated audio stay out of Git; they are rebuilt from source.
 out
 audio/cues-*.json
+__pycache__

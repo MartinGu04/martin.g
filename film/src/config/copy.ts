@@ -1,22 +1,21 @@
 /**
- * Every word on screen, in one place. Derived from the site's own language (the principle
- * "From problem to product." and the How I Work steps); the end line is the locked campaign
- * line. No em dashes in public copy. Hebrew strings are the real interfaces' own labels.
+ * Every word on screen, in one place (no em dashes in public copy). The language system: Hebrew is the human, direct line (it leads); English is the brand
+ * and structure (it supports, smaller, or stands alone as a campaign line). Never both at
+ * full size, never every sentence twice. Every Hebrew line below is Martin's own wording from
+ * the second-pass brief, used verbatim (none is written or translated here).
  */
 export const copy = {
-  /** The principle, as one word that turns into the other (shared "PRO"). */
-  problem: 'PROBLEM',
-  product: 'PRODUCT',
+  idea: { he: 'הכול מתחיל מרעיון.', en: 'EVERYTHING STARTS WITH AN IDEA.' },
+  structure: { he: 'מרעיון למשהו שאפשר להשתמש בו.', en: 'FROM IDEA TO PRODUCT.' },
+  builds: { web: 'אתרים.', product: 'מוצרים דיגיטליים.', system: 'מערכות.' },
+  needs: 'BUILT AROUND REAL NEEDS.',
   realWork: ['BUILT FOR', 'REAL WORK.'],
+  outcome: { less: 'פחות להתעסק במערכת.', more: 'יותר לעשות את העבודה.', en: 'BUILT FOR PEOPLE.' },
   /** How I Work (site): Understand, Define, Design, Build. */
   process: ['UNDERSTAND.', 'DEFINE.', 'DESIGN.', 'BUILD.'],
+  bridge: ['מהרעיון.', 'עד הדבר האמיתי.'],
+  /** Locked campaign line. */
   endLine: 'MAKE IT REAL.',
-  /** Quiet slates, numbered as on the site. */
-  slates: {
-    on: ['01', 'ON'],
-    miMaMo: ['02', 'המחלבה'],
-    defense: ['03 / 04', 'DEFENSE SYSTEMS'],
-  },
 } as const
 
 /** Labels and data inside the rebuilt interfaces, copied from the approved screenshots. */

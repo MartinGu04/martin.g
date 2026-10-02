@@ -192,19 +192,14 @@ export function TileBody({
           <div
             style={{
               ...display,
-              fontSize: 300 * u * (fmt === 'portrait' ? 0.7 : 1),
+              fontSize: 150 * u * (fmt === 'portrait' ? 0.85 : 1),
+              textAlign: 'center',
               color: world.bone.ink,
               lineHeight: 0.86,
             }}
           >
-            {fmt === 'portrait' ? (
-              <>
-                <div>PRO</div>
-                <div>DUCT</div>
-              </>
-            ) : (
-              'PRODUCT'
-            )}
+            <div>FROM IDEA</div>
+            <div>TO PRODUCT.</div>
           </div>
         </Centered>
       )

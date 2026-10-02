@@ -1,9 +1,10 @@
 /**
- * 09 EVERYTHING CONNECTS (hero moment three). The live page takes the frame and the camera
+ * 07 THE MARTIN.G WORLD → 08 MAKE IT REAL. The live page takes the frame and the camera
  * goes through it, into a corridor of all the work, passing screens, photographs, code,
  * type and geometry at speed. Then it decelerates, the roll resolves, and everything
  * aligns: the last pieces shrink into cells, hundreds more stream in from the depth, and
- * only when the last cell locks does the shape read: the MARTIN.G symbol, made of the work.
+ * only when the last cell locks does the shape read: the MG symbol, made of the work. On the
+ * way, one Hebrew line bridges to the ending: מהרעיון. עד הדבר האמיתי.
  * It turns to light; silence; the real symbol takes its place (the signature scene).
  */
 import { AbsoluteFill } from 'remotion'
@@ -15,11 +16,14 @@ import { drift, ease, keys, mix, rng, tw } from '../lib/anim'
 import { Crop, Preload } from '../components/media'
 import { TileBody, TILE_CYCLE } from '../components/Tiles'
 import { symbolAspect } from '../components/Mark'
+import { DIAGONAL } from '../brand/geometry'
+import { copy } from '../config/copy'
+import { CaptionAt, HeLine } from '../components/Caption'
 import cellsData from '../generated/monogram-cells.json'
 import type { SceneProps } from './types'
 
 /** Where the symbol lands, on screen: the same size as the opening's impact. */
-export const MOSAIC = { landscape: { w: 1100, y: 0 }, portrait: { w: 900, y: -60 } }
+export const MOSAIC = { landscape: { w: 700, y: -40 }, portrait: { w: 780, y: -150 } }
 
 const ATLAS = [
   assets.mm.dashboard,
@@ -44,8 +48,9 @@ function corridor(portrait: boolean) {
     return {
       i,
       kind: TILE_CYCLE[(i * 5) % TILE_CYCLE.length]!,
-      x: portrait ? side * (220 + r() * 420) : side * (380 + r() * 760),
-      y: portrait ? (r() - 0.5) * 1500 : (r() - 0.5) * 820,
+      // laid along the chevron of the M: two rails at the mark's diagonal
+      x: portrait ? side * (240 + r() * 360) : side * (360 + r() * 720),
+      y: 0,
       z,
       w,
       h: w * (portrait ? 16 / 9 : 9 / 16) * (portrait ? 0.62 : 1),
@@ -54,7 +59,16 @@ function corridor(portrait: boolean) {
     }
   })
 }
-const COR = { landscape: corridor(false), portrait: corridor(true) }
+const COR = {
+  landscape: corridor(false).map((t) => ({
+    ...t,
+    y: -(Math.abs(t.x) - 360) * DIAGONAL * 0.9 + 260,
+  })),
+  portrait: corridor(true).map((t, i) => ({
+    ...t,
+    y: -(Math.abs(t.x) - 240) * DIAGONAL * 1.6 + 300 + (i % 3) * 220,
+  })),
+}
 
 const CELLS = (() => {
   const r = rng(12)
@@ -71,12 +85,12 @@ const CELLS = (() => {
   }))
 })()
 
-export function Converge({ v, f }: SceneProps) {
+export function World({ v, f }: SceneProps) {
   const c = v.cues
   const portrait = v.fmt === 'portrait'
   const W = portrait ? 1080 : 1920
   const H = portrait ? 1920 : 1080
-  const launch = s(c.launch)
+  const launch = s(c.live)
   const align = s(c.align)
   const formed = s(c.formed)
   const silence = s(c.silence)
@@ -96,7 +110,7 @@ export function Converge({ v, f }: SceneProps) {
     ]),
     z: keys(f, [
       [launch - 6, 0],
-      [launch + 6, -900, ease.in],
+      [launch + 10, -900, ease.in],
       [align - 6, Z_END + 400, ease.linear],
       [align + 8, Z_END - 60, ease.out],
       [formed, Z_END, ease.inOut],
@@ -220,6 +234,13 @@ export function Converge({ v, f }: SceneProps) {
             })
           : null}
       </Stage>
+      {/* the bridge: from the idea, to the real thing */}
+      <CaptionAt y={portrait ? 560 : 380}>
+        <HeLine fmt={v.fmt} text={copy.bridge[0]} f={f} at={s(c.bridgeHe)} out={align + 4} />
+      </CaptionAt>
+      <CaptionAt y={portrait ? 650 : 460}>
+        <HeLine fmt={v.fmt} text={copy.bridge[1]} f={f} at={s(c.bridgeHe) + 8} out={align + 6} />
+      </CaptionAt>
     </AbsoluteFill>
   )
 }

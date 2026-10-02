@@ -1,6 +1,6 @@
 /**
- * 10 SIGNATURE. Silence. The real symbol replaces the mosaic exactly where it formed, on
- * the opening's sound. It settles above the supplied wordmark, which is uncovered by a
+ * 08 MAKE IT REAL. Silence. The real MG symbol replaces the mosaic exactly where it formed,
+ * on the brand chord heard at the beginning. It settles above the supplied MARTIN.G wordmark, which is uncovered by a
  * single mask, and the locked campaign line arrives beneath. A hold long enough to read;
  * one last deep note; black. No call to action, no URL, no handles.
  */
@@ -12,7 +12,7 @@ import { ease, jolt, mix, tw } from '../lib/anim'
 import { BrandSymbol, Wordmark, symbolAspect, wordmarkAspect } from '../components/Mark'
 import { label, MaskLine } from '../components/Type'
 import { KeyLight } from '../components/Atmosphere'
-import { MOSAIC } from './Converge'
+import { MOSAIC } from './World'
 import type { SceneProps } from './types'
 
 export function Signature({ v, f }: SceneProps) {
@@ -29,8 +29,8 @@ export function Signature({ v, f }: SceneProps) {
   const m = MOSAIC[v.fmt]
   // Final lockup, designed for each frame.
   const lock = portrait
-    ? { symW: 520, symY: -330, wmW: 900, wmY: 40, lineY: 200, lineSize: 40 }
-    : { symW: 390, symY: -200, wmW: 980, wmY: 70, lineY: 200, lineSize: 32 }
+    ? { symW: 460, symY: -300, wmW: 820, wmY: 20, lineY: 130, lineSize: 34 }
+    : { symW: 360, symY: -170, wmW: 760, wmY: 60, lineY: 160, lineSize: 28 }
   const settle = tw(f, symbol + 10, wordmark + 6, ease.scene)
   const symW = mix(m.w, lock.symW, settle)
   const symY = mix(m.y, lock.symY, settle)

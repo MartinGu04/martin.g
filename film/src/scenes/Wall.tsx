@@ -1,22 +1,25 @@
 /**
- * 06 THE SYSTEM (hero moment one). The product we were inside is one tile. The camera pulls
- * back and keeps pulling: a wall of everything MARTIN.G builds, screens, photographs,
- * code, geometry, type, wireframes, in relief. BUILT FOR REAL WORK. lands in front of it;
- * the camera then flies through the words to one dark tile, the defense systems.
+ * The second half of the proof: the product the camera was inside is one tile. The camera
+ * pulls back and keeps pulling: a wall of everything MARTIN.G builds (screens, photographs,
+ * code, generated geometry, type, wireframes) in relief. BUILT FOR REAL WORK. hangs in front
+ * of it; the camera glides past the confidential systems, alive as geometry only, and dives
+ * into the tile where the next idea waits (the outcome scene picks it up exactly there).
  */
 import { AbsoluteFill } from 'remotion'
 import { copy } from '../config/copy'
 import { brand } from '../config/palette'
-import { s } from '../config/timeline'
+import { s, type Version } from '../config/timeline'
 import { Plane, Stage } from '../lib/camera'
 import { drift, ease, keys, rng, tw } from '../lib/anim'
 import { TileBody, TILE_CYCLE } from '../components/Tiles'
-import { display, MaskLine } from '../components/Type'
+import { Campaign } from '../components/Caption'
 import { KeyLight } from '../components/Atmosphere'
 import { FINAL, ProductWorld } from './Product'
 import { productLayout } from './productLayout'
 import { SystemA } from './Defense'
-import type { SceneProps } from './types'
+import { ClutterFrame } from './Outcome'
+
+type Kind = (typeof TILE_CYCLE)[number] | 'product' | 'defense' | 'outcome'
 
 export function wallGrid(portrait: boolean) {
   const W = portrait ? 1080 : 1920
@@ -31,88 +34,95 @@ export function wallGrid(portrait: boolean) {
     x: number
     y: number
     z: number
-    kind: (typeof TILE_CYCLE)[number] | 'product' | 'defense'
+    kind: Kind
     seed: number
   }[] = []
   let k = 0
   for (let row = -rows; row <= rows; row++) {
     for (let col = -cols; col <= cols; col++) {
-      const isProduct = row === 0 && col === 0
-      const isDefense = portrait ? row === -1 && col === 1 : row === -1 && col === 2
+      const special: Kind | null =
+        row === 0 && col === 0
+          ? 'product'
+          : portrait
+            ? row === 1 && col === 0
+              ? 'defense'
+              : row === 2 && col === 0
+                ? 'outcome'
+                : null
+            : row === 0 && col === 1
+              ? 'defense'
+              : row === 0 && col === 2
+                ? 'outcome'
+                : null
       tiles.push({
         col,
         row,
         x: col * (W + gap),
         y: row * (H + gap),
-        z: isProduct || isDefense ? 0 : Math.round((r() - 0.5) * 520),
-        kind: isProduct
-          ? 'product'
-          : isDefense
-            ? 'defense'
-            : TILE_CYCLE[(k++ * 7 + (row + 9) * 3) % TILE_CYCLE.length]!,
+        z: special ? 0 : Math.round((r() - 0.5) * 520),
+        kind: special ?? TILE_CYCLE[(k++ * 7 + (row + 9) * 3) % TILE_CYCLE.length]!,
         seed: k,
       })
     }
   }
-  return { W, H, tiles, defense: tiles.find((t) => t.kind === 'defense')! }
+  return { W, H, tiles, outcome: tiles.find((t) => t.kind === 'outcome')! }
 }
 
-export function Wall({ v, f }: SceneProps) {
+export function Wall({ v, f }: { v: Version; f: number }) {
   const c = v.cues
   const portrait = v.fmt === 'portrait'
-  const { W, H, tiles, defense } = wallGrid(portrait)
+  const { W, H, tiles, outcome } = wallGrid(portrait)
   const pullBack = s(c.pullBack)
   const realWork = s(c.realWork)
   const dive = s(c.dive)
-  const arrive = s(c.systemA)
+  const arrive = s(c.clutter)
   const l = productLayout(v.fmt)
-
   const far = portrait ? 9800 : 8600
+
   const cam = {
     x: keys(f, [
       [pullBack, 0],
-      [realWork, portrait ? 120 : -380, ease.scene],
-      [dive, portrait ? 60 : -300, ease.linear],
-      [arrive, defense.x, ease.arrive],
+      [realWork, portrait ? 60 : -260, ease.scene],
+      [dive, portrait ? 120 : 300, ease.inOut],
+      [arrive, outcome.x, ease.inOut],
     ]),
     y: keys(f, [
       [pullBack, 0],
-      [realWork, portrait ? 240 : 160, ease.scene],
-      [dive, portrait ? 200 : 120, ease.linear],
-      [arrive, defense.y, ease.arrive],
+      [realWork, portrait ? 300 : 140, ease.scene],
+      [dive, portrait ? 900 : 100, ease.inOut],
+      [arrive, outcome.y, ease.inOut],
     ]),
     z: keys(f, [
       [pullBack, portrait ? 150 : 160],
       [realWork, far, ease.scene],
-      [dive, far - 500, ease.linear],
-      [arrive, 0, ease.arrive],
+      [dive, far - 700, ease.linear],
+      [arrive, 0, ease.inOut],
     ]),
     rx: keys(f, [
       [pullBack, 0],
       [realWork, portrait ? 4 : 7, ease.scene],
-      [dive, portrait ? 5 : 8],
-      [arrive, 0, ease.arrive],
+      [dive, portrait ? 5 : 6],
+      [arrive, 0, ease.inOut],
     ]),
     ry: keys(f, [
       [pullBack, 0],
       [realWork, portrait ? 6 : -12, ease.scene],
-      [dive, portrait ? 7 : -10],
-      [arrive, 0, ease.arrive],
+      [dive, portrait ? 4 : -6],
+      [arrive, 0, ease.inOut],
     ]),
     rz: keys(f, [
       [pullBack, 0],
       [realWork, portrait ? -2 : 1.5, ease.scene],
-      [arrive, 0, ease.arrive],
+      [arrive, 0, ease.inOut],
     ]),
   }
-  cam.x += drift(f, 31, 20) * tw(f, pullBack, realWork) * (1 - tw(f, dive, arrive))
-  cam.y += drift(f, 32, 14) * tw(f, pullBack, realWork) * (1 - tw(f, dive, arrive))
+  const roam = tw(f, pullBack, realWork) * (1 - tw(f, dive, arrive))
+  cam.x += drift(f, 31, 20) * roam
+  cam.y += drift(f, 32, 14) * roam
 
-  // The wall dims behind the words, then comes back as the camera dives.
   const dim = 1 - 0.5 * tw(f, realWork - 4, realWork + 4) * (1 - tw(f, dive, dive + 10))
+  // The words hang between the camera and the wall, square to the lens; the move passes them.
   const typeZ = far - 1400
-  const lines = portrait ? ['BUILT', 'FOR', 'REAL', 'WORK.'] : [...copy.realWork]
-  const size = portrait ? 411 : 355
   const dist = cam.z + 1613 - typeZ
   const typeScale = dist > 0 ? 1613 / dist : 0
   const typeO = Math.min(1, Math.max(0, (dist - 260) / 500))
@@ -123,14 +133,11 @@ export function Wall({ v, f }: SceneProps) {
       <KeyLight x={38} y={30} size={80} strength={0.08} />
       <Stage cam={cam}>
         {tiles.map((t, i) => {
-          // Tiles appear around the product as the camera pulls back, ring by ring.
           const ring = Math.max(Math.abs(t.col), Math.abs(t.row))
           const o = t.kind === 'product' ? 1 : tw(f, pullBack + ring * 2, pullBack + 6 + ring * 3)
           if (o <= 0) return null
-          const lit =
-            t.kind === 'product' || t.kind === 'defense'
-              ? 1
-              : 0.62 + 0.38 * Math.abs(Math.sin(i * 1.7))
+          const special = t.kind === 'product' || t.kind === 'defense' || t.kind === 'outcome'
+          const lit = special ? 1 : 0.62 + 0.38 * Math.abs(Math.sin(i * 1.7))
           return (
             <Plane key={i} x={t.x} y={t.y} z={t.z} w={W} h={H} opacity={o}>
               <div
@@ -147,15 +154,17 @@ export function Wall({ v, f }: SceneProps) {
                 ) : t.kind === 'defense' ? (
                   <SystemA
                     fmt={v.fmt}
-                    f={arrive}
+                    f={f}
                     t={{
-                      systemA: arrive,
-                      stateChange: s(c.stateChange),
-                      systemB: s(c.systemB),
-                      structure: s(c.structure),
-                      end: s(c.design),
+                      systemA: pullBack,
+                      stateChange: realWork + 10,
+                      systemB: arrive + 99,
+                      structure: arrive + 99,
+                      end: arrive + 99,
                     }}
                   />
+                ) : t.kind === 'outcome' ? (
+                  <ClutterFrame fmt={v.fmt} f={arrive} v={v} />
                 ) : (
                   <TileBody kind={t.kind} w={W} h={H} fmt={v.fmt} seed={t.seed} />
                 )}
@@ -173,32 +182,21 @@ export function Wall({ v, f }: SceneProps) {
           )
         })}
       </Stage>
-      {/* The words hang in the space between the camera and the wall, square to the lens:
-          they grow as the camera pushes and the dive passes straight through them. */}
       {typeScale > 0 && typeO > 0 ? (
         <AbsoluteFill style={{ alignItems: 'center', justifyContent: 'center', opacity: typeO }}>
           <div
             style={{
-              ...display,
-              fontSize: size,
-              color: brand.ink,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
               transform: `scale(${typeScale})`,
-              textShadow: '0 20px 80px rgba(0,0,0,0.6)',
               filter: typeBlur > 0.3 ? `blur(${typeBlur}px)` : undefined,
+              textShadow: '0 20px 80px rgba(0,0,0,0.6)',
             }}
           >
-            {lines.map((line, i) => (
-              <MaskLine
-                key={i}
-                p={tw(f, realWork - 4 + i * 2, realWork + 5 + i * 2, ease.mask)}
-                pad={0.04}
-              >
-                {line}
-              </MaskLine>
-            ))}
+            <Campaign
+              lines={portrait ? ['BUILT', 'FOR', 'REAL', 'WORK.'] : copy.realWork}
+              f={f}
+              at={realWork - 4}
+              size={portrait ? 411 : 355}
+            />
           </div>
         </AbsoluteFill>
       ) : null}

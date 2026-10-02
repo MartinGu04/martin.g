@@ -26,7 +26,6 @@ import {
   SmallCard,
   WEEK,
 } from '../components/MiMaMo'
-import { Slate } from '../components/Slate'
 import { cellInTile, productLayout, type ProductLayout } from './productLayout'
 import type { SceneProps } from './types'
 
@@ -80,12 +79,15 @@ export function ProductWorld({
   f,
   explode,
   cursor,
+  aux = 1,
 }: {
   l: ProductLayout
   st: ChainState
   f: number
   explode: number
   cursor?: { x: number; y: number; pressed: number; o: number }
+  /** Opacity of everything around the schedule (it arrives after the schedule). */
+  aux?: number
 }) {
   const from = cellInTile(l, l.move.from[0], l.move.from[1])
   const to = cellInTile(l, l.move.to[0], l.move.to[1])
@@ -197,16 +199,17 @@ export function ProductWorld({
           z={z(160)}
           w={l.greeting.w}
           h={l.greeting.w * 0.22}
+          opacity={aux}
         >
           <Greeting width={l.greeting.w} />
         </Plane>
       ) : null}
       {l.small.map((c, i) => (
-        <Plane key={i} x={c.x} y={c.y} z={z(80 - i * 40)} w={c.w} h={c.w * 0.45}>
+        <Plane key={i} x={c.x} y={c.y} z={z(80 - i * 40)} w={c.w} h={c.w * 0.45} opacity={aux}>
           <SmallCard width={c.w} title={c.title} line={c.line} icon={c.icon} />
         </Plane>
       ))}
-      <Plane x={l.card.x} y={l.card.y} z={z(0)} w={l.card.w} h={cardH}>
+      <Plane x={l.card.x} y={l.card.y} z={z(0)} w={l.card.w} h={cardH} opacity={aux}>
         <div style={{ position: 'relative' }}>
           <NextShiftCard
             width={l.card.w}
@@ -226,7 +229,14 @@ export function ProductWorld({
         </div>
       </Plane>
       {l.phone ? (
-        <Plane x={l.phone.x} y={l.phone.y} z={z(-420)} w={l.phone.w} h={(l.phone.w * 867) / 429}>
+        <Plane
+          x={l.phone.x}
+          y={l.phone.y}
+          z={z(-420)}
+          w={l.phone.w}
+          h={(l.phone.w * 867) / 429}
+          opacity={aux}
+        >
           <Crop src={assets.mm.mobile} width={l.phone.w} />
         </Plane>
       ) : null}
@@ -240,7 +250,14 @@ export function ProductWorld({
       >
         <Notice width={l.notice.w} text={ui.updated} />
       </Plane>
-      <Plane x={l.clock.x} y={l.clock.y} z={z(220)} w={l.clock.size * 6} h={l.clock.size * 1.7}>
+      <Plane
+        x={l.clock.x}
+        y={l.clock.y}
+        z={z(220)}
+        w={l.clock.size * 6}
+        h={l.clock.size * 1.7}
+        opacity={aux}
+      >
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           <Clock size={l.clock.size} seconds={f / 24} />
         </div>
@@ -259,145 +276,5 @@ export function ProductWorld({
         </Plane>
       ) : null}
     </>
-  )
-}
-
-export function Product({ v, f }: SceneProps) {
-  const c = v.cues
-  const portrait = v.fmt === 'portrait'
-  const l = productLayout(v.fmt)
-  const macro = s(c.macro)
-  const rack = s(c.rack)
-  const covered = s(c.covered)
-  const toWall = s(c.toWall)
-  const cursorAt = s(c.cursor)
-  const grab = s(c.grab)
-  const drop = s(c.drop)
-  const resolve = s(c.resolve)
-  const pullBack = s(c.pullBack)
-  if (f < macro) return null
-
-  const st = chainAt(f, { grab, drop, resolve })
-  const from = cellInTile(l, l.move.from[0], l.move.from[1])
-  const to = cellInTile(l, l.move.to[0], l.move.to[1])
-  const explode = 1 - tw(f, drop + 4, resolve + 2, ease.inOut)
-
-  // Camera. Macro fill of the card, then the choreography described above.
-  const P = 1613
-  const zFill = (w: number) => P / ((portrait ? 1000 : 1880) / w) - P
-  const title = { x: l.card.x + l.card.w * (portrait ? 0.18 : 0.2), y: l.card.y - l.card.w * 0.06 }
-  const status = { x: l.card.x - l.card.w * 0.3, y: l.card.y + l.card.w * 0.03 }
-  const sx = l.sched.x
-  const sy = l.sched.y
-  const zSched = portrait ? -360 : -520
-  const x = keys(f, [
-    [macro, l.card.x],
-    [rack, title.x, ease.out],
-    [covered, status.x, ease.inOut],
-    [toWall, l.card.x - 120, ease.inOut],
-    [cursorAt, sx + (portrait ? 140 : 360), ease.inOut],
-    [grab, (from.x + to.x) / 2 + (portrait ? 0 : 60), ease.inOut],
-    [drop, to.x + (portrait ? 0 : 80), ease.inOut],
-    [resolve, 0, ease.inOut],
-  ])
-  const y = keys(f, [
-    [macro, l.card.y],
-    [rack, title.y, ease.out],
-    [covered, status.y, ease.inOut],
-    [toWall, l.card.y - 60, ease.inOut],
-    [cursorAt, sy, ease.inOut],
-    [grab, (from.y + to.y) / 2, ease.inOut],
-    [drop, to.y, ease.inOut],
-    [resolve, 0, ease.inOut],
-  ])
-  const z = keys(f, [
-    [macro, zFill(l.card.w)],
-    [rack, zFill(l.card.w) - (portrait ? 160 : 90), ease.out],
-    [covered, zFill(l.card.w) + (portrait ? 80 : 300), ease.inOut],
-    [toWall, portrait ? -120 : -40, ease.inOut],
-    [cursorAt, zSched - (portrait ? 420 : 330), ease.inOut],
-    [grab, zSched - (portrait ? 520 : 470), ease.inOut],
-    [drop, zSched - (portrait ? 480 : 420), ease.inOut],
-    [resolve, portrait ? 120 : 130, ease.inOut],
-    [pullBack, portrait ? 150 : 160, ease.linear],
-  ])
-  const ry = keys(f, [
-    [macro, 0],
-    [rack, -6, ease.out],
-    [covered, portrait ? 8 : 10, ease.inOut],
-    [toWall, portrait ? 4 : 8, ease.inOut],
-    [toWall + (cursorAt - toWall) * 0.5, portrait ? 6 : 34, ease.inOut],
-    [cursorAt, 0, ease.inOut],
-  ])
-  const rx = keys(f, [
-    [macro, 0],
-    [rack, 4, ease.out],
-    [covered, -3, ease.inOut],
-    [toWall + (cursorAt - toWall) * 0.5, portrait ? 10 : 4, ease.inOut],
-    [cursorAt, 0, ease.inOut],
-  ])
-  // Focus: the card, then the layers in front of it, then the schedule as we reach it.
-  const focusZ = keys(f, [
-    [macro, 0],
-    [covered, 0],
-    [toWall, -260 * explode, ease.inOut],
-  ])
-  const cam = {
-    x: x + drift(f, 11, 4),
-    y: y + drift(f, 12, 3),
-    z,
-    rx,
-    ry,
-    dof: 6 * (1 - tw(f, cursorAt - 6, cursorAt + 6)),
-    focusZ,
-  }
-
-  // Cursor: enters, presses, drags, releases, leaves.
-  const enter = { x: from.x + (portrait ? 260 : 380), y: from.y + (portrait ? 320 : 260) }
-  const cpos = {
-    x: keys(f, [
-      [cursorAt, enter.x],
-      [grab - 2, from.x, ease.inOut],
-      [drop - 1, to.x, ease.inOut],
-      [drop + 10, to.x + 140, ease.inOut],
-    ]),
-    y: keys(f, [
-      [cursorAt, enter.y],
-      [grab - 2, from.y, ease.inOut],
-      [drop - 1, to.y, ease.inOut],
-      [drop + 10, to.y + 100, ease.inOut],
-    ]),
-  }
-  const cursor = {
-    ...cpos,
-    pressed: tw(f, grab - 2, grab, ease.out) * (1 - tw(f, drop - 1, drop + 1)),
-    o: tw(f, cursorAt, cursorAt + 4) * (1 - tw(f, drop + 6, drop + 12)),
-  }
-
-  const bgLight = keys(f, [
-    [macro, 0.22],
-    [resolve, 0.12],
-  ])
-
-  return (
-    <AbsoluteFill style={{ background: mm.bg }}>
-      <AbsoluteFill
-        style={{
-          background: `radial-gradient(ellipse 70% 60% at 60% 25%, rgba(127,166,214,${bgLight}), rgba(127,166,214,0) 70%)`,
-        }}
-      />
-      <Stage cam={cam}>
-        <ProductWorld l={l} st={st} f={f} explode={explode} cursor={cursor} />
-      </Stage>
-      <Slate
-        fmt={v.fmt}
-        f={f}
-        at={rack}
-        until={toWall}
-        index={copy.slates.miMaMo[0]}
-        name={copy.slates.miMaMo[1]}
-        tone={mm.text}
-      />
-    </AbsoluteFill>
   )
 }
