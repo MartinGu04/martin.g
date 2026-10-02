@@ -377,7 +377,7 @@ export const caseMiMaMoCopy: Localized<MiMaMoCaseCopy> = {
       items: {
         nextShift: {
           title: 'המשמרת הבאה לפני כל דבר אחר',
-          body: 'במסך הבית, המשמרת הבאה היא הכרטיס הגדול ביותר, מתחת לברכה ולשני הקיצורים, ושמה באות גדולה.',
+          body: 'במסך הבית, המשמרת הבאה היא הכרטיס הגדול ביותר, מתחת לברכה ולשני הקיצורים, ושם המשמרת מופיע בגדול.',
         },
         week: {
           title: 'השבוע כתצוגה משותפת',
@@ -448,7 +448,7 @@ export const caseMiMaMoMedia = {
   },
   current: {
     en: 'The current shift: a day shift and its hours, coverage full, and the time left in words and as a bar.',
-    he: 'המשמרת הנוכחית: משמרת יום והשעות שלה, כיסוי מלא, והזמן שנותר במילים וכפס.',
+    he: 'המשמרת הנוכחית: משמרת יום והשעות שלה, כיסוי מלא, והזמן שנותר בטקסט ובפס התקדמות.',
   },
   next: {
     en: 'The next shift: a night shift with no coverage, and the missing role noted.',
@@ -496,11 +496,11 @@ export const caseMiMaMoMedia = {
   },
   typeLevels: {
     en: 'The next shift’s heading on Home: a small label, the shift’s name in large type, then the day and the hours.',
-    he: 'כותרת המשמרת הבאה במסך הבית: תווית קטנה, שם המשמרת באות גדולה, ואז היום והשעות.',
+    he: 'כותרת המשמרת הבאה במסך הבית: תווית קטנה, שם המשמרת בגדול, ואז היום והשעות.',
   },
   timeLeft: {
     en: 'The time left in the current shift, in words and as a progress bar.',
-    he: 'הזמן שנותר במשמרת הנוכחית, במילים וכפס התקדמות.',
+    he: 'הזמן שנותר במשמרת הנוכחית, בטקסט ובפס התקדמות.',
   },
   dayNight: {
     en: 'Two entries in Team Week: a night shift with a moon, and a day shift with a sun.',

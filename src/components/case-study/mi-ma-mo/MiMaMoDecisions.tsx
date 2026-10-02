@@ -105,9 +105,19 @@ export function MiMaMoDecisions({
                 <Reveal as="figure" className={styles.exhibit}>
                   <figcaption className={`t-label ${styles.source}`}>
                     <span className={styles.sourceMark} aria-hidden="true" />
-                    {copy.ui.evidence}
-                    <span aria-hidden="true"> · </span>
-                    <span className={styles.view}>{views[proof.view]}</span>
+                    {locale === 'he' ? (
+                      // Hebrew: the prefix (ending in a maqaf) joins the view's name directly.
+                      <span>
+                        {copy.ui.evidence}
+                        <span className={styles.view}>{views[proof.view]}</span>
+                      </span>
+                    ) : (
+                      <>
+                        {copy.ui.evidence}
+                        <span aria-hidden="true"> · </span>
+                        <span className={styles.view}>{views[proof.view]}</span>
+                      </>
+                    )}
                   </figcaption>
                   <div
                     className={styles.frame}
