@@ -6,11 +6,11 @@ import type { TrustPageCopy } from './legal'
  * (docs/DESIGN-SYSTEM.md, "Accessibility baseline"; tests/e2e), names what is not done
  * yet, and makes no conformance or certification claim: WCAG 2.2 AA is stated as the
  * target only. The Enable menu is described as an addition, never as the reason the site
- * is accessible. Draft until Martin approves it.
+ * is accessible. Approved by Martin in both locales.
  */
 export const accessibilityReview: Localized<ReviewStatus> = {
-  en: 'draft',
-  he: 'draft',
+  en: 'approved',
+  he: 'approved',
 }
 
 export const accessibilityCopy: Localized<TrustPageCopy> = {

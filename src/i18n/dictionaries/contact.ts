@@ -2,9 +2,9 @@ import type { Localized, ReviewStatus } from '../config'
 
 /**
  * Phase 6 copy: the closing scene's action, the Contact navigation and footer labels, the
- * project inquiry page, its form, errors and success state. Written for review: 'draft' in
- * both locales until Martin approves it, so the release gate (src/i18n/release-gate.ts)
- * refuses a Vercel production build meanwhile.
+ * project inquiry page, its form, errors and success state. Approved by Martin in both
+ * locales. Marking either locale 'draft' again makes a Vercel production build refuse it
+ * (src/i18n/release-gate.ts).
  *
  * Hebrew addresses the visitor in the plural or with infinitives, as the approved homepage
  * copy does. The form's labels, hints, placeholders and options (revised in Phase 6 to speak
@@ -12,8 +12,8 @@ import type { Localized, ReviewStatus } from '../config'
  * here promises a response time.
  */
 export const contactReview: Localized<ReviewStatus> = {
-  en: 'draft',
-  he: 'draft',
+  en: 'approved',
+  he: 'approved',
 }
 
 export type ProjectKind = 'website' | 'landing' | 'app' | 'existing' | 'other'

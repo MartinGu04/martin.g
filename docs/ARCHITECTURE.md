@@ -216,5 +216,5 @@ reached from any page; there is no About page. No placeholder or dead links (tes
 - Phase 4: Hero, home choreography and real projects (done)
 - Phase 5: Case studies (5A ON and 5B המחלבה: merged, copy approved)
 - Phase 6: Trust, accessibility and conversion (contact, privacy, accessibility, Enable;
-  copy draft, in review)
+  copy approved)
 - Phase 7: Launch hardening

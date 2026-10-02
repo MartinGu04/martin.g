@@ -15,11 +15,11 @@ import type { TrustPageCopy } from './legal'
  *   - self-hosted fonts, images and video; no embeds; external links without a referrer
  *
  * If the Telegram notifier (src/lib/contact/notifiers.ts) is turned on, or analytics are
- * added, this copy must say so before it ships. Draft until Martin approves it.
+ * added, this copy must say so before it ships. Approved by Martin in both locales.
  */
 export const privacyReview: Localized<ReviewStatus> = {
-  en: 'draft',
-  he: 'draft',
+  en: 'approved',
+  he: 'approved',
 }
 
 export const privacyCopy: Localized<TrustPageCopy> = {
