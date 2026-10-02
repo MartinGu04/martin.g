@@ -44,6 +44,7 @@ export function HeLine({
   fmt,
   color,
   style,
+  breakAfter,
 }: {
   text: string
   f: number
@@ -52,7 +53,19 @@ export function HeLine({
   fmt: Format
   color?: string
   style?: CSSProperties
+  /** Break into two lines after this many words (long lines on a phone). */
+  breakAfter?: number
 }) {
+  if (breakAfter !== undefined) {
+    const all = text.split(' ')
+    const props = { f, out, fmt, color, style }
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <HeLine {...props} text={all.slice(0, breakAfter).join(' ')} at={at} />
+        <HeLine {...props} text={all.slice(breakAfter).join(' ')} at={at + breakAfter * 3} />
+      </div>
+    )
+  }
   const words = text.split(' ')
   const o = out === undefined ? 0 : ease.mask(clamp((f - out) / 9))
   return (

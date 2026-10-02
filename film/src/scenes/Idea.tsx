@@ -325,7 +325,7 @@ export function Idea({ v, f }: SceneProps) {
           f={f}
           at={s(c.structHe)}
           out={web - 9}
-          style={portrait ? { fontSize: 62 } : undefined}
+          breakAfter={portrait ? 2 : undefined}
         />
         {portrait ? null : (
           <EnLine fmt={v.fmt} text={copy.structure.en} f={f} at={s(c.structEn)} out={web - 10} />
