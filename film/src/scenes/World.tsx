@@ -235,10 +235,10 @@ export function World({ v, f }: SceneProps) {
           : null}
       </Stage>
       {/* the bridge: from the idea, to the real thing */}
-      <CaptionAt y={portrait ? 560 : 380}>
+      <CaptionAt y={portrait ? 440 : 380}>
         <HeLine fmt={v.fmt} text={copy.bridge[0]} f={f} at={s(c.bridgeHe)} out={align + 4} />
       </CaptionAt>
-      <CaptionAt y={portrait ? 650 : 460}>
+      <CaptionAt y={portrait ? 530 : 460}>
         <HeLine fmt={v.fmt} text={copy.bridge[1]} f={f} at={s(c.bridgeHe) + 8} out={align + 6} />
       </CaptionAt>
     </AbsoluteFill>

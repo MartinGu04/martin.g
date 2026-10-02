@@ -64,7 +64,9 @@ export function Signature({ v, f }: SceneProps) {
             position: 'absolute',
             insetInlineStart: W / 2 - lock.wmW / 2,
             insetBlockStart: H / 2 + lock.wmY - wmH / 2,
-            clipPath: `inset(-10% ${(1 - reveal) * 100}% -10% 0)`,
+            // a feathered reveal: letters arrive through a soft edge, never as a cut-off word
+            WebkitMaskImage: `linear-gradient(90deg, #000 ${reveal * 130 - 30}%, transparent ${reveal * 130}%)`,
+            maskImage: `linear-gradient(90deg, #000 ${reveal * 130 - 30}%, transparent ${reveal * 130}%)`,
           }}
         >
           <Wordmark width={lock.wmW} />

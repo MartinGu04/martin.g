@@ -24,6 +24,7 @@ from pathlib import Path
 
 import numpy as np
 from scipy import signal
+from scipy.io import wavfile
 
 SR = 48000
 ROOT = Path(__file__).resolve().parent.parent
@@ -340,8 +341,8 @@ def brand_chord(dur, deep=False):
     t = t_axis(dur)
     notes = ['D2', 'A2', 'D3', 'F#3'] if deep else ['D3', 'A3', 'E4', 'F#4', 'A4']
     pad = pad_chord([hz(n) for n in notes], dur, 900 if deep else 2200, 0.0 if deep else 0.4)
-    env = np.clip(t / 0.06, 0, 1) * np.exp(-t / (0.9 if deep else 1.8))
-    sub = sine_sweep(dur, 74 if deep else 90, hz('D1'), 10) * env_exp(dur, 0.7 if deep else 1.1, 0.002)
+    env = np.clip(t / 0.06, 0, 1) * np.exp(-t / (0.6 if deep else 1.8))
+    sub = sine_sweep(dur, 74 if deep else 90, hz('D1'), 10) * env_exp(dur, 0.5 if deep else 1.1, 0.002)
     return pad * env * 2.4 + pan_st(soft(sub * 1.2, 1.2))
 
 
@@ -545,6 +546,36 @@ def build(version):
         buf, bus = FX[e['kind']](e)
         buses[bus].add(e['at'], buf, db(e.get('gain', 0)))
 
+    # --- The voice signature (optional): a recorded human take, never a synthetic one -------
+    # Drop a take at audio/voice/signature.wav: "MARTIN.G." (short pause) "Make it real."
+    # Its first word lands on the wordmark; the music dips a few dB beneath it, never out.
+    voice_duck = None
+    vpath = ROOT / 'audio' / 'voice' / 'signature.wav'
+    if vpath.exists():
+        vsr, raw = wavfile.read(vpath)
+        vx = raw.astype(np.float64)
+        if raw.dtype.kind in 'iu':
+            vx /= float(np.iinfo(raw.dtype).max)
+        vx = vx.mean(axis=1) if vx.ndim == 2 else vx
+        if vsr != SR:
+            vx = signal.resample_poly(vx, SR, vsr)
+        vx = hp(vx, 75, 2)
+        # trim leading silence so the first word sits on its cue
+        on = np.argmax(np.abs(vx) > 0.02 * np.max(np.abs(vx)))
+        vx = vx[max(0, on - secs(0.03)):]
+        vx = vx / max(1e-9, np.max(np.abs(vx))) * db(-6)
+        start = c['wordmark'] + 0.08
+        buses['voice'] = Bus(dur)
+        buses['voice'].add(start, pan_st(vx), 1.0)
+        env = signal.sosfilt(signal.butter(1, 4, 'low', fs=SR, output='sos'), np.abs(vx))
+        env = env / max(1e-9, env.max())
+        voice_duck = np.ones(buses['music'].x.shape[1])
+        i0 = secs(start)
+        seg = 1 - 0.45 * np.clip(env * 3, 0, 1)  # about -5 dB under the voice
+        j = min(len(voice_duck), i0 + len(seg))
+        voice_duck[i0:j] = seg[: j - i0]
+        print(f'voice: {vpath.relative_to(ROOT)} at {start:.2f}s ({len(vx) / SR:.2f}s)')
+
     # --- Silence: everything but the impacts' own tails is pulled out ------------------
     def carve(bus, a, b, fade=0.012):
         i0, i1 = secs(a), secs(b)
@@ -572,6 +603,8 @@ def build(version):
     small = reverb_ir(1.4, 6000, 3)
     large = reverb_ir(3.4, 4200, 5, 0.02)
     sends = {'music': (small, 0.16), 'ambience': (large, 0.25), 'impacts': (large, 0.32), 'transitions': (small, 0.18), 'ui': (small, 0.22)}
+    if 'voice' in buses:
+        sends['voice'] = (small, 0.06)  # close-mic: barely any room
     for k, (ir, amt) in sends.items():
         wet = convolve_st(buses[k].x, ir)
         buses[k].x = buses[k].x + wet * amt
@@ -588,11 +621,14 @@ def build(version):
             duck[i:j] = np.minimum(duck[i:j], curve[: j - i])
     buses['music'].x *= duck
     buses['ambience'].x *= 0.5 + 0.5 * duck
+    if voice_duck is not None:
+        for k in ('music', 'ambience', 'impacts'):
+            buses[k].x *= voice_duck
 
     # --- Stems, levels, master -----------------------------------------------------------
     total = secs(dur)
     stems = {k: b.x[:, :total] for k, b in buses.items()}
-    level = {'music': db(-3.0), 'ambience': db(-2.0), 'impacts': db(-1.0), 'transitions': db(-6.0), 'ui': db(-2.0)}
+    level = {'music': db(-3.0), 'ambience': db(-2.0), 'impacts': db(-1.0), 'transitions': db(-6.0), 'ui': db(-2.0), 'voice': db(0.0)}
     for k in stems:
         stems[k] = stems[k] * level[k]
     mix = sum(stems.values())
@@ -601,8 +637,10 @@ def build(version):
     for ch in range(2):
         mix[ch] = hp(mix[ch], 24, 2)
     mix = master(mix)
+    # the last note and its room decay to nothing before the file ends (no cut-off tail)
     fade = np.ones(total)
-    fade[-secs(0.08):] = np.linspace(1, 0, secs(0.08))
+    n_f = secs(1.1)
+    fade[-n_f:] = np.linspace(1, 0, n_f) ** 2
     mix *= fade
 
     out = ROOT / 'public' / 'audio' / version

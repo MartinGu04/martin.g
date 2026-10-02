@@ -80,6 +80,16 @@ quiet; interface sounds are percussion. Before the symbol, every stem is carved 
 the brand chord heard far away in the opening returns there, and the last note is its
 deeper, cleaner resolution.
 
+### Voice signature (optional)
+
+The film ends with an optional spoken signature: "MARTIN.G." (short pause) "Make it real."
+It must be a real, recorded human voice (low, calm, close-mic, natural, not an announcer); a
+synthetic voice is never used. Save the take as `film/audio/voice/signature.wav` (any sample
+rate, mono or stereo, a little silence before the first word is fine) and re-render: the
+build trims the lead-in, places "MARTIN.G." on the wordmark, dips the music about 5 dB under
+the words (never to silence), and lets the final note resolve after "real" before black.
+Without the file the film ends on music alone.
+
 ## Rules this film follows
 
 - **Brand marks** are the approved MG symbol and MARTIN.G wordmark (`film/brand`), shown as

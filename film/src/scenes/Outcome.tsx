@@ -475,11 +475,11 @@ export function Outcome({ v, f }: SceneProps) {
       </CaptionAt>
       <AbsoluteFill
         style={{
-          background: 'linear-gradient(180deg, rgba(0,0,0,0) 55%, rgba(0,0,0,0.55) 100%)',
+          background: 'linear-gradient(180deg, rgba(0,0,0,0) 45%, rgba(0,0,0,0.72) 100%)',
           opacity: open * (1 - tw(f, process - 24, process - 12)),
         }}
       />
-      <CaptionAt y={portrait ? 470 : 330}>
+      <CaptionAt y={portrait ? 400 : 330}>
         <Campaign
           lines={portrait ? ['BUILT FOR', 'PEOPLE.'] : [copy.outcome.en]}
           f={f}

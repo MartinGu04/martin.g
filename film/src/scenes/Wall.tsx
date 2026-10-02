@@ -95,7 +95,7 @@ export function Wall({ v, f }: { v: Version; f: number }) {
     z: keys(f, [
       [pullBack, portrait ? 150 : 160],
       [realWork, far, ease.scene],
-      [dive, far - 700, ease.linear],
+      [dive, far - 575, ease.linear],
       [arrive, 0, ease.inOut],
     ]),
     rx: keys(f, [
@@ -125,7 +125,8 @@ export function Wall({ v, f }: { v: Version; f: number }) {
   const typeZ = far - 1400
   const dist = cam.z + 1613 - typeZ
   const typeScale = dist > 0 ? 1613 / dist : 0
-  const typeO = Math.min(1, Math.max(0, (dist - 260) / 500))
+  // The dive passes the words without blowing them apart: they are gone before the frame crops them.
+  const typeO = Math.min(1, Math.max(0, (dist - 2078) / 360))
   const typeBlur = Math.max(0, typeScale - 1.6) * 6
 
   return (
@@ -195,7 +196,7 @@ export function Wall({ v, f }: { v: Version; f: number }) {
               lines={portrait ? ['BUILT', 'FOR', 'REAL', 'WORK.'] : copy.realWork}
               f={f}
               at={realWork - 4}
-              size={portrait ? 411 : 355}
+              size={portrait ? 285 : 300}
             />
           </div>
         </AbsoluteFill>

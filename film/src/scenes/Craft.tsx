@@ -14,11 +14,11 @@ import { copy } from '../config/copy'
 import { brand, world } from '../config/palette'
 import { s } from '../config/timeline'
 import { DIAGONAL } from '../brand/geometry'
-import { ease, mix, tw } from '../lib/anim'
+import { clamp, ease, mix, tw } from '../lib/anim'
 import { Crop } from '../components/media'
 import { CODE } from '../components/Fragments'
 import { Cursor } from '../components/MiMaMo'
-import { display } from '../components/Type'
+import { display, MaskLine } from '../components/Type'
 import { DISPLAY } from '../lib/fonts'
 import { BLOCKS } from './frame'
 import { PhotoCover } from './Outcome'
@@ -55,24 +55,41 @@ export function Craft({ v, f }: SceneProps) {
       : `polygon(-5% -5%, ${edgeX(p) + slant}px -5%, ${edgeX(p) - slant}px 105%, -5% 105%)`
 
   const wordSize = portrait ? 132 : 150
-  const Word = ({ text }: { text: string }) => {
-    const maxW = portrait ? 940 : 640
-    const fit = Math.min(1, maxW / (text.length * wordSize * 0.8))
-    return (
-      <div
-        style={{
-          position: 'absolute',
-          insetInlineStart: portrait ? 70 : 110,
-          insetBlockStart: portrait ? 300 : H / 2 - wordSize * 0.5,
-          ...display,
-          fontSize: wordSize * fit,
-          color: brand.ink,
-          lineHeight: 1,
-        }}
-      >
-        {text}
-      </div>
-    )
+  const wordLeft = portrait ? 70 : 110
+  const wordTop = portrait ? 300 : H / 2 - wordSize * 0.5
+  const maxW = portrait ? 940 : 640
+  const fitOf = (text: string) => Math.min(1, maxW / (text.length * wordSize * 0.8))
+  const Word = ({ text, p, o }: { text: string; p: number; o: number }) => (
+    <div style={{ position: 'absolute', insetInlineStart: wordLeft, insetBlockStart: wordTop }}>
+      <MaskLine p={p} out={o} pad={0.06}>
+        <div
+          style={{ ...display, fontSize: wordSize * fitOf(text), color: brand.ink, lineHeight: 1 }}
+        >
+          {text}
+        </div>
+      </MaskLine>
+    </div>
+  )
+  // The sweep's edge at a given height, frame by frame: words change only once the edge has
+  // fully cleared them, so a word is never cut in two and never merges with the last one.
+  const sweepAt = (i: number, fr: number) => tw(fr, at(i) - 6, at(i) + 8, ease.mask)
+  const edgeAtY = (i: number, fr: number, y: number) =>
+    edgeX(sweepAt(i, fr)) + slant * (1 - (2 * y) / H)
+  const wordY = wordTop + wordSize * 0.5
+  const firstFrame = (i: number, x: number) => {
+    for (let fr = Math.floor(at(i) - 8); fr <= at(i) + 14; fr++)
+      if (edgeAtY(i, fr, wordY) >= x) return fr
+    return at(i) + 14
+  }
+  const wordIn = (i: number) => {
+    const x1 =
+      wordLeft + Math.min(maxW, copy.process[i]!.length * wordSize * 0.8 * fitOf(copy.process[i]!))
+    return ease.mask(clamp((f - firstFrame(i, x1 + 20)) / 6))
+  }
+  const wordOut = (i: number) => {
+    if (i >= 3) return 0
+    const reach = firstFrame(i + 1, wordLeft - 30)
+    return ease.mask(clamp((f - (reach - 4)) / 4))
   }
   const Steps = ({ n }: { n: number }) => (
     <div
@@ -162,7 +179,6 @@ export function Craft({ v, f }: SceneProps) {
           })}
         </svg>
       </Page>
-      <Word text={copy.process[0]} />
       <Steps n={0} />
     </AbsoluteFill>
   )
@@ -205,7 +221,6 @@ export function Craft({ v, f }: SceneProps) {
           })}
         </svg>
       </Page>
-      <Word text={copy.process[1]} />
       <Steps n={1} />
     </AbsoluteFill>
   )
@@ -234,7 +249,6 @@ export function Craft({ v, f }: SceneProps) {
           <Crop src={pg.src} width={pg.pw} />
         </div>
       </Page>
-      <Word text={copy.process[2]} />
       <Steps n={2} />
     </AbsoluteFill>
   )
@@ -243,7 +257,7 @@ export function Craft({ v, f }: SceneProps) {
   const [cx, cy, cw, ch] = box(cta)
   const click = at(3) + 8
   const pressed = tw(f, click - 2, click, ease.out) * (1 - tw(f, click + 2, click + 5))
-  const goLive = tw(f, live - 6, live + 4, ease.in)
+  const goLive = tw(f, live - 10, live, ease.inOut)
   const fill = Math.max(W / pg.pw, H / pg.ph)
   const scale = mix(1, fill, goLive)
   const tx = (W / 2 - (pg.px + pg.pw / 2)) * goLive
@@ -251,7 +265,6 @@ export function Craft({ v, f }: SceneProps) {
   const s4 = (
     <AbsoluteFill style={{ background: world.graphite.bg }}>
       <div style={{ position: 'absolute', inset: 0, opacity: 1 - goLive }}>
-        <Word text={copy.process[3]} />
         <Steps n={3} />
       </div>
       <div
@@ -371,6 +384,14 @@ export function Craft({ v, f }: SceneProps) {
           </svg>
         )
       })}
+      {/* the words, above the sweep */}
+      <div style={{ position: 'absolute', inset: 0, opacity: 1 - goLive }}>
+        {copy.process.map((text, k) =>
+          wordIn(k) > 0 && wordOut(k) < 1 ? (
+            <Word key={text} text={text} p={wordIn(k)} o={wordOut(k)} />
+          ) : null,
+        )}
+      </div>
     </AbsoluteFill>
   )
 }

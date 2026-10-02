@@ -182,7 +182,7 @@ export function Capabilities({ v, f }: SceneProps) {
           const clip =
             L.p >= 1
               ? undefined
-              : `polygon(${edge + slant}px 0, ${r.w + 40}px 0, ${r.w + 40}px ${r.h}px, ${edge - slant}px ${r.h}px)`
+              : `polygon(-40px 0, ${edge + slant}px 0, ${edge - slant}px ${r.h}px, -40px ${r.h}px)`
           return (
             <div
               key={L.key}
