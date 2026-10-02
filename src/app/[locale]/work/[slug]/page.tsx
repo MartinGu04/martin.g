@@ -6,6 +6,7 @@ import { getProjectSequence, getPublicProject, getPublicProjects } from '@/conte
 import { formatYears, resolvePublicSummary } from '@/content/resolve'
 import type { PublicProject } from '@/content/schema'
 import { onMedia } from '@/content/projects/on'
+import { miMaMoMedia } from '@/content/projects/mi-ma-mo'
 import { localeAlternates } from '@/lib/site'
 import { Grid } from '@/components/layout/Grid'
 import { Eyebrow } from '@/components/type/Eyebrow'
@@ -16,8 +17,10 @@ import { ThemeScope } from '@/components/theme/ThemeScope'
 import { ProjectMedia } from '@/components/project/ProjectMedia'
 import { LiveSiteLink } from '@/components/home/LiveSiteLink'
 import { OnCaseStudy } from '@/components/case-study/on/OnCaseStudy'
+import { MiMaMoCaseStudy } from '@/components/case-study/mi-ma-mo/MiMaMoCaseStudy'
 import { showcaseCopy } from '@/i18n/dictionaries/showcase'
 import { caseOnCopy } from '@/i18n/dictionaries/case-on'
+import { caseMiMaMoCopy } from '@/i18n/dictionaries/case-mi-ma-mo'
 import styles from './page.module.css'
 
 /** Only public, published projects are built. Anything else is a 404, never a hidden page. */
@@ -28,14 +31,19 @@ export function generateStaticParams() {
 }
 
 /**
- * Projects with a composed case study (Phase 5). Each world tells its story its own way,
- * so a case study is a composition of shared case-study primitives, not a block template.
- * Projects without one keep the media page below.
+ * Projects with a composed case study (Phase 5): its metadata and its social image. Each
+ * world tells its story its own way, so a case study is a dedicated composition of shared
+ * case-study primitives, not a block template (dispatched in the page below). Projects
+ * without one keep the media page below.
  */
 const caseStudies = {
   on: {
     seo: (locale: Locale) => caseOnCopy[locale].seo,
     image: onMedia.siteHome,
+  },
+  'mi-ma-mo': {
+    seo: (locale: Locale) => caseMiMaMoCopy[locale].seo,
+    image: miMaMoMedia.dashboardFull,
   },
 } as const
 
@@ -98,8 +106,26 @@ export default async function ProjectPage({ params }: PageProps<'/[locale]/work/
     )
     const index = sequence.findIndex((p) => p.id === project.id)
     const current = sequence[index]
+    if (!current) throw new Error(`No public sequence entry for ${project.id}.`)
+
+    if (project.id === 'mi-ma-mo') {
+      // The last public world: its end names the work that follows (Defense Systems)
+      // without a route into it, and leads back to all of the work.
+      return (
+        <article>
+          <MiMaMoCaseStudy
+            locale={locale}
+            dict={dict}
+            showcase={showcase}
+            copy={caseMiMaMoCopy[locale]}
+            project={current}
+          />
+        </article>
+      )
+    }
+
     const next = sequence[(index + 1) % sequence.length]
-    if (!current || !next || next.id === current.id)
+    if (!next || next.id === current.id)
       throw new Error('The ON case study expects a next public project.')
     return (
       <article>
@@ -120,8 +146,8 @@ export default async function ProjectPage({ params }: PageProps<'/[locale]/work/
 
 /**
  * The project page before its case study: header, the live site when there is one, the
- * real cover, and the project's media in order with short captions. המחלבה keeps it until
- * its case study (Phase 5B).
+ * real cover, and the project's media in order with short captions. Every public project
+ * has a composed case study since Phase 5B; a new public project starts here.
  */
 function MediaPage({ project, locale }: { project: PublicProject; locale: Locale }) {
   const dict = getDictionary(locale)

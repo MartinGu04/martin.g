@@ -76,6 +76,24 @@ export const worlds = {
     atmosphere: { light: 'side', grid: 'visible', texture: 'dots', marks: true, vignette: true },
   },
   /**
+   * המחלבה, one level up: the interface's own deep card blue as the ground, for the case
+   * study's manager chapter (src/components/case-study/mi-ma-mo). Same amber, same green.
+   */
+  miMaMoCard: {
+    scheme: 'dark',
+    colors: {
+      surface0: '#0f1d2e',
+      surface1: '#14263b',
+      text: '#e6edf5',
+      textMuted: '#a3b3c6',
+      accent: '#ffac4f',
+      accent2: '#3ecf8e',
+      light: '#7fa6d6',
+      shade: '#000000',
+    },
+    atmosphere: { light: 'pool', grid: 'light', texture: 'dots', marks: false, vignette: true },
+  },
+  /**
    * Defense Systems: gunmetal and steel with one restrained cold technical accent, flat:
    * no light, no texture, a fading trace of the grid and a soft vignette for depth. Never
    * classified, warning or dossier styling.

@@ -1,0 +1,43 @@
+@layer components {
+  .level {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-5);
+    margin: 0;
+    padding: 0;
+  }
+
+  .step {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--text-muted);
+  }
+
+  /* The steps are joined by a hairline: one scale, read from left or right. */
+  .step + .step::before {
+    content: '';
+    position: absolute;
+    inset-inline-end: calc(100% + var(--space-1));
+    inline-size: calc(var(--space-5) - var(--space-2));
+    block-size: var(--hairline);
+    background: var(--line-strong);
+  }
+
+  .node {
+    inline-size: 0.5rem;
+    block-size: 0.5rem;
+    border: var(--hairline) solid var(--line-strong);
+  }
+
+  .step[data-current] {
+    color: var(--text);
+  }
+
+  .step[data-current] .node {
+    border-color: var(--accent);
+    background: var(--accent);
+  }
+}

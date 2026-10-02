@@ -69,9 +69,9 @@ describe('release gate', () => {
   afterEach(() => vi.unstubAllEnvs())
 
   it('finds no copy awaiting review', () => {
-    // The Phase 4 showcase copy and the Phase 5A ON case study copy are approved in both
-    // locales; any dictionary marked 'draft' again would appear here and block a Vercel
-    // production build.
+    // The Phase 4 showcase copy and the Phase 5A ON and Phase 5B המחלבה case study copy are
+    // approved in both locales; any dictionary marked 'draft' again would appear here and
+    // block a Vercel production build.
     expect(findDraftCopy()).toEqual([])
   })
 

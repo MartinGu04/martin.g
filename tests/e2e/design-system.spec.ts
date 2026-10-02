@@ -6,6 +6,8 @@ const localePages = [
   '/he',
   '/en/work/on',
   '/he/work/on',
+  '/en/work/mi-ma-mo',
+  '/he/work/mi-ma-mo',
   '/en/system',
   '/he/system',
   '/en/system/scenes',
@@ -238,7 +240,7 @@ test.describe('responsive and zoom', () => {
       })
       try {
         const page = await context.newPage()
-        for (const url of ['/en', '/he', '/en/work/on', '/he/system']) {
+        for (const url of ['/en', '/he', '/en/work/on', '/he/work/mi-ma-mo', '/he/system']) {
           await openForLayout(page, url)
           expect(await horizontalOverflow(page), `${url} at ${label}`).toBeLessThanOrEqual(0)
           await expect(page.getByRole('heading', { level: 1 })).toBeVisible()

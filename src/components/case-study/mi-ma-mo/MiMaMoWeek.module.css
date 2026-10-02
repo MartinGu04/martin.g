@@ -1,0 +1,88 @@
+@layer components {
+  .scene {
+    --scene-pad-start: var(--section-space);
+  }
+
+  .grid {
+    row-gap: var(--space-7);
+  }
+
+  .level,
+  .heading,
+  .intro,
+  .legend,
+  .day {
+    grid-column: 1 / -1;
+  }
+
+  .intro {
+    max-inline-size: var(--measure-text);
+  }
+
+  /*
+   * Full bleed, physical: the view is anchored at the content's right edge (its day
+   * column) and runs out past the left edge of the page, fading as it goes, the way the
+   * view itself scrolls on. Never drawn larger than its own pixels.
+   */
+  .band {
+    direction: ltr;
+    margin-block: var(--space-8);
+  }
+
+  .week {
+    max-inline-size: 1442px;
+    margin-inline: auto max(var(--margin), calc((100% - var(--content-max)) / 2));
+    mask-image: linear-gradient(to right, transparent 0, black 2.5rem);
+    box-shadow: 0 2.5rem 4rem -2rem var(--shade);
+  }
+
+  .legend {
+    margin-block-end: var(--space-6);
+  }
+
+  .day {
+    display: grid;
+    gap: var(--space-4);
+    margin: 0;
+  }
+
+  /* One day, closer: a quarter larger than the screenshot, and no more. */
+  .dayImage {
+    inline-size: 100%;
+    max-inline-size: calc(962px * 1.25);
+    justify-self: end;
+  }
+
+  :dir(rtl) .dayImage {
+    justify-self: start;
+  }
+
+  .caption {
+    max-inline-size: var(--measure-lead);
+    color: var(--text-muted);
+  }
+
+  @media (width >= 48rem) {
+    .legend {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (width >= 75rem) {
+    .week {
+      mask-image: linear-gradient(to right, transparent 0, black 9rem);
+    }
+
+    .heading {
+      grid-column: 1 / span 8;
+    }
+
+    .intro {
+      grid-column: 1 / span 6;
+    }
+
+    .legend {
+      grid-column: 2 / -1;
+    }
+  }
+}

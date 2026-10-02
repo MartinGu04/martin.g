@@ -1,0 +1,56 @@
+@layer components {
+  .scene {
+    --scene-pad-start: var(--section-space);
+  }
+
+  .grid {
+    row-gap: var(--space-8);
+    align-items: center;
+  }
+
+  .text,
+  .device {
+    grid-column: 1 / -1;
+  }
+
+  .text {
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  .text > p {
+    max-inline-size: var(--measure-text);
+  }
+
+  .legend {
+    margin-block-start: var(--space-3);
+  }
+
+  /* The phone at about its own size (429px with its frame), never larger, standing on a
+     contact shadow that follows the device's own outline. */
+  .device {
+    justify-self: center;
+    inline-size: min(100%, 26.8125rem);
+    filter: drop-shadow(0 1.5rem 1.25rem color-mix(in srgb, var(--shade) 60%, transparent));
+  }
+
+  @media (width >= 48rem) {
+    .text {
+      grid-column: 1 / span 4;
+    }
+
+    .device {
+      grid-column: 5 / -1;
+    }
+  }
+
+  @media (width >= 75rem) {
+    .text {
+      grid-column: 1 / span 5;
+    }
+
+    .device {
+      grid-column: 7 / span 5;
+    }
+  }
+}

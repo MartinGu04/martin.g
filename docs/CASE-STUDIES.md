@@ -7,7 +7,7 @@ Real material and real decisions only: no fake metrics, testimonials, outcomes o
 language. Defense Systems never gets a case study.
 
 Composition: `src/components/case-study/` (shared primitives) and one folder per case
-study. Copy: one dictionary per case study, `draft` until Martin approves it.
+study (`on/`, `mi-ma-mo/`). Copy: one dictionary per case study, `draft` until Martin approves it.
 
 ## Shared primitives
 
@@ -67,3 +67,70 @@ Rules specific to ON:
 
 - Material that would strengthen the case study if supplied: the application questionnaire,
   the schedule and winery sections, any process sketches, and measurable results.
+
+## המחלבה (Phase 5B, copy approved)
+
+Route `/[locale]/work/mi-ma-mo` (id and slug unchanged; public name המחלבה). Copy
+`src/i18n/dictionaries/case-mi-ma-mo.ts` (approved by Martin, both locales). Media: the approved, sanitized screens
+only (`src/content/projects/mi-ma-mo.ts`: Home, Team Week, the manager area, Home on a phone,
+and Home's week ahead, `week-ahead.png`, supplied whole by Martin in the 5B polish pass),
+plus `miMaMoCrops`, regions of those same files, and `miMaMoMarks`, annotation boxes in their
+source pixels. No live link: the product is a signed-in tool, not a public destination.
+
+Not ON in blue. ON is editorial, warm and plated; this world is operational and structured,
+and the product carries every chapter. Its own devices, in `src/components/case-study/mi-ma-mo`:
+
+- `Annotated` + `MarkList`: numbered amber boxes measured on the real interface (clipped to
+  the phone region on phones), with the same numbers named in a list beside the screen. The
+  boxes are decorative; the list carries the meaning.
+- `Level`: one scale read at three levels (your shift, the team, the operation), lit per
+  chapter from 02 to 04.
+- A map of where each state is read (a real table: states by view), and a decision log in
+  which every entry is filed with its evidence and the screen it comes from.
+
+| #   | Chapter                        | Register  | What carries it                                                         |
+| --- | ------------------------------ | --------- | ----------------------------------------------------------------------- |
+|     | Opening                        | midnight  | the name (h1), "Operational product", statement, Home beside its nav    |
+| 01  | The context                    | midnight  | what the product is; the map of states by view                          |
+| 02  | The operational picture        | midnight  | Home's next-shift card boxed (shift, who is on it, coverage); around it |
+| 03  | Built around the week          | midnight  | Team Week across the page, anchored at its day column; one day closer   |
+| 04  | Management at a glance         | card blue | one level up (split): the product's own words, the snapshot, emergency  |
+| 05  | One system, different contexts | midnight  | the phone at its own size, the same order boxed and listed              |
+| 06  | Key decisions                  | midnight  | five decisions, each with its evidence                                  |
+| 07  | System details                 | midnight  | the mechanics on a bench: coverage, type levels, today twice, time left |
+| 08  | Result                         | midnight  | Many operational states, one working system; four views on one line     |
+|     | Closing                        | steel     | midnight into steel; Defense Systems named, not opened; All work        |
+
+Rules specific to המחלבה:
+
+- **Claims stay inside the screens.** Every sentence describes something visible in an
+  approved screenshot. No numbers, users, adoption, outcomes or "mobile-first". The emergency
+  mode is described only as a panel with its own button, as the screenshot shows it.
+- **Nothing removed comes back.** Crops can only show less of the sanitized pixels; no
+  overlay, label or text names a removed person, mark or module. The excluded views (the
+  month view, the fairness table) are not published or described.
+- **Week ahead.** Shown whole from the supplied screenshot, never recreated: on larger
+  screens a band of its own at about its own size (0.9 at 1440px); on phones two frames of
+  the same file (the start of the week, and today with the day after it).
+- **Hierarchy.** The context map is the chapter's central artifact (full grid, framed). In
+  System details two heroes lead (coverage in two states, today in two views) and four
+  details follow smaller. The result sets its statement one role up (`ChapterHeading
+size="display"`) and resolves the four real views as stations on one line that runs on
+  toward the next world.
+- **Readable proof.** Primary screens draw at about their own size (0.85 to 1.05 of the
+  screenshot on a 1440px desktop, tested) and never larger; details at most 1.5 times.
+  Phones get their own region of the same file instead of a shrunken screen.
+- **Physical screens.** The interface reads right to left, so Team Week is anchored at its
+  physical right (the day column) in both languages and runs out past the other edge.
+- **No Defense case study.** The closing names Defense Systems with its approved wording and
+  links only back to all of the work. No route, no clickable promise, no classified styling.
+- **Motion.** Alive while still, never fake data: a trace along the opening screen's top edge,
+  a sweep across the map's columns, a slow pulse on today. All three only inside ambient
+  scenes, paused offscreen, absent without scripting and with reduced motion. Boxes trace in
+  on scroll and are simply drawn otherwise.
+
+### Could strengthen it later
+
+- Material that would strengthen it if supplied and approved: process material (sketches,
+  earlier versions), the shifts or people tabs of the manager area in sanitized form, and any
+  outcome Martin can state.

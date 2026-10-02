@@ -1,0 +1,115 @@
+@layer components {
+  .scene {
+    --scene-pad-start: var(--section-space-sm);
+    --wipe-inset: var(--margin);
+  }
+
+  .grid {
+    row-gap: var(--space-7);
+  }
+
+  .level,
+  .lead,
+  .words,
+  .snapshot,
+  .emergency {
+    grid-column: 1 / -1;
+  }
+
+  .lead {
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  .lead > p {
+    max-inline-size: var(--measure-text);
+  }
+
+  /* The product's own words, set apart: a rule in amber, the quote, the original. */
+  .words {
+    display: grid;
+    gap: var(--space-4);
+    margin: 0;
+    padding-inline-start: var(--space-5);
+    border-inline-start: 2px solid var(--accent);
+  }
+
+  .wordsLabel {
+    color: var(--accent);
+  }
+
+  .quote {
+    display: grid;
+    gap: var(--space-3);
+    margin: 0;
+  }
+
+  .quote p {
+    margin: 0;
+  }
+
+  /* Previous, current, next: one card each, in reading order, at about their own size. */
+  .snapshot {
+    display: grid;
+    gap: var(--space-7) var(--gutter);
+    margin: var(--space-5) 0 0;
+    padding: 0;
+  }
+
+  .shift {
+    display: grid;
+    align-content: start;
+    gap: var(--space-4);
+  }
+
+  .shiftHead {
+    display: grid;
+    gap: var(--space-1);
+    margin: 0;
+    padding-block-start: var(--space-3);
+    border-block-start: var(--hairline) solid var(--line-strong);
+  }
+
+  .shiftLabel {
+    color: var(--accent);
+  }
+
+  .card {
+    max-inline-size: 476px;
+    box-shadow: 0 2rem 3rem -2rem var(--shade);
+  }
+
+  .emergency {
+    display: grid;
+    gap: var(--space-5);
+    margin: var(--space-6) 0 0;
+  }
+
+  .emergencyText {
+    display: grid;
+    gap: var(--space-2);
+    max-inline-size: var(--measure-lead);
+  }
+
+  .panel {
+    max-inline-size: 1444px;
+    box-shadow: 0 2rem 3rem -2rem var(--shade);
+  }
+
+  @media (width >= 48rem) {
+    .snapshot {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (width >= 75rem) {
+    .lead {
+      grid-column: 1 / span 7;
+    }
+
+    .words {
+      grid-column: 9 / -1;
+      align-self: end;
+    }
+  }
+}
