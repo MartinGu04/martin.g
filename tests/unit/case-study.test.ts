@@ -84,9 +84,9 @@ describe('ON case study media', () => {
 })
 
 describe('המחלבה case study copy', () => {
-  it('is draft in both locales until Martin reviews it', () => {
-    // The release gate refuses a Vercel production build while either locale is draft.
-    expect(caseMiMaMoReview).toEqual({ en: 'draft', he: 'draft' })
+  it('is approved in both locales', () => {
+    // Approved by Martin after review; the release gate refuses it again if marked draft.
+    expect(caseMiMaMoReview).toEqual({ en: 'approved', he: 'approved' })
   })
 
   it('has the same structure in both locales, apart from the translated quote', () => {

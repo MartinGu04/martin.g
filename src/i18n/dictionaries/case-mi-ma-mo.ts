@@ -2,16 +2,16 @@ import type { Localized, ReviewStatus } from '../config'
 
 /**
  * The המחלבה case study (Phase 5B): chapter copy, decisions, details, labels, metadata and
- * the alternative text of every crop. Draft in both locales until Martin reviews it: while
- * either locale is 'draft', a Vercel production build refuses it (src/i18n/release-gate.ts).
+ * the alternative text of every crop. Approved by Martin in both locales. Marking either
+ * locale 'draft' again makes a Vercel production build refuse it (src/i18n/release-gate.ts).
  *
  * Every statement describes what the approved, sanitized screens show (Home, Team Week,
  * the manager area, Home on a phone). No numbers, users, adoption or outcomes are claimed,
  * and nothing removed from the screens (names, insignia, a module) is named or described.
  */
 export const caseMiMaMoReview: Localized<ReviewStatus> = {
-  en: 'draft',
-  he: 'draft',
+  en: 'approved',
+  he: 'approved',
 }
 
 export type MiMaMoChapterKey =

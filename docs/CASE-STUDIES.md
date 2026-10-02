@@ -68,11 +68,10 @@ Rules specific to ON:
 - Material that would strengthen the case study if supplied: the application questionnaire,
   the schedule and winery sections, any process sketches, and measurable results.
 
-## המחלבה (Phase 5B, copy draft)
+## המחלבה (Phase 5B, copy approved)
 
 Route `/[locale]/work/mi-ma-mo` (id and slug unchanged; public name המחלבה). Copy
-`src/i18n/dictionaries/case-mi-ma-mo.ts`, **draft in both locales**: the release gate refuses
-a Vercel production build until Martin approves it. Media: the approved, sanitized screens
+`src/i18n/dictionaries/case-mi-ma-mo.ts` (approved by Martin, both locales). Media: the approved, sanitized screens
 only (`src/content/projects/mi-ma-mo.ts`: Home, Team Week, the manager area, Home on a phone,
 and Home's week ahead, `week-ahead.png`, supplied whole by Martin in the 5B polish pass),
 plus `miMaMoCrops`, regions of those same files, and `miMaMoMarks`, annotation boxes in their

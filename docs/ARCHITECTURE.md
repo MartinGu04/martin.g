@@ -136,6 +136,6 @@ destination exists (Phase 6); no placeholder or dead links.
 - Phase 2: Design system (done)
 - Phase 3: Content engine (done)
 - Phase 4: Hero, home choreography and real projects (done)
-- Phase 5: Case studies (5A ON: merged, copy approved; 5B המחלבה: built, copy draft, in review)
+- Phase 5: Case studies (5A ON: merged, copy approved; 5B המחלבה: copy approved, in PR)
 - Phase 6: Contact
 - Phase 7: Launch hardening
