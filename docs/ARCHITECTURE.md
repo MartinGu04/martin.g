@@ -169,6 +169,12 @@ unreachable and passes on the site's own accessibility. Its own behavior (launch
 position, keyboard use, zoom, reduced motion, what it stores) is the vendor's and must be
 checked in a real browser on a preview deployment; see the Phase 6 review notes.
 
+The one override of its UI lives in `src/styles/vendor.css` (layer `vendor`, last in the
+order): `#enable-toolbar-trigger > .keyboard-shorcut { display: none !important }` hides
+the launcher's visible, already aria-hidden "ESC" badge, as confirmed in the live DOM. The
+launcher, its focus, Enter and Escape are untouched; no other Enable styling or
+configuration is changed.
+
 ## Analytics
 
 Vercel Web Analytics, planned; not part of Foundation.

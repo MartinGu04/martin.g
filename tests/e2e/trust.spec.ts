@@ -114,7 +114,13 @@ test.describe('footer trust layer', () => {
   }
 })
 
-/** Serves a stand-in for the Enable script that counts its loads and adds a launcher. */
+/**
+ * Serves a stand-in for the Enable script that counts its loads and builds a launcher with
+ * the live widget's own markup (confirmed on the Vercel preview): a button
+ * #enable-toolbar-trigger with an icon and the aria-hidden "ESC" badge. Enter (a click)
+ * and Escape toggle a menu, as the real one does; a second ".keyboard-shorcut" inside the
+ * menu shows that the MARTIN.G override hides only the launcher's own badge.
+ */
 async function stubEnable(target: Page | BrowserContext) {
   await target.route('https://cdn.enable.co.il/**', (route) =>
     route.fulfill({
@@ -125,15 +131,85 @@ async function stubEnable(target: Page | BrowserContext) {
         w.__enableReadyState = document.readyState
         var b = document.createElement('button')
         b.type = 'button'
-        b.id = 'enable-stub-launcher'
-        b.textContent = 'Accessibility menu'
+        b.id = 'enable-toolbar-trigger'
+        b.setAttribute('aria-label', 'Accessibility menu')
+        b.setAttribute('aria-expanded', 'false')
+        b.style.cssText = 'position:fixed;inset-block-end:16px;inset-inline-start:16px;z-index:9;display:inline-flex;gap:4px;align-items:center;min-inline-size:48px;min-block-size:48px'
+        b.innerHTML = '<span class="enable-icon" aria-hidden="true">A11Y</span><span class="keyboard-shorcut" aria-hidden="true">ESC</span>'
+        var menu = document.createElement('div')
+        menu.id = 'enable-stub-menu'
+        menu.hidden = true
+        menu.innerHTML = '<p>Menu <span class="keyboard-shorcut">ESC</span></p>'
+        var toggle = function (open) {
+          menu.hidden = !open
+          b.setAttribute('aria-expanded', String(open))
+        }
+        b.addEventListener('click', function () { toggle(menu.hidden) })
+        document.addEventListener('keydown', function (e) {
+          if (e.key === 'Escape') toggle(menu.hidden)
+        })
         document.body.appendChild(b)
+        document.body.appendChild(menu)
       })()`,
     }),
   )
 }
 
 test.describe('the Enable accessibility menu', () => {
+  for (const [project, viewport] of [
+    ['desktop', { width: 1440, height: 900 }],
+    ['phone', { width: 390, height: 844 }],
+  ] as const) {
+    test(`hides only the launcher's ESC badge; the launcher still works (${project})`, async ({
+      page,
+      isMobile,
+    }) => {
+      await page.setViewportSize(viewport)
+      await stubEnable(page)
+      for (const locale of ['he', 'en']) {
+        await page.goto(`/${locale}`)
+        const launcher = page.locator('#enable-toolbar-trigger')
+        await expect(launcher).toBeVisible()
+        // The badge: in the DOM untouched, not displayed.
+        const badge = launcher.locator('> .keyboard-shorcut')
+        await expect(badge).toHaveCount(1)
+        await expect(badge).toHaveText('ESC')
+        await expect(badge).toBeHidden()
+        // Everything else stays as the vendor drew it: the icon, and any other element
+        // that happens to share the class.
+        await expect(launcher.locator('.enable-icon')).toBeVisible()
+        // The accessible name is the vendor's own (the badge was aria-hidden all along).
+        await expect(launcher).toHaveAccessibleName('Accessibility menu')
+        const box = (await launcher.boundingBox())!
+        expect(box.width).toBeGreaterThanOrEqual(44)
+        expect(box.height).toBeGreaterThanOrEqual(44)
+
+        if (!isMobile) {
+          // Reached with the keyboard, opened with Enter, Escape as before.
+          await launcher.focus()
+          await expect(launcher).toBeFocused()
+          await page.keyboard.press('Enter')
+          await expect(page.locator('#enable-stub-menu')).toBeVisible()
+          await expect(launcher).toHaveAttribute('aria-expanded', 'true')
+          await expect(page.locator('#enable-stub-menu .keyboard-shorcut')).toBeVisible()
+          await page.keyboard.press('Escape')
+          await expect(page.locator('#enable-stub-menu')).toBeHidden()
+          await page.keyboard.press('Escape')
+          await expect(page.locator('#enable-stub-menu')).toBeVisible()
+          await page.keyboard.press('Escape')
+        } else {
+          await launcher.tap()
+          await expect(page.locator('#enable-stub-menu')).toBeVisible()
+          await launcher.tap()
+          await expect(page.locator('#enable-stub-menu')).toBeHidden()
+        }
+        expect(
+          await page.evaluate(() => document.documentElement.scrollWidth - innerWidth),
+        ).toBeLessThanOrEqual(0)
+      }
+    })
+  }
+
   test('is the exact licensed script, loaded once per document, after the page', async ({
     page,
   }) => {
@@ -157,7 +233,7 @@ test.describe('the Enable accessibility menu', () => {
           () => (window as unknown as Record<string, unknown>).__enableReadyState,
         ),
       ).toBe('complete')
-      await expect(page.locator('#enable-stub-launcher')).toHaveCount(1)
+      await expect(page.locator('#enable-toolbar-trigger')).toHaveCount(1)
     }
     // A client-side navigation keeps the one instance.
     await page.goto('/en/privacy')
@@ -171,7 +247,7 @@ test.describe('the Enable accessibility menu', () => {
       await page.evaluate(() => (window as unknown as Record<string, unknown>).__enableLoads),
     ).toBe(1)
     await expect(page.locator('script[src*="enable.co.il"]')).toHaveCount(1)
-    await expect(page.locator('#enable-stub-launcher')).toHaveCount(1)
+    await expect(page.locator('#enable-toolbar-trigger')).toHaveCount(1)
     expect(errors.filter((e) => /hydrat/i.test(e))).toEqual([])
   })
 
@@ -198,7 +274,7 @@ test.describe('the Enable accessibility menu', () => {
     await expect(page.getByRole('link', { name: 'Skip to content' })).toBeFocused()
     await page.goto('/en/contact')
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
-    await expect(page.locator('#enable-stub-launcher')).toHaveCount(0)
+    await expect(page.locator('#enable-toolbar-trigger')).toHaveCount(0)
   })
 })
 
