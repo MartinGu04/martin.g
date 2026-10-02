@@ -18,7 +18,7 @@ export const accessibilityCopy: Localized<TrustPageCopy> = {
     seo: {
       title: 'Accessibility',
       description:
-        'How this website is built to be usable by everyone, what is still missing, and how to report a problem.',
+        'How this website is built to be usable by as many people as possible, what is still being improved, and how to report a problem.',
     },
     eyebrow: 'Accessibility',
     title: 'Accessibility',
@@ -81,7 +81,8 @@ export const accessibilityCopy: Localized<TrustPageCopy> = {
   he: {
     seo: {
       title: 'נגישות',
-      description: 'איך האתר הזה בנוי כך שכולם יוכלו להשתמש בו, מה עוד חסר, ואיך מדווחים על בעיה.',
+      description:
+        'איך האתר הזה בנוי כך שכמה שיותר אנשים יוכלו להשתמש בו, מה עדיין משתפר, ואיך מדווחים על בעיה.',
     },
     eyebrow: 'נגישות',
     title: 'הצהרת נגישות',
