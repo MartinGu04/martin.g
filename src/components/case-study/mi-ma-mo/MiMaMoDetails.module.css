@@ -12,8 +12,12 @@
     grid-column: 1 / -1;
   }
 
-  /* The bench: plates on the grid, two per row on tablets, in spans of the real grid on
-     desktops (7 + 5, 5 + 7, 6 + 6), so the composition is the grid's own geometry. */
+  /*
+   * The bench, with a rhythm: the two heroes lead (coverage across the whole grid, then
+   * today in two views beside a column of two smaller details), and the last two follow
+   * as a quieter pair. Heroes sit on a raised ground with more room; the rest are only
+   * ruled.
+   */
   .bench {
     display: grid;
     gap: var(--gutter);
@@ -29,8 +33,12 @@
     display: grid;
     grid-template-rows: 1fr auto;
     margin: 0;
-    border: var(--hairline) solid var(--line-strong);
-    background: color-mix(in srgb, var(--surface-1) 70%, transparent);
+    border: var(--hairline) solid var(--line);
+  }
+
+  .figure[data-rank='hero'] {
+    border-color: var(--line-strong);
+    background: color-mix(in srgb, var(--surface-1) 78%, transparent);
   }
 
   /* The specimen: the region(s) centered on the dotted ground, with room around them. */
@@ -40,14 +48,20 @@
     align-items: center;
     justify-content: center;
     gap: var(--space-5);
-    min-block-size: 11rem;
-    padding: var(--space-7) var(--space-5);
+    min-block-size: 9rem;
+    padding: var(--space-6) var(--space-5);
     background-image: radial-gradient(
       circle,
       color-mix(in srgb, var(--light) 22%, transparent) 1px,
       transparent 1.5px
     );
     background-size: 1rem 1rem;
+  }
+
+  .figure[data-rank='hero'] .specimen {
+    min-block-size: 13rem;
+    padding: var(--space-8) var(--space-5);
+    gap: var(--space-6);
   }
 
   /* Each region: as wide as its zoom allows, and no wider; a pair sits side by side when
@@ -64,7 +78,12 @@
     align-items: baseline;
     gap: var(--space-3);
     padding: var(--space-4) var(--space-5);
-    border-block-start: var(--hairline) solid var(--line-strong);
+    border-block-start: var(--hairline) solid var(--line);
+  }
+
+  .figure[data-rank='hero'] .caption {
+    padding: var(--space-5) var(--space-6);
+    border-block-start-color: var(--line-strong);
   }
 
   .index {
@@ -76,8 +95,12 @@
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .specimen {
-      min-block-size: 15rem;
+    .plate:nth-child(-n + 2) {
+      grid-column: 1 / -1;
+    }
+
+    .figure[data-rank='hero'] .specimen {
+      min-block-size: 18rem;
     }
   }
 
@@ -91,24 +114,26 @@
     }
 
     .plate:nth-child(1) {
-      grid-column: 1 / span 7;
+      grid-column: 1 / -1;
     }
 
     .plate:nth-child(2) {
-      grid-column: 8 / span 5;
+      grid-column: 1 / span 7;
+      grid-row: span 2;
     }
 
-    .plate:nth-child(3) {
-      grid-column: 1 / span 5;
-    }
-
+    .plate:nth-child(3),
     .plate:nth-child(4) {
-      grid-column: 6 / span 7;
+      grid-column: 8 / span 5;
     }
 
     .plate:nth-child(5),
     .plate:nth-child(6) {
       grid-column: span 6;
+    }
+
+    .figure[data-rank='hero'] .specimen {
+      min-block-size: 20rem;
     }
   }
 

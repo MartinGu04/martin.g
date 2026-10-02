@@ -67,7 +67,7 @@ export function MiMaMoManagement({
             <Reveal as="li" key={key} order={i} className={styles.shift}>
               <p className={styles.shiftHead}>
                 <span className={`t-label ${styles.shiftLabel}`}>{c.snapshot[key].label}</span>
-                <span className="t-small muted">{c.snapshot[key].note}</span>
+                <span className="t-body muted">{c.snapshot[key].note}</span>
               </p>
               <Crop
                 crop={miMaMoCrops[key]}

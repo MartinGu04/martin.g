@@ -431,8 +431,12 @@ export const caseMiMaMoMedia = {
     he: 'שני קיצורים במסך הבית: דוח למחר, וצוות השבוע.',
   },
   weekAhead: {
-    en: 'The week ahead on Home: the days from Sunday to Saturday, with today marked.',
-    he: 'השבוע הקרוב במסך הבית: הימים מראשון עד שבת, והיום מסומן.',
+    en: 'The week ahead on Home: a card for each day from Sunday to Saturday, today outlined, and the shifts in their days.',
+    he: 'השבוע הקרוב במסך הבית: כרטיס לכל יום מראשון עד שבת, היום מסומן במסגרת, והמשמרות בימים שלהן.',
+  },
+  weekAheadToday: {
+    en: 'The end of the week ahead, close: Friday, marked as today, and Saturday.',
+    he: 'סוף השבוע הקרוב, מקרוב: יום שישי, מסומן כהיום, ויום שבת.',
   },
   dayRow: {
     en: 'One day in Team Week, close: entries with their labels, icons and tints. Names removed.',

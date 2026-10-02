@@ -8,6 +8,8 @@ interface ChapterHeadingProps {
   /** The chapter's short name, as listed in the chapter index. */
   name: string
   children: ReactNode
+  /** 'display' sets the statement one role up, for a case study's culminating chapter. */
+  size?: 'heading' | 'display'
   className?: string
 }
 
@@ -17,7 +19,14 @@ interface ChapterHeadingProps {
  * by headings hears where they are ("03 Direction, Quiet luxury...") and the chapter index
  * and the heading always agree.
  */
-export function ChapterHeading({ id, number, name, children, className }: ChapterHeadingProps) {
+export function ChapterHeading({
+  id,
+  number,
+  name,
+  children,
+  size = 'heading',
+  className,
+}: ChapterHeadingProps) {
   return (
     <h2 id={id} className={[styles.heading, className].filter(Boolean).join(' ')}>
       <span className={`t-label ${styles.marker}`}>
@@ -26,7 +35,9 @@ export function ChapterHeading({ id, number, name, children, className }: Chapte
         <span>{name}</span>
         <span className="visually-hidden">: </span>
       </span>
-      <span className={`t-heading-1 ${styles.statement}`}>{children}</span>
+      <span className={`${size === 'display' ? 't-display' : 't-heading-1'} ${styles.statement}`}>
+        {children}
+      </span>
     </h2>
   )
 }

@@ -92,7 +92,7 @@ export function Annotated({
               style={style}
             >
               {mark.pulse ? <span className={styles.pulse} data-loop="" /> : null}
-              <span className={`t-micro t-numeric ${styles.tag}`}>
+              <span className={`t-label t-numeric ${styles.tag}`}>
                 <Ltr>{mark.number}</Ltr>
               </span>
             </span>
@@ -115,12 +115,12 @@ export function MarkList({
     <ol role="list" className={[styles.list, className].filter(Boolean).join(' ')}>
       {items.map((item) => (
         <li key={item.id} className={styles.item}>
-          <span className={`t-micro t-numeric ${styles.number}`} aria-hidden="true">
+          <span className={`t-label t-numeric ${styles.number}`} aria-hidden="true">
             <Ltr>{item.number}</Ltr>
           </span>
           <span className={styles.text}>
-            <span className={`t-body ${styles.label}`}>{item.label}</span>
-            {item.note ? <span className="t-small muted">{item.note}</span> : null}
+            <span className={`t-body-l ${styles.label}`}>{item.label}</span>
+            {item.note ? <span className="t-body muted">{item.note}</span> : null}
           </span>
         </li>
       ))}

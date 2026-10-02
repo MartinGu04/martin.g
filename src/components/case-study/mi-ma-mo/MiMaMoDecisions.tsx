@@ -103,7 +103,7 @@ export function MiMaMoDecisions({
                   <p className="t-body-l muted">{item.body}</p>
                 </div>
                 <Reveal as="figure" className={styles.exhibit}>
-                  <figcaption className={`t-micro ${styles.source}`}>
+                  <figcaption className={`t-label ${styles.source}`}>
                     <span className={styles.sourceMark} aria-hidden="true" />
                     {copy.ui.evidence}
                     <span aria-hidden="true"> · </span>

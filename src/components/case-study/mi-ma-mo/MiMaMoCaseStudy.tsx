@@ -9,6 +9,7 @@ import type {
   MiMaMoStateKey,
 } from '@/i18n/dictionaries/case-mi-ma-mo'
 import type { PublicProjectSummary } from '@/content/resolve'
+import type { ImageCrop } from '@/content/schema'
 import { miMaMoCrops } from '@/content/projects/mi-ma-mo'
 import { thread, worlds } from '@/content/worlds'
 import type { StyleWithVars } from '@/lib/css'
@@ -59,6 +60,14 @@ export type MiMaMoChapters = Readonly<Record<MiMaMoChapterKey, ChapterLink>>
 type Surface = keyof ShowcaseCopy['miMaMo']['views']
 
 const surfaces = ['home', 'teamWeek', 'manager', 'mobile'] as const satisfies readonly Surface[]
+
+/** The result's stations: each view, recognizable at a glance, in the order the story met it. */
+const stations = [
+  { view: 'home', crop: miMaMoCrops.stationHome },
+  { view: 'teamWeek', crop: miMaMoCrops.stationWeek },
+  { view: 'manager', crop: miMaMoCrops.stationManager },
+  { view: 'mobile', crop: miMaMoCrops.stationPhone },
+] as const satisfies readonly { view: Surface; crop: ImageCrop }[]
 
 /**
  * Where each state is read, as the approved screens show it (Home, Team Week, the manager
@@ -153,7 +162,7 @@ export function MiMaMoCaseStudy({ locale, dict, showcase, copy, project }: MiMaM
                 <span className={styles.viewNode} aria-hidden="true" />
                 {views.home}
               </span>
-              <span className={`t-small ${styles.sanitized}`}>{showcase.miMaMo.sanitized}</span>
+              <span className={`t-body ${styles.sanitized}`}>{showcase.miMaMo.sanitized}</span>
             </figcaption>
             <div className={styles.screen}>
               <span className={styles.ticks} aria-hidden="true" />
@@ -217,7 +226,9 @@ export function MiMaMoCaseStudy({ locale, dict, showcase, copy, project }: MiMaM
             ))}
           </div>
           <Reveal as="figure" className={styles.map}>
+            <span className={styles.mapTicks} aria-hidden="true" />
             <figcaption id="context-map" className={`t-label ${styles.mapLabel}`}>
+              <span className={styles.mapMark} aria-hidden="true" />
               {copy.context.mapLabel}
             </figcaption>
             <div className={styles.tableWrap}>
@@ -226,7 +237,7 @@ export function MiMaMoCaseStudy({ locale, dict, showcase, copy, project }: MiMaM
                   <tr>
                     <td />
                     {surfaces.map((surface) => (
-                      <th key={surface} scope="col" className={`t-micro ${styles.surface}`}>
+                      <th key={surface} scope="col" className={`t-body ${styles.surface}`}>
                         <span>{views[surface]}</span>
                       </th>
                     ))}
@@ -235,7 +246,7 @@ export function MiMaMoCaseStudy({ locale, dict, showcase, copy, project }: MiMaM
                 <tbody>
                   {map.map(([state, on]) => (
                     <tr key={state}>
-                      <th scope="row" className={`t-body ${styles.state}`}>
+                      <th scope="row" className={`t-body-l ${styles.state}`}>
                         {copy.context.states[state]}
                       </th>
                       {surfaces.map((surface) => {
@@ -266,7 +277,8 @@ export function MiMaMoCaseStudy({ locale, dict, showcase, copy, project }: MiMaM
       <MiMaMoDecisions locale={locale} copy={copy} views={views} chapter={chapters.decisions} />
       <MiMaMoDetails locale={locale} copy={copy} chapter={chapters.details} />
 
-      {/* 08 Result: only what is objectively true. Four views on one line, one system. */}
+      {/* 08 Result: the culmination. Only what is objectively true, set large, then the four
+          real views as stations on one line, which runs on toward the next world. */}
       <Scene
         theme={worlds.miMaMo}
         atmosphere={{ light: 'pool', marks: true }}
@@ -280,21 +292,40 @@ export function MiMaMoCaseStudy({ locale, dict, showcase, copy, project }: MiMaM
             id="result-title"
             number={chapters.result.number}
             name={chapters.result.name}
+            size="display"
             className={styles.resultHeading}
           >
             {copy.result.heading}
           </ChapterHeading>
-          <p className={`t-body-l ${styles.resultBody}`}>{copy.result.body}</p>
+          <p className={`t-lead ${styles.resultBody}`}>{copy.result.body}</p>
           <div className={styles.system}>
             <span className={styles.systemLine} aria-hidden="true" />
+            <span className={styles.systemEnd} aria-hidden="true" />
             <ol role="list" className={styles.systemList}>
-              {surfaces.map((surface, i) => (
-                <li key={surface} className={styles.systemNode}>
-                  <span className={styles.systemMark} aria-hidden="true" />
-                  <IndexNumber value={String(i + 1).padStart(2, '0')} className="t-micro muted" />
-                  <span className="t-heading-3">{views[surface]}</span>
-                </li>
-              ))}
+              {stations.map(({ view, crop }, i) => {
+                const style: StyleWithVars = {
+                  '--ratio': Math.round((crop.region.width / crop.region.height) * 1000) / 1000,
+                }
+                return (
+                  <li key={view} className={styles.systemNode} data-view={view} style={style}>
+                    <Crop
+                      crop={crop}
+                      locale={locale}
+                      width={{ base: 0.9, md: 0.26, lg: 0.24 }}
+                      ground={view === 'mobile' ? 'none' : 'surface'}
+                      className={styles.station}
+                    />
+                    <span className={styles.systemMark} aria-hidden="true" />
+                    <span className={styles.systemName}>
+                      <IndexNumber
+                        value={String(i + 1).padStart(2, '0')}
+                        className={`t-label ${styles.systemIndex}`}
+                      />
+                      <span className="t-heading-3">{views[view]}</span>
+                    </span>
+                  </li>
+                )
+              })}
             </ol>
           </div>
         </Grid>

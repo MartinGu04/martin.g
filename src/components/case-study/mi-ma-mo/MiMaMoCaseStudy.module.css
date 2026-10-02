@@ -247,8 +247,10 @@
     --scene-pad-start: var(--section-space);
   }
 
+  /* Heading, then the two paragraphs set compactly side by side, then the map: the
+     chapter's central artifact, across the whole grid, with room before it. */
   .contextGrid {
-    row-gap: var(--space-8);
+    row-gap: var(--space-7);
     align-items: start;
   }
 
@@ -260,12 +262,39 @@
 
   .contextText {
     display: grid;
-    gap: var(--space-5);
+    gap: var(--space-5) var(--gutter);
+  }
+
+  .contextText p {
     max-inline-size: var(--measure-text);
   }
 
+  /* The map, framed like an instrument panel: a raised ground, a hairline, corner ticks. */
   .map {
-    margin: 0;
+    position: relative;
+    margin: var(--space-8) 0 0;
+    padding: var(--space-6) var(--space-4) var(--space-5);
+    border: var(--hairline) solid var(--line-strong);
+    background: color-mix(in srgb, var(--surface-1) 72%, transparent);
+    box-shadow: 0 3rem 5rem -3rem var(--shade);
+  }
+
+  .mapTicks {
+    --tick: 1rem;
+    --tick-color: var(--accent);
+    position: absolute;
+    inset: calc(var(--space-2) * -1);
+    pointer-events: none;
+    background:
+      linear-gradient(var(--tick-color), var(--tick-color)) top left / var(--tick) 1px,
+      linear-gradient(var(--tick-color), var(--tick-color)) top left / 1px var(--tick),
+      linear-gradient(var(--tick-color), var(--tick-color)) top right / var(--tick) 1px,
+      linear-gradient(var(--tick-color), var(--tick-color)) top right / 1px var(--tick),
+      linear-gradient(var(--tick-color), var(--tick-color)) bottom left / var(--tick) 1px,
+      linear-gradient(var(--tick-color), var(--tick-color)) bottom left / 1px var(--tick),
+      linear-gradient(var(--tick-color), var(--tick-color)) bottom right / var(--tick) 1px,
+      linear-gradient(var(--tick-color), var(--tick-color)) bottom right / 1px var(--tick);
+    background-repeat: no-repeat;
   }
 
   .mapLabel {
@@ -276,6 +305,19 @@
     color: var(--accent);
   }
 
+  .mapMark {
+    inline-size: 0.5rem;
+    block-size: 0.5rem;
+    background: var(--accent-2);
+  }
+
+  /* Column geometry, shared by the table and the sweep: the states, then four views. */
+  .tableWrap {
+    --head: 46%;
+    --col: 13.5%;
+    position: relative;
+  }
+
   .table {
     position: relative;
     inline-size: 100%;
@@ -284,15 +326,16 @@
   }
 
   .table thead td {
-    inline-size: 46%;
+    inline-size: var(--head);
   }
 
   .surface {
-    padding-block: var(--space-3);
-    color: var(--text-muted);
+    padding-block: var(--space-3) var(--space-4);
+    font-weight: 600;
+    color: var(--text);
     text-align: center;
     vertical-align: bottom;
-    border-block-end: var(--hairline) solid var(--line-strong);
+    border-block-end: 2px solid var(--line-strong);
   }
 
   /* Phones: the four views read upward, so each column stays a column. */
@@ -311,7 +354,7 @@
   }
 
   .state {
-    padding-block: var(--space-3);
+    padding-block: var(--space-4);
     padding-inline-end: var(--space-3);
     font-weight: 400;
     text-align: start;
@@ -328,23 +371,19 @@
   /* A faint point where a state is not read; an amber mark where it is. */
   .dot {
     display: inline-block;
-    inline-size: 3px;
-    block-size: 3px;
+    inline-size: 4px;
+    block-size: 4px;
     vertical-align: middle;
     background: var(--line-strong);
   }
 
   .cell[data-on] .dot {
-    inline-size: 0.625rem;
-    block-size: 0.625rem;
+    inline-size: 0.875rem;
+    block-size: 0.875rem;
     background: var(--accent);
   }
 
   /* The map's sweep: a faint band that visits each view's column in turn (a loop). */
-  .tableWrap {
-    position: relative;
-  }
-
   .sweep {
     display: none;
   }
@@ -353,9 +392,9 @@
     .sweep {
       position: absolute;
       inset-block: 0;
-      inset-inline-start: 46%;
+      inset-inline-start: var(--head);
       display: block;
-      inline-size: 13.5%;
+      inline-size: var(--col);
       background: color-mix(in srgb, var(--light) 10%, transparent);
       pointer-events: none;
       animation: mm-sweep 16s var(--ease-in-out) infinite;
@@ -365,34 +404,51 @@
   @keyframes mm-sweep {
     0%,
     20% {
-      inset-inline-start: 46%;
+      inset-inline-start: var(--head);
     }
 
     25%,
     45% {
-      inset-inline-start: 59.5%;
+      inset-inline-start: calc(var(--head) + var(--col));
     }
 
     50%,
     70% {
-      inset-inline-start: 73%;
+      inset-inline-start: calc(var(--head) + 2 * var(--col));
     }
 
     75%,
     95% {
-      inset-inline-start: 86.5%;
+      inset-inline-start: calc(var(--head) + 3 * var(--col));
     }
 
     100% {
-      inset-inline-start: 46%;
+      inset-inline-start: var(--head);
     }
   }
 
   @media (width >= 48rem) {
+    .contextText {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .map {
+      padding: var(--space-7) var(--space-7) var(--space-6);
+    }
+
+    .tableWrap {
+      --head: 36%;
+      --col: 16%;
+    }
+
     .surface span {
       white-space: normal;
       writing-mode: horizontal-tb;
       rotate: none;
+    }
+
+    .state {
+      padding-block: var(--space-5);
     }
   }
 
@@ -402,22 +458,28 @@
     }
 
     .contextText {
-      grid-column: 1 / span 5;
-      padding-block-start: var(--space-2);
+      grid-column: 1 / span 11;
+      column-gap: calc(var(--gutter) * 3);
     }
 
     .map {
-      grid-column: 7 / -1;
+      padding: var(--space-8) var(--space-8) var(--space-7);
+    }
+
+    .tableWrap {
+      --head: 32%;
+      --col: 17%;
     }
   }
 
   /* ------------------------------------------------------------------ */
-  /* 08 Result: one working system                                        */
+  /* 08 Result: the culmination, then the four views on one line          */
   /* ------------------------------------------------------------------ */
 
+  /* More air than any other chapter: this is where the story resolves. */
   .result {
-    --scene-pad-start: var(--section-space);
-    --scene-pad-end: var(--section-space-sm);
+    --scene-pad-start: calc(var(--section-space) * 1.25);
+    --scene-pad-end: var(--section-space);
   }
 
   .resultGrid {
@@ -430,29 +492,45 @@
     grid-column: 1 / -1;
   }
 
-  .resultBody {
-    max-inline-size: var(--measure-lead);
+  /* The statement one role up, at a project title's size (about 76px at 1440px). */
+  .resultHeading {
+    --display-size: clamp(2.125rem, 1.25rem + 3.8vw, 5.5rem);
+    gap: var(--space-6);
   }
 
-  /* The four views as stations on one line. Phones: a column, the line beside it. */
+  .resultBody {
+    max-inline-size: var(--measure-lead);
+    color: var(--text-muted);
+  }
+
+  /*
+   * The stations. Phones: a column, the line running beside it. From tablets: one row, every
+   * view at one shared height (so each keeps its real proportions: three screens and a
+   * phone), the line under them through a node for each, running on past the last one
+   * toward the next world, where it ends in an open square.
+   */
   .system {
     position: relative;
-    margin-block-start: var(--space-5);
-    padding-inline-start: var(--space-6);
+    margin-block-start: var(--space-8);
+    padding-inline-start: var(--space-7);
   }
 
   .systemLine {
     position: absolute;
-    inset-block: 0.375rem;
-    inset-inline-start: 0.25rem;
+    inset-block: 0.5rem 0;
+    inset-inline-start: 0.4375rem;
     inline-size: 2px;
     background: var(--accent);
     transform-origin: center top;
   }
 
+  .systemEnd {
+    display: none;
+  }
+
   .systemList {
     display: grid;
-    gap: var(--space-6);
+    gap: var(--space-8);
     margin: 0;
     padding: 0;
   }
@@ -460,28 +538,57 @@
   .systemNode {
     position: relative;
     display: grid;
-    gap: var(--space-2);
+    justify-items: start;
+    gap: var(--space-3);
+  }
+
+  .station {
+    inline-size: 100%;
+    box-shadow:
+      0 0 0 var(--hairline) color-mix(in srgb, var(--light) 18%, transparent),
+      0 2rem 3rem -2rem var(--shade);
+  }
+
+  .systemNode[data-view='mobile'] .station {
+    inline-size: 9rem;
+    box-shadow: none;
+    filter: drop-shadow(0 1rem 1rem color-mix(in srgb, var(--shade) 60%, transparent));
   }
 
   .systemMark {
     position: absolute;
     inset-block-start: 0.125rem;
-    inset-inline-start: calc(var(--space-6) * -1);
-    inline-size: 0.75rem;
-    block-size: 0.75rem;
+    inset-inline-start: calc(var(--space-7) * -1);
+    inline-size: 1rem;
+    block-size: 1rem;
     border: 2px solid var(--accent);
     background: var(--surface-0);
   }
 
+  .systemName {
+    display: grid;
+    gap: var(--space-1);
+  }
+
+  .systemIndex {
+    color: var(--accent);
+  }
+
   @media (width >= 48rem) {
     .system {
+      container-type: inline-size;
       padding-inline-start: 0;
-      padding-block-start: var(--space-6);
     }
 
+    /* One shared height: as tall as four views side by side allow, at most 13.5rem. */
+    .system > * {
+      --h: min(13.5rem, calc((100cqi - 3 * var(--gutter)) / 5.3));
+    }
+
+    /* The line sits just under the shared image height, through every node. */
     .systemLine {
-      inset-block: 0.3125rem auto;
-      inset-inline: 0;
+      inset-block: calc(var(--h) + var(--space-5) + 0.4375rem) auto;
+      inset-inline: 0 var(--space-4);
       inline-size: auto;
       block-size: 2px;
       transform-origin: left center;
@@ -491,20 +598,48 @@
       transform-origin: right center;
     }
 
+    .systemEnd {
+      position: absolute;
+      inset-block-start: calc(var(--h) + var(--space-5));
+      inset-inline-end: 0;
+      display: block;
+      inline-size: 1rem;
+      block-size: 1rem;
+      border: 2px solid var(--accent);
+    }
+
     .systemList {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      column-gap: var(--gutter);
+      display: flex;
+      align-items: flex-start;
+      gap: var(--gutter);
+    }
+
+    /* The image sets the station's width; a longer name runs past it, never widens it. */
+    .systemNode {
+      flex: none;
+      grid-template-columns: minmax(0, 1fr);
+      inline-size: calc(var(--h) * var(--ratio));
+      gap: 0;
+    }
+
+    .station,
+    .systemNode[data-view='mobile'] .station {
+      inline-size: 100%;
     }
 
     .systemMark {
-      inset-block-start: calc(var(--space-6) * -1);
-      inset-inline-start: 0;
+      position: static;
+      margin-block: var(--space-5) var(--space-4);
+    }
+
+    .systemName {
+      inline-size: max-content;
     }
   }
 
   @media (width >= 75rem) {
     .resultHeading {
-      grid-column: 1 / span 9;
+      grid-column: 1 / span 10;
     }
 
     .resultBody {
@@ -512,7 +647,7 @@
     }
   }
 
-  /* The line draws itself across the stations as it arrives (static without motion). */
+  /* The line draws itself through the stations as it arrives (static without motion). */
   @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
     @supports (animation-timeline: view()) {
       .systemLine {
@@ -640,8 +775,13 @@
       display: none;
     }
 
+    .mapTicks {
+      display: none;
+    }
+
     .dot,
     .cell[data-on] .dot,
+    .mapMark,
     .lineMark,
     .viewNode {
       forced-color-adjust: none;

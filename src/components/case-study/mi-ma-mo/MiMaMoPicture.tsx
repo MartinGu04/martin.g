@@ -76,16 +76,29 @@ export function MiMaMoPicture({
           />
           <figcaption className={`t-body-l ${styles.caption}`}>{c.shortcuts}</figcaption>
         </Reveal>
+      </Grid>
 
-        <Reveal as="figure" className={styles.week}>
+      {/* The week ahead, whole: about its own size, on a ground of its own, so the week can
+          be read at a glance. Phones get two frames of it instead of a shrunken strip. */}
+      <Reveal as="figure" className={styles.week}>
+        <div className={styles.weekStage}>
           <Crop
             crop={miMaMoCrops.weekAhead}
             locale={locale}
-            width={{ base: 0.95, md: 0.95, lg: 0.92 }}
+            width={{ base: 0.92, md: 0.96, lg: 0.98 }}
+            className={styles.weekWhole}
           />
-          <figcaption className={`t-body-l ${styles.caption}`}>{c.weekAhead}</figcaption>
-        </Reveal>
-      </Grid>
+          <Crop
+            crop={miMaMoCrops.weekAheadToday}
+            locale={locale}
+            width={{ base: 0.92 }}
+            className={styles.weekToday}
+          />
+        </div>
+        <figcaption className="container">
+          <span className={`t-body-l ${styles.caption}`}>{c.weekAhead}</span>
+        </figcaption>
+      </Reveal>
     </Scene>
   )
 }

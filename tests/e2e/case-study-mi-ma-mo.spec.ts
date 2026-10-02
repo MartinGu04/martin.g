@@ -14,7 +14,8 @@ const chapters = [
 ] as const
 
 /** The approved, sanitized המחלבה sources: every image on the page is one of these. */
-const approved = /\/_next\/static\/media\/(dashboard|team-week|admin|mobile)\.[0-9a-z_-]+\.png$/i
+const approved =
+  /\/_next\/static\/media\/(dashboard|team-week|admin|mobile|week-ahead)\.[0-9a-z_-]+\.png$/i
 
 /** Walks the whole page so lazy images load and reveals settle. */
 async function walk(page: Page) {
@@ -236,26 +237,29 @@ test.describe('המחלבה case study: media and privacy', () => {
     await walk(page)
     await expect
       .poll(() =>
-        page
-          .locator('main img')
-          .evaluateAll((els) =>
-            els.every(
+        page.locator('main img').evaluateAll((els) =>
+          // Drawn images only: the phones-only frame is not displayed, so never fetched.
+          els
+            .filter((img) => img.getBoundingClientRect().width > 0)
+            .every(
               (img) =>
                 (img as HTMLImageElement).complete && (img as HTMLImageElement).naturalWidth > 0,
             ),
-          ),
+        ),
       )
       .toBe(true)
     const draws = await page.locator('main img').evaluateAll((els) =>
-      els.map((el) => {
-        const img = el as HTMLImageElement
-        return {
-          src: img.currentSrc,
-          drawn: img.getBoundingClientRect().width * window.devicePixelRatio,
-          requested: Number(new URL(img.currentSrc).searchParams.get('w')),
-          intrinsic: Number(img.getAttribute('width')),
-        }
-      }),
+      els
+        .filter((el) => el.getBoundingClientRect().width > 0)
+        .map((el) => {
+          const img = el as HTMLImageElement
+          return {
+            src: img.currentSrc,
+            drawn: img.getBoundingClientRect().width * window.devicePixelRatio,
+            requested: Number(new URL(img.currentSrc).searchParams.get('w')),
+            intrinsic: Number(img.getAttribute('width')),
+          }
+        }),
     )
     for (const d of draws) {
       // Asked for enough pixels for the drawn size, or the whole source when it is smaller
@@ -294,12 +298,41 @@ test.describe('המחלבה case study: media and privacy', () => {
       const card = await scale('#picture [data-ground]', 1058)
       const week = await scale('#week [data-ground]', 1442)
       const phone = await scale('#phone [data-ground]', 429)
-      for (const s of [opening, card, week, phone]) {
+      const weekAhead = await scale('#picture [data-ground]:has(img[src*="week-ahead"])', 1543)
+      for (const s of [opening, card, week, phone, weekAhead]) {
         expect(s).toBeGreaterThanOrEqual(0.85)
         expect(s).toBeLessThanOrEqual(1.05)
       }
     } finally {
       await context.close()
+    }
+  })
+
+  test('the week ahead is shown whole on larger screens and in two frames on phones', async ({
+    page,
+    isMobile,
+  }) => {
+    await openForLayout(page, '/en/work/mi-ma-mo')
+    const frames = page.locator('#picture figure img[src*="week-ahead"]')
+    await expect(frames).toHaveCount(2)
+    const shown = await frames.evaluateAll((els) =>
+      els
+        .filter((img) => img.getBoundingClientRect().width > 0)
+        .map((img) => {
+          const box = img.parentElement!.parentElement!.getBoundingClientRect()
+          return { width: box.width, ratio: box.width / box.height }
+        }),
+    )
+    if (isMobile) {
+      // The start of the week (455 x 232) and today with the day after it (425 x 182).
+      expect(shown.map((f) => Math.round(f.ratio * 100) / 100)).toEqual([
+        Math.round((455 / 232) * 100) / 100,
+        Math.round((425 / 182) * 100) / 100,
+      ])
+      for (const f of shown) expect(f.width / 455).toBeGreaterThan(0.7)
+    } else {
+      expect(shown).toHaveLength(1)
+      expect(shown[0]!.ratio).toBeCloseTo(1543 / 263, 1)
     }
   })
 

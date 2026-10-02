@@ -12,8 +12,7 @@
   .intro,
   .card,
   .legend,
-  .shortcuts,
-  .week {
+  .shortcuts {
     grid-column: 1 / -1;
   }
 
@@ -36,8 +35,7 @@
     inline-size: 100%;
   }
 
-  .shortcuts,
-  .week {
+  .shortcuts {
     display: grid;
     gap: var(--space-4);
     margin: 0;
@@ -52,8 +50,58 @@
     color: var(--text-muted);
   }
 
+  /*
+   * The week ahead: a band of its own beneath the grid, wider than the text column so the
+   * screenshot draws at about its own size (0.9 at 1440px, 1:1 from about 1600px), never
+   * larger, on a dotted ground with room above and below. Phones: two frames of the same
+   * file, the start of the week and today, each at a size that reads.
+   */
   .week {
-    margin-block-start: var(--space-4);
+    display: grid;
+    gap: var(--space-5);
+    margin: var(--space-8) 0 0;
+  }
+
+  .weekStage {
+    display: grid;
+    justify-items: center;
+    gap: var(--space-5);
+    padding: var(--space-6) var(--margin);
+    background-image: radial-gradient(
+      circle,
+      color-mix(in srgb, var(--light) 20%, transparent) 1px,
+      transparent 1.5px
+    );
+    background-size: 1rem 1rem;
+    border-block: var(--hairline) solid var(--line);
+  }
+
+  .weekWhole,
+  .weekToday {
+    inline-size: 100%;
+    box-shadow: 0 2.5rem 4rem -2rem var(--shade);
+  }
+
+  .weekWhole {
+    max-inline-size: 1543px;
+  }
+
+  .weekToday {
+    max-inline-size: 425px;
+  }
+
+  .week .caption {
+    display: block;
+  }
+
+  @media (width >= 48rem) {
+    .weekStage {
+      padding: var(--space-8) var(--space-5);
+    }
+
+    .weekToday {
+      display: none;
+    }
   }
 
   @media (width >= 48rem) {

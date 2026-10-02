@@ -16,15 +16,32 @@ import styles from './MiMaMoDetails.module.css'
 /**
  * Each detail: one or two regions of the real screens, drawn a little larger than the
  * screenshot (`zoom`, at most one and a half times) so the mechanism can be examined.
- * Pairs are the same mechanism in two places: the system repeating itself.
+ * Pairs are the same mechanism in two places: the system repeating itself. The two heroes
+ * lead (coverage, stated in two states; today, marked in two views); the rest follow
+ * smaller.
  */
-const bench: readonly { key: MiMaMoDetailKey; crops: readonly ImageCrop[]; zoom: number }[] = [
-  { key: 'coverage', crops: [miMaMoCrops.coverageFull, miMaMoCrops.coverageNone], zoom: 1.2 },
-  { key: 'typeLevels', crops: [miMaMoCrops.typeLevels], zoom: 1.5 },
-  { key: 'today', crops: [miMaMoCrops.todayHome, miMaMoCrops.todayWeek], zoom: 1.25 },
-  { key: 'timeLeft', crops: [miMaMoCrops.timeLeft], zoom: 1.25 },
-  { key: 'dayNight', crops: [miMaMoCrops.dayNight], zoom: 1.5 },
-  { key: 'phoneStack', crops: [miMaMoCrops.phoneStack], zoom: 1.2 },
+const bench: readonly {
+  key: MiMaMoDetailKey
+  crops: readonly ImageCrop[]
+  zoom: number
+  rank: 'hero' | 'secondary'
+}[] = [
+  {
+    key: 'coverage',
+    crops: [miMaMoCrops.coverageFull, miMaMoCrops.coverageNone],
+    zoom: 1.25,
+    rank: 'hero',
+  },
+  {
+    key: 'today',
+    crops: [miMaMoCrops.todayHome, miMaMoCrops.todayWeek],
+    zoom: 1.5,
+    rank: 'hero',
+  },
+  { key: 'typeLevels', crops: [miMaMoCrops.typeLevels], zoom: 1.25, rank: 'secondary' },
+  { key: 'timeLeft', crops: [miMaMoCrops.timeLeft], zoom: 1, rank: 'secondary' },
+  { key: 'dayNight', crops: [miMaMoCrops.dayNight], zoom: 1.5, rank: 'secondary' },
+  { key: 'phoneStack', crops: [miMaMoCrops.phoneStack], zoom: 1, rank: 'secondary' },
 ]
 
 /**
@@ -63,9 +80,9 @@ export function MiMaMoDetails({
           {c.heading}
         </ChapterHeading>
         <ul role="list" className={styles.bench}>
-          {bench.map(({ key, crops, zoom }, i) => (
+          {bench.map(({ key, crops, zoom, rank }, i) => (
             <Reveal as="li" key={key} order={i % 2} className={styles.plate}>
-              <figure className={styles.figure} data-detail={key}>
+              <figure className={styles.figure} data-detail={key} data-rank={rank}>
                 <div className={styles.specimen}>
                   {crops.map((crop) => {
                     const style: StyleWithVars = {
@@ -76,7 +93,11 @@ export function MiMaMoDetails({
                         <Crop
                           crop={crop}
                           locale={locale}
-                          width={{ base: 0.9, md: 0.42, lg: 0.36 }}
+                          width={
+                            rank === 'hero'
+                              ? { base: 0.9, md: 0.45, lg: 0.42 }
+                              : { base: 0.9, md: 0.4, lg: 0.3 }
+                          }
                         />
                       </div>
                     )
@@ -85,9 +106,9 @@ export function MiMaMoDetails({
                 <figcaption className={styles.caption}>
                   <IndexNumber
                     value={`${chapter.number}.${i + 1}`}
-                    className={`t-micro ${styles.index}`}
+                    className={`t-label ${styles.index}`}
                   />
-                  <span className="t-body">{c.items[key]}</span>
+                  <span className={rank === 'hero' ? 't-body-l' : 't-body'}>{c.items[key]}</span>
                 </figcaption>
               </figure>
             </Reveal>

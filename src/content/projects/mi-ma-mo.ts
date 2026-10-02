@@ -11,6 +11,7 @@ import manager from '@/assets/work/mi-ma-mo/admin.png'
 import managerView from '@/assets/work/mi-ma-mo/manager-view.png'
 import teamWeekView from '@/assets/work/mi-ma-mo/team-week-view.png'
 import mobile from '@/assets/work/mi-ma-mo/mobile.png'
+import weekAhead from '@/assets/work/mi-ma-mo/week-ahead.png'
 
 const alt = mediaCopy.miMaMo
 const caseAlt = caseMiMaMoMedia
@@ -34,6 +35,8 @@ export const miMaMoMedia = {
   manager: { kind: 'image', src: manager, alt: alt.manager },
   /** The one device frame: the home screen on a phone. */
   mobile: { kind: 'image', src: mobile, alt: alt.mobile, fit: 'contain' },
+  /** Home's week ahead, captured whole (supplied for the case study's operational picture). */
+  weekAhead: { kind: 'image', src: weekAhead, alt: caseMiMaMoMedia.weekAhead },
 } as const satisfies Record<string, ImageMedia>
 
 type Box = readonly [x: number, y: number, width: number, height: number]
@@ -60,7 +63,10 @@ export const miMaMoCrops = {
   // 02 The operational picture.
   nextShift: crop(dashboard, [457, 382, 1058, 286], caseAlt.nextShift, [1015, 382, 500, 286]),
   shortcuts: crop(dashboard, [1050, 222, 465, 106], caseAlt.shortcuts),
-  weekAhead: crop(dashboard, [70, 926, 1445, 104], caseAlt.weekAhead, [485, 926, 410, 104]),
+  // The week ahead, whole: every day and its entries. Phones: the start of the week with
+  // its title, and (a second frame, phones only) today and the day after it.
+  weekAhead: crop(weekAhead, [0, 0, 1543, 263], caseAlt.weekAhead, [1088, 0, 455, 232]),
+  weekAheadToday: crop(weekAhead, [50, 44, 425, 182], caseAlt.weekAheadToday),
   // 03 Built around the week.
   teamWeek: crop(teamWeek, [0, 0, 1442, 530], alt.teamWeek, [972, 0, 470, 530]),
   dayRow: crop(teamWeek, [480, 76, 962, 62], caseAlt.dayRow, [1100, 76, 342, 62]),
@@ -86,6 +92,11 @@ export const miMaMoCrops = {
   timeLeft: crop(manager, [515, 590, 435, 45], caseAlt.timeLeft),
   dayNight: crop(teamWeek, [618, 266, 264, 34], caseAlt.dayNight),
   phoneStack: crop(mobile, [36, 255, 360, 220], caseAlt.phoneStack),
+  // 08 Result: the four views as stations, each recognizable at a glance (not for reading).
+  stationHome: crop(dashboard, [440, 100, 1100, 688], alt.dashboard),
+  stationWeek: crop(teamWeek, [602, 0, 840, 525], alt.teamWeek),
+  stationManager: crop(manager, [200, 0, 1270, 794], alt.manager),
+  stationPhone: crop(mobile, [0, 0, 429, 867], alt.mobile),
 } as const satisfies Record<string, ImageCrop>
 
 /**

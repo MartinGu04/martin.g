@@ -44,8 +44,8 @@
     position: absolute;
     display: grid;
     place-items: center;
-    min-inline-size: 1.25rem;
-    block-size: 1.25rem;
+    min-inline-size: 1.5rem;
+    block-size: 1.5rem;
     padding-inline: 0.25rem;
     color: var(--surface-0);
     background: var(--accent);
@@ -137,8 +137,8 @@
   .number {
     display: grid;
     place-items: center;
-    min-inline-size: 1.25rem;
-    block-size: 1.25rem;
+    min-inline-size: 1.5rem;
+    block-size: 1.5rem;
     padding-inline: 0.25rem;
     color: var(--surface-0);
     background: var(--accent);

@@ -73,7 +73,8 @@ Rules specific to ON:
 Route `/[locale]/work/mi-ma-mo` (id and slug unchanged; public name המחלבה). Copy
 `src/i18n/dictionaries/case-mi-ma-mo.ts`, **draft in both locales**: the release gate refuses
 a Vercel production build until Martin approves it. Media: the approved, sanitized screens
-only (`src/content/projects/mi-ma-mo.ts`: Home, Team Week, the manager area, Home on a phone),
+only (`src/content/projects/mi-ma-mo.ts`: Home, Team Week, the manager area, Home on a phone,
+and Home's week ahead, `week-ahead.png`, supplied whole by Martin in the 5B polish pass),
 plus `miMaMoCrops`, regions of those same files, and `miMaMoMarks`, annotation boxes in their
 source pixels. No live link: the product is a signed-in tool, not a public destination.
 
@@ -109,6 +110,14 @@ Rules specific to המחלבה:
 - **Nothing removed comes back.** Crops can only show less of the sanitized pixels; no
   overlay, label or text names a removed person, mark or module. The excluded views (the
   month view, the fairness table) are not published or described.
+- **Week ahead.** Shown whole from the supplied screenshot, never recreated: on larger
+  screens a band of its own at about its own size (0.9 at 1440px); on phones two frames of
+  the same file (the start of the week, and today with the day after it).
+- **Hierarchy.** The context map is the chapter's central artifact (full grid, framed). In
+  System details two heroes lead (coverage in two states, today in two views) and four
+  details follow smaller. The result sets its statement one role up (`ChapterHeading
+size="display"`) and resolves the four real views as stations on one line that runs on
+  toward the next world.
 - **Readable proof.** Primary screens draw at about their own size (0.85 to 1.05 of the
   screenshot on a 1440px desktop, tested) and never larger; details at most 1.5 times.
   Phones get their own region of the same file instead of a shrunken screen.

@@ -23,7 +23,7 @@ export function Level({
       {levels.map((name, i) => (
         <li
           key={name}
-          className={`t-micro ${styles.step}`}
+          className={`t-label ${styles.step}`}
           data-current={i === current ? '' : undefined}
         >
           <span className={styles.node} />
