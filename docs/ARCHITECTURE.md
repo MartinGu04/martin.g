@@ -89,11 +89,12 @@ from each project module. Alt text, captions and player labels written in Phase 
 tells its story its own way, from shared primitives in `src/components/case-study/`
 (`ChapterHeading`, `ChapterIndex`, `Crop`, `ReadingProgress`, `NextProject`) and the scene
 grammar. `src/app/[locale]/work/[slug]/page.tsx` renders the composed case study when a
-project has one (ON since 5A) and the Phase 4 media page otherwise (המחלבה until 5B, through
-`ProjectMedia`, which still accepts only `media` and `sequence` blocks). A project with a
+project has one (ON since 5A, המחלבה since 5B) and the Phase 4 media page otherwise (for a
+future public project, through `ProjectMedia`, which still accepts only `media` and
+`sequence` blocks). A project with a
 composed case study carries no generic `story` blocks. Details of real images are
 `ImageCrop`s: a region of an existing approved asset (optionally another region for phones),
-never a new file. Case-study copy lives in its own dictionary (`case-on.ts`) with its own
+never a new file. Case-study copy lives in its own dictionary (`case-on.ts`, `case-mi-ma-mo.ts`) with its own
 review state; it is written as `draft` and stays draft until Martin approves it, so the
 release gate refuses a Vercel production build meanwhile. See docs/CASE-STUDIES.md.
 
@@ -135,6 +136,6 @@ destination exists (Phase 6); no placeholder or dead links.
 - Phase 2: Design system (done)
 - Phase 3: Content engine (done)
 - Phase 4: Hero, home choreography and real projects (done)
-- Phase 5: Case studies (5A ON: copy approved, in PR; 5B המחלבה next)
+- Phase 5: Case studies (5A ON: merged, copy approved; 5B המחלבה: copy approved, in PR)
 - Phase 6: Contact
 - Phase 7: Launch hardening

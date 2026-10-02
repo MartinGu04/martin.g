@@ -164,18 +164,6 @@ export const mediaCopy = {
       he: 'מסך הבית של המחלבה בטלפון.',
     },
   },
-  miMaMoCaptions: {
-    dashboard: {
-      en: 'Home: the next shift and the week ahead.',
-      he: 'מסך הבית: המשמרת הבאה והשבוע הקרוב.',
-    },
-    teamWeek: { en: 'Team Week, by role.', he: 'צוות השבוע, לפי תפקיד.' },
-    manager: {
-      en: 'Manager area: the operational picture at a glance.',
-      he: 'אזור המנהל: תמונת מצב תפעולית במבט אחד.',
-    },
-    mobile: { en: 'Home on a phone.', he: 'מסך הבית בטלפון.' },
-  },
   about: {
     portrait: {
       en: 'Portrait of Martin Gusin in a light jacket.',

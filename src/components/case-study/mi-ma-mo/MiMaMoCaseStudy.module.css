@@ -1,0 +1,791 @@
+@layer components {
+  /* ------------------------------------------------------------------ */
+  /* Opening: the name, one statement, the real product beneath it        */
+  /* ------------------------------------------------------------------ */
+
+  .opening {
+    --scene-pad-start: var(--space-6);
+    --scene-pad-end: var(--section-space-sm);
+  }
+
+  .openingGrid {
+    row-gap: var(--space-6);
+  }
+
+  .topline {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3) var(--space-6);
+  }
+
+  .back {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-block-size: 2.75rem;
+    color: var(--text-muted);
+  }
+
+  .back:focus-visible {
+    color: var(--text);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .back:hover {
+      color: var(--text);
+    }
+  }
+
+  /* "All work" goes back: the arrow points to the inline start. */
+  .backArrow {
+    scale: -1 1;
+  }
+
+  .kicker {
+    margin: 0;
+    color: var(--accent);
+  }
+
+  /* The kicker is Latin on the Hebrew page too, so it keeps the Latin label treatment that
+     :lang(he) otherwise switches off (tokens.css: uppercase, 0.16em, 12px). */
+  :lang(he) .kicker {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+  }
+
+  .identity {
+    grid-column: 1 / -1;
+    display: grid;
+    justify-items: start;
+    gap: var(--space-4);
+  }
+
+  /* The identity line, marked like a status: the interface's operational green. */
+  .line {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin: 0;
+    color: var(--accent);
+  }
+
+  .lineMark {
+    inline-size: 0.5rem;
+    block-size: 0.5rem;
+    background: var(--accent-2);
+  }
+
+  .title {
+    --display-size: clamp(3rem, 1.6rem + 4.4vw, 6.75rem);
+    margin: 0;
+  }
+
+  .statement {
+    grid-column: 1 / -1;
+    max-inline-size: 26em;
+    margin: 0;
+  }
+
+  /* The product, framed like an instrument: a bar naming the view, corner ticks. */
+  .console {
+    grid-column: 1 / -1;
+    margin: var(--space-5) 0 0;
+  }
+
+  .consoleBar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-2) var(--space-6);
+    margin-block-end: var(--space-4);
+    padding-block-start: var(--space-3);
+    border-block-start: var(--hairline) solid var(--line-strong);
+  }
+
+  .view {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--text);
+  }
+
+  .viewNode {
+    inline-size: 0.5rem;
+    block-size: 0.5rem;
+    background: var(--accent);
+  }
+
+  .sanitized {
+    max-inline-size: 34rem;
+    color: var(--text-muted);
+  }
+
+  .screen {
+    position: relative;
+    box-shadow:
+      0 0 0 var(--hairline) color-mix(in srgb, var(--light) 24%, transparent),
+      0 3rem 5rem -2.5rem var(--shade);
+  }
+
+  /* Registration ticks at the screen's four corners, just outside it. */
+  .ticks {
+    --tick: 0.875rem;
+    --tick-color: color-mix(in srgb, var(--light) 70%, transparent);
+    position: absolute;
+    inset: calc(var(--space-2) * -1);
+    pointer-events: none;
+    background:
+      linear-gradient(var(--tick-color), var(--tick-color)) top left / var(--tick) 1px,
+      linear-gradient(var(--tick-color), var(--tick-color)) top left / 1px var(--tick),
+      linear-gradient(var(--tick-color), var(--tick-color)) top right / var(--tick) 1px,
+      linear-gradient(var(--tick-color), var(--tick-color)) top right / 1px var(--tick),
+      linear-gradient(var(--tick-color), var(--tick-color)) bottom left / var(--tick) 1px,
+      linear-gradient(var(--tick-color), var(--tick-color)) bottom left / 1px var(--tick),
+      linear-gradient(var(--tick-color), var(--tick-color)) bottom right / var(--tick) 1px,
+      linear-gradient(var(--tick-color), var(--tick-color)) bottom right / 1px var(--tick);
+    background-repeat: no-repeat;
+  }
+
+  /* A short amber trace that runs along the screen's top edge now and then (a loop:
+     only while the scene is on screen, never without scripting or with reduced motion). */
+  .trace {
+    display: none;
+  }
+
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    .trace {
+      position: absolute;
+      z-index: 1;
+      inset-block-start: calc(var(--hairline) * -1);
+      inset-inline: 0;
+      display: block;
+      block-size: 2px;
+      overflow: clip;
+      pointer-events: none;
+    }
+
+    .trace::before {
+      content: '';
+      position: absolute;
+      inset-block: 0;
+      inset-inline-start: 0;
+      inline-size: 16%;
+      background: linear-gradient(to right, transparent, var(--accent), transparent);
+      translate: calc(var(--dir) * -100%) 0;
+      animation: mm-trace 14s linear infinite;
+    }
+  }
+
+  @keyframes mm-trace {
+    0% {
+      translate: calc(var(--dir) * -100%) 0;
+    }
+
+    55%,
+    100% {
+      translate: calc(var(--dir) * 625%) 0;
+    }
+  }
+
+  .facts {
+    row-gap: var(--space-6);
+    margin-block-start: var(--space-8);
+  }
+
+  .meta {
+    grid-column: 1 / -1;
+    display: grid;
+    gap: var(--space-5) var(--gutter);
+    margin: 0;
+  }
+
+  .meta dd {
+    margin: var(--space-2) 0 0;
+  }
+
+  .index {
+    grid-column: 1 / -1;
+    margin-block-start: var(--space-6);
+  }
+
+  @media (width >= 48rem) {
+    .meta {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  /* Desktop: the name at the inline start, the statement answering it at the inline end,
+     both on one baseline; the product beneath, across the whole grid at about its own
+     size (0.9 of the screenshot at 1440px). */
+  @media (width >= 75rem) {
+    .identity {
+      grid-column: 1 / span 7;
+      align-self: end;
+    }
+
+    .statement {
+      grid-column: 8 / -1;
+      align-self: end;
+      padding-block-end: var(--space-3);
+    }
+
+    .meta {
+      grid-column: 1 / span 9;
+    }
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* 01 Context: what it is, and where each state is read                 */
+  /* ------------------------------------------------------------------ */
+
+  .context {
+    --scene-pad-start: var(--section-space);
+  }
+
+  /* Heading, then the two paragraphs set compactly side by side, then the map: the
+     chapter's central artifact, across the whole grid, with room before it. */
+  .contextGrid {
+    row-gap: var(--space-7);
+    align-items: start;
+  }
+
+  .contextHeading,
+  .contextText,
+  .map {
+    grid-column: 1 / -1;
+  }
+
+  .contextText {
+    display: grid;
+    gap: var(--space-5) var(--gutter);
+  }
+
+  .contextText p {
+    max-inline-size: var(--measure-text);
+  }
+
+  /* The map, framed like an instrument panel: a raised ground, a hairline, corner ticks. */
+  .map {
+    position: relative;
+    margin: var(--space-8) 0 0;
+    padding: var(--space-6) var(--space-4) var(--space-5);
+    border: var(--hairline) solid var(--line-strong);
+    background: color-mix(in srgb, var(--surface-1) 72%, transparent);
+    box-shadow: 0 3rem 5rem -3rem var(--shade);
+  }
+
+  .mapTicks {
+    --tick: 1rem;
+    --tick-color: var(--accent);
+    position: absolute;
+    inset: calc(var(--space-2) * -1);
+    pointer-events: none;
+    background:
+      linear-gradient(var(--tick-color), var(--tick-color)) top left / var(--tick) 1px,
+      linear-gradient(var(--tick-color), var(--tick-color)) top left / 1px var(--tick),
+      linear-gradient(var(--tick-color), var(--tick-color)) top right / var(--tick) 1px,
+      linear-gradient(var(--tick-color), var(--tick-color)) top right / 1px var(--tick),
+      linear-gradient(var(--tick-color), var(--tick-color)) bottom left / var(--tick) 1px,
+      linear-gradient(var(--tick-color), var(--tick-color)) bottom left / 1px var(--tick),
+      linear-gradient(var(--tick-color), var(--tick-color)) bottom right / var(--tick) 1px,
+      linear-gradient(var(--tick-color), var(--tick-color)) bottom right / 1px var(--tick);
+    background-repeat: no-repeat;
+  }
+
+  .mapLabel {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-block-end: var(--space-5);
+    color: var(--accent);
+  }
+
+  .mapMark {
+    inline-size: 0.5rem;
+    block-size: 0.5rem;
+    background: var(--accent-2);
+  }
+
+  /* Column geometry, shared by the table and the sweep: the states, then four views. */
+  .tableWrap {
+    --head: 46%;
+    --col: 13.5%;
+    position: relative;
+  }
+
+  .table {
+    position: relative;
+    inline-size: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+  .table thead td {
+    inline-size: var(--head);
+  }
+
+  .surface {
+    padding-block: var(--space-3) var(--space-4);
+    font-weight: 600;
+    color: var(--text);
+    text-align: center;
+    vertical-align: bottom;
+    border-block-end: 2px solid var(--line-strong);
+  }
+
+  /* Phones: the four views read upward, so each column stays a column. */
+  .surface span {
+    display: inline-block;
+    white-space: nowrap;
+    writing-mode: vertical-rl;
+    rotate: 180deg;
+  }
+
+  @supports (writing-mode: sideways-lr) {
+    .surface span {
+      writing-mode: sideways-lr;
+      rotate: none;
+    }
+  }
+
+  .state {
+    padding-block: var(--space-4);
+    padding-inline-end: var(--space-3);
+    font-weight: 400;
+    text-align: start;
+    border-block-end: var(--hairline) solid var(--line);
+  }
+
+  .cell {
+    text-align: center;
+    vertical-align: middle;
+    border-block-end: var(--hairline) solid var(--line);
+    border-inline-start: var(--hairline) solid var(--line);
+  }
+
+  /* A faint point where a state is not read; an amber mark where it is. */
+  .dot {
+    display: inline-block;
+    inline-size: 4px;
+    block-size: 4px;
+    vertical-align: middle;
+    background: var(--line-strong);
+  }
+
+  .cell[data-on] .dot {
+    inline-size: 0.875rem;
+    block-size: 0.875rem;
+    background: var(--accent);
+  }
+
+  /* The map's sweep: a faint band that visits each view's column in turn (a loop). */
+  .sweep {
+    display: none;
+  }
+
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    .sweep {
+      position: absolute;
+      inset-block: 0;
+      inset-inline-start: var(--head);
+      display: block;
+      inline-size: var(--col);
+      background: color-mix(in srgb, var(--light) 10%, transparent);
+      pointer-events: none;
+      animation: mm-sweep 16s var(--ease-in-out) infinite;
+    }
+  }
+
+  @keyframes mm-sweep {
+    0%,
+    20% {
+      inset-inline-start: var(--head);
+    }
+
+    25%,
+    45% {
+      inset-inline-start: calc(var(--head) + var(--col));
+    }
+
+    50%,
+    70% {
+      inset-inline-start: calc(var(--head) + 2 * var(--col));
+    }
+
+    75%,
+    95% {
+      inset-inline-start: calc(var(--head) + 3 * var(--col));
+    }
+
+    100% {
+      inset-inline-start: var(--head);
+    }
+  }
+
+  @media (width >= 48rem) {
+    .contextText {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .map {
+      padding: var(--space-7) var(--space-7) var(--space-6);
+    }
+
+    .tableWrap {
+      --head: 36%;
+      --col: 16%;
+    }
+
+    .surface span {
+      white-space: normal;
+      writing-mode: horizontal-tb;
+      rotate: none;
+    }
+
+    .state {
+      padding-block: var(--space-5);
+    }
+  }
+
+  @media (width >= 75rem) {
+    .contextHeading {
+      grid-column: 1 / span 9;
+    }
+
+    .contextText {
+      grid-column: 1 / span 11;
+      column-gap: calc(var(--gutter) * 3);
+    }
+
+    .map {
+      padding: var(--space-8) var(--space-8) var(--space-7);
+    }
+
+    .tableWrap {
+      --head: 32%;
+      --col: 17%;
+    }
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* 08 Result: the culmination, then the four views on one line          */
+  /* ------------------------------------------------------------------ */
+
+  /* More air than any other chapter: this is where the story resolves. */
+  .result {
+    --scene-pad-start: calc(var(--section-space) * 1.25);
+    --scene-pad-end: var(--section-space);
+  }
+
+  .resultGrid {
+    row-gap: var(--space-7);
+  }
+
+  .resultHeading,
+  .resultBody,
+  .system {
+    grid-column: 1 / -1;
+  }
+
+  /* The statement one role up, at a project title's size (about 76px at 1440px). */
+  .resultHeading {
+    --display-size: clamp(2.125rem, 1.25rem + 3.8vw, 5.5rem);
+    gap: var(--space-6);
+  }
+
+  .resultBody {
+    max-inline-size: var(--measure-lead);
+    color: var(--text-muted);
+  }
+
+  /*
+   * The stations. Phones: a column, the line running beside it. From tablets: one row, every
+   * view at one shared height (so each keeps its real proportions: three screens and a
+   * phone), the line under them through a node for each, running on past the last one
+   * toward the next world, where it ends in an open square.
+   */
+  .system {
+    position: relative;
+    margin-block-start: var(--space-8);
+    padding-inline-start: var(--space-7);
+  }
+
+  .systemLine {
+    position: absolute;
+    inset-block: 0.5rem 0;
+    inset-inline-start: 0.4375rem;
+    inline-size: 2px;
+    background: var(--accent);
+    transform-origin: center top;
+  }
+
+  .systemEnd {
+    display: none;
+  }
+
+  .systemList {
+    display: grid;
+    gap: var(--space-8);
+    margin: 0;
+    padding: 0;
+  }
+
+  .systemNode {
+    position: relative;
+    display: grid;
+    justify-items: start;
+    gap: var(--space-3);
+  }
+
+  .station {
+    inline-size: 100%;
+    box-shadow:
+      0 0 0 var(--hairline) color-mix(in srgb, var(--light) 18%, transparent),
+      0 2rem 3rem -2rem var(--shade);
+  }
+
+  .systemNode[data-view='mobile'] .station {
+    inline-size: 9rem;
+    box-shadow: none;
+    filter: drop-shadow(0 1rem 1rem color-mix(in srgb, var(--shade) 60%, transparent));
+  }
+
+  .systemMark {
+    position: absolute;
+    inset-block-start: 0.125rem;
+    inset-inline-start: calc(var(--space-7) * -1);
+    inline-size: 1rem;
+    block-size: 1rem;
+    border: 2px solid var(--accent);
+    background: var(--surface-0);
+  }
+
+  .systemName {
+    display: grid;
+    gap: var(--space-1);
+  }
+
+  .systemIndex {
+    color: var(--accent);
+  }
+
+  @media (width >= 48rem) {
+    .system {
+      container-type: inline-size;
+      padding-inline-start: 0;
+    }
+
+    /* One shared height: as tall as four views side by side allow, at most 13.5rem. */
+    .system > * {
+      --h: min(13.5rem, calc((100cqi - 3 * var(--gutter)) / 5.3));
+    }
+
+    /* The line sits just under the shared image height, through every node. */
+    .systemLine {
+      inset-block: calc(var(--h) + var(--space-5) + 0.4375rem) auto;
+      inset-inline: 0 var(--space-4);
+      inline-size: auto;
+      block-size: 2px;
+      transform-origin: left center;
+    }
+
+    :dir(rtl) .systemLine {
+      transform-origin: right center;
+    }
+
+    .systemEnd {
+      position: absolute;
+      inset-block-start: calc(var(--h) + var(--space-5));
+      inset-inline-end: 0;
+      display: block;
+      inline-size: 1rem;
+      block-size: 1rem;
+      border: 2px solid var(--accent);
+    }
+
+    .systemList {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--gutter);
+    }
+
+    /* The image sets the station's width; a longer name runs past it, never widens it. */
+    .systemNode {
+      flex: none;
+      grid-template-columns: minmax(0, 1fr);
+      inline-size: calc(var(--h) * var(--ratio));
+      gap: 0;
+    }
+
+    .station,
+    .systemNode[data-view='mobile'] .station {
+      inline-size: 100%;
+    }
+
+    .systemMark {
+      position: static;
+      margin-block: var(--space-5) var(--space-4);
+    }
+
+    .systemName {
+      inline-size: max-content;
+    }
+  }
+
+  @media (width >= 75rem) {
+    .resultHeading {
+      grid-column: 1 / span 10;
+    }
+
+    .resultBody {
+      grid-column: 1 / span 6;
+    }
+  }
+
+  /* The line draws itself through the stations as it arrives (static without motion). */
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .systemLine {
+        animation: mm-line-v linear both;
+        animation-timeline: view();
+        animation-range: entry 20% cover 45%;
+      }
+
+      @media (width >= 48rem) {
+        .systemLine {
+          animation-name: mm-line-h;
+        }
+      }
+    }
+  }
+
+  @keyframes mm-line-v {
+    from {
+      scale: 1 0;
+    }
+
+    to {
+      scale: 1 1;
+    }
+  }
+
+  @keyframes mm-line-h {
+    from {
+      scale: 0 1;
+    }
+
+    to {
+      scale: 1 1;
+    }
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Closing: midnight into steel, the next world named, not opened       */
+  /* ------------------------------------------------------------------ */
+
+  .passage {
+    position: relative;
+    block-size: clamp(12rem, 38svh, 24rem);
+    overflow: clip;
+    background: linear-gradient(to bottom, var(--from), var(--to));
+  }
+
+  /* The drawn grid thins into abstraction as the ground turns to steel. */
+  .passageGrid {
+    --line: color-mix(in srgb, var(--thread-to) 18%, transparent);
+    mask-image: linear-gradient(to bottom, black 0%, transparent 85%);
+  }
+
+  .descent {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: calc(50% - var(--hairline));
+    inline-size: 2px;
+    background: linear-gradient(to bottom, var(--thread-from), var(--thread-to));
+    transform-origin: center top;
+  }
+
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .descent {
+        animation: mm-line-v linear both;
+        animation-timeline: view();
+        animation-range: entry 20% exit 20%;
+      }
+    }
+  }
+
+  .closing {
+    --scene-pad-start: var(--space-8);
+    --scene-pad-end: var(--section-space);
+  }
+
+  .closingGrid {
+    row-gap: var(--space-5);
+  }
+
+  .closingKicker,
+  .closingTitle,
+  .closingNote,
+  .closingBack {
+    grid-column: 1 / -1;
+  }
+
+  .closingKicker {
+    margin: 0;
+  }
+
+  .closingTitle {
+    margin: 0;
+    color: var(--text);
+  }
+
+  .closingNote {
+    max-inline-size: var(--measure-lead);
+  }
+
+  .closingBack {
+    display: inline-flex;
+    align-items: center;
+    justify-self: start;
+    gap: var(--space-3);
+    min-block-size: 2.75rem;
+    margin-block-start: var(--space-4);
+    color: var(--text);
+  }
+
+  @media (width >= 75rem) {
+    .closingKicker,
+    .closingTitle {
+      grid-column: 1 / span 7;
+    }
+
+    .closingNote {
+      grid-column: 1 / span 6;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .passage {
+      display: none;
+    }
+
+    .mapTicks {
+      display: none;
+    }
+
+    .dot,
+    .cell[data-on] .dot,
+    .mapMark,
+    .lineMark,
+    .viewNode {
+      forced-color-adjust: none;
+      background: CanvasText;
+    }
+  }
+}
