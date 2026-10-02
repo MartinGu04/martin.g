@@ -143,7 +143,7 @@ export const caseMiMaMoCopy: Localized<MiMaMoCaseCopy> = {
       heading: 'An operation runs on states: who is on, who is off, what is covered.',
       body: [
         'המחלבה is an operational workforce product, built around scheduling, management workflows and day-to-day operations.',
-        'Shifts, leave, duties, reports and coverage all have to be read, each at a different level: a person checking their next shift, a team looking at its week, a manager looking at the operation. The product brings them into one system and gives each level a view of its own.',
+        'Shifts, leave, duties, reports and coverage are read at different levels: a person checking their next shift, a team looking at its week, and a manager looking at the operation as a whole. The product brings them into one system and gives each level a view of its own.',
       ],
       mapLabel: 'Where each state is read',
       states: {
@@ -230,7 +230,7 @@ export const caseMiMaMoCopy: Localized<MiMaMoCaseCopy> = {
         },
         week: {
           title: 'The week as a shared view',
-          body: 'Team Week puts the whole team on one week: every day a row, every person a column, and today marked.',
+          body: 'Team Week brings the whole team into a single weekly view: every day a row, every person a column, and today marked.',
         },
         roles: {
           title: 'Information grouped by role',
@@ -249,7 +249,7 @@ export const caseMiMaMoCopy: Localized<MiMaMoCaseCopy> = {
     details: {
       heading: 'The mechanics, up close.',
       items: {
-        coverage: 'Coverage in words, with an icon and a color: full, or none.',
+        coverage: 'Coverage in words, with an icon and a color: full coverage or none.',
         today: 'Today, marked the same way on Home and in Team Week.',
         typeLevels: 'A small label, the shift in large type, then the day and the hours.',
         timeLeft: 'The time left in the current shift, in words and as a bar.',
@@ -259,7 +259,7 @@ export const caseMiMaMoCopy: Localized<MiMaMoCaseCopy> = {
     },
     result: {
       heading: 'Many operational states, one working system.',
-      body: 'המחלבה is a working operational product: scheduling, management workflows and day-to-day operations in one system, with real interfaces on the desktop and on a phone.',
+      body: 'המחלבה brings scheduling, management workflows and day-to-day operations into one system, with real interfaces on desktop and phone.',
     },
     closing: { kicker: 'Also in the work' },
   },
@@ -276,13 +276,13 @@ export const caseMiMaMoCopy: Localized<MiMaMoCaseCopy> = {
       platform: 'פלטפורמה',
       platformValue: 'דסקטופ וטלפון',
       access: 'גישה',
-      accessValue: 'מוצר עם התחברות, ללא קישור ציבורי',
-      evidence: 'עדות',
+      accessValue: 'מערכת למשתמשים רשומים, ללא קישור ציבורי',
+      evidence: 'נראה ב־',
       levels: ['המשמרת שלך', 'הצוות', 'התפעול'],
     },
     opening: {
       statement:
-        'מערכת אחת שעובדת, לשיבוצים, לתהליכי ניהול ולתפעול היומיומי: מהמשמרת הבאה של כל אחד ועד התפעול כולו.',
+        'מערכת אחת לשיבוצים, לתהליכי ניהול ולתפעול היומיומי: מהמשמרת הבאה של כל אחד ועד לתפעול כולו.',
     },
     chapters: {
       context: 'ההקשר',
@@ -297,10 +297,10 @@ export const caseMiMaMoCopy: Localized<MiMaMoCaseCopy> = {
     context: {
       heading: 'תפעול נשען על מצבים: מי במשמרת, מי בחופש, ומה מכוסה.',
       body: [
-        'המחלבה הוא מוצר תפעולי לניהול כוח אדם, שנבנה סביב שיבוצים, תהליכי ניהול ותפעול יומיומי.',
-        'משמרות, חופשות, תורנויות, דוחות וכיסוי צריכים להיקרא, כל אחד ברמה אחרת: מי שבודק את המשמרת הבאה שלו, צוות שמסתכל על השבוע שלו, מנהל שמסתכל על התפעול כולו. המוצר מכנס את כולם למערכת אחת, ונותן לכל רמה תצוגה משלה.',
+        'המחלבה היא מוצר תפעולי לניהול כוח אדם, שנבנה סביב שיבוצים, תהליכי ניהול ותפעול יומיומי.',
+        'משמרות, חופשות, תורנויות, דוחות וכיסוי נראים אחרת בכל רמה: אדם שבודק את המשמרת הבאה שלו, צוות שמסתכל על השבוע שלו, ומנהל שצריך לראות את התפעול כולו. המוצר מרכז את כל אלה במערכת אחת, ונותן לכל רמה את התצוגה שמתאימה לה.',
       ],
-      mapLabel: 'איפה קוראים כל מצב',
+      mapLabel: 'איפה רואים כל מצב',
       states: {
         nextShift: 'המשמרת הבאה שלך',
         crew: 'מי משובץ בה',
@@ -316,17 +316,17 @@ export const caseMiMaMoCopy: Localized<MiMaMoCaseCopy> = {
     picture: {
       heading: 'המשמרת הבאה קודמת לכל.',
       intro:
-        'מסך הבית נפתח בברכה ובתאריך. מתחתיהם מגיעה המשמרת הבאה: שמה באות גדולה, אחריו היום והשעות, ובאותו כרטיס גם מי משובץ בה.',
+        'מסך הבית נפתח בברכה ובתאריך. מתחתיהם מגיעה המשמרת הבאה: שם המשמרת מופיע בגדול, אחריו היום והשעות, ובאותו כרטיס גם מי משובץ בה.',
       marks: {
         nextShift: {
           label: 'המשמרת הבאה',
-          note: 'שמה באות גדולה, ומתחתיו היום והשעות.',
+          note: 'שם המשמרת מופיע בגדול, ומתחתיו היום והשעות.',
         },
         crew: {
           label: 'מי משובץ בה',
           note: 'האנשים במשמרת, כל אחד עם התפקיד שלו. כאן השמות הוסרו.',
         },
-        coverage: { label: 'כיסוי', note: 'נאמר במילים, לידם.' },
+        coverage: { label: 'כיסוי', note: 'הכיסוי מוצג במילים לצד המשתתפים.' },
       },
       shortcuts: 'מעליה, הדרך לדוחות ולצוות השבוע.',
       weekAhead: 'מתחתיה, השבוע הקרוב, יום אחר יום, והיום מסומן.',
@@ -357,7 +357,7 @@ export const caseMiMaMoCopy: Localized<MiMaMoCaseCopy> = {
       },
       emergency: {
         label: 'מצב חירום',
-        note: 'פאנל משלו בראש אזור המנהל, עם כפתור הפעלה משלו.',
+        note: 'מצב החירום מקבל אזור נפרד בראש אזור המנהל, עם כפתור הפעלה משלו.',
       },
     },
     phone: {
@@ -381,7 +381,7 @@ export const caseMiMaMoCopy: Localized<MiMaMoCaseCopy> = {
         },
         week: {
           title: 'השבוע כתצוגה משותפת',
-          body: 'צוות השבוע מציב את כל הצוות על שבוע אחד: כל יום שורה, כל אדם עמודה, והיום מסומן.',
+          body: 'צוות השבוע מרכז שבוע שלם של הצוות בתצוגה אחת: כל יום שורה, כל אדם עמודה, והיום מסומן.',
         },
         roles: {
           title: 'מידע מקובץ לפי תפקיד',
@@ -400,17 +400,17 @@ export const caseMiMaMoCopy: Localized<MiMaMoCaseCopy> = {
     details: {
       heading: 'המנגנון, מקרוב.',
       items: {
-        coverage: 'כיסוי במילים, עם אייקון וצבע: מלא, או אין כיסוי.',
-        today: 'היום, מסומן באותה דרך במסך הבית ובצוות השבוע.',
-        typeLevels: 'תווית קטנה, המשמרת באות גדולה, ואז היום והשעות.',
-        timeLeft: 'הזמן שנותר במשמרת הנוכחית, במילים וכפס.',
+        coverage: 'כיסוי במילים, עם אייקון וצבע: כיסוי מלא או ללא כיסוי.',
+        today: 'היום, מסומן באותו אופן במסך הבית ובצוות השבוע.',
+        typeLevels: 'תווית קטנה, שם המשמרת בגדול, ואז היום והשעות.',
+        timeLeft: 'הזמן שנותר במשמרת הנוכחית, בטקסט ובפס התקדמות.',
         dayNight: 'משמרות יום ולילה מסומנות בשמש או בירח.',
         phoneStack: 'בטלפון, שני הקיצורים עומדים זה מעל זה.',
       },
     },
     result: {
       heading: 'הרבה מצבים תפעוליים, מערכת אחת שעובדת.',
-      body: 'המחלבה הוא מוצר תפעולי שעובד: שיבוצים, תהליכי ניהול ותפעול יומיומי במערכת אחת, עם ממשקים אמיתיים בדסקטופ ובטלפון.',
+      body: 'המחלבה מחברת שיבוצים, תהליכי ניהול ותפעול יומיומי למערכת אחת, עם ממשקים אמיתיים בדסקטופ ובטלפון.',
     },
     closing: { kicker: 'עוד מהעבודה' },
   },
@@ -435,8 +435,8 @@ export const caseMiMaMoMedia = {
     he: 'השבוע הקרוב במסך הבית: כרטיס לכל יום מראשון עד שבת, היום מסומן במסגרת, והמשמרות בימים שלהן.',
   },
   weekAheadToday: {
-    en: 'The end of the week ahead, close: Friday, marked as today, and Saturday.',
-    he: 'סוף השבוע הקרוב, מקרוב: יום שישי, מסומן כהיום, ויום שבת.',
+    en: 'The end of the week ahead, close: the card marked today and Saturday.',
+    he: 'סוף השבוע הקרוב, מקרוב: הכרטיס שמסומן כהיום ויום שבת.',
   },
   dayRow: {
     en: 'One day in Team Week, close: entries with their labels, icons and tints. Names removed.',

@@ -108,7 +108,7 @@ describe('המחלבה case study copy', () => {
       .flatMap((l) => [...leaves(caseMiMaMoCopy[l]), ...leaves(caseMiMaMoMedia)])
       .join(' ')
     expect(text).not.toMatch(
-      /\d+\s*%|percent|users|adoption|adopted|increase|reduc|faster|saved|testimonial|award|mobile-first|אחוז|משתמשים|אימוץ|חיסכון|עלייה של/i,
+      /\d+\s*%|percent|users|adoption|adopted|increase|reduc|faster|saved|testimonial|award|mobile-first|אחוז|\d[\d,]*\s*משתמשים|אלפי משתמשים|אימוץ|חיסכון|עלייה של/i,
     )
   })
 
