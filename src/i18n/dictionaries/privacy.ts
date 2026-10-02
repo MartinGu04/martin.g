@@ -30,7 +30,7 @@ export const privacyCopy: Localized<TrustPageCopy> = {
     },
     eyebrow: 'Privacy',
     title: 'Privacy',
-    lead: 'What this website collects, why, and where it goes. In short: only what you choose to send me, and the ordinary technical data every website produces.',
+    lead: 'What this website collects, why, and where it goes. In short: only what you choose to send me, and the ordinary technical data involved in serving a website.',
     updated: 'Last updated: October 2026',
     sections: [
       {
@@ -45,14 +45,14 @@ export const privacyCopy: Localized<TrustPageCopy> = {
         body: [
           'The contact form asks for your name, your email address and a few words about the project. You may also add a phone number, the kind of project, a business or project name, a relevant link and when you would like to start.',
           'Your message is used only to reply to you and to talk about the project. It is not added to a mailing list, sold or shared for marketing.',
-          'The website does not keep messages in a database. Each message is delivered to me by email through Resend, an email delivery service, and stays in my inbox for as long as the conversation needs it.',
-          'The form also has a hidden field that catches automated spam, and it notes how long the form was open. Neither identifies you.',
+          'The website does not keep messages in a database. Each message is delivered to me by email through Resend, an email delivery service, and remains in my inbox for as long as it is needed for the conversation.',
+          'The form also uses a hidden field and a basic timing check to reduce automated spam. This information is not used to identify you.',
         ],
       },
       {
         heading: 'Technical data',
         body: [
-          'The website is hosted on Vercel. Like any web server, it records ordinary technical data when a page is requested, such as the IP address, the type of browser, the page and the time, and uses it to deliver the site and keep it secure. I do not use this data to identify visitors.',
+          'The website is hosted on Vercel. As part of operating the site, the hosting service may record technical data such as your IP address, browser type, the page requested and the time of the request, in order to deliver and secure the site. I do not use this data to identify visitors.',
         ],
       },
       {
@@ -76,7 +76,7 @@ export const privacyCopy: Localized<TrustPageCopy> = {
           'Resend delivers messages from the contact form to my inbox.',
           'Enable provides the accessibility menu. Its script loads from Enable’s servers (cdn.enable.co.il), so your browser connects to them, and they receive the technical data of that request, such as your IP address.',
           'Fonts, images and the video preview are served by this website itself. There are no embedded videos, maps or social media widgets.',
-          'Links to other websites, such as a project’s live site, open in a new tab without telling that site which page you came from. Their own privacy policies apply there.',
+          'Links to other websites, such as a project’s live site, open in a new tab without passing along the address of the page you came from. The other website’s own privacy policy applies there.',
         ],
       },
       {
@@ -95,7 +95,7 @@ export const privacyCopy: Localized<TrustPageCopy> = {
     },
     eyebrow: 'פרטיות',
     title: 'פרטיות',
-    lead: 'איזה מידע האתר הזה אוסף, למה, ולאן הוא מגיע. בקצרה: רק מה שבוחרים לשלוח אליי, והמידע הטכני הרגיל שכל אתר מייצר.',
+    lead: 'איזה מידע האתר הזה אוסף, למה, ולאן הוא מגיע. בקצרה: רק מה שבוחרים לשלוח אליי, והמידע הטכני הרגיל שנוצר בזמן השימוש באתר.',
     updated: 'עדכון אחרון: אוקטובר 2026',
     sections: [
       {
@@ -110,14 +110,14 @@ export const privacyCopy: Localized<TrustPageCopy> = {
         body: [
           'טופס יצירת הקשר מבקש שם, כתובת אימייל וכמה מילים על הפרויקט. אפשר להוסיף גם מספר טלפון, את סוג הפרויקט, שם של עסק או פרויקט, קישור רלוונטי ומתי תרצו להתחיל.',
           'ההודעה משמשת רק כדי לחזור אליכם ולדבר על הפרויקט. היא לא מצורפת לרשימת תפוצה, לא נמכרת ולא מועברת לצורכי שיווק.',
-          'האתר לא שומר הודעות במסד נתונים. כל הודעה מגיעה אליי באימייל דרך Resend, שירות לשליחת אימיילים, ונשארת בתיבת הדואר שלי כל עוד השיחה צריכה אותה.',
-          'בטופס יש גם שדה נסתר שתופס ספאם אוטומטי, והוא רושם כמה זמן הטופס היה פתוח. אף אחד מהם לא מזהה אתכם.',
+          'האתר לא שומר הודעות במסד נתונים. כל הודעה מגיעה אליי באימייל דרך Resend, שירות לשליחת אימיילים, ונשארת בתיבת הדואר שלי כל עוד היא נדרשת לצורך ההתכתבות.',
+          'הטופס משתמש גם בשדה נסתר ובבדיקת זמן בסיסית כדי לצמצם ספאם אוטומטי. המידע הזה לא משמש לזיהוי שלכם.',
         ],
       },
       {
         heading: 'מידע טכני',
         body: [
-          'האתר מתארח ב־Vercel. כמו כל שרת אינטרנט, הוא רושם מידע טכני רגיל כשמבקשים עמוד, כמו כתובת IP, סוג הדפדפן, העמוד והשעה, ומשתמש בו כדי להגיש את האתר ולשמור על אבטחתו. אני לא משתמש במידע הזה כדי לזהות מבקרים.',
+          'האתר מתארח ב־Vercel. במסגרת הפעלת האתר, שירות האחסון עשוי לרשום מידע טכני כמו כתובת IP, סוג הדפדפן, העמוד שהתבקש ומועד הבקשה, לצורך אספקת האתר ואבטחתו. אני לא משתמש במידע הזה כדי לזהות מבקרים.',
         ],
       },
       {
@@ -141,7 +141,7 @@ export const privacyCopy: Localized<TrustPageCopy> = {
           'Resend מעבירה את ההודעות מטופס יצירת הקשר לתיבת הדואר שלי.',
           'Enable מספקת את תפריט הנגישות. הסקריפט שלה נטען מהשרתים של Enable (cdn.enable.co.il), כך שהדפדפן שלכם מתחבר אליהם, והם מקבלים את המידע הטכני של הבקשה הזאת, כמו כתובת ה־IP.',
           'הגופנים, התמונות ותצוגת הווידאו מוגשים מהאתר עצמו. אין באתר סרטונים מוטמעים, מפות או רכיבים של רשתות חברתיות.',
-          'קישורים לאתרים אחרים, כמו האתר החי של פרויקט, נפתחים בלשונית חדשה בלי לספר לאתר ההוא מאיזה עמוד הגעתם. שם חלה מדיניות הפרטיות שלו.',
+          'קישורים לאתרים אחרים, כמו אתר חי של פרויקט, נפתחים בלשונית חדשה בלי להעביר אליהם את כתובת העמוד שממנו יצאתם. מדיניות הפרטיות של אותו אתר חלה על השימוש בו.',
         ],
       },
       {
