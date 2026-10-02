@@ -22,7 +22,7 @@ export const accessibilityCopy: Localized<TrustPageCopy> = {
     },
     eyebrow: 'Accessibility',
     title: 'Accessibility',
-    lead: 'This website is built to be usable by everyone: in Hebrew and in English, with a keyboard or a screen reader, on a phone or at any zoom level. This page describes what was done, what is still missing, and how to tell me about a problem.',
+    lead: 'This website is built to be usable by as many people as possible, in Hebrew and English, with a keyboard or assistive technology, on phones and at different zoom levels. This page explains what has been done, what is still being improved, and how to report a problem.',
     updated: 'Last updated: October 2026',
     sections: [
       {
@@ -35,21 +35,21 @@ export const accessibilityCopy: Localized<TrustPageCopy> = {
         heading: 'What has been done',
         body: [],
         list: [
-          'Structure: every page has one main heading, headings in order, labelled regions and a link to skip to the content.',
-          'Keyboard: everything that can be clicked can be reached and used with a keyboard, and the focus is always visible.',
+          'Structure: pages use semantic headings and labelled regions, with a link to skip directly to the main content.',
+          'Keyboard: interactive elements can be reached and used with a keyboard, with visible focus indicators.',
           'Motion: the site follows your system’s reduced motion setting. Nothing waits for an animation to become readable, and nothing moves continuously while motion is reduced.',
-          'Zoom and small screens: pages reflow at 200% and 400% zoom and on screens 320 pixels wide, without horizontal scrolling.',
-          'Contrast: text and controls are checked automatically against the AA contrast ratios, in every color world of the site.',
+          'Zoom and small screens: layouts are designed to reflow at high zoom levels and on small screens without unnecessary horizontal scrolling.',
+          'Contrast: text and interactive controls are designed and tested against the AA contrast requirements across the site’s different visual themes.',
           'Images and video: images that carry information have text alternatives, and decorative ones are hidden from screen readers. The brand film is a silent preview that plays only through its own play and pause control.',
           'Languages: Hebrew pages read right to left and English pages left to right, with the language of each page, and of words in the other language, marked.',
           'Forms: every field has a visible label, required fields are marked, and errors are listed, linked to their fields and announced to screen readers.',
-          'Without JavaScript the content stays readable and the contact form still works. High contrast modes of the operating system are supported.',
+          'Core content remains readable without JavaScript, and the contact form remains usable. The site also accounts for operating-system high-contrast modes.',
         ],
       },
       {
         heading: 'How it is tested',
         body: [
-          'Automated accessibility checks (axe) run on the pages of the site in both languages before every change is published, together with automated tests of keyboard use, zoom, reduced motion and pages without JavaScript. Manual testing with screen readers is not complete yet.',
+          'The site is tested in both languages using automated accessibility checks, together with checks for keyboard use, zoom, reduced motion and use without JavaScript. Manual testing with screen readers is still incomplete.',
         ],
       },
       {
@@ -66,7 +66,7 @@ export const accessibilityCopy: Localized<TrustPageCopy> = {
         list: [
           'Screens of real products are shown as images. Their essential content is described in text alternatives, but not every label inside them is available as text.',
           'The accessibility menu is a third-party component, and its own behavior is outside my control.',
-          'Manual testing with screen readers is still to be done.',
+          'Manual screen-reader testing is not yet complete.',
         ],
       },
       {
@@ -85,7 +85,7 @@ export const accessibilityCopy: Localized<TrustPageCopy> = {
     },
     eyebrow: 'נגישות',
     title: 'הצהרת נגישות',
-    lead: 'האתר הזה בנוי כך שכולם יוכלו להשתמש בו: בעברית ובאנגלית, עם מקלדת או קורא מסך, בטלפון או בכל רמת הגדלה. העמוד הזה מתאר מה נעשה, מה עוד חסר, ואיך לספר לי על בעיה.',
+    lead: 'האתר הזה בנוי כך שכמה שיותר אנשים יוכלו להשתמש בו, בעברית ובאנגלית, עם מקלדת או טכנולוגיה מסייעת, בטלפון וברמות הגדלה שונות. העמוד הזה מסביר מה נעשה, מה עוד משתפר ואיך לדווח על בעיה.',
     updated: 'עדכון אחרון: אוקטובר 2026',
     sections: [
       {
@@ -98,21 +98,21 @@ export const accessibilityCopy: Localized<TrustPageCopy> = {
         heading: 'מה נעשה',
         body: [],
         list: [
-          'מבנה: בכל עמוד יש כותרת ראשית אחת, כותרות לפי הסדר, אזורים מסומנים וקישור לדילוג לתוכן.',
-          'מקלדת: כל מה שאפשר ללחוץ עליו נגיש ושמיש גם במקלדת, והפוקוס תמיד נראה.',
+          'מבנה: העמודים משתמשים בכותרות סמנטיות ובאזורים מסומנים, עם קישור לדילוג ישירות לתוכן הראשי.',
+          'מקלדת: רכיבים אינטראקטיביים נגישים ושמישים גם במקלדת, עם סימון פוקוס ברור.',
           'תנועה: האתר מכבד את הגדרת הפחתת התנועה של המערכת. שום דבר לא מחכה לאנימציה כדי להיות קריא, ושום דבר לא זז ברציפות כשהתנועה מופחתת.',
-          'הגדלה ומסכים קטנים: העמודים מסתדרים מחדש בהגדלה של 200% ו־400% ובמסכים ברוחב 320 פיקסלים, בלי גלילה לרוחב.',
-          'ניגודיות: הטקסט והפקדים נבדקים אוטומטית מול יחסי הניגודיות של רמה AA, בכל אחד מהעולמות הצבעוניים של האתר.',
+          'הגדלה ומסכים קטנים: הפריסה בנויה להסתדר מחדש גם ברמות הגדלה גבוהות ובמסכים קטנים, בלי גלילה אופקית מיותרת.',
+          'ניגודיות: הטקסט והרכיבים האינטראקטיביים מתוכננים ונבדקים מול דרישות הניגודיות של רמה AA, בכל העולמות החזותיים של האתר.',
           'תמונות ווידאו: לתמונות שמעבירות מידע יש חלופה טקסטואלית, ותמונות דקורטיביות מוסתרות מקוראי מסך. סרט המותג הוא תצוגה מקדימה ללא קול, שמתנגנת רק דרך כפתור ההפעלה וההשהיה שלה.',
           'שפות: עמודים בעברית נקראים מימין לשמאל ועמודים באנגלית משמאל לימין, והשפה של כל עמוד, ושל מילים בשפה האחרת, מסומנת.',
           'טפסים: לכל שדה יש תווית גלויה, שדות חובה מסומנים, והשגיאות מרוכזות ברשימה, מקושרות לשדות שלהן ומוקראות לקוראי מסך.',
-          'גם בלי JavaScript התוכן נשאר קריא וטופס יצירת הקשר עובד. מצבי ניגודיות גבוהה של מערכת ההפעלה נתמכים.',
+          'התוכן המרכזי נשאר קריא גם בלי JavaScript, וטופס יצירת הקשר נשאר שמיש. האתר מתחשב גם במצבי ניגודיות גבוהה של מערכת ההפעלה.',
         ],
       },
       {
         heading: 'איך זה נבדק',
         body: [
-          'בדיקות נגישות אוטומטיות (axe) רצות על עמודי האתר בשתי השפות לפני כל שינוי שמתפרסם, יחד עם בדיקות אוטומטיות של שימוש במקלדת, הגדלה, הפחתת תנועה ועמודים בלי JavaScript. בדיקה ידנית עם קוראי מסך עוד לא הושלמה.',
+          'האתר נבדק בשתי השפות באמצעות בדיקות נגישות אוטומטיות, יחד עם בדיקות של שימוש במקלדת, הגדלה, הפחתת תנועה ושימוש בלי JavaScript. בדיקה ידנית עם קוראי מסך עדיין לא הושלמה.',
         ],
       },
       {
@@ -129,7 +129,7 @@ export const accessibilityCopy: Localized<TrustPageCopy> = {
         list: [
           'מסכים של מוצרים אמיתיים מוצגים כתמונות. התוכן החיוני שלהם מתואר בחלופה טקסטואלית, אבל לא כל תווית שבתוכם זמינה כטקסט.',
           'תפריט הנגישות הוא רכיב של צד שלישי, וההתנהגות שלו עצמו אינה בשליטתי.',
-          'בדיקה ידנית עם קוראי מסך עוד לפנינו.',
+          'הבדיקה הידנית עם קוראי מסך עדיין לא הושלמה.',
         ],
       },
       {
