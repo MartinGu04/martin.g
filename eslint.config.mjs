@@ -11,6 +11,8 @@ const config = [
       'playwright-report/**',
       'test-results/**',
       'next-env.d.ts',
+      // The brand film is its own package with its own typecheck (film/README.md).
+      'film/**',
     ],
   },
   {

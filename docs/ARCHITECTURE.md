@@ -98,6 +98,16 @@ never a new file. Case-study copy lives in its own dictionary (`case-on.ts`, `ca
 review state; it is written as `draft` and stays draft until Martin approves it, so the
 release gate refuses a Vercel production build meanwhile. See docs/CASE-STUDIES.md.
 
+## Brand film
+
+`film/` is a separate package (Remotion, its own `package.json`, lockfile and typecheck;
+excluded from the site's TypeScript, ESLint and build). It renders the MARTIN.G brand film in
+two native cuts, Desktop 16:9 and Mobile 9:16, from one cue table shared by picture and
+sound (`film/src/config/timeline.ts`); the soundtrack is synthesized by `film/audio/build.py`.
+It reuses the site's approved sources (brand marks, project media, fonts) by copying them
+at build time, so no asset exists twice in Git, and it follows the same confidentiality,
+brand-mark and copy rules. Renders are never committed. See film/README.md.
+
 ## Contact (Phase 6, not built)
 
 Server Action with progressive enhancement, hand-written validation, honeypot and timing
