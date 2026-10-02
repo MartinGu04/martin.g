@@ -29,8 +29,8 @@ export function Signature({ v, f }: SceneProps) {
   const m = MOSAIC[v.fmt]
   // Final lockup, designed for each frame.
   const lock = portrait
-    ? { symW: 420, symY: -300, wmW: 860, wmY: 40, lineY: 190, lineSize: 34 }
-    : { symW: 300, symY: -175, wmW: 760, wmY: 40, lineY: 160, lineSize: 26 }
+    ? { symW: 520, symY: -330, wmW: 900, wmY: 40, lineY: 200, lineSize: 40 }
+    : { symW: 390, symY: -200, wmW: 980, wmY: 70, lineY: 200, lineSize: 32 }
   const settle = tw(f, symbol + 10, wordmark + 6, ease.scene)
   const symW = mix(m.w, lock.symW, settle)
   const symY = mix(m.y, lock.symY, settle)

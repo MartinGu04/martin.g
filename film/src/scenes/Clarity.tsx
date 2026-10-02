@@ -247,7 +247,9 @@ export function Clarity({ v, f }: SceneProps) {
   // Type: PROBLEM rises letter by letter; on the lock BLEM leaves upward and DUCT arrives.
   const typeZ = portrait ? -380 : -520
   const typeSize = portrait ? 330 : 330
-  const dim = 1 - 0.82 * tw(f, lock + 4, lock + 20, ease.inOut)
+  // PRODUCT gets one clean beat before the interface takes the light.
+  const dim = 1 - 0.82 * tw(f, lock + 10, lock + 24, ease.inOut)
+  const ghost = 0.22 + 0.78 * tw(f, lock + 8, lock + 18, ease.inOut)
   const letters = (word: string, at: number, outAt?: number) =>
     [...word].map((ch, i) => {
       const a = at + i * 2
@@ -350,7 +352,7 @@ export function Clarity({ v, f }: SceneProps) {
           </svg>
         </Plane>
         {/* The real interface, underneath the pieces, revealed by the lock. */}
-        <Plane z={-1} y={d.y} w={d.width} h={dh} opacity={locked}>
+        <Plane z={-1} y={d.y} w={d.width} h={dh} opacity={locked * ghost}>
           <div
             style={{
               clipPath: `inset(0 0 ${(1 - tw(f, lock - 1, lock + 6, ease.mask)) * 100}% 0)`,
@@ -376,7 +378,9 @@ export function Clarity({ v, f }: SceneProps) {
             o *= 1 - p3
           } else {
             zz = mix(zz, 2, p3)
-            o *= 1 - tw(f, lock + 2, lock + 8)
+            o *=
+              (1 - tw(f, lock + 2, lock + 8)) *
+              (f >= lock - 6 ? 0.22 + 0.78 * (1 - tw(f, lock - 6, lock)) : 1)
           }
           if (o <= 0.01) return null
           const t = f * 0.4

@@ -106,23 +106,31 @@ export function Signal({ v, f }: SceneProps) {
   const startZ = portrait ? 5200 : 9000
 
   // Camera choreography.
+  // Portrait has no time to ask for attention: the first frame is already in macro,
+  // racing along the symbol's diagonal, and the pull back reveals what it was.
   const z = keys(f, [
-    [0, portrait ? startZ : startZ],
-    [pulse, startZ],
-    [arrive, -1180, portrait ? ease.out : ease.arrive],
+    ...(portrait
+      ? ([[0, -1200]] as const)
+      : ([
+          [0, startZ],
+          [pulse, startZ],
+        ] as const)),
+    [arrive, -1180, portrait ? ease.inOut : ease.arrive],
     [hush, portrait ? 120 : 260, ease.inOut],
     [impact, portrait ? 150 : 290, ease.linear],
     [push, portrait ? 60 : 190, ease.out],
     [push + s(0.75), -1700, ease.in],
   ])
   const x = keys(f, [
-    [arrive, node.x],
+    ...(portrait ? ([[0, -360]] as const) : []),
+    [arrive, node.x, ease.out],
     [hush, 0, ease.inOut],
     [push, 0],
     [push + s(0.75), counter.x, ease.in],
   ])
   const y = keys(f, [
-    [arrive, node.y],
+    ...(portrait ? ([[0, -250]] as const) : []),
+    [arrive, node.y, ease.out],
     [hush, portrait ? -40 : 0, ease.inOut],
     [push, portrait ? -40 : 0],
     [push + s(0.75), counter.y, ease.in],
@@ -162,15 +170,19 @@ export function Signal({ v, f }: SceneProps) {
 
   // The mark: uncovered by light from the node while lines draw, complete on the impact.
   const reveal = clamp(drawT * 1.15)
-  const lightR = 80 + reveal * 1300
-  const markOpacity = f >= impact ? 1 : 0.55 + 0.3 * ease.inOut(reveal)
+  const lightR = (portrait ? 900 : 80) + reveal * 1300
+  const hook = portrait && f < arrive
+  const markOpacity = f >= impact ? 1 : portrait ? 0.92 : 0.55 + 0.3 * ease.inOut(reveal)
   // The light travels from the node across the bowl to the stem of the N.
   const lx = (NODE.x - reveal * 380) * k
   const ly = (NODE.y + Math.sin(reveal * Math.PI) * 60) * k
+  const hookMask = `radial-gradient(circle ${900 * k}px at ${x + S / 2}px ${y + SH / 2}px, #000 0%, rgba(0,0,0,0.7) 45%, rgba(0,0,0,0) 100%)`
   const mask =
     f >= impact
       ? undefined
-      : `radial-gradient(circle ${lightR * k}px at ${lx}px ${ly}px, #000 0%, rgba(0,0,0,0.55) 35%, rgba(0,0,0,0.08) 80%, rgba(0,0,0,0) 100%)`
+      : hook
+        ? hookMask
+        : `radial-gradient(circle ${lightR * k}px at ${lx}px ${ly}px, #000 0%, rgba(0,0,0,0.55) 35%, rgba(0,0,0,0.08) 80%, rgba(0,0,0,0) 100%)`
 
   // The signal: a node of constant size on screen, seen from far away.
   const nodeVisible = f >= pulse && f < impact
@@ -180,7 +192,7 @@ export function Signal({ v, f }: SceneProps) {
   const strokeW = 1.6 * Math.max(0.3, eyeDist / 1613)
 
   // Before arrival, only the node and the grid planes exist.
-  const planes = portrait ? [600, 1700, 2900, 4300] : [700, 2100, 3700, 5400, 7200]
+  const planes = portrait ? [] : [700, 2100, 3700, 5400, 7200]
 
   return (
     <AbsoluteFill style={{ background: brand.black }}>
