@@ -145,17 +145,53 @@ test.describe('locale routing', () => {
     )
   })
 
-  test('unknown pages return 404', async ({ page }) => {
-    for (const url of ['/en/work/does-not-exist', '/en/nothing-here']) {
-      const response = await page.goto(url)
-      expect(response?.status()).toBe(404)
-      // Signed with the wordmark, which leads home; the copy sits clear of it.
-      const home = page.getByRole('link', { name: 'MARTIN.G' })
-      await expect(home).toBeVisible()
-      const mark = await home.boundingBox()
-      const title = await page.getByRole('heading', { level: 1 }).boundingBox()
-      expect(title!.y).toBeGreaterThan(mark!.y + mark!.height + 48)
+  test('unknown pages return 404 in their own language, complete without JavaScript', async ({
+    browser,
+  }) => {
+    const cases = [
+      { url: '/en/work/does-not-exist', lang: 'en', title: 'Page not found' },
+      { url: '/en/nothing-here', lang: 'en', title: 'Page not found' },
+      { url: '/he/work/does-not-exist', lang: 'he', title: 'העמוד לא נמצא' },
+      { url: '/he/nothing/here', lang: 'he', title: 'העמוד לא נמצא' },
+    ]
+    for (const javaScriptEnabled of [true, false]) {
+      const context = await browser.newContext({ javaScriptEnabled })
+      try {
+        const page = await context.newPage()
+        for (const { url, lang, title } of cases) {
+          const response = await page.goto(url)
+          expect(response?.status(), url).toBe(404)
+          await expect(page.locator('html')).toHaveAttribute('lang', lang)
+          await expect(page.locator('html')).toHaveAttribute('dir', lang === 'he' ? 'rtl' : 'ltr')
+          await expect(page.getByRole('heading', { level: 1 })).toHaveText(title)
+          // Inside the site: its header (with the brand) and footer, in the same language.
+          await expect(page.getByRole('banner').locator('[data-mark]').first()).toBeAttached()
+          await expect(page.getByRole('contentinfo')).toBeVisible()
+          await expect(
+            page.getByRole('link', {
+              name: title === 'Page not found' ? 'Back to the homepage' : 'חזרה לדף הבית',
+            }),
+          ).toHaveAttribute('href', `/${lang}`)
+        }
+      } finally {
+        await context.close()
+      }
     }
+  })
+
+  test('URLs outside any locale get the bilingual 404, signed with the wordmark', async ({
+    page,
+  }) => {
+    const response = await page.goto('/xx/missing.html')
+    expect(response?.status()).toBe(404)
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en')
+    await expect(page.getByRole('heading', { name: 'העמוד לא נמצא' })).toBeVisible()
+    // The wordmark leads home; the copy sits clear of it.
+    const home = page.getByRole('link', { name: 'MARTIN.G' })
+    await expect(home).toBeVisible()
+    const mark = await home.boundingBox()
+    const title = await page.getByRole('heading', { level: 1 }).boundingBox()
+    expect(title!.y).toBeGreaterThan(mark!.y + mark!.height + 48)
   })
 })
 

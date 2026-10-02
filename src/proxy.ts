@@ -1,15 +1,21 @@
 import { NextResponse, type NextRequest } from 'next/server'
-import { localeCookie } from '@/i18n/config'
+import { localeCookie, localeHeader } from '@/i18n/config'
 import { localeFromPathname, negotiateLocale } from '@/i18n/negotiate'
 
 /**
  * Only unprefixed URLs reach this logic: a server-side redirect sends them to the
  * visitor's chosen locale, or to Hebrew by default, before anything renders. Prefixed URLs
- * pass through untouched, so every page stays statically generated and no redirect loops.
+ * pass through, so every page stays statically generated and no redirect loops; they only
+ * carry their locale to the server (`localeHeader`), which the 404 page reads.
  */
 export function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl
-  if (localeFromPathname(pathname)) return NextResponse.next()
+  const prefixed = localeFromPathname(pathname)
+  if (prefixed) {
+    const headers = new Headers(request.headers)
+    headers.set(localeHeader, prefixed)
+    return NextResponse.next({ request: { headers } })
+  }
 
   const locale = negotiateLocale({ cookie: request.cookies.get(localeCookie)?.value })
   const url = request.nextUrl.clone()

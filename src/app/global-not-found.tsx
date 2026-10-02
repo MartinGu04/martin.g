@@ -1,10 +1,20 @@
 import type { Metadata } from 'next'
+import { headers } from 'next/headers'
 import Link from 'next/link'
 import '@/styles/global.css'
 import { fontVariables } from '@/styles/fonts'
-import { localeMeta } from '@/i18n/config'
+import { directionOf, isLocale, localeHeader, localeMeta, type Locale } from '@/i18n/config'
+import { getDictionary } from '@/i18n/get-dictionary'
 import { notFoundCopy } from '@/i18n/dictionaries/not-found'
+import { contactCopy } from '@/i18n/dictionaries/contact'
+import { homeCopy } from '@/i18n/dictionaries/home'
 import { Cell, Grid } from '@/components/layout/Grid'
+import { SkipLink } from '@/components/layout/SkipLink'
+import { SiteHeader } from '@/components/layout/SiteHeader'
+import { SiteFooter } from '@/components/layout/SiteFooter'
+import { NotFoundContent } from '@/components/layout/NotFoundContent'
+import { MotionController } from '@/components/motion/MotionController'
+import { motionHeadScript } from '@/components/motion/motion-script'
 import { EnableWidget } from '@/components/a11y/EnableWidget'
 import { Wordmark } from '@/components/brand/BrandMark'
 import styles from './global-not-found.module.css'
@@ -13,8 +23,49 @@ export const metadata: Metadata = {
   title: `404 · MARTIN.G`,
 }
 
-/** For URLs outside any locale (e.g. an unsupported locale prefix). Bilingual by design. */
-export default function GlobalNotFound() {
+/**
+ * Every 404 is rendered here, on the server, so it is complete without JavaScript. (Next
+ * renders [locale]/not-found.tsx only in the browser after a server-side notFound().)
+ * A missing /en or /he address is answered in that language, inside the site's header and
+ * footer: the proxy passes the URL's locale in `localeHeader`. URLs outside any locale get
+ * the bilingual page.
+ */
+export default async function GlobalNotFound() {
+  const locale = (await headers()).get(localeHeader)
+  return isLocale(locale) ? <LocaleNotFoundDocument locale={locale} /> : <BilingualNotFound />
+}
+
+/** The locale layout's document (src/app/[locale]/layout.tsx) around the locale's 404. */
+function LocaleNotFoundDocument({ locale }: { locale: Locale }) {
+  const dict = getDictionary(locale)
+  const contact = contactCopy[locale]
+  const labels = { about: homeCopy[locale].about.title, contact }
+  return (
+    <html
+      lang={locale}
+      dir={directionOf(locale)}
+      className={fontVariables}
+      suppressHydrationWarning
+    >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: motionHeadScript }} />
+      </head>
+      <body>
+        <SkipLink label={dict.a11y.skipToContent} />
+        <SiteHeader locale={locale} dict={dict} labels={labels} />
+        <main id="main" tabIndex={-1}>
+          <NotFoundContent locale={locale} />
+        </main>
+        <SiteFooter locale={locale} dict={dict} labels={labels} contact={contact} />
+        <MotionController />
+        <EnableWidget />
+      </body>
+    </html>
+  )
+}
+
+/** For URLs outside any locale (e.g. an unsupported locale prefix). */
+function BilingualNotFound() {
   return (
     <html lang="en" dir="ltr" className={fontVariables}>
       <body>

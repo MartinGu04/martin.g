@@ -21,7 +21,7 @@ src/
   app/
     [locale]/              root layout: <html lang dir>; home; work/[slug]; contact; privacy;
                            accessibility; not-found
-    global-not-found.tsx   URLs outside any locale
+    global-not-found.tsx   every 404, server-rendered: in the URL's locale, else bilingual
     sitemap.ts robots.ts manifest.ts icon.svg icon.png apple-icon.png favicon.ico
   i18n/                    config, negotiation, dictionaries, release gate
   content/                 schema, registry (server-only), resolve (view models), projects/
@@ -48,6 +48,10 @@ tests/e2e                  Playwright (routing, direction, axe, confidential, br
   not consulted. Prefixed paths pass through, so there is no redirect loop.
 - `x-default` hreflang (page metadata and sitemap) points to the Hebrew URL.
 - `dynamicParams = false` everywhere: unknown locales and slugs are 404s.
+- 404s are rendered by `global-not-found.tsx` on the server, so they are complete without
+  JavaScript. The proxy passes a prefixed URL's locale in the `x-mg-locale` request header;
+  a missing `/en` or `/he` address gets that language's 404 inside the site's header and
+  footer, and a URL outside any locale gets the bilingual page.
 - Dictionaries: `en.ts` is the shape; `he.ts` is typed against it.
 - Bidi: numerals, brand and project names, and Latin terms inside Hebrew are isolated with
   `<Ltr>` (`<bdi dir="ltr">`). Brand marks are always `dir="ltr"`.
