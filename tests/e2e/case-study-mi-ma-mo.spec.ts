@@ -235,8 +235,21 @@ test.describe('המחלבה case study: media and privacy', () => {
     test.skip(isMobile, 'measured at a desktop width')
     await page.goto('/en/work/mi-ma-mo')
     await walk(page)
-    // On a fresh server every image's first request is encoded on demand, alongside the
-    // other tests starting up, so loading gets more than the default five seconds.
+    // Warm-up. On a fresh server every image's first request is encoded on demand, alongside
+    // the other tests starting up, and that time must not count against the measurement.
+    // Request exactly the candidates this page chose and wait for each to be served, so the
+    // encodes are finished (and cached by the optimizer) before anything is measured.
+    const chosen = await page.locator('main img').evaluateAll((els) =>
+      els
+        .filter((img) => img.getBoundingClientRect().width > 0)
+        .map((img) => (img as HTMLImageElement).currentSrc)
+        .filter(Boolean),
+    )
+    expect(chosen.length).toBeGreaterThan(0)
+    for (const src of new Set(chosen)) expect((await page.request.get(src)).status(), src).toBe(200)
+    // The measurement, on a fresh load of the warmed page.
+    await page.reload()
+    await walk(page)
     await expect
       .poll(
         () =>
