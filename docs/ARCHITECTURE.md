@@ -19,16 +19,19 @@ decision changes.
 src/
   proxy.ts                 locale negotiation for unprefixed URLs (Next 16 "proxy")
   app/
-    [locale]/              root layout: <html lang dir>; home; work/[slug]; not-found
+    [locale]/              root layout: <html lang dir>; home; work/[slug]; contact; privacy;
+                           accessibility; not-found
     global-not-found.tsx   URLs outside any locale
     sitemap.ts robots.ts icon.png apple-icon.png favicon.ico
   i18n/                    config, negotiation, dictionaries, release gate
   content/                 schema, registry (server-only), resolve (view models), projects/
   components/              brand, layout (grid, rule, header, footer), nav, type, theme, media,
                            motion, project, home, scene, case-study (shared primitives and
-                           one composition per case study, e.g. case-study/on)
+                           one composition per case study, e.g. case-study/on), contact,
+                           trust (Privacy and Accessibility), a11y (the Enable menu)
   fonts/                   self-hosted OFL fonts and licenses
-  lib/                     site URL and metadata helpers, CSS var typing
+  lib/                     site URL and metadata helpers, CSS var typing, navigation,
+                           contact (validation, spam, dedupe, notifiers, server action)
   styles/                  layers, tokens, fonts, reset, base, typography, layout, motion
 scripts/                   leak-check, lint-policy, setup-hooks
 tests/unit                 Vitest (content, i18n, tokens, grid, policy, leak check)
@@ -98,11 +101,68 @@ never a new file. Case-study copy lives in its own dictionary (`case-on.ts`, `ca
 review state; it is written as `draft` and stays draft until Martin approves it, so the
 release gate refuses a Vercel production build meanwhile. See docs/CASE-STUDIES.md.
 
-## Contact (Phase 6, not built)
+## Contact (Phase 6)
 
-Server Action with progressive enhancement, hand-written validation, honeypot and timing
-checks, and a `ContactNotifier` interface with Resend (email) and Telegram Bot (phone)
-implementations. No database. Rate limiting via a Vercel WAF rule.
+`/[locale]/contact` is the project inquiry: the homepage's closing scene ("Start a project")
+extended into one calm form, statically generated like every page.
+
+- **Fields.** Required: name, email, what they want to build or improve, the problem.
+  Optional: the kind of project (website or digital experience, product, operational
+  system, improving something that exists, not sure yet), business or project name, a link,
+  when they would like to start. No phone, no budget (premature for a first message, and it
+  would set the wrong tone), nothing else personal.
+- **Server action** (`src/lib/contact/action.ts`). Without JavaScript the form posts to it
+  and the server renders the answer in place (errors with values kept, or the success
+  state). With JavaScript the form validates first (`src/lib/contact/validate.ts`, shared
+  with the server), then calls the same action directly, so a lost connection becomes a
+  "not sent" state with every value kept. The server is the authority: it cleans (NFC,
+  control and bidi override characters removed) and validates everything again. Nothing
+  is ever sent in a URL; answers carry no internal detail.
+- **Spam** (`spam.ts`): a trap field nobody sees or reaches, and the time the form was open
+  (under 3s is software; set in the browser, so without JavaScript only the trap applies).
+  Spam is answered like a delivery and never delivered. No CAPTCHA.
+- **Duplicates.** The form allows one submission at a time (`aria-disabled` while sending);
+  the server delivers one submission id (or, without JavaScript, one sender and message)
+  once per ten minutes, in memory per instance (`dedupe.ts`).
+- **Delivery** (`notifiers.ts`): a `ContactNotifier` interface. Resend (email) is the
+  primary channel; Telegram (a phone ping) is optional; an outbox file serves the e2e tests
+  and is refused on Vercel. Plain text only, the visitor's email as reply-to, credentials
+  in server-side environment variables (`.env.example`), never logged. Logs name only the
+  notifier and status of a failure, never the inquiry. **No database**: an inquiry exists
+  only in the delivered message.
+- **Release.** A Vercel production build fails without a configured notifier
+  (`assertContactDelivery`, beside the copy release gate), so the only conversion path can
+  never ship as a dead end. Preview builds answer "unavailable" until configured.
+- **Still to configure** (not in the repository): `RESEND_API_KEY`, `CONTACT_EMAIL_TO`,
+  `CONTACT_EMAIL_FROM` on Vercel (Sensitive), with a sender Resend accepts; and a Vercel
+  WAF rate-limit rule on POST `/he/contact` and `/en/contact` (for example 5 per minute per
+  IP). Turning Telegram on means updating the privacy copy first.
+
+## Privacy (Phase 6 audit)
+
+What the site actually does, which `/[locale]/privacy` states (and must keep stating):
+the contact form's fields, delivered by email through Resend; hosting on Vercel with its
+ordinary request logs; one first-party cookie, `NEXT_LOCALE`, set only by the language
+switch (one year); the Enable menu's script from `cdn.enable.co.il` (and whatever it
+stores in the browser); no analytics (Phase 7 adds Vercel Web Analytics: update the page
+first); fonts, images and video self-hosted; no embeds; external links open without a
+referrer.
+
+## Accessibility (Phase 6)
+
+`/[locale]/accessibility` describes the tested work (docs/DESIGN-SYSTEM.md, "Accessibility
+baseline", and the e2e suite), the known limitations and how to report a problem, with
+WCAG 2.2 AA stated as the target only: no conformance or certification claim.
+
+**The Enable menu** (`src/components/a11y/EnableWidget.tsx`): Martin's licensed script,
+unchanged, loaded once per document from the root layout through `next/script`
+`lazyOnload` (after the page has loaded, so it never blocks rendering or hydration; the
+server HTML is identical with or without it). The CSP allows `https://cdn.enable.co.il` for
+scripts and the vendor's hosts for styles, images, fonts and requests. It is an addition,
+never the reason the site is accessible: the e2e suite runs with the vendor's host
+unreachable and passes on the site's own accessibility. Its own behavior (launcher
+position, keyboard use, zoom, reduced motion, what it stores) is the vendor's and must be
+checked in a real browser on a preview deployment; see the Phase 6 review notes.
 
 ## Analytics
 
@@ -118,16 +178,18 @@ non-clickable and route-less.
 
 ## Navigation
 
-Work and the language switch only. Contact is added to the navigation only when a real
-destination exists (Phase 6); no placeholder or dead links.
+Header: Work, Contact and the language switch. Footer: the same, plus Privacy and
+Accessibility, in a labelled navigation. No About page (About is a homepage scene), no
+placeholder or dead links (tested).
 
 ## Launch hardening backlog
 
 - **CSP review.** Foundation uses a static CSP with `'unsafe-inline'` for scripts and
   styles so every page stays statically generated (nonces would force dynamic rendering).
-  Revisit once Vercel Web Analytics and the real Contact integration are in place: tighten
-  `script-src` (hashes, SRI, or nonces only if the static trade-off is acceptable), and add
-  exactly the origins those integrations need to `connect-src` / `script-src`.
+  Revisit once Vercel Web Analytics is in place: tighten `script-src` (hashes, SRI, or
+  nonces only if the static trade-off is acceptable), and narrow the Enable origins
+  (Phase 6) to exactly what the menu requests, as observed on a deployment. Contact needs
+  no browser origin: delivery is server to server.
 
 ## Phases
 
@@ -136,6 +198,7 @@ destination exists (Phase 6); no placeholder or dead links.
 - Phase 2: Design system (done)
 - Phase 3: Content engine (done)
 - Phase 4: Hero, home choreography and real projects (done)
-- Phase 5: Case studies (5A ON: merged, copy approved; 5B המחלבה: copy approved, in PR)
-- Phase 6: Contact
+- Phase 5: Case studies (5A ON and 5B המחלבה: merged, copy approved)
+- Phase 6: Trust, accessibility and conversion (contact, privacy, accessibility, Enable;
+  copy draft, in review)
 - Phase 7: Launch hardening

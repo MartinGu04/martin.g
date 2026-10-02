@@ -1,0 +1,103 @@
+@layer components {
+  .scene {
+    --scene-pad-start: var(--section-space-sm);
+    --scene-pad-end: var(--section-space);
+  }
+
+  .grid {
+    row-gap: var(--space-8);
+  }
+
+  .intro {
+    grid-column: 1 / -1;
+    display: grid;
+    gap: var(--space-4);
+    justify-items: start;
+  }
+
+  .title {
+    max-inline-size: 11em;
+  }
+
+  .lead {
+    max-inline-size: var(--measure-text);
+  }
+
+  /* Each section: a rule, the heading at the inline start, the text beside it (tablet and
+     up) at a reading measure. */
+  .section {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: subgrid;
+    row-gap: var(--space-4);
+  }
+
+  .rule,
+  .heading,
+  .body {
+    grid-column: 1 / -1;
+    min-inline-size: 0;
+  }
+
+  .body {
+    display: grid;
+    gap: var(--space-4);
+    max-inline-size: var(--measure-text);
+  }
+
+  .list {
+    display: grid;
+    gap: var(--space-3);
+    padding-inline-start: 1.25em;
+  }
+
+  .list li::marker {
+    color: var(--accent);
+  }
+
+  .action {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-block-size: 2.75rem;
+    text-decoration-line: none;
+  }
+
+  .action span {
+    text-decoration-line: underline;
+    text-decoration-thickness: var(--hairline);
+    text-underline-offset: 0.3em;
+  }
+
+  @media (width >= 48rem) {
+    .intro {
+      grid-column: 1 / span 7;
+    }
+
+    .heading {
+      grid-column: 1 / span 2;
+    }
+
+    .body {
+      grid-column: 3 / span 6;
+    }
+  }
+
+  @media (width >= 75rem) {
+    .intro {
+      grid-column: 2 / span 8;
+    }
+
+    .rule {
+      grid-column: 2 / -1;
+    }
+
+    .heading {
+      grid-column: 2 / span 3;
+    }
+
+    .body {
+      grid-column: 5 / span 6;
+    }
+  }
+}

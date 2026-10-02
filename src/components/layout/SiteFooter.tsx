@@ -1,8 +1,9 @@
 import Link from 'next/link'
 import type { Locale } from '@/i18n/config'
 import type { Dictionary } from '@/i18n/dictionaries'
+import type { ContactCopy } from '@/i18n/dictionaries/contact'
 import { format } from '@/i18n/get-dictionary'
-import { primaryNav } from '@/lib/navigation'
+import { primaryNav, trustNav } from '@/lib/navigation'
 import { Wordmark } from '@/components/brand/BrandMark'
 import { LocaleSwitch } from '@/components/nav/LocaleSwitch'
 import { Ltr } from '@/components/type/Ltr'
@@ -13,14 +14,17 @@ import styles from './SiteFooter.module.css'
 interface SiteFooterProps {
   locale: Locale
   dict: Dictionary
+  contact: Pick<ContactCopy, 'nav' | 'footer'>
 }
 
 /**
- * Base footer: identity, positioning, copyright and the same real destinations as the
- * header. No social or contact links until those destinations exist.
+ * Base footer: identity, positioning, copyright and the real destinations: the work, the
+ * project inquiry, Privacy and Accessibility, and the language switch. Restrained, one
+ * line of links. No social links, address, phone or registration details: none exist.
  */
-export function SiteFooter({ locale, dict }: SiteFooterProps) {
+export function SiteFooter({ locale, dict, contact }: SiteFooterProps) {
   const year = new Date().getFullYear()
+  const links = [...primaryNav(locale, dict, contact), ...trustNav(locale, contact)]
   return (
     <footer className={styles.footer}>
       <Grid className={styles.grid}>
@@ -36,18 +40,24 @@ export function SiteFooter({ locale, dict }: SiteFooterProps) {
           <p className="t-small muted">
             <Ltr>{format(dict.footer.copyright, { year })}</Ltr>
           </p>
-          <ul role="list" className={styles.links}>
-            {primaryNav(locale, dict).map((item) => (
-              <li key={item.key}>
-                <Link href={item.href} className={`t-label ${styles.link}`}>
-                  {item.label}
-                </Link>
+          <nav aria-label={contact.footer.label} className={styles.nav}>
+            <ul role="list" className={styles.links}>
+              {links.map((item) => (
+                <li key={item.key}>
+                  <Link href={item.href} className={`t-label ${styles.link}`}>
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+              <li>
+                <LocaleSwitch
+                  current={locale}
+                  label={dict.a11y.switchLanguage}
+                  className="t-label"
+                />
               </li>
-            ))}
-            <li>
-              <LocaleSwitch current={locale} label={dict.a11y.switchLanguage} className="t-label" />
-            </li>
-          </ul>
+            </ul>
+          </nav>
         </div>
       </Grid>
     </footer>

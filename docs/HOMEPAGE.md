@@ -219,6 +219,7 @@ worth using.` / `בואו נבנה משהו ששווה להשתמש בו.` (4.8)
   (המחלבה's amber, Defense steel, ON's gold), meet at one node and continue as the one
   amber thread toward the invitation, ending in the open square. The strands draw in once;
   while the visitor stays a short pulse travels along each, very slowly. No wordmark.
+  Under the invitation its one action (Phase 6): `Start a project`, amber, with the arrow.
 - **Exploring a project** (ON, המחלבה): the explicit `View project` link stays visible on
   every device. On a fine pointer the main proof frame also leads to the project page and a
   quiet `Explore project` chip rises in its corner on hover, or while the scene's project
@@ -274,7 +275,8 @@ the product's own interface is right to left. Project names and numerals stay is
   full opacity; only their decorative echoes (the process frame, the rail, the contact
   words) move, and those are hidden from assistive technology.
 - Grain is the world's ink through a noise mask, never a blend mode.
-- The contact action is not rendered until its destination exists (Phase 6).
+- The contact action (Phase 6) is the one solid control on the page: `Start a project` /
+  `מתחילים פרויקט`, amber where the thread comes to rest, leading to `/[locale]/contact`.
 
 ## Copy
 

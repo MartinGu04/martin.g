@@ -26,5 +26,6 @@ This repository is **public**. Read README.md → Confidentiality and docs/ARCHI
 - Defense Systems (confidential work): sanitized aliases and generated abstract geometry
   only; never classified, warning, clearance or dossier language or styling.
 - Commit messages: no Claude session URLs or other session links (public breadcrumbs).
-- Navigation: no placeholder or dead destinations (Contact arrives with Phase 6).
+- Navigation: no placeholder or dead destinations. Contact, Privacy and Accessibility exist
+  since Phase 6.
 - Before pushing: `pnpm check`, `pnpm build`, `pnpm test:e2e`.

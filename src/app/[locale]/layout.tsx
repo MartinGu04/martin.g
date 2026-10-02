@@ -5,17 +5,21 @@ import { fontVariables } from '@/styles/fonts'
 import { directionOf, isLocale, localeMeta, locales } from '@/i18n/config'
 import { getDictionary } from '@/i18n/get-dictionary'
 import { assertReleasableCopy } from '@/i18n/release-gate'
+import { contactCopy } from '@/i18n/dictionaries/contact'
+import { assertContactDelivery } from '@/lib/contact/notifiers'
 import { localeAlternates, siteUrl } from '@/lib/site'
 import { SkipLink } from '@/components/layout/SkipLink'
 import { SiteHeader } from '@/components/layout/SiteHeader'
 import { SiteFooter } from '@/components/layout/SiteFooter'
 import { MotionController } from '@/components/motion/MotionController'
 import { motionHeadScript } from '@/components/motion/motion-script'
+import { EnableWidget } from '@/components/a11y/EnableWidget'
 
 export const dynamicParams = false
 
 export function generateStaticParams() {
   assertReleasableCopy()
+  assertContactDelivery()
   return locales.map((locale) => ({ locale }))
 }
 
@@ -45,6 +49,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps<'/[
   const { locale } = await params
   if (!isLocale(locale)) notFound()
   const dict = getDictionary(locale)
+  const contact = contactCopy[locale]
 
   return (
     // suppressHydrationWarning: the motion head script sets data-motion before hydration.
@@ -59,12 +64,13 @@ export default async function LocaleLayout({ children, params }: LayoutProps<'/[
       </head>
       <body>
         <SkipLink label={dict.a11y.skipToContent} />
-        <SiteHeader locale={locale} dict={dict} />
+        <SiteHeader locale={locale} dict={dict} contact={contact} />
         <main id="main" tabIndex={-1}>
           {children}
         </main>
-        <SiteFooter locale={locale} dict={dict} />
+        <SiteFooter locale={locale} dict={dict} contact={contact} />
         <MotionController />
+        <EnableWidget />
       </body>
     </html>
   )

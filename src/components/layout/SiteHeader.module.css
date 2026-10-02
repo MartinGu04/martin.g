@@ -24,8 +24,17 @@
     align-items: center;
   }
 
+  /* Phones: the monogram, then the navigation (Work, Contact and the language switch)
+     taking all the remaining width, so it fits down to 320px without a drawer. */
+  @media (width < 48rem) {
+    .bar {
+      display: flex;
+      justify-content: space-between;
+      gap: var(--space-3);
+    }
+  }
+
   .brand {
-    grid-column: 1 / span 2;
     display: flex;
     align-items: center;
   }
@@ -42,7 +51,6 @@
   }
 
   .nav {
-    grid-column: 3 / -1;
     display: flex;
     justify-content: flex-end;
   }
@@ -50,7 +58,7 @@
   .list {
     display: flex;
     align-items: center;
-    gap: var(--space-5);
+    gap: clamp(0.75rem, 4vw, 1.5rem);
   }
 
   .link {

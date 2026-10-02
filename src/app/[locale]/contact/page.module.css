@@ -1,0 +1,10 @@
+@layer components {
+  .scene {
+    --scene-pad-start: var(--section-space-sm);
+    --scene-pad-end: var(--section-space);
+  }
+
+  .grid {
+    row-gap: var(--space-8);
+  }
+}

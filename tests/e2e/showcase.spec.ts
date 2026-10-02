@@ -498,7 +498,8 @@ test.describe('exploration and polish', () => {
     const contact = page.locator('[aria-labelledby="contact-title"]')
     for (const word of ['מוצר', 'מערכת', 'חוויה'])
       await expect(contact.getByText(word)).toBeVisible()
-    await expect(contact.getByRole('link')).toHaveCount(0)
+    // One action only: the project inquiry.
+    await expect(contact.getByRole('link')).toHaveCount(1)
   })
 })
 

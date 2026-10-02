@@ -5,6 +5,7 @@ import { fontVariables } from '@/styles/fonts'
 import { localeMeta } from '@/i18n/config'
 import { notFoundCopy } from '@/i18n/dictionaries/not-found'
 import { Cell, Grid } from '@/components/layout/Grid'
+import { EnableWidget } from '@/components/a11y/EnableWidget'
 
 export const metadata: Metadata = {
   title: `404 · MARTIN.G`,
@@ -39,6 +40,7 @@ export default function GlobalNotFound() {
             </Cell>
           </Grid>
         </main>
+        <EnableWidget />
       </body>
     </html>
   )

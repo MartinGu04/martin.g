@@ -1,9 +1,20 @@
+import { tmpdir } from 'node:os'
+import path from 'node:path'
 import { defineConfig, devices } from '@playwright/test'
 
 const PORT = Number(process.env.E2E_PORT ?? 3100)
 // Optional: a preinstalled Chromium when the bundled browser version is unavailable.
 const executablePath = process.env.PLAYWRIGHT_CHROMIUM_PATH || undefined
-const launchOptions = executablePath ? { executablePath } : {}
+// The suite only talks to the local server: no proxy (an inherited one can stall form
+// navigations), and the third-party Enable menu never loads (cdn.enable.co.il does not
+// resolve), so the suite proves the site is accessible on its own and stays deterministic.
+// The widget's integration is tested with a stand-in script (tests/e2e/trust.spec.ts).
+const args = ['--no-proxy-server', '--host-resolver-rules=MAP cdn.enable.co.il ~NOTFOUND']
+const launchOptions = executablePath ? { executablePath, args } : { args }
+
+// Contact form submissions are delivered to this file instead of a real service
+// (src/lib/contact/notifiers.ts, the outbox notifier). Tests read it back.
+process.env.E2E_OUTBOX ??= path.join(tmpdir(), `martin-g-e2e-outbox-${PORT}.jsonl`)
 
 export default defineConfig({
   testDir: 'tests/e2e',
@@ -25,5 +36,10 @@ export default defineConfig({
     url: `http://localhost:${PORT}/en`,
     reuseExistingServer: !process.env.CI,
     timeout: 60_000,
+    env: {
+      CONTACT_OUTBOX_FILE: process.env.E2E_OUTBOX,
+      // People take seconds; tests fill the form at once. The timing check is unit tested.
+      CONTACT_MIN_FILL_MS: '0',
+    },
   },
 })

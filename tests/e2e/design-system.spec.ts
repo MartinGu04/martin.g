@@ -12,6 +12,10 @@ const localePages = [
   '/he/system',
   '/en/system/scenes',
   '/he/system/scenes',
+  '/en/privacy',
+  '/he/privacy',
+  '/en/accessibility',
+  '/he/accessibility',
 ]
 
 async function horizontalOverflow(page: Page) {
@@ -58,12 +62,44 @@ test.describe('brand marks', () => {
     }
   })
 
+  test('at 320px the compact header keeps the monogram clear of the navigation', async ({
+    browser,
+  }) => {
+    const context = await browser.newContext({ viewport: { width: 320, height: 640 } })
+    try {
+      const page = await context.newPage()
+      for (const url of ['/en', '/he']) {
+        await openForLayout(page, url)
+        const header = page.getByRole('banner')
+        const mark = (await header.locator('[data-mark="monogram"]').boundingBox())!
+        const items = await header
+          .getByRole('navigation')
+          .locator('a')
+          .evaluateAll((els) =>
+            els.map((el) => {
+              const r = el.getBoundingClientRect()
+              return { left: r.left, right: r.right }
+            }),
+          )
+        const clear = mark.height * 0.25
+        for (const item of items) {
+          if (url === '/en')
+            expect(item.left - (mark.x + mark.width), url).toBeGreaterThanOrEqual(clear)
+          else expect(mark.x - item.right, url).toBeGreaterThanOrEqual(clear)
+        }
+        expect(await horizontalOverflow(page), url).toBeLessThanOrEqual(0)
+      }
+    } finally {
+      await context.close()
+    }
+  })
+
   test('header wordmark keeps its clear space', async ({ page, isMobile }) => {
     test.skip(isMobile, 'desktop header')
     await page.goto('/en')
     const header = await page.getByRole('banner').boundingBox()
     const mark = await page.getByRole('banner').locator('[data-mark="wordmark"]').boundingBox()
-    const nav = await page.getByRole('navigation').boundingBox()
+    const nav = await page.getByRole('banner').getByRole('navigation').boundingBox()
     const clear = mark!.height * 0.5
     expect(mark!.y - header!.y).toBeGreaterThanOrEqual(clear)
     expect(header!.y + header!.height - (mark!.y + mark!.height)).toBeGreaterThanOrEqual(clear)
@@ -100,10 +136,22 @@ test.describe('navigation', () => {
     }
   })
 
-  test('the header offers no About or Contact destination yet', async ({ page }) => {
-    await page.goto('/en')
-    const nav = page.getByRole('navigation')
-    await expect(nav.getByRole('link', { name: /about|contact/i })).toHaveCount(0)
+  test('the header offers the work and the project inquiry, and no About page', async ({
+    page,
+  }) => {
+    for (const [locale, work, contact] of [
+      ['en', 'Work', 'Contact'],
+      ['he', 'עבודות', 'יצירת קשר'],
+    ] as const) {
+      await page.goto(`/${locale}`)
+      const nav = page.getByRole('banner').getByRole('navigation')
+      await expect(nav.getByRole('link', { name: work })).toHaveAttribute('href', `/${locale}#work`)
+      await expect(nav.getByRole('link', { name: contact })).toHaveAttribute(
+        'href',
+        `/${locale}/contact`,
+      )
+      await expect(nav.getByRole('link', { name: /about|אודות/i })).toHaveCount(0)
+    }
   })
 
   test('the language switch marks the current language', async ({ page }) => {
@@ -135,8 +183,8 @@ test.describe('navigation', () => {
       'דילוג לתוכן',
       'MARTIN.G, דף הבית',
       'עבודות',
+      'יצירת קשר',
       'EN English',
-      'HE עברית',
     ])
   })
 })
@@ -240,7 +288,15 @@ test.describe('responsive and zoom', () => {
       })
       try {
         const page = await context.newPage()
-        for (const url of ['/en', '/he', '/en/work/on', '/he/work/mi-ma-mo', '/he/system']) {
+        for (const url of [
+          '/en',
+          '/he',
+          '/en/work/on',
+          '/he/work/mi-ma-mo',
+          '/he/system',
+          '/en/privacy',
+          '/he/accessibility',
+        ]) {
           await openForLayout(page, url)
           expect(await horizontalOverflow(page), `${url} at ${label}`).toBeLessThanOrEqual(0)
           await expect(page.getByRole('heading', { level: 1 })).toBeVisible()

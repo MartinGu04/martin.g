@@ -11,6 +11,10 @@ const pages = [
   '/he/system',
   '/en/system/scenes',
   '/he/system/scenes',
+  '/en/privacy',
+  '/he/privacy',
+  '/en/accessibility',
+  '/he/accessibility',
 ]
 
 test.describe('locale routing', () => {
@@ -50,6 +54,9 @@ test.describe('locale routing', () => {
       ['/en/work/on', 'en'],
       ['/he/work/mi-ma-mo', 'he'],
       ['/en/work/mi-ma-mo', 'en'],
+      ['/he/contact', 'he'],
+      ['/en/privacy', 'en'],
+      ['/he/accessibility', 'he'],
     ] as const
     for (const [path, lang] of routes) {
       const direct = await page.request.get(path, { maxRedirects: 0 })
@@ -239,7 +246,8 @@ test.describe('accessibility foundation', () => {
       await expect(page.getByRole('banner')).toHaveCount(1)
       await expect(page.getByRole('main')).toHaveCount(1)
       await expect(page.getByRole('contentinfo')).toHaveCount(1)
-      await expect(page.getByRole('navigation')).toHaveCount(1)
+      // The header's primary navigation and the footer's.
+      await expect(page.getByRole('navigation')).toHaveCount(2)
     }
   })
 

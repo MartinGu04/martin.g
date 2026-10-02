@@ -3,7 +3,8 @@ import { describe, expect, it } from 'vitest'
 import { brandMarks, hairlineDevicePx, type BrandMarkKey } from '@/components/brand/brand'
 import type { ProjectTheme } from '@/content/schema'
 import { dictionaries } from '@/i18n/dictionaries'
-import { primaryNav } from '@/lib/navigation'
+import { primaryNav, trustNav } from '@/lib/navigation'
+import { contactCopy } from '@/i18n/dictionaries/contact'
 import { isSpecimenEnabled } from '@/lib/specimen'
 import { themeIssues } from '@/lib/theme'
 import { qaThemes } from '@/app/[locale]/system/qa-themes'
@@ -128,9 +129,13 @@ describe('themes', () => {
 
 describe('navigation and specimen', () => {
   it('lists only real destinations', () => {
-    const nav = primaryNav('he', dictionaries.he.messages)
-    expect(nav.map((item) => item.href)).toEqual(['/he#work'])
-    expect(nav.map((item) => item.key)).not.toContain('contact')
+    const nav = primaryNav('he', dictionaries.he.messages, contactCopy.he)
+    expect(nav.map((item) => item.href)).toEqual(['/he#work', '/he/contact'])
+    expect(nav.map((item) => item.key)).not.toContain('about')
+    expect(trustNav('en', contactCopy.en).map((item) => item.href)).toEqual([
+      '/en/privacy',
+      '/en/accessibility',
+    ])
   })
 
   it('renders the specimen everywhere except Vercel production', () => {

@@ -68,11 +68,21 @@ describe('metadata', () => {
 describe('release gate', () => {
   afterEach(() => vi.unstubAllEnvs())
 
-  it('finds no copy awaiting review', () => {
+  it('finds only the Phase 6 trust copy awaiting review', () => {
     // The Phase 4 showcase copy and the Phase 5A ON and Phase 5B המחלבה case study copy are
-    // approved in both locales; any dictionary marked 'draft' again would appear here and
-    // block a Vercel production build.
-    expect(findDraftCopy()).toEqual([])
+    // approved in both locales. The Phase 6 contact, privacy and accessibility copy is draft
+    // until Martin reviews it, so a Vercel production build refuses it; any other
+    // dictionary marked 'draft' again would appear here too.
+    expect(findDraftCopy().sort()).toEqual(
+      [
+        'accessibility:en',
+        'accessibility:he',
+        'contact:en',
+        'contact:he',
+        'privacy:en',
+        'privacy:he',
+      ].sort(),
+    )
   })
 
   it('refuses synthetic draft copy in Vercel production builds only', () => {

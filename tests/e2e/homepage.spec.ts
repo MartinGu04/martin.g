@@ -138,10 +138,26 @@ test.describe('homepage scenes', () => {
     }
   })
 
-  test('the closing scene renders no dead contact link', async ({ page }) => {
-    await page.goto('/en')
-    const contact = page.getByRole('region', { name: 'Have a problem worth solving?' })
-    await expect(contact).toHaveCount(1)
-    await expect(contact.getByRole('link')).toHaveCount(0)
+  test('the closing scene has one action, and it leads to the project inquiry', async ({
+    page,
+  }) => {
+    for (const [locale, region, label] of [
+      ['en', 'Have a problem worth solving?', 'Start a project'],
+      ['he', 'יש בעיה ששווה לפתור?', 'מתחילים פרויקט'],
+    ] as const) {
+      await page.goto(`/${locale}`)
+      const contact = page.getByRole('region', { name: region })
+      await expect(contact).toHaveCount(1)
+      await expect(contact.getByRole('link')).toHaveCount(1)
+      const action = contact.getByRole('link', { name: label })
+      await expect(action).toHaveAttribute('href', `/${locale}/contact`)
+      await action.scrollIntoViewIfNeeded()
+      await expect(action).toBeVisible()
+      const box = (await action.boundingBox())!
+      expect(box.height).toBeGreaterThanOrEqual(44)
+      await action.click()
+      await expect(page).toHaveURL(new RegExp(`/${locale}/contact$`))
+      await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+    }
   })
 })

@@ -31,6 +31,7 @@ visual world completely between scenes, such as a light project surface taking o
 | `--line`           | `rgb(255 255 255 / .10)` | structural lines, dividers, grid          |
 | `--line-strong`    | `rgb(255 255 255 / .20)` | major divisions, marks, hover and focus   |
 | `--control-border` | `#6B6B6B`                | form borders and UI boundaries (3:1)      |
+| `--error`          | `#FFA38F`                | form errors on dark registers (4.5:1)     |
 | `--light`          | `#FFF4E6`                | the warm key light of atmosphere layers   |
 | `--shade`          | `#000000`                | what light falls off into (vignette)      |
 | `--accent(-2)`     | = `--text`               | brand default: no accent color            |
@@ -270,14 +271,29 @@ frame), `SystemDiagram` (generated, abstract system geometry for confidential wo
 - Header: sticky, solid background, hairline bottom rule, aligned to the page grid. It takes
   on the semantic colors of the scene beneath its lower edge (`HeaderWorld`), crossfading
   between worlds; without JavaScript it keeps the MARTIN.G colors.
-  Wordmark (tablet/desktop) or monogram (mobile), then navigation: `Work` and the language
-  switch `EN / HE`. About and Contact appear only when their destinations exist (no dead
-  links; tests check that every header and footer link resolves). No menu drawer: the
-  compact navigation fits at 320px.
+  Wordmark (tablet/desktop) or monogram (mobile), then navigation: `Work`, `Contact` and
+  the language switch `EN / HE` (no dead links; tests check that every header and footer
+  link resolves). No menu drawer: on phones the bar is the monogram and the navigation
+  side by side, with gaps that tighten toward 320px, where it still fits with the
+  monogram's clear space (tested).
 - Language switch: codes stay Latin and in `EN / HE` order in both directions; the current
   language has `aria-current`; accessible names start with the visible code ("HE עברית").
-- Footer: rule, wordmark, positioning and principle, copyright, the same real destinations.
-  No social or contact links until they exist.
+- Footer: rule, wordmark, positioning and principle, copyright, and one labelled navigation:
+  Work, Contact, Privacy, Accessibility and the language switch. No social links, address,
+  phone or registration details (none exist).
+
+## Forms (Phase 6)
+
+The project inquiry (`src/components/contact`) defines the form grammar; there is no form
+library. Visible labels above every control (never a placeholder), hints under the label,
+`(optional)` marked rather than every required field (the form says so once). Controls sit
+on `--surface-1` with a `--control-border` boundary (3:1), radius 0, 48px tall, text at
+body size (so phones never zoom into a field); focus is the system ring. Choices are real
+radio buttons in a fieldset, each a whole bordered label at least 44px tall, the chosen
+one outlined in the accent. Errors are text first (`--error`, a soft coral tested at
+4.5:1 on the dark registers, with a square mark and a 4px inline-start boundary on the
+control), listed in a summary that takes focus and links to each field. The action is a
+solid block in the world's accent with the arrow, the one solid control on a page.
 
 ## Motion
 
