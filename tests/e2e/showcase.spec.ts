@@ -483,12 +483,23 @@ test.describe('exploration and polish', () => {
     await expect(cover.getByText('Explore project')).toHaveCSS('opacity', '1')
   })
 
-  test('the full wordmark lives in the header, the hero and the footer only', async ({ page }) => {
+  test('the brand appears with intent: header and footer marks, one faint device in the hero', async ({
+    page,
+    isMobile,
+  }) => {
     await page.goto('/en')
-    await expect(page.locator('main [data-mark="wordmark"]')).toHaveCount(1)
-    await expect(
-      page.locator('main section').first().locator('[data-mark="wordmark"]'),
-    ).toHaveCount(1)
+    // No logo inside the page itself: the header carries it, the footer signs off.
+    await expect(page.locator('main [data-mark]')).toHaveCount(0)
+    await expect(page.getByRole('banner').locator('[data-mark]')).toHaveCount(2) // wordmark, symbol (one shown per tier)
+    await expect(page.getByRole('contentinfo').locator('[data-mark="wordmark"]')).toHaveCount(1)
+    // The hero's MG device: hairlines from the approved vector, decorative, on desktop only.
+    const device = page.locator('main section').first().locator('svg[aria-hidden="true"] path')
+    await expect(device).toHaveCount(1)
+    if (isMobile) await expect(device).toBeHidden()
+    else {
+      await expect(device).toBeVisible()
+      expect(await device.evaluate((el) => getComputedStyle(el).fill)).toBe('none')
+    }
   })
 
   test('capabilities carry quiet glyphs, and the close names what converges', async ({ page }) => {
@@ -498,7 +509,8 @@ test.describe('exploration and polish', () => {
     const contact = page.locator('[aria-labelledby="contact-title"]')
     for (const word of ['מוצר', 'מערכת', 'חוויה'])
       await expect(contact.getByText(word)).toBeVisible()
-    await expect(contact.getByRole('link')).toHaveCount(0)
+    // One action only: the project inquiry.
+    await expect(contact.getByRole('link')).toHaveCount(1)
   })
 })
 

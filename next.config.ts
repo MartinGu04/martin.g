@@ -1,5 +1,9 @@
 import type { NextConfig } from 'next'
 
+/** The Enable accessibility menu: its script's origin, and the vendor's hosts for its assets. */
+const ENABLE_SCRIPT_ORIGIN = 'https://cdn.enable.co.il'
+const ENABLE_ORIGINS = 'https://enable.co.il https://*.enable.co.il'
+
 const securityHeaders = [
   { key: 'X-Content-Type-Options', value: 'nosniff' },
   { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
@@ -11,16 +15,18 @@ const securityHeaders = [
   {
     // Static CSP (no nonces) so every page stays statically generated.
     // 'unsafe-inline' for scripts is required by Next's inline bootstrap without nonces.
-    // Launch hardening: review after Analytics and Contact (docs/ARCHITECTURE.md).
+    // The Enable accessibility menu (src/components/a11y/EnableWidget.tsx) loads its script
+    // from cdn.enable.co.il and its assets and requests from enable.co.il hosts.
+    // Launch hardening: review after Analytics (docs/ARCHITECTURE.md).
     key: 'Content-Security-Policy',
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline'",
-      "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: blob:",
+      `script-src 'self' 'unsafe-inline' ${ENABLE_SCRIPT_ORIGIN}`,
+      `style-src 'self' 'unsafe-inline' ${ENABLE_ORIGINS}`,
+      `img-src 'self' data: blob: ${ENABLE_ORIGINS}`,
       "media-src 'self'",
-      "font-src 'self'",
-      "connect-src 'self'",
+      `font-src 'self' data: ${ENABLE_ORIGINS}`,
+      `connect-src 'self' ${ENABLE_ORIGINS}`,
       "frame-ancestors 'none'",
       "form-action 'self'",
       "base-uri 'self'",

@@ -1,0 +1,456 @@
+@layer components {
+  /* Placed on the contact page's grid (src/app/[locale]/contact/page.module.css):
+     phones and tablets stack the invitation over the form; desktop sets them side by side,
+     the form the larger of the two. */
+  .intro,
+  .panel,
+  .success {
+    grid-column: 1 / -1;
+    min-inline-size: 0;
+  }
+
+  .intro {
+    display: grid;
+    gap: var(--space-4);
+    align-content: start;
+  }
+
+  .title {
+    max-inline-size: 11em;
+  }
+
+  .lead {
+    max-inline-size: var(--measure-lead);
+  }
+
+  @media (width >= 75rem) {
+    .intro {
+      grid-column: 1 / span 5;
+      position: sticky;
+      inset-block-start: calc(var(--header-block-size) + var(--space-8));
+      align-self: start;
+    }
+
+    .panel {
+      grid-column: 7 / -1;
+    }
+  }
+
+  /* The one visual idea: the amber thread that rested at the homepage's invitation leads
+     into the form, ending in its open square. Decorative; drawn once, without hiding
+     anything, and still with reduced motion. */
+  .panel {
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  .thread {
+    position: relative;
+    display: block;
+    block-size: 2px;
+    background: var(--accent);
+    transform-origin: left center;
+  }
+
+  :dir(rtl) .thread {
+    transform-origin: right center;
+  }
+
+  .thread::after {
+    content: '';
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-end: 0;
+    inline-size: 10px;
+    block-size: 10px;
+    translate: 0 -50%;
+    border: 2px solid var(--accent);
+    background: var(--surface-0);
+  }
+
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    .thread {
+      animation: contact-thread var(--dur-cinematic) var(--ease-mask) both;
+    }
+  }
+
+  @keyframes contact-thread {
+    from {
+      scale: 0 1;
+    }
+  }
+
+  .form {
+    display: grid;
+    gap: var(--space-7);
+  }
+
+  /* Two short fields side by side once there is room for both. */
+  .pair {
+    display: grid;
+    gap: var(--space-7) var(--space-5);
+  }
+
+  /* Phones: one column, so a tighter rhythm keeps the inquiry short. Fields stay clearly
+     apart (2rem, two thirds of the desktop gap); touch targets and type are unchanged. */
+  @media (width < 48rem) {
+    .panel {
+      gap: var(--space-5);
+    }
+
+    .form,
+    .pair {
+      gap: var(--space-6);
+    }
+  }
+
+  @media (width >= 48rem) {
+    .pair {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      /* The two controls share a baseline even when only one of them has a hint. */
+      align-items: end;
+    }
+  }
+
+  .field {
+    display: grid;
+    gap: var(--space-2);
+    min-inline-size: 0;
+  }
+
+  .label {
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .optional {
+    font-weight: 400;
+    color: var(--text-muted);
+  }
+
+  .hint {
+    max-inline-size: var(--measure-text);
+  }
+
+  /* Controls: a raised surface, a 3:1 boundary, no radius; the focus ring stays the
+     system's. Text is at least 16px, so phones never zoom into a field. */
+  .control {
+    inline-size: 100%;
+    min-block-size: 3rem;
+    padding-block: var(--space-3);
+    padding-inline: var(--space-4);
+    border: var(--hairline) solid var(--control-border);
+    border-radius: var(--radius-0);
+    background: var(--surface-1);
+    color: var(--text);
+    font-size: var(--body-size);
+    line-height: 1.4;
+    transition: border-color var(--dur-micro) var(--ease-out);
+  }
+
+  /* Placeholders show an example answer: muted (still above 4.5:1), never the label. */
+  .control::placeholder {
+    color: var(--text-muted);
+    opacity: 1;
+  }
+
+  /* An empty free-text field takes the page's direction, so a Hebrew example sits on the
+     right; once something is typed, dir="auto" follows what was written. */
+  :lang(he) .control[dir='auto']:placeholder-shown {
+    direction: rtl;
+  }
+
+  .area {
+    min-block-size: 11rem;
+    resize: block;
+    line-height: var(--body-leading);
+  }
+
+  /* Phones: about five lines to start with; it still grows by hand (resize). */
+  @media (width < 48rem) {
+    .area {
+      min-block-size: 8.5rem;
+      block-size: 8.5rem;
+    }
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .control:hover {
+      border-color: var(--text-muted);
+    }
+  }
+
+  .control:focus-visible {
+    border-color: var(--text);
+    outline-offset: 2px;
+  }
+
+  .control[aria-invalid='true'] {
+    border-color: var(--error);
+    border-inline-start-width: 4px;
+  }
+
+  /* A choice: real radio buttons, each a whole label large enough to touch. */
+  .choice {
+    display: grid;
+    gap: var(--space-3);
+    min-inline-size: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .legend {
+    padding: 0;
+    margin-block-end: var(--space-1);
+  }
+
+  .options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .option {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-block-size: 2.75rem;
+    padding-block: var(--space-2);
+    padding-inline: var(--space-2) var(--space-4);
+    border: var(--hairline) solid var(--control-border);
+    background: var(--surface-1);
+    color: var(--text);
+    cursor: pointer;
+    transition:
+      border-color var(--dur-micro) var(--ease-out),
+      background-color var(--dur-micro) var(--ease-out);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .option:hover {
+      border-color: var(--text-muted);
+    }
+  }
+
+  .option:has(:checked) {
+    border-color: var(--accent);
+  }
+
+  .option:has(:focus-visible) {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+
+  /* The input is a 24px target (WCAG 2.5.8 on its own, before its 44px label); the ring
+     drawn inside it stays 18px. */
+  .radio {
+    --ring: var(--control-border);
+    flex: none;
+    appearance: none;
+    display: grid;
+    place-content: center;
+    inline-size: 1.5rem;
+    block-size: 1.5rem;
+    margin: 0;
+    border: 0;
+    border-radius: 50%;
+    background: radial-gradient(
+      circle closest-side,
+      var(--surface-0) calc(100% - 4px),
+      var(--ring) calc(100% - 4px) calc(100% - 3px),
+      transparent calc(100% - 3px)
+    );
+  }
+
+  .radio::before {
+    content: '';
+    inline-size: 0.5rem;
+    block-size: 0.5rem;
+    border-radius: 50%;
+    background: var(--accent);
+    scale: 0;
+    transition: scale var(--dur-micro) var(--ease-out);
+  }
+
+  .radio:checked {
+    --ring: var(--accent);
+  }
+
+  .radio:checked::before {
+    scale: 1;
+  }
+
+  /* The focus ring is drawn on the whole option. */
+  .radio:focus-visible {
+    outline: none;
+  }
+
+  /* Errors never rely on color alone: a marked line of text, a thicker boundary. */
+  .error {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    color: var(--error);
+    font-weight: 600;
+  }
+
+  .errorMark {
+    flex: none;
+    inline-size: 0.5rem;
+    block-size: 0.5rem;
+    background: var(--error);
+    translate: 0 -0.1em;
+  }
+
+  .summary,
+  .banner {
+    display: grid;
+    gap: var(--space-3);
+    padding: var(--space-5);
+    border: var(--hairline) solid var(--line-strong);
+    border-inline-start: 4px solid var(--error);
+    background: var(--surface-1);
+  }
+
+  .summary:focus-visible,
+  .banner:focus-visible {
+    outline-offset: 4px;
+  }
+
+  .summaryTitle,
+  .bannerTitle {
+    font-weight: 600;
+  }
+
+  .summaryList {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .summaryList a {
+    color: var(--error);
+    text-decoration-line: underline;
+    text-decoration-thickness: var(--hairline);
+  }
+
+  .actions {
+    display: grid;
+    gap: var(--space-4);
+    justify-items: start;
+  }
+
+  /* The action: the amber the thread has carried since the homepage. */
+  .submit,
+  .back {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-4);
+    min-block-size: 3.5rem;
+    padding-inline: var(--space-6) var(--space-5);
+    border: 0;
+    border-radius: var(--radius-0);
+    background: var(--accent);
+    color: var(--surface-0);
+    cursor: pointer;
+    text-decoration-line: none;
+  }
+
+  .submit :global(svg),
+  .back :global(svg) {
+    transition: translate var(--dur-standard) var(--ease-out);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .submit:hover :global(svg),
+    .back:hover :global(svg) {
+      translate: calc(var(--space-1) * var(--dir)) 0;
+    }
+
+    .back:hover {
+      text-decoration-line: none;
+    }
+  }
+
+  .submit:focus-visible :global(svg),
+  .back:focus-visible :global(svg) {
+    translate: calc(var(--space-1) * var(--dir)) 0;
+  }
+
+  .back:focus-visible {
+    text-decoration-line: none;
+  }
+
+  .submit[aria-disabled='true'] {
+    cursor: progress;
+    opacity: 0.75;
+  }
+
+  .note {
+    max-inline-size: var(--measure-text);
+  }
+
+  .inline {
+    text-decoration-line: underline;
+    text-decoration-color: var(--line-strong);
+  }
+
+  /* The spam trap: out of sight, out of the tab order and the accessibility tree. It
+     holds no information, so hiding it with CSS hides nothing from anyone. */
+  .trap {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* Success: the answer in place of the form, set like the closing scene's invitation. */
+  .success {
+    display: grid;
+    gap: var(--space-5);
+    justify-items: start;
+    padding-block: var(--space-8) var(--space-10);
+  }
+
+  @media (width >= 75rem) {
+    .success {
+      grid-column: 1 / span 8;
+    }
+  }
+
+  .successTitle {
+    color: var(--text);
+  }
+
+  .successTitle:focus {
+    outline: none;
+  }
+
+  .successBody {
+    max-inline-size: var(--measure-lead);
+  }
+
+  .success .back {
+    margin-block-start: var(--space-4);
+  }
+
+  @media (forced-colors: active) {
+    .thread {
+      display: none;
+    }
+
+    .submit,
+    .back {
+      border: 2px solid ButtonText;
+    }
+
+    .radio {
+      border: 1px solid CanvasText;
+    }
+
+    .radio:checked::before {
+      background: Highlight;
+    }
+  }
+}

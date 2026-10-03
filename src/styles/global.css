@@ -1,5 +1,5 @@
 /* Layer order is declared once, before anything else. */
-@layer reset, tokens, base, layout, components, utilities;
+@layer reset, tokens, base, layout, components, utilities, vendor;
 
 @import './reset.css';
 @import './tokens.css';
@@ -8,3 +8,4 @@
 @import './typography.css';
 @import './layout.css';
 @import './motion.css';
+@import './vendor.css';

@@ -1,8 +1,11 @@
+import Link from 'next/link'
+import type { Route } from 'next'
 import type { HomeCopy } from '@/i18n/dictionaries/home'
 import { Grid } from '@/components/layout/Grid'
 import { Reveal } from '@/components/motion/Reveal'
 import { Scene } from '@/components/scene/Scene'
 import { thread, worlds } from '@/content/worlds'
+import { Arrow } from '@/components/type/Arrow'
 import { Convergence } from './Convergence'
 import styles from './ContactScene.module.css'
 
@@ -12,17 +15,19 @@ import styles from './ContactScene.module.css'
  * resolution of the page's visual language: product, system and experience arrive as three
  * strands in the colors of the worlds that showed them, meet, and continue as the one
  * amber thread toward the invitation, where it rests. No wordmark here: it belongs to the
- * header, the hero and the footer. The action itself (the contact flow) arrives with
- * Phase 6; until its destination exists no control is rendered, so there is never a dead
- * link.
+ * header, the hero and the footer. Under the invitation, its one action (Phase 6): the
+ * project inquiry, in the amber the thread resolves into.
  */
 export function ContactScene({
   copy,
   cycle,
+  action,
 }: {
   copy: HomeCopy['contact']
   /** Product, system, experience. */
   cycle: readonly string[]
+  /** The project inquiry: "Start a project". */
+  action: { label: string; href: Route }
 }) {
   const [product = '', system = '', experience = ''] = cycle
   return (
@@ -38,6 +43,12 @@ export function ContactScene({
           {copy.title}
         </Reveal>
         <p className={`t-heading-2 ${styles.line}`}>{copy.line}</p>
+        <p className={styles.action}>
+          <Link href={action.href} className={`t-action ${styles.cta}`}>
+            <span>{action.label}</span>
+            <Arrow />
+          </Link>
+        </p>
         <div className={styles.visual}>
           <Convergence
             strands={[

@@ -1,0 +1,54 @@
+@layer components {
+  /* Phones and tablets get the message alone (on a tablet the Hebrew statement spans the
+     frame, leaving the device only a fragment behind the text); it appears on desktop. */
+  .symbol {
+    display: none;
+  }
+
+  @media (width >= 75rem) {
+    .symbol {
+      position: absolute;
+      z-index: 0;
+      display: block;
+      inset-block-start: 50%;
+      /* Mostly beyond the text column, cropped by the frame's inline-end edge. */
+      inset-inline-end: calc(var(--margin) * -1 - 9vw);
+      inline-size: clamp(24rem, 46vw, 46rem);
+      block-size: auto;
+      translate: 0 -46%;
+      pointer-events: none;
+    }
+  }
+
+  .line {
+    fill: none;
+    stroke: color-mix(in srgb, var(--light) 30%, transparent);
+    stroke-width: 1px;
+    vector-effect: non-scaling-stroke;
+    stroke-linejoin: miter;
+  }
+
+  /* Drawn once, after the headline has arrived. Starts undrawn only when motion is welcome. */
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    .line {
+      stroke-dasharray: 1;
+      animation: hero-symbol-draw 2.8s var(--ease-mask) 1.4s backwards;
+    }
+  }
+
+  @keyframes hero-symbol-draw {
+    from {
+      stroke-dashoffset: 1;
+    }
+
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .symbol {
+      display: none;
+    }
+  }
+}

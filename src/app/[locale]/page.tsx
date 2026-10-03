@@ -3,6 +3,8 @@ import { isLocale } from '@/i18n/config'
 import { getDictionary } from '@/i18n/get-dictionary'
 import { homeCopy } from '@/i18n/dictionaries/home'
 import { showcaseCopy } from '@/i18n/dictionaries/showcase'
+import { contactCopy } from '@/i18n/dictionaries/contact'
+import { trustHref } from '@/lib/trust'
 import { capabilityProof, type Evidence } from '@/content/capabilities'
 import { getProjectSequence } from '@/content/registry'
 import { onMedia } from '@/content/projects/on'
@@ -111,7 +113,11 @@ export default async function HomePage({ params }: PageProps<'/[locale]'>) {
       <ProcessStage copy={copy.process} />
       <Capabilities copy={copy.capabilities} items={capabilities} />
       <AboutScene copy={copy.about} marks={showcase.aboutMarks} locale={locale} />
-      <ContactScene copy={copy.contact} cycle={showcase.contactCycle} />
+      <ContactScene
+        copy={copy.contact}
+        cycle={showcase.contactCycle}
+        action={{ label: contactCopy[locale].cta, href: trustHref(locale, 'contact') }}
+      />
     </>
   )
 }

@@ -8,54 +8,47 @@
     --scene-align: stretch;
   }
 
+  /* Byline at the top; the proposition and the principle held at the optical center of
+     what remains (a little more space below them than above); the scroll cue at the foot. */
   .grid {
-    grid-template-rows: auto auto minmax(0, 0.85fr) auto auto minmax(0, 1.15fr) auto;
+    position: relative;
+    z-index: 1;
+    grid-template-rows: auto minmax(0, 0.85fr) auto auto minmax(0, 1.15fr) auto;
     row-gap: var(--space-5);
   }
 
-  .title {
-    grid-column: 1 / -1;
-    grid-row: 1;
-    inline-size: clamp(14rem, 26vw, 24rem);
-    line-height: 0;
-    color: var(--text);
-  }
-
-  .mark {
-    display: block;
-  }
-
-  /* Martin Gusin, Product Builder: readable at once, a signature beside the mark. */
+  /* Martin Gusin, Product Builder: a quiet byline where reading starts, not a second logo. */
   .identity {
     grid-column: 1 / -1;
-    grid-row: 2;
+    grid-row: 1;
     display: grid;
+    justify-items: start;
     gap: var(--space-1);
   }
 
-  /* The name a quarter above heading 3: clearly the person, still below mark and principle. */
   .name {
-    --heading-3-size: calc(var(--step-2) * 1.25);
+    --heading-3-size: calc(var(--step-2) * 1.1);
   }
 
   .positioning {
     grid-column: 1 / -1;
-    grid-row: 4;
+    grid-row: 3;
     max-inline-size: 14em;
   }
 
-  /* The peak, but no longer the whole frame: about 70% of the previous hero scale. */
+  /* The peak and the page's h1. */
   .statement {
     --display-xl-size: clamp(2.75rem, 0.9rem + 7.4vw, 8.75rem);
     grid-column: 1 / -1;
-    grid-row: 5;
+    grid-row: 4;
     margin-block-start: var(--space-4);
+    max-inline-size: 10em;
     text-wrap: balance;
   }
 
   .cue {
     grid-column: 1 / -1;
-    grid-row: 7;
+    grid-row: 6;
     display: flex;
     align-items: center;
     gap: var(--space-3);
@@ -72,31 +65,41 @@
     background: linear-gradient(to left, var(--text), transparent);
   }
 
+  /*
+   * Hebrew, composed for itself rather than mirrored: the principle is two words (less than
+   * half the English length), so it sets larger and carries the frame's width; the
+   * positioning gets a wider measure so it breaks after the comma, not before its last word.
+   */
+  :lang(he) .statement {
+    --display-xl-size: clamp(3.5rem, 1.2rem + 10vw, 11.5rem);
+    max-inline-size: none;
+  }
+
+  :lang(he) .positioning {
+    max-inline-size: 17em;
+  }
+
   @media (width >= 48rem) {
     .grid {
       row-gap: var(--space-6);
     }
 
-    .identity {
-      grid-column: 6 / -1;
-      grid-row: 1;
-      align-self: center;
-      justify-self: end;
-      text-align: end;
+    .positioning {
+      grid-column: 1 / span 7;
     }
 
     .cue {
-      grid-column: 5 / span 4;
+      grid-column: 1 / span 4;
     }
   }
 
   @media (width >= 75rem) {
-    .identity {
-      grid-column: 9 / span 4;
+    .positioning {
+      grid-column: 1 / span 8;
     }
 
     .cue {
-      grid-column: 8 / span 5;
+      grid-column: 1 / span 5;
     }
   }
 
@@ -110,12 +113,8 @@
       animation: hero-fade 1.6s var(--ease-out) backwards;
     }
 
-    .mark {
-      animation: hero-mark 1.2s var(--ease-out) backwards;
-    }
-
     .identity {
-      animation: hero-rise 0.9s var(--ease-mask) 0.35s backwards;
+      animation: hero-rise 0.9s var(--ease-mask) 0.2s backwards;
     }
 
     .positioning {
@@ -134,14 +133,6 @@
   @keyframes hero-fade {
     from {
       opacity: 0;
-    }
-  }
-
-  @keyframes hero-mark {
-    from {
-      opacity: 0;
-      scale: 0.97;
-      filter: blur(4px);
     }
   }
 

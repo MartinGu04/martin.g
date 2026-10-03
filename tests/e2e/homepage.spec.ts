@@ -18,15 +18,16 @@ const headerBackground = (page: Page) =>
 test.describe('homepage scenes', () => {
   test('identity is in the first viewport, without scrolling', async ({ page }) => {
     await page.goto('/en')
-    const hero = page.getByRole('region', { name: 'MARTIN.G' })
+    const hero = page.getByRole('region', { name: /^MARTIN\.G/ })
     for (const text of [
       'Martin Gusin',
       'Product Builder',
       'Digital products, systems & experiences.',
-      'From problem to product.',
     ]) {
       await expect(hero.getByText(text, { exact: true }).first()).toBeInViewport()
     }
+    await expect(hero.getByRole('heading', { level: 1 })).toContainText('From problem to product.')
+    await expect(hero.getByRole('heading', { level: 1 })).toBeInViewport()
   })
 
   test('the work is reached quickly and its index leads to real scenes', async ({ page }) => {
@@ -61,6 +62,34 @@ test.describe('homepage scenes', () => {
     await expect.poll(() => headerBackground(page)).toBe('rgb(11, 18, 28)')
     await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }))
     await expect.poll(() => headerBackground(page)).toBe('rgb(6, 6, 6)')
+  })
+
+  test('a page that opens in a light world takes it at once, without fading from dark', async ({
+    page,
+  }) => {
+    // Records the header's state at the moment it first takes on a world.
+    await page.addInitScript(() => {
+      const w = window as unknown as { __firstWorld?: { instant: boolean } }
+      new MutationObserver((records, observer) => {
+        for (const record of records) {
+          const el = record.target as HTMLElement
+          if (record.attributeName === 'data-world-scheme' && el.dataset.worldScheme) {
+            w.__firstWorld = { instant: el.hasAttribute('data-world-instant') }
+            observer.disconnect()
+          }
+        }
+      }).observe(document, { attributes: true, subtree: true })
+    })
+    for (const url of ['/en/privacy', '/he/accessibility']) {
+      await page.goto(url)
+      await expect.poll(() => headerBackground(page)).toBe('rgb(235, 232, 225)')
+      const first = await page.evaluate(
+        () => (window as unknown as { __firstWorld?: { instant: boolean } }).__firstWorld,
+      )
+      expect(first, url).toEqual({ instant: true })
+      // Crossfades return for the scroll that follows.
+      await expect(page.getByRole('banner')).not.toHaveAttribute('data-world-instant')
+    }
   })
 
   test('stages are static compositions with reduced motion', async ({ browser }) => {
@@ -138,10 +167,26 @@ test.describe('homepage scenes', () => {
     }
   })
 
-  test('the closing scene renders no dead contact link', async ({ page }) => {
-    await page.goto('/en')
-    const contact = page.getByRole('region', { name: 'Have a problem worth solving?' })
-    await expect(contact).toHaveCount(1)
-    await expect(contact.getByRole('link')).toHaveCount(0)
+  test('the closing scene has one action, and it leads to the project inquiry', async ({
+    page,
+  }) => {
+    for (const [locale, region, label] of [
+      ['en', 'Have a problem worth solving?', 'Start a project'],
+      ['he', 'יש בעיה ששווה לפתור?', 'מתחילים פרויקט'],
+    ] as const) {
+      await page.goto(`/${locale}`)
+      const contact = page.getByRole('region', { name: region })
+      await expect(contact).toHaveCount(1)
+      await expect(contact.getByRole('link')).toHaveCount(1)
+      const action = contact.getByRole('link', { name: label })
+      await expect(action).toHaveAttribute('href', `/${locale}/contact`)
+      await action.scrollIntoViewIfNeeded()
+      await expect(action).toBeVisible()
+      const box = (await action.boundingBox())!
+      expect(box.height).toBeGreaterThanOrEqual(44)
+      await action.click()
+      await expect(page).toHaveURL(new RegExp(`/${locale}/contact$`))
+      await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+    }
   })
 })

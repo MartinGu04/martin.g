@@ -12,6 +12,10 @@ const localePages = [
   '/he/system',
   '/en/system/scenes',
   '/he/system/scenes',
+  '/en/privacy',
+  '/he/privacy',
+  '/en/accessibility',
+  '/he/accessibility',
 ]
 
 async function horizontalOverflow(page: Page) {
@@ -19,8 +23,9 @@ async function horizontalOverflow(page: Page) {
 }
 
 test.describe('brand marks', () => {
+  // The desktop header sets the wordmark 18px tall, above its minimum at every density.
   for (const [dpr, minHeight] of [
-    [1, 32],
+    [1, 18],
     [2, 18],
   ] as const) {
     test(`header wordmark stays legible at ${dpr}x`, async ({ browser, isMobile }) => {
@@ -34,8 +39,8 @@ test.describe('brand marks', () => {
         await page.goto('/en')
         const box = await page.getByRole('banner').locator('[data-mark="wordmark"]').boundingBox()
         expect(box!.height).toBeGreaterThanOrEqual(minHeight - 0.5)
-        // Proportions come from the asset: 1335 x 228.
-        expect(box!.width / box!.height).toBeCloseTo(1335 / 228, 1)
+        // Proportions come from the approved asset: 1090 x 103.
+        expect(box!.width / box!.height).toBeCloseTo(1090 / 103, 1)
       } finally {
         await context.close()
       }
@@ -52,9 +57,79 @@ test.describe('brand marks', () => {
         .evaluateAll((els) =>
           els.map((el) => el.getBoundingClientRect().height).filter((h) => h > 0),
         )
-      expect(Math.min(...heights)).toBeGreaterThanOrEqual(31.5)
+      // The specimen asks for 8px; the wordmark's minimum at 1x is 14px.
+      expect(Math.min(...heights)).toBeGreaterThanOrEqual(13.5)
     } finally {
       await context.close()
+    }
+  })
+
+  test('narrow phones keep one row: every destination legible and clear of the symbol', async ({
+    browser,
+  }) => {
+    // 390 and 360: both language codes (the Latin labels tighten below 390). Under 360,
+    // including 400% zoom: the header shows only the language to switch to. Always one
+    // sticky row, never a drawer, an overlap or a wrapped label.
+    for (const [width, dpr, codes] of [
+      [390, 2, 2],
+      [360, 2, 2],
+      [320, 2, 1],
+      [320, 4, 1],
+    ] as const) {
+      const context = await browser.newContext({
+        viewport: { width, height: 640 },
+        deviceScaleFactor: dpr,
+      })
+      try {
+        const page = await context.newPage()
+        for (const [url, other] of [
+          ['/en', 'HE'],
+          ['/he', 'EN'],
+        ] as const) {
+          await openForLayout(page, url)
+          const header = page.getByRole('banner')
+          expect(await header.evaluate((el) => getComputedStyle(el).position)).toBe('sticky')
+          const mark = (await header.locator('[data-mark="monogram"]').boundingBox())!
+          const group = header.getByRole('group')
+          const visibleCodes = group.locator('a:visible')
+          await expect(visibleCodes).toHaveCount(codes)
+          if (codes === 1) {
+            await expect(visibleCodes).toHaveAttribute('hreflang', other.toLowerCase())
+            await expect(group).toHaveAccessibleName(
+              url === '/en' ? 'Switch language' : 'החלפת שפה',
+            )
+          }
+          const boxes = await header
+            .getByRole('navigation')
+            .locator('a:visible')
+            .evaluateAll((els) =>
+              els.map((el) => {
+                const r = el.getBoundingClientRect()
+                return {
+                  left: r.left,
+                  right: r.right,
+                  top: r.top,
+                  bottom: r.bottom,
+                  lines: el.getClientRects().length,
+                }
+              }),
+            )
+          expect(boxes).toHaveLength(3 + codes)
+          const clear = mark.height * 0.25
+          for (const box of boxes) {
+            const where = `${url} at ${width}@${dpr}x`
+            expect(box.lines, where).toBe(1)
+            expect(box.bottom - box.top, where).toBeGreaterThanOrEqual(44)
+            expect(box.top < mark.y + mark.height && box.bottom > mark.y, where).toBe(true)
+            if (url === '/en')
+              expect(box.left - (mark.x + mark.width), where).toBeGreaterThanOrEqual(clear)
+            else expect(mark.x - box.right, where).toBeGreaterThanOrEqual(clear)
+          }
+          expect(await horizontalOverflow(page), `${url} at ${width}`).toBeLessThanOrEqual(0)
+        }
+      } finally {
+        await context.close()
+      }
     }
   })
 
@@ -63,7 +138,7 @@ test.describe('brand marks', () => {
     await page.goto('/en')
     const header = await page.getByRole('banner').boundingBox()
     const mark = await page.getByRole('banner').locator('[data-mark="wordmark"]').boundingBox()
-    const nav = await page.getByRole('navigation').boundingBox()
+    const nav = await page.getByRole('banner').getByRole('navigation').boundingBox()
     const clear = mark!.height * 0.5
     expect(mark!.y - header!.y).toBeGreaterThanOrEqual(clear)
     expect(header!.y + header!.height - (mark!.y + mark!.height)).toBeGreaterThanOrEqual(clear)
@@ -74,9 +149,10 @@ test.describe('brand marks', () => {
     await page.emulateMedia({ forcedColors: 'active' })
     await page.goto('/en')
     const colors = await page
-      .locator('main [data-mark="wordmark"]')
+      .locator('[data-mark]:visible')
       .evaluateAll((els) => els.map((el) => getComputedStyle(el).backgroundColor))
-    expect(colors.length).toBeGreaterThan(0)
+    // The header's mark (wordmark or, on phones, the symbol) and the footer's wordmark.
+    expect(colors.length).toBeGreaterThanOrEqual(2)
     expect(colors).not.toContain('rgba(0, 0, 0, 0)')
   })
 })
@@ -100,10 +176,71 @@ test.describe('navigation', () => {
     }
   })
 
-  test('the header offers no About or Contact destination yet', async ({ page }) => {
-    await page.goto('/en')
-    const nav = page.getByRole('navigation')
-    await expect(nav.getByRole('link', { name: /about|contact/i })).toHaveCount(0)
+  test('the header offers the work, About and the project inquiry, in that order', async ({
+    page,
+  }) => {
+    for (const [locale, names] of [
+      ['en', ['Work', 'About', 'Contact', 'EN English', 'HE עברית']],
+      ['he', ['עבודות', 'אודות', 'יצירת קשר', 'EN English', 'HE עברית']],
+    ] as const) {
+      await page.goto(`/${locale}`)
+      const links = page.getByRole('banner').getByRole('navigation').getByRole('link')
+      await expect(links).toHaveText([...names])
+      expect(
+        await links.evaluateAll((els) => els.slice(0, 3).map((a) => a.getAttribute('href'))),
+      ).toEqual([`/${locale}#work`, `/${locale}#about`, `/${locale}/contact`])
+      // About is the homepage's About scene, never a page of its own.
+      await expect(page.locator('#about[aria-labelledby="about-title"]')).toHaveCount(1)
+    }
+  })
+
+  test('About leads to the About scene from the homepage and from every other page', async ({
+    page,
+  }) => {
+    for (const [from, label] of [
+      ['/en', 'About'],
+      ['/he', 'אודות'],
+      ['/en/contact', 'About'],
+      ['/he/privacy', 'אודות'],
+      ['/en/accessibility', 'About'],
+      ['/he/work/on', 'אודות'],
+      ['/en/work/mi-ma-mo', 'About'],
+    ] as const) {
+      await page.goto(from)
+      await page.getByRole('banner').getByRole('link', { name: label, exact: true }).click()
+      await expect(page).toHaveURL(new RegExp(`/${from.slice(1, 3)}#about$`))
+      const title = page.locator('#about-title')
+      await expect(title).toBeInViewport()
+      // Below the sticky header, not under it.
+      await expect
+        .poll(async () => {
+          const header = (await page.getByRole('banner').boundingBox())!
+          const scene = (await page.locator('#about').boundingBox())!
+          return Math.round(scene.y) >= Math.round(header.y + header.height) - 1
+        })
+        .toBe(true)
+    }
+  })
+
+  test('About is reached and followed with the keyboard, with reduced motion too', async ({
+    browser,
+    isMobile,
+  }) => {
+    test.skip(isMobile, 'keyboard navigation')
+    const context = await browser.newContext({ reducedMotion: 'reduce' })
+    try {
+      const page = await context.newPage()
+      await page.goto('/he/contact')
+      const about = page.getByRole('banner').getByRole('link', { name: 'אודות', exact: true })
+      await about.focus()
+      await expect(about).toBeFocused()
+      await page.keyboard.press('Enter')
+      await expect(page).toHaveURL(/\/he#about$/)
+      await expect(page.locator('#about-title')).toBeInViewport()
+      await expect(page.locator('[data-reveal]:not([data-revealed])')).toHaveCount(0)
+    } finally {
+      await context.close()
+    }
   })
 
   test('the language switch marks the current language', async ({ page }) => {
@@ -135,8 +272,8 @@ test.describe('navigation', () => {
       'דילוג לתוכן',
       'MARTIN.G, דף הבית',
       'עבודות',
-      'EN English',
-      'HE עברית',
+      'אודות',
+      'יצירת קשר',
     ])
   })
 })
@@ -240,7 +377,15 @@ test.describe('responsive and zoom', () => {
       })
       try {
         const page = await context.newPage()
-        for (const url of ['/en', '/he', '/en/work/on', '/he/work/mi-ma-mo', '/he/system']) {
+        for (const url of [
+          '/en',
+          '/he',
+          '/en/work/on',
+          '/he/work/mi-ma-mo',
+          '/he/system',
+          '/en/privacy',
+          '/he/accessibility',
+        ]) {
           await openForLayout(page, url)
           expect(await horizontalOverflow(page), `${url} at ${label}`).toBeLessThanOrEqual(0)
           await expect(page.getByRole('heading', { level: 1 })).toBeVisible()

@@ -6,6 +6,9 @@ import { homeReview } from './dictionaries/home'
 import { showcaseReview } from './dictionaries/showcase'
 import { caseOnReview } from './dictionaries/case-on'
 import { caseMiMaMoReview } from './dictionaries/case-mi-ma-mo'
+import { contactReview } from './dictionaries/contact'
+import { privacyReview } from './dictionaries/privacy'
+import { accessibilityReview } from './dictionaries/accessibility'
 import { getAllProjectsForChecks } from '@/content/registry'
 
 /** Lists every piece of copy still marked 'draft'. */
@@ -18,6 +21,9 @@ export function findDraftCopy(): string[] {
     if (showcaseReview[locale] === 'draft') drafts.push(`showcase:${locale}`)
     if (caseOnReview[locale] === 'draft') drafts.push(`case-study:on:${locale}`)
     if (caseMiMaMoReview[locale] === 'draft') drafts.push(`case-study:mi-ma-mo:${locale}`)
+    if (contactReview[locale] === 'draft') drafts.push(`contact:${locale}`)
+    if (privacyReview[locale] === 'draft') drafts.push(`privacy:${locale}`)
+    if (accessibilityReview[locale] === 'draft') drafts.push(`accessibility:${locale}`)
   }
   for (const project of getAllProjectsForChecks()) {
     if (project.status !== 'published') continue

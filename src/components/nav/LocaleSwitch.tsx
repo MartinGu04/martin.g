@@ -9,6 +9,11 @@ interface LocaleSwitchProps {
   /** Accessible group label, e.g. "Switch language". */
   label: string
   className?: string
+  /**
+   * On the narrowest screens (under 360px) show only the language to switch to: the page is
+   * already in the other one. Used by the header; the footer always shows both.
+   */
+  compact?: boolean
 }
 
 /**
@@ -17,9 +22,10 @@ interface LocaleSwitchProps {
  * with JS the choice is remembered in a cookie that the proxy reads for unprefixed URLs.
  *
  * Accessible names start with the visible code (WCAG 2.5.3) and add the language's own
- * name, marked with its language: "EN English", "HE עברית".
+ * name, marked with its language: "EN English", "HE עברית". In the header on screens under
+ * 360px (`compact`) only the other language's code is shown.
  */
-export function LocaleSwitch({ current, label, className }: LocaleSwitchProps) {
+export function LocaleSwitch({ current, label, className, compact }: LocaleSwitchProps) {
   const pathname = usePathname() ?? `/${current}`
   const hrefFor = (target: Locale) =>
     pathname.replace(new RegExp(`^/${current}(?=/|$)`), `/${target}`)
@@ -28,7 +34,9 @@ export function LocaleSwitch({ current, label, className }: LocaleSwitchProps) {
     <span
       role="group"
       aria-label={label}
-      className={[styles.switch, className].filter(Boolean).join(' ')}
+      className={[styles.switch, compact ? styles.compact : '', className]
+        .filter(Boolean)
+        .join(' ')}
     >
       {locales.map((target, i) => (
         <span key={target} className={styles.item}>

@@ -22,6 +22,8 @@
     --mg-line-strong: rgb(255 255 255 / 0.2);
     /* >= 3:1 on both surfaces: form borders and other UI boundaries (WCAG 1.4.11). */
     --mg-control: #6b6b6b;
+    /* Form errors on the dark registers (>= 4.5:1 on graphite, tested); never color alone. */
+    --mg-alert: #ffa38f;
 
     /* ---------------------------------------------------------------- */
     /* Semantic color tokens. ThemeScope overrides exactly these.       */
@@ -36,6 +38,7 @@
     --accent: var(--mg-bone);
     --accent-2: var(--mg-bone);
     --control-border: var(--mg-control);
+    --error: var(--mg-alert);
     --focus-ring: var(--text);
     --selection-bg: var(--text);
     --selection-text: var(--surface-0);

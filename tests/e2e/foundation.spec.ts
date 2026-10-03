@@ -11,6 +11,10 @@ const pages = [
   '/he/system',
   '/en/system/scenes',
   '/he/system/scenes',
+  '/en/privacy',
+  '/he/privacy',
+  '/en/accessibility',
+  '/he/accessibility',
 ]
 
 test.describe('locale routing', () => {
@@ -50,6 +54,9 @@ test.describe('locale routing', () => {
       ['/en/work/on', 'en'],
       ['/he/work/mi-ma-mo', 'he'],
       ['/en/work/mi-ma-mo', 'en'],
+      ['/he/contact', 'he'],
+      ['/en/privacy', 'en'],
+      ['/he/accessibility', 'he'],
     ] as const
     for (const [path, lang] of routes) {
       const direct = await page.request.get(path, { maxRedirects: 0 })
@@ -138,11 +145,53 @@ test.describe('locale routing', () => {
     )
   })
 
-  test('unknown pages return 404', async ({ page }) => {
-    for (const url of ['/en/work/does-not-exist', '/en/nothing-here']) {
-      const response = await page.goto(url)
-      expect(response?.status()).toBe(404)
+  test('unknown pages return 404 in their own language, complete without JavaScript', async ({
+    browser,
+  }) => {
+    const cases = [
+      { url: '/en/work/does-not-exist', lang: 'en', title: 'Page not found' },
+      { url: '/en/nothing-here', lang: 'en', title: 'Page not found' },
+      { url: '/he/work/does-not-exist', lang: 'he', title: 'העמוד לא נמצא' },
+      { url: '/he/nothing/here', lang: 'he', title: 'העמוד לא נמצא' },
+    ]
+    for (const javaScriptEnabled of [true, false]) {
+      const context = await browser.newContext({ javaScriptEnabled })
+      try {
+        const page = await context.newPage()
+        for (const { url, lang, title } of cases) {
+          const response = await page.goto(url)
+          expect(response?.status(), url).toBe(404)
+          await expect(page.locator('html')).toHaveAttribute('lang', lang)
+          await expect(page.locator('html')).toHaveAttribute('dir', lang === 'he' ? 'rtl' : 'ltr')
+          await expect(page.getByRole('heading', { level: 1 })).toHaveText(title)
+          // Inside the site: its header (with the brand) and footer, in the same language.
+          await expect(page.getByRole('banner').locator('[data-mark]').first()).toBeAttached()
+          await expect(page.getByRole('contentinfo')).toBeVisible()
+          await expect(
+            page.getByRole('link', {
+              name: title === 'Page not found' ? 'Back to the homepage' : 'חזרה לדף הבית',
+            }),
+          ).toHaveAttribute('href', `/${lang}`)
+        }
+      } finally {
+        await context.close()
+      }
     }
+  })
+
+  test('URLs outside any locale get the bilingual 404, signed with the wordmark', async ({
+    page,
+  }) => {
+    const response = await page.goto('/xx/missing.html')
+    expect(response?.status()).toBe(404)
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en')
+    await expect(page.getByRole('heading', { name: 'העמוד לא נמצא' })).toBeVisible()
+    // The wordmark leads home; the copy sits clear of it.
+    const home = page.getByRole('link', { name: 'MARTIN.G' })
+    await expect(home).toBeVisible()
+    const mark = await home.boundingBox()
+    const title = await page.getByRole('heading', { level: 1 }).boundingBox()
+    expect(title!.y).toBeGreaterThan(mark!.y + mark!.height + 48)
   })
 })
 
@@ -239,13 +288,25 @@ test.describe('accessibility foundation', () => {
       await expect(page.getByRole('banner')).toHaveCount(1)
       await expect(page.getByRole('main')).toHaveCount(1)
       await expect(page.getByRole('contentinfo')).toHaveCount(1)
-      await expect(page.getByRole('navigation')).toHaveCount(1)
+      // The header's primary navigation and the footer's.
+      await expect(page.getByRole('navigation')).toHaveCount(2)
     }
   })
 
-  test('the hero heading exposes the brand name as text', async ({ page }) => {
-    await page.goto('/he')
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText('MARTIN.G')
+  test('the hero heading is the visible headline, introduced by the brand name', async ({
+    page,
+  }) => {
+    for (const [url, principle] of [
+      ['/he', 'מבעיה למוצר.'],
+      ['/en', 'From problem to product.'],
+    ] as const) {
+      await page.goto(url)
+      const h1 = page.getByRole('heading', { level: 1 })
+      await expect(h1).toHaveAccessibleName(`MARTIN.G: ${principle}`)
+      await expect(h1).toBeVisible()
+      // The hero no longer repeats the wordmark: the header carries it.
+      await expect(page.locator('main [data-mark]')).toHaveCount(0)
+    }
   })
 
   test('content is visible without JavaScript', async ({ browser }) => {
@@ -319,9 +380,24 @@ test.describe('brand and layout', () => {
   })
 
   test('serves icons and security headers', async ({ request }) => {
-    for (const url of ['/icon.png', '/apple-icon.png', '/favicon.ico']) {
-      expect((await request.get(url)).status()).toBe(200)
+    for (const url of [
+      '/icon.png',
+      '/icon.svg',
+      '/apple-icon.png',
+      '/favicon.ico',
+      '/icons/icon-192.png',
+      '/icons/icon-512.png',
+      '/icons/maskable-512.png',
+    ]) {
+      expect((await request.get(url)).status(), url).toBe(200)
     }
+    const manifest = await (await request.get('/manifest.webmanifest')).json()
+    expect(manifest).toMatchObject({ name: 'MARTIN.G', short_name: 'MARTIN.G' })
+    expect(manifest.icons.map((i: { purpose: string }) => i.purpose)).toEqual([
+      'any',
+      'any',
+      'maskable',
+    ])
     const response = await request.get('/en')
     expect(response.headers()['x-content-type-options']).toBe('nosniff')
     expect(response.headers()['content-security-policy']).toContain("frame-ancestors 'none'")

@@ -22,6 +22,51 @@
     text-wrap: balance;
   }
 
+  .action {
+    grid-column: 1 / -1;
+    margin-block-start: var(--space-4);
+  }
+
+  /* The one action: amber, where the thread comes to rest. */
+  .cta {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-4);
+    min-block-size: 3.5rem;
+    padding-inline: var(--space-6) var(--space-5);
+    background: var(--accent);
+    color: var(--surface-0);
+    text-decoration-line: none;
+  }
+
+  .cta svg {
+    transition: translate var(--dur-standard) var(--ease-out);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .cta:hover {
+      text-decoration-line: none;
+    }
+
+    .cta:hover svg {
+      translate: calc(var(--space-1) * var(--dir)) 0;
+    }
+  }
+
+  .cta:focus-visible {
+    text-decoration-line: none;
+  }
+
+  .cta:focus-visible svg {
+    translate: calc(var(--space-1) * var(--dir)) 0;
+  }
+
+  @media (forced-colors: active) {
+    .cta {
+      border: 2px solid ButtonText;
+    }
+  }
+
   .visual {
     grid-column: 1 / -1;
     margin-block-start: var(--space-6);
@@ -48,9 +93,15 @@
       align-self: start;
     }
 
+    .action {
+      grid-column: 1 / span 6;
+      grid-row: 3;
+      align-self: start;
+    }
+
     .visual {
       grid-column: 7 / -1;
-      grid-row: 1 / span 2;
+      grid-row: 1 / span 3;
       margin-block-start: 0;
     }
   }

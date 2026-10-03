@@ -47,8 +47,10 @@ Composition: `src/app/[locale]/page.tsx`; scenes: `src/components/home/`.
 | 09  | Contact                               | strong close    | graphite, amber        | cut       |           |
 
 The hero is one frame with three timed beats (about two seconds in all, masks that fill
-backwards only): the wordmark then Martin Gusin, Product Builder; the positioning; the
-principle. Nothing requires scrolling.
+backwards only): Martin Gusin, Product Builder; the positioning; the principle. On
+desktop the MG symbol is drawn once behind them as a single hairline outline, cropped
+past the inline end (on the left in Hebrew; the symbol itself is never mirrored). Nothing
+requires scrolling.
 
 Heights reduced in 4.5: How I Work (from a viewport plus 140svh of sticky stage to its
 compact content), Contact (no longer a full frame), ON, Defense Systems, Capabilities and
@@ -78,8 +80,8 @@ is echoed in each world's own language: the process rule (a scan), the capabilit
 evidence rule under each capability. In Contact it resolves (see Contact below). The hero's
 one ambient layer is its directional light, drifting very slowly (40s, alternate).
 
-The full MARTIN.G wordmark appears only in the header, the hero and the footer (4.7); no
-interior scene uses it as decoration.
+The full MARTIN.G wordmark appears only in the header and the footer (4.7, brand polish);
+the hero names Martin in type, and no interior scene uses a brand mark as decoration.
 
 ## Depth and texture (4.8)
 
@@ -219,6 +221,7 @@ worth using.` / `בואו נבנה משהו ששווה להשתמש בו.` (4.8)
   (המחלבה's amber, Defense steel, ON's gold), meet at one node and continue as the one
   amber thread toward the invitation, ending in the open square. The strands draw in once;
   while the visitor stays a short pulse travels along each, very slowly. No wordmark.
+  Under the invitation its one action (Phase 6): `Start a project`, amber, with the arrow.
 - **Exploring a project** (ON, המחלבה): the explicit `View project` link stays visible on
   every device. On a fine pointer the main proof frame also leads to the project page and a
   quiet `Explore project` chip rises in its corner on hover, or while the scene's project
@@ -232,7 +235,8 @@ and Hebrew names right to left (with `lang="he"` on English pages).
 
 ## Header
 
-The header stays sticky and minimal (wordmark or MG, Work, EN / HE). `HeaderWorld` watches a
+The header stays sticky and minimal (wordmark or MG symbol, Work, About, Contact, EN / HE;
+one row at every width, under 360px only the other language's code). `HeaderWorld` watches a
 one-pixel band along the header's lower edge; the scene crossing it lends the header its
 semantic colors, crossfaded over `--dur-standard` (instant with reduced motion). Every world
 is contrast-validated, so the header is readable over every register and world. Without
@@ -274,7 +278,8 @@ the product's own interface is right to left. Project names and numerals stay is
   full opacity; only their decorative echoes (the process frame, the rail, the contact
   words) move, and those are hidden from assistive technology.
 - Grain is the world's ink through a noise mask, never a blend mode.
-- The contact action is not rendered until its destination exists (Phase 6).
+- The contact action (Phase 6) is the one solid control on the page: `Start a project` /
+  `מתחילים פרויקט`, amber where the thread comes to rest, leading to `/[locale]/contact`.
 
 ## Copy
 

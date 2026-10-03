@@ -6,6 +6,12 @@ export const defaultLocale: Locale = 'he'
 
 export const localeCookie = 'NEXT_LOCALE'
 
+/**
+ * Request header the proxy sets on locale-prefixed URLs, so the not-found page (which has
+ * no route params) can answer a missing /en or /he address in that language.
+ */
+export const localeHeader = 'x-mg-locale'
+
 export type Direction = 'ltr' | 'rtl'
 
 export const localeMeta = {

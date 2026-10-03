@@ -1,0 +1,17 @@
+@layer components {
+  .scene {
+    --scene-pad-start: var(--section-space-sm);
+    --scene-pad-end: var(--section-space);
+  }
+
+  .grid {
+    row-gap: var(--space-8);
+  }
+
+  /* Phones: the invitation and the form read as one short page. */
+  @media (width < 48rem) {
+    .grid {
+      row-gap: var(--space-7);
+    }
+  }
+}

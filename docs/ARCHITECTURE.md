@@ -6,7 +6,10 @@ decision changes.
 ## Principles
 
 - Statically generated. Server Components by default; client components only for
-  interaction or motion (today: `LocaleSwitch`, the locale not-found boundary).
+  interaction or motion (today: `LocaleSwitch`; the locale not-found boundary;
+  `ContactExperience`, the inquiry form's in-place validation, sending and outcome over its
+  server action; `PreviewVideo`, the preview player's own play and pause control; and
+  `MotionController` and `HeaderWorld`, observers that render nothing).
 - Content is typed TypeScript, loaded on the server, flattened to one locale before it
   reaches components. A page never carries the other locale's copy.
 - English (LTR) and Hebrew (RTL) are equal from day one.
@@ -19,21 +22,26 @@ decision changes.
 src/
   proxy.ts                 locale negotiation for unprefixed URLs (Next 16 "proxy")
   app/
-    [locale]/              root layout: <html lang dir>; home; work/[slug]; not-found
-    global-not-found.tsx   URLs outside any locale
-    sitemap.ts robots.ts icon.png apple-icon.png favicon.ico
+    [locale]/              root layout: <html lang dir>; home; work/[slug]; contact; privacy;
+                           accessibility; not-found
+    global-not-found.tsx   every 404, server-rendered: in the URL's locale, else bilingual
+    sitemap.ts robots.ts manifest.ts icon.svg icon.png apple-icon.png favicon.ico
   i18n/                    config, negotiation, dictionaries, release gate
   content/                 schema, registry (server-only), resolve (view models), projects/
   components/              brand, layout (grid, rule, header, footer), nav, type, theme, media,
                            motion, project, home, scene, case-study (shared primitives and
-                           one composition per case study, e.g. case-study/on)
+                           one composition per case study, e.g. case-study/on), contact,
+                           trust (Privacy and Accessibility), a11y (the Enable menu)
   fonts/                   self-hosted OFL fonts and licenses
-  lib/                     site URL and metadata helpers, CSS var typing
+  lib/                     site URL and metadata helpers, CSS var typing, navigation,
+                           contact (validation, spam, dedupe, notifiers, server action)
   styles/                  layers, tokens, fonts, reset, base, typography, layout, motion
-scripts/                   leak-check, lint-policy, setup-hooks
+scripts/                   leak-check, lint-policy, setup-hooks, brand-icons (`pnpm brand:icons`)
 tests/unit                 Vitest (content, i18n, tokens, grid, policy, leak check)
-tests/e2e                  Playwright (routing, direction, axe, confidential, brand, headers)
+tests/e2e                  Playwright (routing, direction, axe, confidential, brand, headers);
+                           a setup project warms the optimized images before the tests run
 .githooks/                 pre-commit, commit-msg, pre-push
+film/                      the brand film, a separate Remotion package (see Brand film)
 ```
 
 ## Locales
@@ -45,6 +53,10 @@ tests/e2e                  Playwright (routing, direction, axe, confidential, br
   not consulted. Prefixed paths pass through, so there is no redirect loop.
 - `x-default` hreflang (page metadata and sitemap) points to the Hebrew URL.
 - `dynamicParams = false` everywhere: unknown locales and slugs are 404s.
+- 404s are rendered by `global-not-found.tsx` on the server, so they are complete without
+  JavaScript. The proxy passes a prefixed URL's locale in the `x-mg-locale` request header;
+  a missing `/en` or `/he` address gets that language's 404 inside the site's header and
+  footer, and a URL outside any locale gets the bilingual page.
 - Dictionaries: `en.ts` is the shape; `he.ts` is typed against it.
 - Bidi: numerals, brand and project names, and Latin terms inside Hebrew are isolated with
   `<Ltr>` (`<bdi dir="ltr">`). Brand marks are always `dir="ltr"`.
@@ -68,9 +80,10 @@ preview builds only.
   atmosphere (light, grid visibility, texture). Derived tokens are re-declared inside the
   scope; `themeIssues()` validates contrast. Spacing, grid, type and motion are never
   themeable.
-- Brand marks are provisional masks with CSS-enforced minimum sizes per pixel density
-  (the hairlines are ~2% of mark height, a property of the design). Production SVGs replace
-  the masks without API changes; small-size legibility needs a brand-owned optical cut.
+- Brand marks are the approved MARTIN.G wordmark and MG symbol (Phase 6), faithful SVG
+  vectorizations of the supplied artwork used as masks tinted with `currentColor`, with
+  CSS-enforced minimum sizes per pixel density. The icon set (favicon, app icons, manifest
+  icons) is generated from the symbol SVG by `pnpm brand:icons`.
 
 ## Content
 
@@ -104,15 +117,85 @@ release gate refuses a Vercel production build meanwhile. See docs/CASE-STUDIES.
 excluded from the site's TypeScript, ESLint and build). It renders the MARTIN.G brand film in
 two native cuts, Desktop 16:9 and Mobile 9:16, from one cue table shared by picture and
 sound (`film/src/config/timeline.ts`); the soundtrack is synthesized by `film/audio/build.py`.
-It reuses the site's approved sources (brand marks, project media, fonts) by copying them
-at build time, so no asset exists twice in Git, and it follows the same confidentiality,
-brand-mark and copy rules. Renders are never committed. See film/README.md.
+It keeps its own PNG copies of the approved brand marks (symbol, wordmark and lockup, their
+black ink turned white on transparent for the dark film) in `film/brand`; the site's
+approved project media (`src/assets/work`) and fonts (`src/fonts`) are copied at build time
+(`pnpm assets` in `film/`), so they never exist twice in Git. It follows the same
+confidentiality, brand-mark and copy rules. Renders are never committed. See film/README.md.
 
-## Contact (Phase 6, not built)
+## Contact (Phase 6)
 
-Server Action with progressive enhancement, hand-written validation, honeypot and timing
-checks, and a `ContactNotifier` interface with Resend (email) and Telegram Bot (phone)
-implementations. No database. Rate limiting via a Vercel WAF rule.
+`/[locale]/contact` is the project inquiry: the homepage's closing scene ("Start a project")
+extended into one calm form, statically generated like every page.
+
+- **Fields** (revised in Phase 6 to speak a client's language, not product terminology;
+  nobody has to frame their need as "a problem"). Required: name, email, and one
+  description of the project. Optional: phone (`type="tel"`, any reasonable format: an
+  optional `+`, digits with spaces, dashes, dots or brackets, 7 to 15 digits), the kind of
+  project (website, landing page, system or app, an existing website or system, something
+  else or not sure yet), business or project name, an existing website or relevant link,
+  and when they would like to start (as soon as possible, within the next month, within 1
+  to 3 months, more than 3 months from now, no date yet). No budget (premature for a first
+  message), nothing else personal.
+- **Server action** (`src/lib/contact/action.ts`). Without JavaScript the form posts to it
+  and the server renders the answer in place (errors with values kept, or the success
+  state). With JavaScript the form validates first (`src/lib/contact/validate.ts`, shared
+  with the server), then calls the same action directly, so a lost connection becomes a
+  "not sent" state with every value kept. The server is the authority: it cleans (NFC,
+  control and bidi override characters removed) and validates everything again. Nothing
+  is ever sent in a URL; answers carry no internal detail.
+- **Spam** (`spam.ts`): a trap field nobody sees or reaches, and the time the form was open
+  (under 3s is software; set in the browser, so without JavaScript only the trap applies).
+  Spam is answered like a delivery and never delivered. No CAPTCHA.
+- **Duplicates.** The form allows one submission at a time (`aria-disabled` while sending);
+  the server delivers one submission id (or, without JavaScript, one sender and description)
+  once per ten minutes, in memory per instance (`dedupe.ts`).
+- **Delivery** (`notifiers.ts`): a `ContactNotifier` interface. Resend (email) is the
+  primary channel; Telegram (a phone ping) is optional; an outbox file serves the e2e tests
+  and is refused on Vercel. Plain text only, the visitor's email as reply-to, credentials
+  in server-side environment variables (`.env.example`), never logged. Logs name only the
+  notifier and status of a failure, never the inquiry. **No database**: an inquiry exists
+  only in the delivered message.
+- **Release.** A Vercel production build fails without a configured notifier
+  (`assertContactDelivery`, beside the copy release gate), so the only conversion path can
+  never ship as a dead end. Preview builds answer "unavailable" until configured.
+- **Still to configure** (not in the repository): `RESEND_API_KEY`, `CONTACT_EMAIL_TO`,
+  `CONTACT_EMAIL_FROM` on Vercel (Sensitive), with a sender Resend accepts; and a Vercel
+  WAF rate-limit rule on POST `/he/contact` and `/en/contact` (for example 5 per minute per
+  IP). Turning Telegram on means updating the privacy copy first.
+
+## Privacy (Phase 6 audit)
+
+What the site actually does, which `/[locale]/privacy` states (and must keep stating):
+the contact form's fields (required: name, email, project description; optional: phone,
+project type, business or project name, link, timeline), delivered by email through Resend; hosting on Vercel with its
+ordinary request logs; one first-party cookie, `NEXT_LOCALE`, set only by the language
+switch (one year); the Enable menu's script from `cdn.enable.co.il` (and whatever it
+stores in the browser); no analytics (Phase 7 adds Vercel Web Analytics: update the page
+first); fonts, images and video self-hosted; no embeds; external links open without a
+referrer.
+
+## Accessibility (Phase 6)
+
+`/[locale]/accessibility` describes the tested work (docs/DESIGN-SYSTEM.md, "Accessibility
+baseline", and the e2e suite), the known limitations and how to report a problem, with
+WCAG 2.2 AA stated as the target only: no conformance or certification claim.
+
+**The Enable menu** (`src/components/a11y/EnableWidget.tsx`): Martin's licensed script,
+unchanged, loaded once per document from the root layout through `next/script`
+`lazyOnload` (after the page has loaded, so it never blocks rendering or hydration; the
+server HTML is identical with or without it). The CSP allows `https://cdn.enable.co.il` for
+scripts and the vendor's hosts for styles, images, fonts and requests. It is an addition,
+never the reason the site is accessible: the e2e suite runs with the vendor's host
+unreachable and passes on the site's own accessibility. Its own behavior (launcher
+position, keyboard use, zoom, reduced motion, what it stores) is the vendor's and must be
+checked in a real browser on a preview deployment; see the Phase 6 review notes.
+
+The one override of its UI lives in `src/styles/vendor.css` (layer `vendor`, last in the
+order): `#enable-toolbar-trigger > .keyboard-shorcut { display: none !important }` hides
+the launcher's visible, already aria-hidden "ESC" badge, as confirmed in the live DOM. The
+launcher, its focus, Enter and Escape are untouched; no other Enable styling or
+configuration is changed.
 
 ## Analytics
 
@@ -128,16 +211,18 @@ non-clickable and route-less.
 
 ## Navigation
 
-Work and the language switch only. Contact is added to the navigation only when a real
-destination exists (Phase 6); no placeholder or dead links.
+Header: Work, About, Contact and the language switch. Footer: the same, plus Privacy and
+Accessibility, in a labelled navigation. About is the homepage's About scene (`#about`),
+reached from any page; there is no About page. No placeholder or dead links (tested).
 
 ## Launch hardening backlog
 
 - **CSP review.** Foundation uses a static CSP with `'unsafe-inline'` for scripts and
   styles so every page stays statically generated (nonces would force dynamic rendering).
-  Revisit once Vercel Web Analytics and the real Contact integration are in place: tighten
-  `script-src` (hashes, SRI, or nonces only if the static trade-off is acceptable), and add
-  exactly the origins those integrations need to `connect-src` / `script-src`.
+  Revisit once Vercel Web Analytics is in place: tighten `script-src` (hashes, SRI, or
+  nonces only if the static trade-off is acceptable), and narrow the Enable origins
+  (Phase 6) to exactly what the menu requests, as observed on a deployment. Contact needs
+  no browser origin: delivery is server to server.
 
 ## Phases
 
@@ -146,6 +231,7 @@ destination exists (Phase 6); no placeholder or dead links.
 - Phase 2: Design system (done)
 - Phase 3: Content engine (done)
 - Phase 4: Hero, home choreography and real projects (done)
-- Phase 5: Case studies (5A ON: merged, copy approved; 5B המחלבה: copy approved, in PR)
-- Phase 6: Contact
+- Phase 5: Case studies (5A ON and 5B המחלבה: merged, copy approved)
+- Phase 6: Trust, accessibility and conversion (contact, privacy, accessibility, Enable;
+  copy approved)
 - Phase 7: Launch hardening

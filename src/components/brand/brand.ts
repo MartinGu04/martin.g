@@ -1,47 +1,49 @@
 /**
- * Brand mark manifest. Components read only this, so production assets can replace the
- * provisional ones without API changes. Rules are documented in docs/DESIGN-SYSTEM.md.
+ * Brand mark manifest. Components read only this. Rules are documented in
+ * docs/DESIGN-SYSTEM.md.
  *
- * PROVISIONAL ASSETS: alpha masks derived from the reference PNGs (color removed, trimmed,
- * metadata stripped, proportions untouched), tinted with currentColor through CSS masks.
- * They are not production artwork. Production SVGs (outlined, currentColor, tight viewBox,
- * one group per glyph) replace them without API changes.
+ * APPROVED ASSETS (Phase 6): the MARTIN.G wordmark and the MG symbol supplied by Martin,
+ * as faithful SVG vectorizations of the supplied rasters (public/brand/*.svg; also the
+ * lockup). Each was traced from the artwork's own coverage on the artwork's pixel grid,
+ * never redrawn, and checked by overlaying a render on the original: IoU 0.9988 (symbol),
+ * 0.9942 (wordmark), 0.9962 (lockup), with no pixel disagreeing by more than half. The
+ * marks are one color; the SVG is a mask tinted with currentColor, the scene's text color,
+ * as the brand system has always rendered its marks, so they read on dark and light
+ * worlds and stay sharp at any size.
  *
- * Legibility: the marks' hairlines are about 2% of their height (measured on the masks:
- * wordmark ~4.5px at 228px, monogram ~11px at 599px). That is a property of the design,
- * not only of the raster: a vector at the same size has the same sub-pixel hairlines.
- * Minimum sizes keep a typical hairline at about 0.6 device pixels or more. Below them the
- * thin strokes vanish (the wordmark's M reads as an N). A small-size optical cut of the
- * marks would be a brand decision, not something to fake in code.
+ * Legibility: both marks are built from solid strokes. `thinRatio` is the thinnest typical
+ * feature (a stroke, or the slit between two) as a share of the mark's height, measured on
+ * the masks: wordmark 18 / 103 px, symbol 25 / 622 px (its slits). Minimum sizes keep that
+ * feature at about 0.75 device pixels or more.
  */
 export const brandMarks = {
   wordmark: {
     name: 'MARTIN.G',
-    src: '/brand/provisional/wordmark-mask.png',
-    width: 1335,
-    height: 228,
-    status: 'provisional',
-    hairlineRatio: 4.5 / 228,
+    src: '/brand/martin-g-wordmark.svg',
+    width: 1090,
+    height: 103,
+    status: 'approved',
+    thinRatio: 18 / 103,
     /** Clear space on every side, as a fraction of the rendered mark height. */
     clearSpace: 0.5,
     /** Minimum rendered height in CSS px by device pixel ratio (enforced in CSS). */
-    minHeight: { 1: 32, 1.5: 21, 2: 18, 3: 14 },
+    minHeight: { 1: 14, 1.5: 12, 2: 12, 3: 12 },
   },
   monogram: {
     name: 'MG',
-    src: '/brand/provisional/monogram-mask.png',
-    width: 968,
-    height: 599,
-    status: 'provisional',
-    hairlineRatio: 11 / 599,
+    src: '/brand/martin-g-symbol.svg',
+    width: 752,
+    height: 622,
+    status: 'approved',
+    thinRatio: 25 / 622,
     clearSpace: 0.25,
-    minHeight: { 1: 30, 1.5: 22, 2: 16, 3: 12 },
+    minHeight: { 1: 20, 1.5: 16, 2: 14, 3: 12 },
   },
 } as const
 
 export type BrandMarkKey = keyof typeof brandMarks
 
-/** Device pixels covered by a typical hairline at a given height and pixel ratio. */
-export function hairlineDevicePx(mark: BrandMarkKey, heightPx: number, dpr: number): number {
-  return heightPx * brandMarks[mark].hairlineRatio * dpr
+/** Device pixels covered by the thinnest typical feature at a given height and pixel ratio. */
+export function thinFeatureDevicePx(mark: BrandMarkKey, heightPx: number, dpr: number): number {
+  return heightPx * brandMarks[mark].thinRatio * dpr
 }

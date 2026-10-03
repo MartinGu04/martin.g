@@ -1,0 +1,22 @@
+/*
+ * Overrides for third-party UI. Each rule is as narrow as possible, names the exact vendor
+ * markup it targets (confirmed in the live DOM), and says why it exists. Nothing else here.
+ */
+@layer vendor {
+  /*
+   * Enable accessibility menu (src/components/a11y/EnableWidget.tsx). The launcher shows a
+   * visible "ESC" keyboard hint beside its icon, which Martin does not want in MARTIN.G.
+   * Live markup (Vercel preview, both locales; no iframe, no Shadow DOM):
+   *   <button id="enable-toolbar-trigger" ...>
+   *     ... <span class="keyboard-shorcut" aria-hidden="true">ESC</span>
+   *   </button>
+   * ("shorcut" is the vendor's own spelling.) Only that badge is hidden. It is already
+   * aria-hidden, so screen readers are unaffected; the launcher, its focus, Enter and
+   * Escape stay exactly as Enable built them. !important in a layer outranks the vendor's
+   * unlayered styles, whatever they declare. If Enable renames the class, the badge simply
+   * shows again; nothing else can be hidden by mistake.
+   */
+  #enable-toolbar-trigger > .keyboard-shorcut {
+    display: none !important;
+  }
+}
