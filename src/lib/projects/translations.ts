@@ -63,26 +63,37 @@ export class TranslationsError extends Error {
 const codeOf = (error: { code?: string } | null | undefined) => error?.code?.trim() || 'network'
 
 /**
- * The server's client for project copy. `cache` decides whether Next may keep the read:
- * a build's read must not set 'no-store', or the statically generated pages would turn
- * into per-request ones; the admin reads and writes with 'no-store'. Elevated (secret
- * key), server only, no auth state; requests use the global fetch at call time, so the
- * production simulation's network guard sees them.
+ * The fetch beneath Next's: Next wraps the global fetch and keeps build-time responses in
+ * its data cache (`.next/cache/fetch-cache`), which Vercel restores from one build to the
+ * next, so a build could publish the copy an earlier build read. The build's read goes
+ * around that wrapper: never cached, and invisible to Next, so the pages stay static.
+ * Resolved at call time, so the production simulation's network guard (installed beneath
+ * Next's wrapper) still sees it. scripts/production-simulation.mjs checks that no copy
+ * reaches the data cache.
+ */
+export function uncachedFetch(): typeof fetch {
+  const current = globalThis.fetch as typeof fetch & { _nextOriginalFetch?: typeof fetch }
+  return current._nextOriginalFetch ?? current
+}
+
+/**
+ * The server's client for project copy: elevated (secret key), server only, no auth state.
+ * The build's read uses `uncachedFetch` (see there); the admin, which renders per request,
+ * reads and writes with `cache: 'no-store'`.
  */
 export function createContentClient(
   config: LeadStoreConfig,
-  { noStore = false }: { noStore?: boolean } = {},
+  { forAdmin = false }: { forAdmin?: boolean } = {},
 ): SupabaseClient<ContentDatabase> {
   return createClient<ContentDatabase>(config.url, config.secretKey, {
     auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
     global: {
       fetch: (input, init) => {
         const timeout = AbortSignal.timeout(8000)
-        return fetch(input, {
-          ...init,
-          ...(noStore ? { cache: 'no-store' as const } : {}),
-          signal: init?.signal ? AbortSignal.any([init.signal, timeout]) : timeout,
-        })
+        const signal = init?.signal ? AbortSignal.any([init.signal, timeout]) : timeout
+        return forAdmin
+          ? fetch(input, { ...init, cache: 'no-store', signal })
+          : uncachedFetch()(input, { ...init, signal })
       },
     },
   })
@@ -146,7 +157,7 @@ export function configuredContentClient(
   env: Record<string, string | undefined> = process.env,
 ): SupabaseClient<ContentDatabase> | null {
   const config = leadStoreConfig(env)
-  return config ? createContentClient(config, { noStore: true }) : null
+  return config ? createContentClient(config, { forAdmin: true }) : null
 }
 
 type Env = Record<string, string | undefined>

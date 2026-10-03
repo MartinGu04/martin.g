@@ -240,6 +240,25 @@ export function browserOutputLeaks(buildDir) {
   return problems
 }
 
+/**
+ * Whether Next's data cache (which Vercel restores between builds) holds the saved project
+ * copy: the build's read must go around it (src/lib/projects/translations.ts).
+ */
+export function cachedProjectCopy(buildDir) {
+  const titles = SIMULATED_TRANSLATIONS.map((row) => row.title)
+  return walkFiles(path.join(buildDir, 'cache', 'fetch-cache')).some((file) => {
+    const text = readFileSync(file, 'utf8')
+    const decoded = (() => {
+      try {
+        return Buffer.from(JSON.parse(text)?.data?.body ?? '', 'base64').toString('utf8')
+      } catch {
+        return ''
+      }
+    })()
+    return titles.some((title) => text.includes(title) || decoded.includes(title))
+  })
+}
+
 /** Checks of the running production build. Returns a list of problems. */
 export async function smokeChecks(base, origin = SIMULATION.SITE_URL) {
   const problems = []
@@ -440,6 +459,10 @@ async function main() {
         continue
       }
       console.log(tail(output, 6))
+      if (cachedProjectCopy(path.join(root, '.next')))
+        failures.push(
+          `${testCase.name}: Next's data cache holds the saved project copy, so a later build could publish it stale`,
+        )
       const leaks = browserOutputLeaks(path.join(root, '.next'))
       if (leaks.length > 0) failures.push(`${testCase.name}:\n  ${leaks.join('\n  ')}`)
       else console.log('  browser output carries no server configuration')

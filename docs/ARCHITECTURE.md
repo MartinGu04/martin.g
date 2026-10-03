@@ -439,8 +439,10 @@ Publish to the site ──> publishSite ── requireAdmin() ──> Vercel Dep
   values are cleaned as Contact cleans them (NFC, no control or bidi override characters,
   one line, trimmed), then required and bounded as the table's checks are.
 - **Reaching the public site.** Public pages stay statically generated: a build reads every
-  row once (`loadSiteTranslations`, without `no-store`, so the pages stay static) and
-  `src/content/saved-copy.ts` lays each row over its project's copy in its own locale only.
+  row once (`loadSiteTranslations`) through the fetch beneath Next's wrapper
+  (`uncachedFetch`), so the read never enters Next's data cache, which Vercel restores
+  between builds and would otherwise hand a later build stale copy, and Next never sees a
+  request that could make the pages dynamic. `src/content/saved-copy.ts` lays each row over its project's copy in its own locale only.
   Saved text therefore reaches visitors only through a Production build, where the leak
   check and the built-HTML policy run on it: text that could identify confidential work
   fails the deployment and never goes live. **A Vercel Production build fails closed when
@@ -763,7 +765,8 @@ request to the Resend or Telegram APIs, to any Supabase host (`*.supabase.co`, `
 a request was attempted. One read is answered instead of refused: the build's
 `GET /rest/v1/project_translations` on `SUPABASE_URL`'s host, which the guard answers
 itself with synthetic rows (`MG_SIMULATED_TRANSLATIONS`), without any network; any other
-method, path or host is refused as before, and the run fails if that read never happened. A unit test runs the real Supabase client under the guard to prove
+method, path or host is refused as before, and the run fails if that read never happened
+or if the copy reached Next's data cache (`.next/cache/fetch-cache`). A unit test runs the real Supabase client under the guard to prove
 it is stopped. Unit tests (`tests/unit/production-simulation.test.ts`) cover the
 environment, the gates' messages for each case, and the guard.
 

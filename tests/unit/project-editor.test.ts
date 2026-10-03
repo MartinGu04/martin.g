@@ -213,6 +213,24 @@ describe('the data layer', () => {
     expect(read.get('on')?.he).toMatchObject(HE)
   })
 
+  it('reads around Next’s data cache for a build, never through it', async () => {
+    const original = vi.fn((input: RequestInfo | URL, init?: RequestInit) =>
+      fake.handle(input, init),
+    )
+    const wrapped = Object.assign(
+      vi.fn(() => {
+        throw new Error('Next’s cached fetch was used')
+      }),
+      { _nextOriginalFetch: original },
+    )
+    vi.stubGlobal('fetch', wrapped)
+    fake.state.translations.push({ project_id: 'on', locale: 'en', ...EN })
+    const read = await loadSiteTranslations(ADMIN_E2E_ENV)
+    expect(read.get('on')).toEqual({ en: EN })
+    expect(original).toHaveBeenCalledTimes(1)
+    expect(wrapped).not.toHaveBeenCalled()
+  })
+
   it('reads with no caching for the admin', async () => {
     const calls: RequestInit[] = []
     vi.stubGlobal('fetch', (input: RequestInfo | URL, init?: RequestInit) => {

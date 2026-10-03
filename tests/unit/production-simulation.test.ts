@@ -29,6 +29,7 @@ import {
   SIMULATION,
   STRIPPED,
   browserOutputLeaks,
+  cachedProjectCopy,
   simulationEnv,
 } from '../../scripts/production-simulation.mjs'
 
@@ -382,6 +383,23 @@ describe('delivery guard', () => {
         refused: true,
       })
       expect(readFileSync(log, 'utf8')).toContain('blocked leads.production-simulation.example')
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
+    }
+  })
+})
+
+describe('data cache check', () => {
+  it('finds the saved project copy in Next’s fetch cache, encoded as Next stores it', () => {
+    const dir = mkdtempSync(path.join(tmpdir(), 'mg-fetch-cache-'))
+    try {
+      const cache = path.join(dir, 'cache', 'fetch-cache')
+      mkdirSync(cache, { recursive: true })
+      writeFileSync(path.join(cache, 'other'), JSON.stringify({ data: { body: 'e30=' } }))
+      expect(cachedProjectCopy(dir)).toBe(false)
+      const body = Buffer.from(JSON.stringify(SIMULATED_TRANSLATIONS)).toString('base64')
+      writeFileSync(path.join(cache, 'copy'), JSON.stringify({ kind: 'FETCH', data: { body } }))
+      expect(cachedProjectCopy(dir)).toBe(true)
     } finally {
       rmSync(dir, { recursive: true, force: true })
     }
