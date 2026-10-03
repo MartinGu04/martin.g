@@ -1,5 +1,8 @@
+import { createHash } from 'node:crypto'
+import { readdirSync, readFileSync } from 'node:fs'
+import path from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { EM_DASH } from '../../scripts/lint-policy.mjs'
+import { EM_DASH, findImageMetadata } from '../../scripts/lint-policy.mjs'
 import { locales } from '@/i18n/config'
 import { dictionaries } from '@/i18n/dictionaries'
 import {
@@ -10,7 +13,12 @@ import {
   getPublicProjects,
 } from '@/content/registry'
 import { resolveConfidentialSummary } from '@/content/resolve'
-import { confidentialAllowedKeys, type Media, type Project } from '@/content/schema'
+import {
+  confidentialAllowedKeys,
+  INTERFACE_COVER_EXCEPTION,
+  type Media,
+  type Project,
+} from '@/content/schema'
 import { contrast } from '../support/contrast'
 
 const all = getAllProjectsForChecks()
@@ -126,14 +134,14 @@ describe('confidential projects', () => {
     for (const p of confidential) expect(routed).not.toContain(p.id)
   })
 
-  it('resolve to summaries without links or media', () => {
+  it('resolve to summaries without links, routes or media fields', () => {
     for (const p of getConfidentialProjects()) {
       const summary = resolveConfidentialSummary(p, 'en', dictionaries.en.messages)
       expect(Object.keys(summary).sort()).toEqual(
         [
+          'cover',
           'disciplines',
           'id',
-          'pattern',
           'summary',
           'title',
           ...(summary.years ? ['years'] : []),
@@ -141,5 +149,119 @@ describe('confidential projects', () => {
       )
       expect(JSON.stringify(summary)).not.toMatch(/href|https?:|\/work\//)
     }
+  })
+
+  it('are one card per project: abstract geometry, except confidential-01’s approved image', () => {
+    const covers = Object.fromEntries(confidential.map((p) => [p.id, p.cover.kind]))
+    expect(covers).toEqual({
+      'confidential-01': 'approved-interface',
+      'confidential-02': 'abstract',
+    })
+    expect(INTERFACE_COVER_EXCEPTION).toBe('confidential-01')
+    // Exactly one image file exists for confidential work, and it is the approved one.
+    const dir = path.resolve(__dirname, '../../src/assets/confidential')
+    expect(readdirSync(dir)).toEqual(['confidential-01-interface.webp'])
+    const hash = createHash('sha256')
+      .update(readFileSync(path.join(dir, 'confidential-01-interface.webp')))
+      .digest('hex')
+    // Pinned: a new image is a deliberate change, reviewed and approved by Martin.
+    expect(hash).toBe('a9c34e6162b2a063ca965e7a686d954a4deb00a889e7e7c5e7f4f95268c573aa')
+    expect(
+      findImageMetadata(readFileSync(path.join(dir, 'confidential-01-interface.webp'))),
+    ).toEqual([])
+  })
+
+  it('refuses an interface image for any other confidential project, at runtime too', () => {
+    const imposter = {
+      ...getConfidentialProjects().find((p) => p.id === 'confidential-01')!,
+      id: 'confidential-02',
+    } as unknown as Parameters<typeof resolveConfidentialSummary>[0]
+    expect(() => resolveConfidentialSummary(imposter, 'en', dictionaries.en.messages)).toThrow(
+      /Only confidential-01 may show an interface image/,
+    )
+  })
+
+  it('frame the section as internal systems, without defense or operational terms', () => {
+    expect(dictionaries.en.messages.work.confidentialTitle).toBe('Internal Systems')
+    expect(dictionaries.he.messages.work.confidentialTitle).toBe('מערכות פנימיות')
+    const text = [dictionaries.en.messages.work, dictionaries.he.messages.work]
+      .flatMap((work) => [work.confidentialTitle, work.confidentialNote])
+      .join(' ')
+      .toLowerCase()
+    for (const term of ['defense', 'defence', 'operational', 'security', 'ביטחוני', 'תפעולי'])
+      expect(text, term).not.toContain(term)
+    // Truthful about what is shown: details obscured, not every interface withheld.
+    expect(dictionaries.en.messages.work.confidentialNote).toMatch(/omitted or obscured/)
+  })
+
+  it('describe confidential-02 neutrally, as its own project with its abstract visual', () => {
+    const project = confidential.find((p) => p.id === 'confidential-02')!
+    expect(project.title).toEqual({
+      en: 'Infrastructure Management System',
+      he: 'מערכת לניהול תשתיות',
+    })
+    expect(project.summary.he).toBe(
+      'כלי פנימי לריכוז מידע טכני, תיאום תהליכים ובקרה על רכיבי מערכת.',
+    )
+    expect(project.review).toEqual({ en: 'approved', he: 'approved' })
+    expect(project.cover).toEqual({ kind: 'abstract', pattern: 'lines' })
+    const text = [...Object.values(project.title), ...Object.values(project.summary)]
+      .join(' ')
+      .toLowerCase()
+    for (const term of [
+      'confidential',
+      'operational',
+      'security',
+      'defense',
+      'classified',
+      'חסוי',
+      'תפעולי',
+      'אבטחה',
+      'ביטחוני',
+      'מסווג',
+    ])
+      expect(text, term).not.toContain(term)
+  })
+
+  it('describe confidential-01 neutrally, with generic alt text, in both locales', () => {
+    const project = confidential.find((p) => p.id === 'confidential-01')!
+    expect(project.title.he).toBe('מערכת לניהול תהליכים')
+    expect(project.title.en).toBe('Process Management System')
+    expect(project.review).toEqual({ en: 'approved', he: 'approved' })
+    expect(project.summary.he).toBe(
+      'כלי ייעודי לניהול מידע, תהליכי עבודה והפקת תוצרים בסביבת עבודה פנימית.',
+    )
+    expect(project.cover.kind).toBe('approved-interface')
+    const alt = project.cover.kind === 'approved-interface' ? project.cover.alt : null
+    const text = [
+      ...Object.values(project.title),
+      ...Object.values(project.summary),
+      ...Object.values(alt ?? {}),
+      ...project.disciplines.map((d) => dictionaries.en.messages.disciplines[d]),
+      ...project.disciplines.map((d) => dictionaries.he.messages.disciplines[d]),
+    ]
+      .join(' ')
+      .toLowerCase()
+    for (const term of [
+      'classified',
+      'confidential',
+      'compartment',
+      'secret',
+      'military',
+      'operational',
+      'security',
+      'defense',
+      'מסווג',
+      'חסוי',
+      'ממודר',
+      'מידור',
+      'סודי',
+      'צבאי',
+      'מבצעי',
+      'תפעולי',
+      'ביטחוני',
+      'אבטחה',
+    ])
+      expect(text, term).not.toContain(term)
   })
 })

@@ -94,7 +94,7 @@ export const worlds = {
     atmosphere: { light: 'pool', grid: 'light', texture: 'dots', marks: false, vignette: true },
   },
   /**
-   * Defense Systems: gunmetal and steel with one restrained cold technical accent, flat:
+   * Internal Systems: gunmetal and steel with one restrained cold technical accent, flat:
    * no light, no texture, a fading trace of the grid and a soft vignette for depth. Never
    * classified, warning or dossier styling.
    */

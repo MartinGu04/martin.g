@@ -1,13 +1,16 @@
 /**
  * A stand-in for a Supabase project, for the admin's unit and end-to-end tests: Auth (email
  * and password sign-in, the user, refresh, sign-out) and the small part of the Data API
- * (PostgREST) the site uses on `leads` and `lead_notes`. The real @supabase/ssr and
+ * (PostgREST) the site uses on `leads`, `lead_notes` and `project_translations`. The real
+ * @supabase/ssr and
  * supabase-js code runs against it; no test ever reaches a real Supabase project.
  *
  * It enforces what matters to the site's security model: the Data API answers only the
  * secret key (the publishable key, like a browser role, has no table privileges), a session
  * is valid only while it exists (sign-out ends it), notes need an existing lead and a
- * non-blank body of at most 4000 characters, and deleting a lead deletes its notes.
+ * non-blank body of at most 4000 characters, deleting a lead deletes its notes, and project
+ * copy is one row per (project, locale) with the table's checks. It also stands in for a
+ * Vercel Deploy Hook (POST /__deploy-hook), counting the builds it was asked to start.
  *
  *   node tests/support/fake-supabase-server.mjs     (the e2e suite starts it; see
  *                                                    playwright.config.ts)
@@ -23,6 +26,18 @@ import { fileURLToPath } from 'node:url'
 import { ADMIN, FAKE_PORT, OTHER, PUBLISHABLE_KEY, SECRET_KEY } from './admin-fixtures.mjs'
 
 const NOTE_MAX = 4000
+
+/** The checks of supabase/migrations/..._project_translations.sql. */
+function translationProblem(row) {
+  const text = (value, max) =>
+    typeof value === 'string' && value.trim().length >= 1 && value.length <= max
+  if (typeof row.project_id !== 'string' || !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(row.project_id))
+    return 'project_translations_project_id_check'
+  if (!['he', 'en'].includes(row.locale)) return 'project_translations_locale_check'
+  if (!text(row.title, 120)) return 'project_translations_title_check'
+  if (!text(row.summary, 500)) return 'project_translations_summary_check'
+  return null
+}
 
 const json = (value, status = 200, headers = {}) =>
   new Response(JSON.stringify(value), {
@@ -79,11 +94,14 @@ export function createFakeSupabase({
   leads = seedLeads(),
   leadsFile = null,
   users = [ADMIN, OTHER],
+  translations = [],
 } = {}) {
   /**
    * @type {{
    *   leads: Row[],
    *   notes: Row[],
+   *   translations: Record<string, any>[],
+   *   deploys: number,
    *   sessions: Map<string, { userId: string, refreshToken: string, expiresAt: number }>,
    *   requests: { method: string, path: string, apikey: string | null }[],
    * }}
@@ -91,6 +109,8 @@ export function createFakeSupabase({
   const state = {
     leads: [...leads],
     notes: [],
+    translations: translations.map((row) => ({ ...row })),
+    deploys: 0,
     /** access token -> { userId, refreshToken, expiresAt } */
     sessions: new Map(),
     requests: [],
@@ -205,6 +225,7 @@ export function createFakeSupabase({
     const key = request.headers.get('apikey')
     if (key !== SECRET_KEY) return pgError(401, '42501', 'permission denied')
     const table = url.pathname.slice('/rest/v1/'.length)
+    if (table === 'project_translations') return translationsTable(request, url)
     if (table !== 'leads' && table !== 'lead_notes') return pgError(404, '42P01', 'not found')
     const rows = table === 'leads' ? state.leads : state.notes
     const filters = eqFilters(url)
@@ -290,6 +311,41 @@ export function createFakeSupabase({
     return pgError(405, 'PGRST000', 'method not allowed')
   }
 
+  /** `project_translations`: read, and the upsert on (project_id, locale) the editor uses. */
+  async function translationsTable(request, url) {
+    const filters = eqFilters(url)
+    const matches = (row) => filters.every(([key, value]) => String(row[key]) === value)
+    if (request.method === 'GET') return json(project(state.translations.filter(matches), url))
+    if (request.method === 'POST') {
+      const prefer = request.headers.get('prefer') ?? ''
+      const conflict = url.searchParams.get('on_conflict')
+      const body = await request.json()
+      const now = new Date().toISOString()
+      const written = []
+      for (const input of Array.isArray(body) ? body : [body]) {
+        const problem = translationProblem(input)
+        if (problem) return pgError(400, '23514', `new row violates check constraint "${problem}"`)
+        const existing = state.translations.find(
+          (row) => row.project_id === input.project_id && row.locale === input.locale,
+        )
+        if (existing) {
+          if (!prefer.includes('resolution=merge-duplicates') || conflict !== 'project_id,locale')
+            return pgError(409, '23505', 'duplicate key value violates unique constraint')
+          Object.assign(existing, input)
+          written.push(existing)
+        } else {
+          const row = { created_at: now, updated_at: now, ...input }
+          state.translations.push(row)
+          written.push(row)
+        }
+      }
+      return wantsRepresentation(request)
+        ? json(project(written, url), 201)
+        : new Response(null, { status: 201 })
+    }
+    return pgError(405, 'PGRST000', 'method not allowed')
+  }
+
   /** Test-only: seed a lead (for one test's own data) or read the notes. Never in the app. */
   async function fixtures(request, url) {
     if (url.pathname === '/__fixtures/leads' && request.method === 'POST') {
@@ -324,6 +380,14 @@ export function createFakeSupabase({
       const user = users.find((u) => u.email === body.email && u.password === body.password)
       return user ? json(issueSession(user)) : json({}, 400)
     }
+    if (url.pathname === '/__fixtures/translations' && request.method === 'GET')
+      return json(state.translations)
+    if (url.pathname === '/__deploy-hook' && request.method === 'POST') {
+      state.deploys += 1
+      return json({ job: { id: `synthetic-${state.deploys}`, state: 'PENDING' } }, 201)
+    }
+    if (url.pathname === '/__fixtures/deploys' && request.method === 'GET')
+      return json({ deploys: state.deploys })
     if (url.pathname === '/__health') return json({ ok: true })
     return json({}, 404)
   }

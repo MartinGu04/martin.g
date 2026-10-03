@@ -16,11 +16,14 @@
  *      configuration               and ADMIN_USER_ID
  *   4. without SITE_URL            the build must fail, asking for the origin
  *   5. a site card pending         the build must fail, naming the card awaiting approval
- *   6. complete                    the build must succeed (leak check and built-HTML policy
+ *   6. project copy unreadable     the build must fail closed rather than publish the
+ *                                  code's copy over the editor's (the read is refused)
+ *   7. complete                    the build must succeed (leak check and built-HTML policy
  *                                  included); its browser output must carry none of the
  *                                  server configuration; the built server is then started
  *                                  and checked, the admin included (it must send a visitor
- *                                  to sign in, privately, without any request to Supabase)
+ *                                  to sign in, privately, without any request to Supabase),
+ *                                  and each locale must show its own saved project copy
  *
  * Copy awaiting review: the copy gate runs after the configuration gates, so cases 1 to 5
  * are decided while copy is still draft. If the complete build is refused only for draft
@@ -34,7 +37,10 @@
  * never sends or stores anything (that happens only when a visitor submits the form, and
  * the smoke checks make GET requests only); to prove it, scripts/delivery-guard.mjs is
  * preloaded into every process and refuses and records any request to the Resend or
- * Telegram APIs or to Supabase, and the run fails if one was attempted.
+ * Telegram APIs or to Supabase, and the run fails if one was attempted. The one exception
+ * is the build's read of the editor's project copy, which the guard answers itself with
+ * SIMULATED_TRANSLATIONS (synthetic rows), so the simulation proves that saved copy reaches
+ * the right locale, still without any network.
  *
  * The leak check is untouched: `pnpm build` runs it with VERCEL=1, so it fails closed
  * without LEAK_CHECK_TERMS_B64 (the real secret in CI). It leaves .next as a production
@@ -63,6 +69,27 @@ export const SIMULATION = Object.freeze({
   NEXT_TELEMETRY_DISABLED: '1',
 })
 
+/**
+ * Synthetic saved copy for the project editor's table: ON in both languages, each
+ * distinct, so the smoke checks can prove each locale shows its own row only.
+ */
+export const SIMULATED_TRANSLATIONS = Object.freeze([
+  {
+    project_id: 'on',
+    locale: 'en',
+    title: 'Simulated English title',
+    summary: 'Simulated English text, saved in the project editor.',
+    updated_at: '2026-01-01T00:00:00.000Z',
+  },
+  {
+    project_id: 'on',
+    locale: 'he',
+    title: 'כותרת עברית מדומה',
+    summary: 'טקסט עברי מדומה, שנשמר בעורך הפרויקטים.',
+    updated_at: '2026-01-01T00:00:00.000Z',
+  },
+])
+
 /** Inherited configuration that must never reach the simulation. */
 export const STRIPPED = Object.freeze([
   'SITE_URL',
@@ -80,6 +107,8 @@ export const STRIPPED = Object.freeze([
   'CONTACT_MIN_FILL_MS',
   'ALLOW_DRAFT_COPY_IN_PRODUCTION',
   'RELEASE_GATE_SIMULATE_PENDING_SITE_CARDS',
+  'MG_SIMULATED_TRANSLATIONS',
+  'VERCEL_DEPLOY_HOOK_URL',
   'VERCEL_URL',
   'VERCEL_BRANCH_URL',
   'VERCEL_PROJECT_PRODUCTION_URL',
@@ -105,6 +134,7 @@ export function simulationEnv(base, { overrides = {}, guardLog } = {}) {
   for (const name of STRIPPED) delete env[name]
   for (const name of Object.keys(env)) if (STRIPPED_PATTERN.test(name)) delete env[name]
   Object.assign(env, SIMULATION)
+  env.MG_SIMULATED_TRANSLATIONS = JSON.stringify(SIMULATED_TRANSLATIONS)
   for (const [name, value] of Object.entries(overrides)) {
     if (value === undefined) delete env[name]
     else env[name] = value
@@ -153,6 +183,17 @@ export const CASES = Object.freeze([
     overrides: { RELEASE_GATE_SIMULATE_PENDING_SITE_CARDS: 'he' },
     expectFailure: [/\[release-gate\] Social artwork awaiting approval: site-card:he\./],
   },
+  {
+    // Without the guard's synthetic rows the read is refused, as an unreachable database
+    // or a missing table would refuse it. The refusal is expected here, so it is recorded
+    // in the case's own guard log. The read happens while pages are generated, after the
+    // copy gate, so this case alone sets the logged draft-copy override: the case must
+    // reach the read whatever the copy's review state.
+    name: 'refuses a production build when the saved project copy cannot be read',
+    overrides: { MG_SIMULATED_TRANSLATIONS: undefined, ALLOW_DRAFT_COPY_IN_PRODUCTION: '1' },
+    expectFailure: [/\[content\] Project translations could not be read \(\w+\)/],
+    expectBlocked: true,
+  },
   { name: 'builds with the complete dummy configuration', overrides: {} },
 ])
 
@@ -197,6 +238,25 @@ export function browserOutputLeaks(buildDir) {
   }
   if (files.length === 0) problems.push('no browser output found to check')
   return problems
+}
+
+/**
+ * Whether Next's data cache (which Vercel restores between builds) holds the saved project
+ * copy: the build's read must go around it (src/lib/projects/translations.ts).
+ */
+export function cachedProjectCopy(buildDir) {
+  const titles = SIMULATED_TRANSLATIONS.map((row) => row.title)
+  return walkFiles(path.join(buildDir, 'cache', 'fetch-cache')).some((file) => {
+    const text = readFileSync(file, 'utf8')
+    const decoded = (() => {
+      try {
+        return Buffer.from(JSON.parse(text)?.data?.body ?? '', 'base64').toString('utf8')
+      } catch {
+        return ''
+      }
+    })()
+    return titles.some((title) => text.includes(title) || decoded.includes(title))
+  })
 }
 
 /** Checks of the running production build. Returns a list of problems. */
@@ -258,6 +318,21 @@ export async function smokeChecks(base, origin = SIMULATION.SITE_URL) {
       `/${locale}: the social card is not the ${locale} card on the origin`,
     )
   }
+
+  // The editor's saved copy, each locale its own, never the other's.
+  const [en, he] = SIMULATED_TRANSLATIONS
+  for (const [p, own, other] of [
+    ['/en', en, he],
+    ['/en/work/on', en, he],
+    ['/he', he, en],
+    ['/he/work/on', he, en],
+  ]) {
+    const html = await (await get(p)).text()
+    expect(html.includes(own.title), `${p}: does not show its saved title`)
+    expect(!html.includes(other.title), `${p}: shows the other locale's saved title`)
+  }
+  const homeEn = await (await get('/en')).text()
+  expect(homeEn.includes(en.summary), '/en: does not show its saved summary')
 
   const robots = await (await get('/robots.txt')).text()
   expect(/User-Agent: \*\s+Allow: \//.test(robots), 'robots.txt does not allow crawling')
@@ -352,11 +427,14 @@ async function main() {
   let awaitingReview = null
   try {
     for (const testCase of CASES) {
-      const env = simulationEnv(process.env, { overrides: testCase.overrides, guardLog })
+      const caseLog = testCase.expectBlocked ? path.join(work, 'expected-refusals.log') : guardLog
+      const env = simulationEnv(process.env, { overrides: testCase.overrides, guardLog: caseLog })
       console.log(`\nproduction-simulation: ${testCase.name}`)
       let { status, output } = runBuild(env)
       if (testCase.expectFailure) {
         const reasons = testCase.expectFailure.filter((re) => !re.test(output))
+        if (testCase.expectBlocked && !guardEvents(caseLog).some((e) => e.startsWith('blocked')))
+          failures.push(`${testCase.name}: the guard refused nothing`)
         if (status === 0) failures.push(`${testCase.name}: the build succeeded`)
         else if (reasons.length > 0)
           failures.push(`${testCase.name}: failed for another reason:\n${tail(output)}`)
@@ -381,6 +459,10 @@ async function main() {
         continue
       }
       console.log(tail(output, 6))
+      if (cachedProjectCopy(path.join(root, '.next')))
+        failures.push(
+          `${testCase.name}: Next's data cache holds the saved project copy, so a later build could publish it stale`,
+        )
       const leaks = browserOutputLeaks(path.join(root, '.next'))
       if (leaks.length > 0) failures.push(`${testCase.name}:\n  ${leaks.join('\n  ')}`)
       else console.log('  browser output carries no server configuration')
@@ -401,12 +483,14 @@ async function main() {
     const blocked = events.filter((e) => e.startsWith('blocked'))
     if (!events.some((e) => e.startsWith('loaded')))
       failures.push('the delivery guard never loaded, so delivery was not proven absent')
+    if (!events.some((e) => e.startsWith('served')))
+      failures.push('the complete build never read the saved project copy')
     if (blocked.length > 0)
       failures.push(`a delivery or database request was attempted: ${blocked.join(', ')}`)
     else {
       const processes = events.filter((e) => e.startsWith('loaded')).length
       console.log(
-        `\n  delivery guard: active in ${processes} processes, no delivery or database request attempted`,
+        `\n  delivery guard: active in ${processes} processes, no delivery or database request attempted (the project copy read answered with synthetic rows)`,
       )
     }
   } finally {

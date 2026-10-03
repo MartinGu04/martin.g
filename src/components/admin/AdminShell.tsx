@@ -5,8 +5,8 @@ import { signOut } from '@/lib/admin/actions'
 import styles from './AdminShell.module.css'
 
 /**
- * The signed-in admin's frame: identity, the one section (Leads), who is signed in, and
- * sign out. Quiet on purpose; the leads are the content.
+ * The signed-in admin's frame: identity, the sections (Leads, Projects), who is signed in,
+ * and sign out. Quiet on purpose; the content is the content.
  */
 export function AdminShell({
   email,
@@ -14,7 +14,7 @@ export function AdminShell({
   children,
 }: {
   email: string | undefined
-  current: 'leads'
+  current: 'leads' | 'projects'
   children: ReactNode
 }) {
   return (
@@ -35,6 +35,13 @@ export function AdminShell({
               aria-current={current === 'leads' ? 'page' : undefined}
             >
               Leads
+            </Link>
+            <Link
+              href="/admin/projects"
+              className={`t-small ${styles.navLink}`}
+              aria-current={current === 'projects' ? 'page' : undefined}
+            >
+              Projects
             </Link>
           </nav>
           <div className={styles.session}>

@@ -16,6 +16,7 @@ import { isSpecimenEnabled } from '@/lib/specimen'
 import { isIndexable, siteUrl } from '@/lib/site'
 import {
   DELIVERY_HOSTS,
+  SIMULATED_READ_PATH,
   configuredDatabaseHost,
   guardedFetch,
   isGuardedHost,
@@ -24,9 +25,11 @@ import {
   CASES,
   DRAFT_COPY,
   SERVER_ONLY_VALUES,
+  SIMULATED_TRANSLATIONS,
   SIMULATION,
   STRIPPED,
   browserOutputLeaks,
+  cachedProjectCopy,
   simulationEnv,
 } from '../../scripts/production-simulation.mjs'
 
@@ -194,6 +197,48 @@ describe('production simulation cases', () => {
     expect(findPendingArtwork(complete)).toEqual([])
   })
 
+  it('without the saved project copy, the build fails closed with the message it must show', async () => {
+    const testCase = CASES.find((c) => c.name.includes('saved project copy'))!
+    expect(testCase).toMatchObject({ expectBlocked: true })
+    const caseEnv = env('saved project copy')
+    expect(caseEnv.MG_SIMULATED_TRANSLATIONS).toBeUndefined()
+    // It must reach the read, which comes after the copy gate.
+    expect(caseEnv.ALLOW_DRAFT_COPY_IN_PRODUCTION).toBe('1')
+    const { loadSiteTranslations, resetSiteTranslations } =
+      await import('@/lib/projects/translations')
+    // What the guard does to the read when it has no synthetic rows: refuse it.
+    vi.stubGlobal('fetch', () => Promise.reject(new Error('[delivery-guard] Refused')))
+    try {
+      resetSiteTranslations()
+      await expect(loadSiteTranslations(caseEnv)).rejects.toThrow(testCase.expectFailure![0])
+      // Outside Production the same failure falls back to the code's copy.
+      resetSiteTranslations()
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      await expect(loadSiteTranslations({ ...caseEnv, VERCEL_ENV: 'preview' })).resolves.toEqual(
+        new Map(),
+      )
+      expect(warn).toHaveBeenCalledWith(expect.not.stringContaining('production-simulation'))
+    } finally {
+      resetSiteTranslations()
+      vi.unstubAllGlobals()
+      vi.restoreAllMocks()
+    }
+  })
+
+  it('gives the complete build synthetic saved copy, one distinct row per locale', () => {
+    const complete = simulationEnv(inherited, { overrides: {} })
+    expect(JSON.parse(complete.MG_SIMULATED_TRANSLATIONS!)).toEqual(SIMULATED_TRANSLATIONS)
+    expect(SIMULATED_TRANSLATIONS.map((row) => row.locale)).toEqual(['en', 'he'])
+    const [en, he] = SIMULATED_TRANSLATIONS
+    expect(en!.title).not.toBe(he!.title)
+    // An inherited value never replaces them.
+    const tampered = simulationEnv(
+      { ...inherited, MG_SIMULATED_TRANSLATIONS: '[]' },
+      { overrides: {} },
+    )
+    expect(JSON.parse(tampered.MG_SIMULATED_TRANSLATIONS!)).toEqual(SIMULATED_TRANSLATIONS)
+  })
+
   it('ends with the complete configuration, which must build', () => {
     expect(CASES.at(-1)).toMatchObject({ overrides: {} })
     expect(CASES.at(-1)!.expectFailure).toBeUndefined()
@@ -249,6 +294,71 @@ describe('delivery guard', () => {
     expect(isGuardedHost('example.com')).toBe(false)
   })
 
+  it('answers only the project copy read on the configured host, without any network', async () => {
+    const recorded: string[] = []
+    const calls: unknown[] = []
+    const passthrough = async (input: unknown) => {
+      calls.push(input)
+      return new Response('ok')
+    }
+    const rows = [{ project_id: 'synthetic', locale: 'en', title: 'T', summary: 'S' }]
+    const host = 'leads.production-simulation.example'
+    const guarded = guardedFetch(passthrough, (line: string) => recorded.push(line), host, rows)
+    const read = `https://${host}${SIMULATED_READ_PATH}?select=project_id`
+    expect(await (await guarded(read, { method: 'GET' })).json()).toEqual(rows)
+    expect(await (await guarded(new Request(read))).json()).toEqual(rows)
+    // Writes, other tables, other hosts and Supabase's own domains are still refused.
+    await expect(guarded(read, { method: 'POST' })).rejects.toThrow(/delivery-guard/)
+    await expect(guarded(new Request(read, { method: 'PATCH' }))).rejects.toThrow()
+    await expect(guarded(`https://${host}/rest/v1/leads`)).rejects.toThrow()
+    await expect(guarded(`https://synthetic.supabase.co${SIMULATED_READ_PATH}`)).rejects.toThrow()
+    expect(recorded).toEqual([
+      `served ${SIMULATED_READ_PATH}`,
+      `served ${SIMULATED_READ_PATH}`,
+      `blocked ${host}`,
+      `blocked ${host}`,
+      `blocked ${host}`,
+      'blocked synthetic.supabase.co',
+    ])
+    expect(calls).toEqual([])
+  })
+
+  it('serves the real Supabase client its synthetic copy, and refuses a copy write', () => {
+    const dir = mkdtempSync(path.join(tmpdir(), 'mg-guard-test-'))
+    try {
+      const log = path.join(dir, 'guard.log')
+      const env = simulationEnv({ PATH: process.env.PATH }, { guardLog: log })
+      const script = `
+        import { createClient } from '@supabase/supabase-js'
+        const client = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SECRET_KEY, {
+          auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+        })
+        const read = await client.from('project_translations').select('project_id, locale, title')
+        const write = await client.from('project_translations')
+          .upsert({ project_id: 'on', locale: 'en', title: 'x', summary: 'y' }).select('project_id')
+        console.log(JSON.stringify({
+          rows: read.data?.length,
+          refused: /delivery-guard/.test(String(write.error?.message)),
+        }))
+      `
+      const result = spawnSync(process.execPath, ['--input-type=module', '-e', script], {
+        cwd: path.resolve(__dirname, '../..'),
+        env: env as NodeJS.ProcessEnv,
+        encoding: 'utf8',
+      })
+      expect(result.status, result.stderr).toBe(0)
+      expect(JSON.parse(result.stdout.trim().split('\n').at(-1)!)).toEqual({
+        rows: SIMULATED_TRANSLATIONS.length,
+        refused: true,
+      })
+      const events = readFileSync(log, 'utf8')
+      expect(events).toContain(`served ${SIMULATED_READ_PATH}`)
+      expect(events).toContain('blocked leads.production-simulation.example')
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
   it('stops the real Supabase client in a preloaded process, so no lead can be stored', () => {
     const dir = mkdtempSync(path.join(tmpdir(), 'mg-guard-test-'))
     try {
@@ -273,6 +383,23 @@ describe('delivery guard', () => {
         refused: true,
       })
       expect(readFileSync(log, 'utf8')).toContain('blocked leads.production-simulation.example')
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
+    }
+  })
+})
+
+describe('data cache check', () => {
+  it('finds the saved project copy in Next’s fetch cache, encoded as Next stores it', () => {
+    const dir = mkdtempSync(path.join(tmpdir(), 'mg-fetch-cache-'))
+    try {
+      const cache = path.join(dir, 'cache', 'fetch-cache')
+      mkdirSync(cache, { recursive: true })
+      writeFileSync(path.join(cache, 'other'), JSON.stringify({ data: { body: 'e30=' } }))
+      expect(cachedProjectCopy(dir)).toBe(false)
+      const body = Buffer.from(JSON.stringify(SIMULATED_TRANSLATIONS)).toString('base64')
+      writeFileSync(path.join(cache, 'copy'), JSON.stringify({ kind: 'FETCH', data: { body } }))
+      expect(cachedProjectCopy(dir)).toBe(true)
     } finally {
       rmSync(dir, { recursive: true, force: true })
     }

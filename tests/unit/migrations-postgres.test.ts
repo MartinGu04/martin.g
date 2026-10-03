@@ -15,6 +15,7 @@ const dir = path.resolve(__dirname, '../../supabase/migrations')
 const read = (file: string) => readFileSync(path.join(dir, file), 'utf8')
 const LEADS = read('20261003105852_leads.sql')
 const NOTES = read('20261003122041_lead_notes.sql')
+const COPY = read('20261003152740_project_translations.sql')
 
 const SUPABASE_ROLES = `
   create role anon nologin;
@@ -45,16 +46,18 @@ beforeAll(async () => {
   await db.exec(SUPABASE_ROLES)
   await db.exec(LEADS)
   await db.exec(NOTES)
+  await db.exec(COPY)
   // Running them again changes nothing and fails nothing.
   await db.exec(LEADS)
   await db.exec(NOTES)
+  await db.exec(COPY)
 }, 60_000)
 
 describe('migrations on Postgres', () => {
-  it('leave exactly select, insert, update and delete to service_role, on both tables', async () => {
+  it('leave exactly select, insert, update and delete to service_role, on every table', async () => {
     const { rows } = await db.query<{ relname: string; acl: string; rls: boolean; force: boolean }>(
       `select relname, relacl::text as acl, relrowsecurity as rls, relforcerowsecurity as force
-       from pg_class where relname in ('leads', 'lead_notes') order by relname`,
+       from pg_class where relname in ('leads', 'lead_notes', 'project_translations') order by relname`,
     )
     expect(rows).toEqual([
       {
@@ -65,6 +68,12 @@ describe('migrations on Postgres', () => {
       },
       {
         relname: 'leads',
+        acl: '{postgres=arwdDxtm/postgres,service_role=arwd/postgres}',
+        rls: true,
+        force: true,
+      },
+      {
+        relname: 'project_translations',
         acl: '{postgres=arwdDxtm/postgres,service_role=arwd/postgres}',
         rls: true,
         force: true,
@@ -141,5 +150,60 @@ describe('migrations on Postgres', () => {
        on conflict (dedupe_key) do nothing returning id`,
     )
     expect(repeat).toEqual([])
+  })
+
+  it('give browser roles nothing on project copy', async () => {
+    for (const role of ['anon', 'authenticated'])
+      for (const statement of [
+        'select * from public.project_translations',
+        "insert into public.project_translations (project_id, locale, title, summary) values ('on', 'en', 't', 's')",
+      ])
+        expect(await as(role, statement), `${role}: ${statement}`).toMatch(/permission denied/)
+  })
+
+  it('keep one row per project and locale, so saving English never touches Hebrew', async () => {
+    const upsert = (locale: string, title: string) =>
+      as(
+        'service_role',
+        `insert into public.project_translations (project_id, locale, title, summary)
+         values ('on', '${locale}', '${title}', 'A summary.')
+         on conflict (project_id, locale) do update set title = excluded.title, updated_at = now()
+         returning locale, title`,
+      )
+    expect(await upsert('he', 'עברית')).toEqual([{ locale: 'he', title: 'עברית' }])
+    expect(await upsert('en', 'English')).toEqual([{ locale: 'en', title: 'English' }])
+    expect(await upsert('en', 'English again')).toEqual([{ locale: 'en', title: 'English again' }])
+    const rows = await as<{ locale: string; title: string }>(
+      'service_role',
+      "select locale, title from public.project_translations where project_id = 'on' order by locale",
+    )
+    expect(rows).toEqual([
+      { locale: 'en', title: 'English again' },
+      { locale: 'he', title: 'עברית' },
+    ])
+  })
+
+  it('refuse other locales, blank or overlong copy, and malformed project ids', async () => {
+    const insert = (values: string) =>
+      as(
+        'service_role',
+        `insert into public.project_translations (project_id, locale, title, summary) values ${values}`,
+      )
+    expect(await insert("('on', 'fr', 't', 's')")).toMatch(/project_translations_locale_check/)
+    expect(await insert("('mi-ma-mo', 'he', '  ', 's')")).toMatch(
+      /project_translations_title_check/,
+    )
+    expect(await insert("('mi-ma-mo', 'he', repeat('x', 121), 's')")).toMatch(
+      /project_translations_title_check/,
+    )
+    expect(await insert("('mi-ma-mo', 'he', 't', repeat('x', 501))")).toMatch(
+      /project_translations_summary_check/,
+    )
+    expect(await insert("('../on', 'he', 't', 's')")).toMatch(
+      /project_translations_project_id_check/,
+    )
+    expect(
+      await insert("('mi-ma-mo', 'he', repeat('x', 120), repeat('y', 500)) returning project_id"),
+    ).toEqual([{ project_id: 'mi-ma-mo' }])
   })
 })

@@ -5,7 +5,7 @@ import styles from './Thread.module.css'
 /**
  * The thread: one short hairline that runs through the homepage and carries each world's
  * color into the next (the bridge's white into ON's gold, ON's gold into the amber of
- * המחלבה, and on to the cold steel of Defense Systems, the process, the capabilities and
+ * המחלבה, and on to the cold steel of Internal Systems, the process, the capabilities and
  * About, resolving in the closing scene). It draws in from the inline start as its scene
  * arrives: same builder, different world. Decorative; static without motion.
  */

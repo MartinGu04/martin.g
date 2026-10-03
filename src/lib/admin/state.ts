@@ -31,3 +31,26 @@ export const adminFields = {
   status: 'status',
   note: 'note',
 } as const
+
+/** The project editor's form (Phase 8C). */
+export const projectFields = {
+  project: 'project',
+  locale: 'locale',
+  title: 'title',
+  summary: 'summary',
+} as const
+
+export interface CopyActionState extends ActionState {
+  /** The locale the answer is about. */
+  locale?: 'he' | 'en'
+  errors?: Partial<Record<'title' | 'summary', string>>
+}
+
+export const initialCopyActionState: CopyActionState = { status: 'idle', done: 0 }
+
+export interface PublishState {
+  status: 'idle' | 'success' | 'error'
+  message?: string
+}
+
+export const initialPublishState: PublishState = { status: 'idle' }

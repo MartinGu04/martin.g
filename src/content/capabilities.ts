@@ -6,7 +6,7 @@ export type Evidence = 'on' | 'mi-ma-mo' | 'defense'
 /**
  * The capabilities on the homepage, in order, each with the work that proves it (as
  * Martin assigned it). Evidence names scenes on the same page, so every proof is a real
- * destination: ON, המחלבה, or the Defense Systems archive.
+ * destination: ON, המחלבה, or the Internal Systems archive.
  */
 export const capabilityProof: readonly { key: CapabilityKey; evidence: readonly Evidence[] }[] = [
   { key: 'product-strategy', evidence: ['on', 'mi-ma-mo'] },

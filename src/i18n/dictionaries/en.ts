@@ -25,9 +25,9 @@ export const en = {
   },
   work: {
     selectedTitle: 'Selected Work',
-    confidentialTitle: 'Defense Systems',
+    confidentialTitle: 'Internal Systems',
     confidentialNote:
-      'Operational systems built for a defense environment. Identifying details and interfaces are intentionally withheld.',
+      'Internal projects presented in a limited form. Some interface details have been omitted or obscured.',
     viewProject: 'View project',
     visitLiveSite: 'Visit live site',
   },

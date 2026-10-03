@@ -10,7 +10,7 @@ import { showcaseCopy } from '@/i18n/dictionaries/showcase'
 import { contactCopy } from '@/i18n/dictionaries/contact'
 import { trustHref } from '@/lib/trust'
 import { capabilityProof, type Evidence } from '@/content/capabilities'
-import { getProjectSequence } from '@/content/registry'
+import { getSiteProjectSequence } from '@/content/saved-copy'
 import { onMedia } from '@/content/projects/on'
 import { miMaMoMedia } from '@/content/projects/mi-ma-mo'
 import { thread } from '@/content/worlds'
@@ -47,7 +47,7 @@ export async function generateMetadata({ params }: PageProps<'/[locale]'>): Prom
  *   index of the work (lighter graphite)       cut
  *   ON (cream, the retreat)                    soft wipe
  *   המחלבה, id mi-ma-mo (midnight, technical)  split in, split out
- *   Defense Systems (gunmetal)                 cut
+ *   Internal Systems (gunmetal)                 cut
  *   how I work (graphite, advances on its own) dissolve
  *   capabilities (bone), about (warm)          cut
  *   the closing call to action (graphite)      cut
@@ -60,7 +60,7 @@ export default async function HomePage({ params }: PageProps<'/[locale]'>) {
   const dict = getDictionary(locale)
   const copy = homeCopy[locale]
   const showcase = showcaseCopy[locale]
-  const sequence = getProjectSequence()
+  const sequence = await getSiteProjectSequence()
 
   const work = sequence.flatMap(({ project, number }) =>
     project.visibility === 'public'
@@ -101,7 +101,12 @@ export default async function HomePage({ params }: PageProps<'/[locale]'>) {
       title: dict.work.confidentialTitle,
       line: showcase.chapters.defense,
       accent: thread.defense,
-      preview: { kind: 'diagram', pattern: firstConfidential?.pattern ?? 'grid' },
+      // The bridge previews this chapter with geometry only, whatever the covers are.
+      preview: {
+        kind: 'diagram',
+        pattern:
+          firstConfidential?.cover.kind === 'abstract' ? firstConfidential.cover.pattern : 'grid',
+      },
     },
   ]
 

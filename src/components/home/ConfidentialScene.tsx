@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import type { Dictionary } from '@/i18n/dictionaries'
 import type { ConfidentialProjectSummary } from '@/content/resolve'
 import { thread, worlds } from '@/content/worlds'
@@ -15,8 +16,8 @@ import styles from './ConfidentialScene.module.css'
 type Item = ConfidentialProjectSummary & { number: string }
 
 /**
- * Scene 05: Defense Systems, operational systems built for a defense environment. A
- * gunmetal register holds a framed archive: restrained corner marks, a hairline boundary
+ * Scene 05: Internal Systems, internal projects presented in a limited form. A gunmetal
+ * register holds a framed archive: restrained corner marks, a hairline boundary
  * that draws closed from its corners on arrival, technical micro type, and a generated
  * system diagram per project (topology, data pathways, masked structural blocks) with a
  * slow scan while the scene is visible. The thread arrives here in cold steel. Behind it all,
@@ -25,8 +26,11 @@ type Item = ConfidentialProjectSummary & { number: string }
  * abstract: no fake interface, no labels, no data. Truthful: the page is not access
  * controlled and does not pretend to be; no classified, warning or dossier language.
  *
- * Sanitized summaries only: no links, no routes, no media, no identifying detail. The
- * items are not interactive, so nothing here takes focus; hover only brightens geometry.
+ * Sanitized summaries only: no links, no routes, no identifying detail. One project is one
+ * card. The single exception to generated geometry is confidential-01's approved, fully
+ * anonymized interface image (src/content/schema.ts, ApprovedInterfaceCover), framed in the
+ * same archive language: a tighter crop, no parallax, a very slight zoom on hover only. The
+ * items are not interactive, so nothing here takes focus.
  */
 export function ConfidentialScene({ items, dict }: { items: Item[]; dict: Dictionary }) {
   const range = items.map((item) => item.number).join('–')
@@ -55,9 +59,26 @@ export function ConfidentialScene({ items, dict }: { items: Item[]; dict: Dictio
           <ul role="list" className={styles.list}>
             {items.map((item, i) => (
               <Reveal as="li" key={item.id} order={i} variant="fade" className={styles.item}>
-                <div className={styles.cover} data-parallax>
-                  <SystemDiagram pattern={item.pattern} />
-                </div>
+                {item.cover.kind === 'approved-interface' ? (
+                  <div className={`${styles.cover} ${styles.interface}`}>
+                    <div className={styles.shot}>
+                      <Image
+                        src={item.cover.src}
+                        alt={item.cover.alt}
+                        fill
+                        sizes="(width >= 75rem) 40vw, (width >= 48rem) 45vw, 90vw"
+                        className={styles.shotImage}
+                        style={{
+                          objectPosition: `${item.cover.focal.x * 100}% ${item.cover.focal.y * 100}%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div className={styles.cover} data-parallax>
+                    <SystemDiagram pattern={item.cover.pattern} />
+                  </div>
+                )}
                 <p className={`t-label ${styles.index}`}>
                   <IndexNumber value={item.number} />
                   <span className={styles.rule} aria-hidden="true" />

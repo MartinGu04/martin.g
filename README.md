@@ -47,6 +47,11 @@ test fixtures, branch names, commit messages, issues or pull requests.
 Enforcement is layered:
 
 1. **Types.** `ConfidentialProject` has no route, link, media, story, SEO or client fields.
+   Its cover is generated abstract geometry, with one explicit exception: `confidential-01`
+   may show its single approved, fully anonymized portfolio image (all text unreadable, no
+   names, numbers, dates, identifiers or product mark). The type allows it for that id
+   only, the content layer refuses it at runtime for any other, and a unit test pins the
+   one file in `src/assets/confidential/` by its hash.
 2. **Data layer.** Content modules are `server-only`; drafts are filtered before rendering;
    confidential entries are never built as pages. Nothing is hidden with CSS.
 3. **Leak check** (`scripts/leak-check.mjs`), with the blocklist supplied only through
@@ -125,7 +130,10 @@ Two different things, never to be confused:
 `/admin` is Martin's private CRM for the leads (Phase 8B): Supabase Auth with exactly one
 authorized user (`ADMIN_USER_ID`), server-side only, never indexed or cached. See
 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), "Admin CRM (Phase 8B)", for the model, the
-manual Supabase setup and the firewall change it requires. Locally, its tests run against
+manual Supabase setup and the firewall change it requires. Since Phase 8C it also edits each
+project's Hebrew and English title and short description (one entry per project, an HE |
+EN switch, each language saved on its own); saved text reaches the public site through a
+new Production build. See "Project editor (Phase 8C)" in the same document. Locally, its tests run against
 a fake Supabase (`tests/support/fake-supabase-server.mjs`); nothing touches the real one.
 
 ## Copy review

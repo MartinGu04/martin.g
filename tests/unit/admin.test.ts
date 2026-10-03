@@ -634,7 +634,7 @@ describe('admin security boundaries', () => {
       const source = readFileSync(file, 'utf8')
       if (!/^['"]use client['"]/m.test(source)) continue
       expect(source, file).not.toMatch(
-        /@\/lib\/admin\/(auth|config|crm|session|proxy)|@\/lib\/leads\/(config|repository|supabase)|@supabase\//,
+        /@\/lib\/admin\/(auth|config|crm|session|proxy)|@\/lib\/leads\/(config|repository|supabase)|@\/lib\/projects\/(editor|publish|translations)|@supabase\//,
       )
     }
   })

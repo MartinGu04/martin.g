@@ -16,6 +16,7 @@ const dir = path.resolve(__dirname, '../../supabase/migrations')
 const MIGRATIONS = [
   { file: '20261003105852_leads.sql', table: 'leads' },
   { file: '20261003122041_lead_notes.sql', table: 'lead_notes' },
+  { file: '20261003152740_project_translations.sql', table: 'project_translations' },
 ] as const
 
 /** The statements, without comments, normalized to single-spaced lowercase. */
@@ -28,7 +29,7 @@ function statements(file: string): string[] {
 }
 
 describe('migrations', () => {
-  it('are exactly these, in order: the live leads table, then the Phase 8B notes', () => {
+  it('are exactly these, in order: the live leads table, the Phase 8B notes, then the Phase 8C project copy', () => {
     expect(readdirSync(dir).sort()).toEqual(MIGRATIONS.map((m) => m.file))
   })
 })
@@ -96,5 +97,24 @@ describe('lead_notes migration', () => {
   it('adds lead_notes only: the leads migration is untouched', () => {
     expect(sql).not.toMatch(/public\.leads\s+(enable|force|add|drop|alter)/)
     expect(sql.match(/create table/g)).toHaveLength(1)
+  })
+})
+
+describe('project_translations migration', () => {
+  const sql = statements('20261003152740_project_translations.sql').join(';\n')
+
+  it('keeps one row per project and locale, Hebrew or English', () => {
+    expect(sql).toContain('primary key (project_id, locale)')
+    expect(sql).toContain("check (locale = any (array['he'::text, 'en'::text]))")
+  })
+
+  it('holds localized text only, never a shared property', () => {
+    expect(sql).toContain(
+      'create table if not exists public.project_translations ( project_id text not null, locale text not null, title text not null, summary text not null, created_at timestamptz not null default now(), updated_at timestamptz not null default now(), constraint',
+    )
+  })
+
+  it('adds project_translations only: the leads migrations are untouched', () => {
+    expect(sql).not.toMatch(/public\.(leads|lead_notes)\b/)
   })
 })

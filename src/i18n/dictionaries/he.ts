@@ -28,8 +28,8 @@ export const he: Dictionary = {
   },
   work: {
     selectedTitle: 'עבודות נבחרות',
-    confidentialTitle: 'מערכות ביטחוניות',
-    confidentialNote: 'מערכות תפעוליות שנבנו לסביבה ביטחונית. פרטים מזהים וממשקים הושמטו במכוון.',
+    confidentialTitle: 'מערכות פנימיות',
+    confidentialNote: 'פרויקטים פנימיים המוצגים באופן מצומצם. חלק מפרטי הממשק הושמטו או טושטשו.',
     viewProject: 'לפרויקט',
     visitLiveSite: 'לאתר החי',
   },
