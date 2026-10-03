@@ -11,7 +11,7 @@ Composition: `src/app/[locale]/page.tsx`; scenes: `src/components/home/`.
 ## Principles
 
 - **One story, many worlds.** Martin identifies problems; ON shows the human, brand and
-  experience side; המחלבה the operational product; Defense Systems complex systems that
+  experience side; המחלבה the operational product; Internal Systems complex systems that
   cannot be fully shown; How I Work the thinking; Capabilities the disciplines; About the
   person; Contact the invitation. A thread carries each world's color into the next (see
   The thread) so the page reads as one builder moving between worlds.
@@ -26,7 +26,7 @@ Composition: `src/app/[locale]/page.tsx`; scenes: `src/components/home/`.
   drifts, real views taking turns, a process that advances, a scan, a rail. Restrained,
   never decorative noise, never on every element (see Ambient loops).
 - **Varied density.** Scenes are as tall as their content: spacious where the moment
-  deserves it (the hero, ON), dense where the proof is (המחלבה, Defense Systems,
+  deserves it (the hero, ON), dense where the proof is (המחלבה, Internal Systems,
   Capabilities). No empty height for cinematic effect.
 - **Color identifies worlds.** Each world has its own controlled palette (below); no
   unrelated accents.
@@ -34,17 +34,17 @@ Composition: `src/app/[locale]/page.tsx`; scenes: `src/components/home/`.
 
 ## Scene map and pacing
 
-| #   | Scene                                 | Energy          | World / register       | Enters by | Leaves by |
-| --- | ------------------------------------- | --------------- | ---------------------- | --------- | --------- |
-| 01  | Identity (`HeroScene`)                | strong, clear   | MARTIN.G dark          | timed     |           |
-| 02  | Selected Work chapters (`WorkBridge`) | quiet bridge    | lighter graphite       | cut       |           |
-| 03  | ON (`OnWorld`)                        | warm, intimate  | cream, bordeaux, gold  | soft wipe |           |
-| 04  | המחלבה (`MiMaMoWorld`)                | technical peak  | midnight, green, amber | split     | split     |
-| 05  | Defense Systems (`ConfidentialScene`) | controlled drop | gunmetal, steel        | cut       |           |
-| 06  | How I Work (`ProcessStage`)           | rhythmic        | graphite, warm white   | dissolve  |           |
-| 07  | Capabilities                          | calm, daylight  | bone, ink, warm accent | cut       |           |
-| 08  | About                                 | calm, warm      | warm brown, cream      | cut       |           |
-| 09  | Contact                               | strong close    | graphite, amber        | cut       |           |
+| #   | Scene                                  | Energy          | World / register       | Enters by | Leaves by |
+| --- | -------------------------------------- | --------------- | ---------------------- | --------- | --------- |
+| 01  | Identity (`HeroScene`)                 | strong, clear   | MARTIN.G dark          | timed     |           |
+| 02  | Selected Work chapters (`WorkBridge`)  | quiet bridge    | lighter graphite       | cut       |           |
+| 03  | ON (`OnWorld`)                         | warm, intimate  | cream, bordeaux, gold  | soft wipe |           |
+| 04  | המחלבה (`MiMaMoWorld`)                 | technical peak  | midnight, green, amber | split     | split     |
+| 05  | Internal Systems (`ConfidentialScene`) | controlled drop | gunmetal, steel        | cut       |           |
+| 06  | How I Work (`ProcessStage`)            | rhythmic        | graphite, warm white   | dissolve  |           |
+| 07  | Capabilities                           | calm, daylight  | bone, ink, warm accent | cut       |           |
+| 08  | About                                  | calm, warm      | warm brown, cream      | cut       |           |
+| 09  | Contact                                | strong close    | graphite, amber        | cut       |           |
 
 The hero is one frame with three timed beats (about two seconds in all, masks that fill
 backwards only): Martin Gusin, Product Builder; the positioning; the principle. On
@@ -53,7 +53,7 @@ past the inline end (on the left in Hebrew; the symbol itself is never mirrored)
 requires scrolling.
 
 Heights reduced in 4.5: How I Work (from a viewport plus 140svh of sticky stage to its
-compact content), Contact (no longer a full frame), ON, Defense Systems, Capabilities and
+compact content), Contact (no longer a full frame), ON, Internal Systems, Capabilities and
 About (smaller padding), המחלבה (one product frame instead of a frame plus a strip).
 
 ## The thread (4.6)
@@ -61,18 +61,18 @@ About (smaller padding), המחלבה (one product frame instead of a frame plus
 One short hairline at the top of each scene (`<Thread>`, docs/DESIGN-SYSTEM.md), a gradient
 from the previous world's color to the arriving one, drawn in as the scene arrives:
 
-| Handoff                      | From → to                    |
-| ---------------------------- | ---------------------------- |
-| index → ON                   | warm white → ON gold         |
-| ON → המחלבה                  | ON gold → amber              |
-| המחלבה → Defense Systems     | amber → cold steel           |
-| Defense Systems → How I Work | cold steel → warm white      |
-| How I Work → Capabilities    | warm white → the bone accent |
-| Capabilities → About         | the bone accent → lamplight  |
-| About → Contact              | lamplight → amber, resolved  |
+| Handoff                       | From → to                    |
+| ----------------------------- | ---------------------------- |
+| index → ON                    | warm white → ON gold         |
+| ON → המחלבה                   | ON gold → amber              |
+| המחלבה → Internal Systems     | amber → cold steel           |
+| Internal Systems → How I Work | cold steel → warm white      |
+| How I Work → Capabilities     | warm white → the bone accent |
+| Capabilities → About          | the bone accent → lamplight  |
+| About → Contact               | lamplight → amber, resolved  |
 
 Selected Work is the table of contents for the worlds ahead (4.7): three chapters (01 ON,
-02 המחלבה, 03–04 Defense Systems), each a rule, number and focus color in its world's
+02 המחלבה, 03–04 Internal Systems), each a rule, number and focus color in its world's
 accent, a title, one line, and a small glimpse of the world (a real ON website crop, a
 sanitized המחלבה screen, the Defense geometry drawn still). Glimpses rest muted and come to
 full color on hover or focus; each chapter links to its scene. Inside the worlds the thread
@@ -100,7 +100,7 @@ Composition first, then depth, then texture; nothing here is a concept of its ow
 - **ON**: a far, heavily blurred, warmed crop of the venue (one small image, about 16% of
   the frame's width in pixels) and three faint washes of bordeaux, olive and gold behind
   the world. The phone is larger, overlaps the site frame more deeply and hangs below it.
-- **Defense Systems**: `SystemField`, a static, very faint SVG field behind the archive:
+- **Internal Systems**: `SystemField`, a static, very faint SVG field behind the archive:
   out-of-focus panel silhouettes (some with the rhythm of rows, never content), two grid
   fragments, orthogonal topology with square nodes and two cold traces. No screenshots,
   text or data; the archive's surface lets it through only at about 10%.
@@ -127,8 +127,8 @@ Composition first, then depth, then texture; nothing here is a concept of its ow
 
 Inside the worlds the media enter in their own language: ON's photograph develops into
 place (scale 1.07 to 1), the המחלבה product screen opens from the same center seam as its
-world, the Defense Systems boundary draws from its corners. A world may hand the frame back
-the way it took it (`exit`): המחלבה contracts back into its seam before Defense Systems.
+world, the Internal Systems boundary draws from its corners. A world may hand the frame back
+the way it took it (`exit`): המחלבה contracts back into its seam before Internal Systems.
 Entering scenes overlap the previous one by `--scene-overlap`.
 
 ## Ambient loops
@@ -184,14 +184,16 @@ the frame never dips. Nothing is a carousel: no controls, no swiping, no fast cu
   phone, then the few Team Week columns that stay legible. With reduced motion or without
   scripting the three views are set out as a static grid. On exit its grid, dots and marks
   fade and its accent drains (`--world-signal`, 1 to 0). No live-site link.
-- **Defense Systems** (the confidential projects; `מערכות ביטחוניות`): operational systems
-  built for a defense environment. Gunmetal and steel with one cold accent; one framed
-  archive (a lighter inner surface, a hairline boundary, restrained corner marks), a
-  technical header (title, rule, index range 03–04) and the truthful note that identifying
-  details and interfaces are withheld (at body size since 4.6). Each project has a
-  generated system diagram (`SystemDiagram`): topology or data pathways with masked
+- **Internal Systems** (the confidential projects; `מערכות פנימיות`, renamed in Phase 8C):
+  internal projects presented in a limited form. Gunmetal and steel with one cold accent;
+  one framed archive (a lighter inner surface, a hairline boundary, restrained corner
+  marks), a technical header (title, rule, index range 03–04) and the truthful note that
+  some interface details are omitted or obscured (at body size since 4.6). Each project
+  has a generated system diagram (`SystemDiagram`): topology or data pathways with masked
   structural blocks, a slow scan and travelling pulses. Abstract and recognisably so: no
-  interface, labels, coordinates or data. Never classified, warning, clearance or dossier
+  interface, labels, coordinates or data. The one exception since Phase 8C is
+  `confidential-01`'s approved, fully anonymized interface image (docs/ARCHITECTURE.md,
+  "Confidential covers"). Never classified, warning, clearance or dossier
   language or styling; the page is not access controlled and does not pretend to be.
   Sanitized summaries only.
 - **How I Work** (`דרך העבודה`): graphite and warm white. A real section heading and its

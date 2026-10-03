@@ -74,18 +74,11 @@ describe('metadata', () => {
 describe('release gate', () => {
   afterEach(() => vi.unstubAllEnvs())
 
-  it('finds only the Phase 8C confidential wording awaiting review', () => {
-    // The Defense Systems note (dictionaries) and confidential-01's English and alt text
-    // are drafts awaiting Martin's approval; a Vercel production build refuses them until
-    // then. Everything else is approved.
-    expect(findDraftCopy().sort()).toEqual(
-      [
-        'dictionary:en',
-        'dictionary:he',
-        'project:confidential-01:en',
-        'project:confidential-01:he',
-      ].sort(),
-    )
+  it('finds no copy awaiting review', () => {
+    // Every published dictionary and project is approved in both locales, the Phase 8C
+    // Internal Systems wording and confidential-01's copy and alt text included. Anything
+    // marked 'draft' again would appear here, and a Vercel production build would refuse it.
+    expect(findDraftCopy()).toEqual([])
   })
 
   it('refuses synthetic draft copy in Vercel production builds only', () => {

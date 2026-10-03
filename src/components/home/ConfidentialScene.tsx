@@ -16,8 +16,8 @@ import styles from './ConfidentialScene.module.css'
 type Item = ConfidentialProjectSummary & { number: string }
 
 /**
- * Scene 05: Defense Systems, operational systems built for a defense environment. A
- * gunmetal register holds a framed archive: restrained corner marks, a hairline boundary
+ * Scene 05: Internal Systems, internal projects presented in a limited form. A gunmetal
+ * register holds a framed archive: restrained corner marks, a hairline boundary
  * that draws closed from its corners on arrival, technical micro type, and a generated
  * system diagram per project (topology, data pathways, masked structural blocks) with a
  * slow scan while the scene is visible. The thread arrives here in cold steel. Behind it all,

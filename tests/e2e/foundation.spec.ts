@@ -205,7 +205,7 @@ test.describe('confidential work', () => {
 
   test('renders only sanitized, unlinked summaries', async ({ page }) => {
     await page.goto('/en')
-    const section = page.getByRole('region', { name: 'Defense Systems' })
+    const section = page.getByRole('region', { name: 'Internal Systems' })
     await expect(section.getByRole('heading', { level: 3 })).toHaveCount(2)
     await expect(section.getByRole('link')).toHaveCount(0)
     await expect(section.getByText('03', { exact: true })).toBeVisible()
@@ -214,18 +214,15 @@ test.describe('confidential work', () => {
     await expect(section.locator('video, iframe')).toHaveCount(0)
     const images = section.locator('img')
     await expect(images).toHaveCount(1)
-    await expect(images).toHaveAttribute(
-      'alt',
-      'The system’s interface, with all text and details blurred.',
-    )
+    await expect(images).toHaveAttribute('alt', 'Internal system interface with obscured details')
     await expect(section.getByRole('listitem').first().locator('img')).toHaveCount(1)
     await expect(section.getByRole('listitem').nth(1).locator('img')).toHaveCount(0)
   })
 
-  test('is framed as defense systems, truthfully, in both locales', async ({ page }) => {
+  test('is framed as internal systems, truthfully, in both locales', async ({ page }) => {
     for (const [path, title] of [
-      ['/en', 'Defense Systems'],
-      ['/he', 'מערכות ביטחוניות'],
+      ['/en', 'Internal Systems'],
+      ['/he', 'מערכות פנימיות'],
     ] as const) {
       await page.goto(path)
       const section = page.getByRole('region', { name: title })
@@ -254,7 +251,7 @@ test.describe('confidential work', () => {
     await expect(page.locator('#confidential h3').first()).toHaveText('מערכת לניהול תהליכים')
     await expect(page.locator('#confidential img')).toHaveAttribute(
       'alt',
-      'ממשק המערכת, כשכל הטקסט והפרטים בו מטושטשים.',
+      'ממשק מערכת פנימית עם פרטים מטושטשים',
     )
   })
 

@@ -61,7 +61,7 @@ const TOPOLOGY = topology()
 const TRACES = new Set([1, 4])
 
 /**
- * The Defense Systems environment: a very faint, static field behind the archive that says
+ * The Internal Systems environment: a very faint, static field behind the archive that says
  * "complex system" without showing one. Blurred panel silhouettes (some with the rhythm of
  * rows, never their content), two fragments of grid, thin orthogonal topology with square
  * nodes, and two cold traces. Generated geometry only: no screenshots, text, labels or data,

@@ -166,7 +166,7 @@ test.describe('real project showcase', () => {
     else await expect(productFrame).toBeVisible()
   })
 
-  test('Defense Systems: geometry, plus only the one approved blurred interface', async ({
+  test('Internal Systems: geometry, plus only the one approved blurred interface', async ({
     page,
   }) => {
     for (const locale of ['en', 'he']) {

@@ -47,7 +47,7 @@ export async function generateMetadata({ params }: PageProps<'/[locale]'>): Prom
  *   index of the work (lighter graphite)       cut
  *   ON (cream, the retreat)                    soft wipe
  *   המחלבה, id mi-ma-mo (midnight, technical)  split in, split out
- *   Defense Systems (gunmetal)                 cut
+ *   Internal Systems (gunmetal)                 cut
  *   how I work (graphite, advances on its own) dissolve
  *   capabilities (bone), about (warm)          cut
  *   the closing call to action (graphite)      cut

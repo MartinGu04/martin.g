@@ -97,7 +97,7 @@ export default async function ProjectPage({ params }: PageProps<'/[locale]/work/
     if (!current) throw new Error(`No public sequence entry for ${project.id}.`)
 
     if (project.id === 'mi-ma-mo') {
-      // The last public world: its end names the work that follows (Defense Systems)
+      // The last public world: its end names the work that follows (Internal Systems)
       // without a route into it, and leads back to all of the work.
       return (
         <article>

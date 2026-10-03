@@ -4,7 +4,7 @@ The homepage answers _what does Martin build_; a case study answers _how did he 
 decide and build it_. Each one enters deeper into its project's world: the MARTIN.G header,
 grid, type and motion stay the same, while color, light and material belong to the project.
 Real material and real decisions only: no fake metrics, testimonials, outcomes or agency
-language. Defense Systems never gets a case study.
+language. Internal Systems never gets a case study.
 
 Composition: `src/components/case-study/` (shared primitives) and one folder per case
 study (`on/`, `mi-ma-mo/`). Copy: one dictionary per case study, `draft` until Martin approves it.
@@ -99,7 +99,7 @@ and the product carries every chapter. Its own devices, in `src/components/case-
 | 06  | Key decisions                  | midnight  | five decisions, each with its evidence                                  |
 | 07  | System details                 | midnight  | the mechanics on a bench: coverage, type levels, today twice, time left |
 | 08  | Result                         | midnight  | Many operational states, one working system; four views on one line     |
-|     | Closing                        | steel     | midnight into steel; Defense Systems named, not opened; All work        |
+|     | Closing                        | steel     | midnight into steel; Internal Systems named, not opened; All work       |
 
 Rules specific to המחלבה:
 
@@ -122,7 +122,7 @@ size="display"`) and resolves the four real views as stations on one line that r
   Phones get their own region of the same file instead of a shrunken screen.
 - **Physical screens.** The interface reads right to left, so Team Week is anchored at its
   physical right (the day column) in both languages and runs out past the other edge.
-- **No Defense case study.** The closing names Defense Systems with its approved wording and
+- **No Defense case study.** The closing names Internal Systems with its approved wording and
   links only back to all of the work. No route, no clickable promise, no classified styling.
 - **Motion.** Alive while still, never fake data: a trace along the opening screen's top edge,
   a sweep across the map's columns, a slow pulse on today. All three only inside ambient

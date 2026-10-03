@@ -7,7 +7,7 @@ import type { Localized, ReviewStatus } from '../config'
  * Martin's Hebrew corrections are applied and the rest was reviewed for literal phrasing;
  * Martin approved it in both locales. Marking either locale 'draft' again makes a Vercel
  * production build refuse it (src/i18n/release-gate.ts). The action labels "Visit live site" / "לאתר החי"
- * and the Defense Systems wording were supplied by Martin and live in the main dictionaries.
+ * and the Internal Systems wording were supplied by Martin and live in the main dictionaries.
  */
 export const showcaseReview: Localized<ReviewStatus> = {
   en: 'approved',

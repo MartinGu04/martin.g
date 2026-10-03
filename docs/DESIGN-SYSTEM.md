@@ -225,7 +225,7 @@ ON uses its real brand values (sampled from the live site), in three registers: 
 (`onNight`); the המחלבה world keeps its technical register, with one more register for its
 case study's manager chapter (`miMaMoCard`, the interface's deep card blue). Industrial
 detail (visible grid, dots, marks, data fragments, technical motion) belongs to the
-mi-ma-mo world, not to the MARTIN.G identity. Defense Systems (the confidential work) never
+mi-ma-mo world, not to the MARTIN.G identity. Internal Systems (the confidential work) never
 uses classified, warning, clearance or dossier language or styling.
 
 ## Primitives (deliberately few)

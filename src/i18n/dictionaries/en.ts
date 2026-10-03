@@ -1,8 +1,7 @@
 import type { ReviewStatus } from '../config'
 
 /** English is the key source of truth. Every other dictionary must match this shape. */
-// Draft (Phase 8C): the Defense Systems note changed, now that one interface is shown blurred.
-export const enReview: ReviewStatus = 'draft'
+export const enReview: ReviewStatus = 'approved'
 
 export const en = {
   site: {
@@ -26,9 +25,9 @@ export const en = {
   },
   work: {
     selectedTitle: 'Selected Work',
-    confidentialTitle: 'Defense Systems',
+    confidentialTitle: 'Internal Systems',
     confidentialNote:
-      'Operational systems built for a defense environment. Identifying details are intentionally withheld, and any interface shown is fully blurred.',
+      'Internal projects presented in a limited form. Some interface details have been omitted or obscured.',
     viewProject: 'View project',
     visitLiveSite: 'Visit live site',
   },

@@ -91,7 +91,7 @@ test.describe('המחלבה case study: structure', () => {
 })
 
 test.describe('המחלבה case study: navigation and routes', () => {
-  test('no live site, no route into Defense Systems, and the way back to all work', async ({
+  test('no live site, no route into Internal Systems, and the way back to all work', async ({
     page,
   }) => {
     for (const [locale, allWork] of [
@@ -113,7 +113,7 @@ test.describe('המחלבה case study: navigation and routes', () => {
       // The closing names the next world of the work without opening it.
       const closing = page.locator('section[aria-labelledby="closing-title"]')
       await expect(closing.getByRole('heading', { level: 2 })).toHaveText(
-        locale === 'en' ? 'Defense Systems' : 'מערכות ביטחוניות',
+        locale === 'en' ? 'Internal Systems' : 'מערכות פנימיות',
       )
       await expect(closing.locator('a')).toHaveCount(1)
       await expect(closing.locator('a')).toHaveAttribute('href', `/${locale}#work`)

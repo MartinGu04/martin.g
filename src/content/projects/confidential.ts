@@ -13,20 +13,19 @@ import interfaceImage from '@/assets/confidential/confidential-01-interface.webp
  */
 
 /*
- * Copy (Phase 8C): the Hebrew title and summary are Martin's own wording, neutral by
- * design (no classified, confidential, compartmentalized, secret, military, operational
- * or security terms). The English and both alt texts are drafts awaiting his approval, so
- * the release gate refuses a production build until then.
+ * Copy (Phase 8C): Martin's own wording in both languages, approved, neutral by design (no
+ * classified, confidential, compartmentalized, secret, military, operational or security
+ * terms). The alt text is generic: it never names the system or what it is for.
  */
 export const confidential01: ConfidentialProject = {
   id: 'confidential-01',
   visibility: 'confidential',
   order: 3,
   status: 'published',
-  review: { en: 'draft', he: 'draft' },
+  review: { en: 'approved', he: 'approved' },
   title: { en: 'Process Management System', he: 'מערכת לניהול תהליכים' },
   summary: {
-    en: 'A dedicated tool for managing information, workflows and the production of deliverables in an internal work environment.',
+    en: 'A purpose-built system for managing information, workflows, and outputs in an internal work environment.',
     he: 'כלי ייעודי לניהול מידע, תהליכי עבודה והפקת תוצרים בסביבת עבודה פנימית.',
   },
   disciplines: ['system-design', 'engineering'],
@@ -34,8 +33,8 @@ export const confidential01: ConfidentialProject = {
     kind: 'approved-interface',
     src: interfaceImage,
     alt: {
-      en: 'The system’s interface, with all text and details blurred.',
-      he: 'ממשק המערכת, כשכל הטקסט והפרטים בו מטושטשים.',
+      en: 'Internal system interface with obscured details',
+      he: 'ממשק מערכת פנימית עם פרטים מטושטשים',
     },
     // The working table and the side panel: the structure that reads as a real system.
     focal: { x: 0.5, y: 0.62 },

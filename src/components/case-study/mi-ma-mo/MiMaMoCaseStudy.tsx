@@ -344,7 +344,7 @@ export function MiMaMoCaseStudy({ locale, dict, showcase, copy, project }: MiMaM
 /**
  * The end of the case study: midnight gives way to steel and amber to a cold technical
  * blue, the grid thins into abstraction, and the next world of the work is named without
- * being opened. Defense Systems has no route and no case study: nothing here links to it
+ * being opened. Internal Systems has no route and no case study: nothing here links to it
  * or suggests one. Its approved wording, then the way back to all of the work.
  */
 function Closing({

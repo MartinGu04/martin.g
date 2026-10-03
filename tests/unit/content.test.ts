@@ -181,9 +181,24 @@ describe('confidential projects', () => {
     )
   })
 
+  it('frame the section as internal systems, without defense or operational terms', () => {
+    expect(dictionaries.en.messages.work.confidentialTitle).toBe('Internal Systems')
+    expect(dictionaries.he.messages.work.confidentialTitle).toBe('מערכות פנימיות')
+    const text = [dictionaries.en.messages.work, dictionaries.he.messages.work]
+      .flatMap((work) => [work.confidentialTitle, work.confidentialNote])
+      .join(' ')
+      .toLowerCase()
+    for (const term of ['defense', 'defence', 'operational', 'security', 'ביטחוני', 'תפעולי'])
+      expect(text, term).not.toContain(term)
+    // Truthful about what is shown: details obscured, not every interface withheld.
+    expect(dictionaries.en.messages.work.confidentialNote).toMatch(/omitted or obscured/)
+  })
+
   it('describe confidential-01 neutrally, with generic alt text, in both locales', () => {
     const project = confidential.find((p) => p.id === 'confidential-01')!
     expect(project.title.he).toBe('מערכת לניהול תהליכים')
+    expect(project.title.en).toBe('Process Management System')
+    expect(project.review).toEqual({ en: 'approved', he: 'approved' })
     expect(project.summary.he).toBe(
       'כלי ייעודי לניהול מידע, תהליכי עבודה והפקת תוצרים בסביבת עבודה פנימית.',
     )

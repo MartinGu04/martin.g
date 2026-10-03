@@ -7,7 +7,7 @@
     row-gap: var(--space-6);
   }
 
-  /* Defense Systems: a framed archive inside a gunmetal register. */
+  /* Internal Systems: a framed archive inside a gunmetal register. */
   .archive {
     --corner: 0.875rem;
     --archive-pad: var(--space-5);
