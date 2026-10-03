@@ -72,8 +72,9 @@ describe('brand intro films', () => {
 })
 
 describe('brand intro script', () => {
-  it('waits for review in Hebrew only', () => {
-    expect(introReview).toEqual({ en: 'approved', he: 'draft' })
+  it('is approved copy in both locales', () => {
+    expect(introReview).toEqual({ en: 'approved', he: 'approved' })
+    expect(introCopy.he).toEqual({ skip: 'דלג', film: 'סרט' })
   })
 
   it('carries one locale, safely escaped, and no em dash', () => {

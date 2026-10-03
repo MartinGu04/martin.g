@@ -210,12 +210,22 @@ homepage renders normally beneath it.
   stays the LCP, measured in Chromium), nothing waits for it, and the server HTML carries
   only the script (under 4 KB, under 2 KB compressed, on every page). Muted autoplaying video is requested at the browser's low
   media priority; skipping or lifting aborts the rest of the download.
-- **Copy.** Skip's label (`src/i18n/dictionaries/intro.ts`): English as briefed; the
-  Hebrew is a draft for Martin's review, and the release gate refuses a production build
-  until it is approved.
+- **On demand.** The header's Film control (`Film` / `סרט`, a button in the primary
+  navigation) plays the same film again through the same player, on any page and as often
+  as asked, even after the automatic intro. A replay never reads or clears the session's
+  record, so the automatic intro stays spent; closing it returns focus to Film. The
+  control exists only where the film can play: the script marks `html[data-brand-film]`
+  before the header paints (scripting, no reduced motion, a browser that decodes it), so
+  it never appears late or shifts the row, and it is never a dead control.
+- **Copy** (`src/i18n/dictionaries/intro.ts`, approved): Skip `Skip` / `דלג`, Film `Film` /
+  `סרט`. The accessibility statement describes the intro (muted, at most once per session
+  on entering the homepage, Skip or Escape, never with reduced motion) beside the ON
+  preview.
 - **Tests.** `tests/e2e/intro.spec.ts` (fresh session, refresh, navigation, new session,
   the edit per screen at six viewports, Skip by pointer and keyboard, Escape, Hebrew, axe,
-  reduced motion, no scripting, every failure, no layout shift). The suite's Chromium has
+  reduced motion, no scripting, every failure, no layout shift; the header's Film control:
+  replays after the intro, the session untouched, Skip, Escape, keyboard, both languages,
+  one header row at six widths). The suite's Chromium has
   no H.264 decoder, so these tests answer the film URLs with tiny synthetic VP9 films
   (`tests/support/intro-films`); every other test starts with the intro already seen
   (`tests/support/test.ts`).
@@ -613,7 +623,8 @@ non-clickable and route-less.
 
 ## Navigation
 
-Header: Work, About, Contact and the language switch. Footer: the same, plus Privacy and
+Header: Work, About, Contact, Film (a button that plays the brand film again, where it can
+play; see Brand intro) and the language switch. Footer: Work, About, Contact, plus Privacy and
 Accessibility, in a labelled navigation. About is the homepage's About scene (`#about`),
 reached from any page; there is no About page. No placeholder or dead links (tested).
 

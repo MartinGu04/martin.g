@@ -10,8 +10,9 @@ interface LocaleSwitchProps {
   label: string
   className?: string
   /**
-   * On the narrowest screens (under 360px) show only the language to switch to: the page is
-   * already in the other one. Used by the header; the footer always shows both.
+   * On the narrowest screens (under 360px), and on every phone where the header also holds
+   * the Film control, show only the language to switch to: the page is already in the
+   * other one. Used by the header; the footer always shows both.
    */
   compact?: boolean
 }

@@ -250,7 +250,7 @@ test.describe('brand intro', () => {
     await page.goto('/he')
     await expectIntroPlaying(page)
     await expect(html(page)).toHaveAttribute('dir', 'rtl')
-    const skip = page.getByRole('button', { name: 'דילוג' })
+    const skip = page.getByRole('button', { name: 'דלג' })
     await expect(skip).toBeVisible()
     // Skip sits at the closing corner of the line: the left in Hebrew.
     const box = (await skip.boundingBox())!
@@ -376,6 +376,157 @@ test.describe('brand intro at every screen', () => {
         expect(skip.y + skip.height).toBeLessThanOrEqual(screen.height)
 
         await expectIntroGone(page, 10_000)
+      })
+    })
+  }
+})
+
+test.describe('the header Film control', () => {
+  const film = (page: Page, name = 'Film') =>
+    page.getByRole('banner').getByRole('button', { name, exact: true })
+  const seenState = (page: Page) =>
+    page.evaluate((key) => sessionStorage.getItem(key), INTRO_SESSION_KEY)
+
+  test('plays the film again after the automatic intro, as often as asked, never touching the session', async ({
+    page,
+  }) => {
+    const requested = await stageFilms(page)
+    await page.goto('/en')
+    await expectIntroPlaying(page)
+    await page.getByRole('button', { name: 'Skip' }).click()
+    await expectIntroGone(page, 2_000)
+    expect(await seenState(page)).toBe('seen')
+
+    // Already seen this session: the header plays it anyway, on any page, twice.
+    for (const path of ['/en', '/en/contact']) {
+      if (path !== '/en') await page.goto(path)
+      await film(page).click()
+      await expectIntroPlaying(page)
+      expect(await seenState(page)).toBe('seen')
+      await expectIntroGone(page, 10_000)
+      expect(await seenState(page)).toBe('seen')
+    }
+    expect(requested).toHaveLength(3)
+
+    // The automatic intro is still spent for the session.
+    await page.goto('/en')
+    await expectNoIntro(page)
+    expect(requested).toHaveLength(3)
+  })
+
+  test('Skip and Escape end a replay, and focus returns to Film', async ({ page, isMobile }) => {
+    await stageFilms(page)
+    await page.addInitScript((key) => sessionStorage.setItem(key, 'seen'), INTRO_SESSION_KEY)
+    await page.goto('/en/contact')
+    await expectNoIntro(page)
+
+    await film(page).click()
+    await expectIntroPlaying(page)
+    await page.getByRole('button', { name: 'Skip' }).click()
+    await expectIntroGone(page, 2_000)
+    expect(await seenState(page)).toBe('seen')
+
+    test.skip(isMobile, 'keyboard navigation')
+    await film(page).focus()
+    await page.keyboard.press('Enter')
+    await expectIntroPlaying(page)
+    await page.keyboard.press('Escape')
+    await expectIntroGone(page, 2_000)
+    await expect(film(page)).toBeFocused()
+    expect(await film(page).evaluate((el) => el.matches(':focus-visible'))).toBe(true)
+    await expect(film(page)).toHaveCSS('outline-style', 'solid')
+
+    // Space activates it too, and Skip is reached with Tab during the replay.
+    await page.keyboard.press(' ')
+    await expectIntroPlaying(page)
+    await page.keyboard.press('Tab')
+    await expect(page.getByRole('button', { name: 'Skip' })).toBeFocused()
+    await page.keyboard.press('Enter')
+    await expectIntroGone(page, 2_000)
+    expect(await seenState(page)).toBe('seen')
+  })
+
+  test('Hebrew: סרט plays the film, with the Hebrew Skip', async ({ page }) => {
+    await stageFilms(page)
+    await page.addInitScript((key) => sessionStorage.setItem(key, 'seen'), INTRO_SESSION_KEY)
+    await page.goto('/he')
+    await expectNoIntro(page)
+    await film(page, 'סרט').click()
+    await expectIntroPlaying(page)
+    await page.getByRole('button', { name: 'דלג' }).click()
+    await expectIntroGone(page, 2_000)
+  })
+
+  test('is a button in the primary navigation, shown only where the film can play', async ({
+    page,
+    browser,
+  }) => {
+    await stageFilms(page)
+    await page.addInitScript((key) => sessionStorage.setItem(key, 'seen'), INTRO_SESSION_KEY)
+    await page.goto('/en')
+    const nav = page.getByRole('navigation', { name: 'Primary' })
+    await expect(nav.getByRole('button', { name: 'Film', exact: true })).toBeVisible()
+    // The destinations around it are unchanged and still lead where they did.
+    for (const name of ['Work', 'About', 'Contact']) {
+      await expect(nav.getByRole('link', { name, exact: true })).toBeVisible()
+    }
+    await nav.getByRole('link', { name: 'Contact', exact: true }).click()
+    await expect(page).toHaveURL(/\/en\/contact$/)
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+    await page
+      .getByRole('navigation', { name: 'Primary' })
+      .getByRole('link', { name: /HE/ })
+      .click()
+    await expect(page).toHaveURL(/\/he\/contact$/)
+    await expect(film(page, 'סרט')).toBeVisible()
+    await expectNoIntro(page)
+
+    // No film for this browser (it cannot decode it), with reduced motion, or without scripting.
+    await withContext(browser, {}, async (other) => {
+      await other.goto('/en')
+      await expect(other.getByRole('heading', { level: 1 })).toBeVisible()
+      await expect(film(other)).toHaveCount(0)
+    })
+    for (const options of [{ reducedMotion: 'reduce' as const }, { javaScriptEnabled: false }]) {
+      await withContext(browser, options, async (other) => {
+        await stageFilms(other)
+        await other.goto('/en')
+        await expect(other.getByRole('heading', { level: 1 })).toBeVisible()
+        await expect(film(other)).toHaveCount(0)
+      })
+    }
+  })
+
+  for (const width of [320, 360, 390, 412, 768, 1280]) {
+    test(`the header holds one row with Film at ${width}px, in both languages`, async ({
+      browser,
+      isMobile,
+    }) => {
+      test.skip(isMobile, 'viewports are set explicitly')
+      await withContext(browser, { viewport: { width, height: 800 } }, async (page) => {
+        await stageFilms(page)
+        await page.addInitScript((key) => sessionStorage.setItem(key, 'seen'), INTRO_SESSION_KEY)
+        for (const locale of ['en', 'he'] as const) {
+          await page.goto(`/${locale}/contact`)
+          await page.evaluate(() => document.fonts.ready.then(() => undefined))
+          const button = film(page, locale === 'en' ? 'Film' : 'סרט')
+          await expect(button).toBeVisible()
+          const layout = await page.evaluate(() => {
+            const header = document.querySelector('header')!
+            const items = [...header.querySelectorAll('nav li')]
+              .map((li) => li.getBoundingClientRect())
+              .filter((r) => r.width > 0)
+            return {
+              overflow: document.documentElement.scrollWidth - innerWidth,
+              rows: new Set(items.map((r) => Math.round(r.top))).size,
+              inside: items.every((r) => r.left >= 0 && r.right <= innerWidth),
+            }
+          })
+          expect(layout).toEqual({ overflow: 0, rows: 1, inside: true })
+          const box = (await button.boundingBox())!
+          expect(box.width).toBeGreaterThanOrEqual(24)
+          expect(box.height).toBeGreaterThanOrEqual(44)
+        }
       })
     })
   }

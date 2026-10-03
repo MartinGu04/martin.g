@@ -74,12 +74,12 @@ describe('metadata', () => {
 describe('release gate', () => {
   afterEach(() => vi.unstubAllEnvs())
 
-  it('finds only the brand intro’s Hebrew Skip label awaiting review', () => {
+  it('finds no copy awaiting review', () => {
     // Every published dictionary and project is approved in both locales, the Phase 8C
-    // Internal Systems wording and confidential-01's copy and alt text included. The brand
-    // intro's Hebrew label waits for Martin; until then a Vercel production build refuses
-    // it. Anything else marked 'draft' again would appear here too.
-    expect(findDraftCopy()).toEqual(['intro:he'])
+    // Internal Systems wording, confidential-01's copy and alt text, and the brand intro's
+    // labels included. Anything marked 'draft' again would appear here, and a Vercel
+    // production build would refuse it.
+    expect(findDraftCopy()).toEqual([])
   })
 
   it('refuses synthetic draft copy in Vercel production builds only', () => {

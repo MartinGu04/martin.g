@@ -40,21 +40,6 @@
     }
   }
 
-  /* Narrow phones (under 390px): the Latin labels' tracking tightens and the gaps narrow,
-     so every destination still sits on one line beside the symbol. Hebrew labels have no
-     tracking to tighten. Type size and 44px targets are unchanged. Under 360px (small
-     phones, 400% zoom) the language switch shows only the other language (LocaleSwitch),
-     so the row still fits: one sticky row at every width, no drawer. */
-  @media (width < 24.375rem) {
-    .nav:not(:lang(he)) {
-      --label-tracking: 0.06em;
-    }
-
-    .list {
-      gap: var(--space-2);
-    }
-  }
-
   .brand {
     display: flex;
     align-items: center;
@@ -101,6 +86,82 @@
   .link:focus-visible {
     color: var(--text);
     text-decoration-line: none;
+  }
+
+  /*
+   * Film: the brand film on demand, a button styled as the navigation. It exists only where
+   * the film can play: the intro's script marks <html data-brand-film> before the header
+   * paints (scripting, no reduced motion, a browser that decodes it), so it never appears
+   * late or shifts the row. A small play mark, drawn in the text color, leads the label;
+   * media controls are not mirrored, so it points the same way in Hebrew.
+   */
+  .filmItem {
+    display: none;
+  }
+
+  :root[data-brand-film] .filmItem {
+    display: list-item;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root[data-brand-film] .filmItem {
+      display: none;
+    }
+  }
+
+  .film {
+    gap: 0.5em;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+  }
+
+  .film::before {
+    content: '';
+    inline-size: 0.5em;
+    block-size: 0.6em;
+    background: currentColor;
+    clip-path: polygon(0 0, 100% 50%, 0 100%);
+  }
+
+  /* Phones: the play mark alone stands for the label, as the monogram stands for the
+     wordmark; the label stays the button's accessible name. A 24px target at least. */
+  @media (width < 48rem) {
+    .film {
+      justify-content: center;
+      min-inline-size: 1.5rem;
+    }
+
+    .film::before {
+      inline-size: 0.7em;
+      block-size: 0.85em;
+    }
+
+    .filmLabel {
+      position: absolute;
+      inline-size: 1px;
+      block-size: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+  }
+
+  /* Narrow phones (under 390px): the Latin labels' tracking tightens and the gaps narrow,
+     so every destination still sits on one line beside the symbol. Hebrew labels have no
+     tracking to tighten. Type size and 44px targets are unchanged. Under 360px (small
+     phones, 400% zoom) the language switch shows only the other language (LocaleSwitch),
+     so the row still fits: one sticky row at every width, no drawer. (After the base
+     rules, so the narrower gap wins.) */
+  @media (width < 24.375rem) {
+    .nav:not(:lang(he)) {
+      --label-tracking: 0.06em;
+    }
+
+    .list {
+      gap: var(--space-2);
+    }
   }
 
   /* Tablet and desktop: the wordmark is the primary identity. It is about 10.6 times as

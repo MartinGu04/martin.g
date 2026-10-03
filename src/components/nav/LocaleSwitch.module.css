@@ -39,6 +39,16 @@
     }
   }
 
+  /* The header's Film control (SiteHeader) takes its place in the compact row wherever the
+     brand film can play (html[data-brand-film], no reduced motion): the same one-code form
+     then applies on every phone, so the row still fits on one line. */
+  @media (width < 48rem) and (prefers-reduced-motion: no-preference) {
+    :root[data-brand-film] .compact .item:has(> .link[aria-current='true']),
+    :root[data-brand-film] .compact .divider {
+      display: none;
+    }
+  }
+
   @media (hover: hover) and (pointer: fine) {
     .link:hover {
       color: var(--text);
