@@ -2,7 +2,8 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { isLocale, type Locale } from '@/i18n/config'
 import { getDictionary } from '@/i18n/get-dictionary'
-import { getProjectSequence, getPublicProject, getPublicProjects } from '@/content/registry'
+import { getPublicProjects } from '@/content/registry'
+import { getSiteProjectSequence, getSitePublicProject } from '@/content/saved-copy'
 import { formatYears, resolvePublicSummary } from '@/content/resolve'
 import type { PublicProject } from '@/content/schema'
 import { onMedia } from '@/content/projects/on'
@@ -55,7 +56,7 @@ export async function generateMetadata({
   params,
 }: PageProps<'/[locale]/work/[slug]'>): Promise<Metadata> {
   const { locale, slug } = await params
-  const project = getPublicProject(slug)
+  const project = await getSitePublicProject(slug)
   if (!isLocale(locale) || !project) return {}
   const page = { locale, path: `/work/${project.id}`, siteName: getDictionary(locale).site.name }
   if (!hasCaseStudy(project.id)) {
@@ -81,14 +82,14 @@ export async function generateMetadata({
 
 export default async function ProjectPage({ params }: PageProps<'/[locale]/work/[slug]'>) {
   const { locale, slug } = await params
-  const project = getPublicProject(slug)
+  const project = await getSitePublicProject(slug)
   if (!isLocale(locale) || !project) notFound()
   const dict = getDictionary(locale)
   const showcase = showcaseCopy[locale]
 
   if (hasCaseStudy(project.id)) {
     // The public sequence numbers the work (01 ON, 02 המחלבה) and names the next world.
-    const sequence = getProjectSequence().flatMap(({ project: p, number }) =>
+    const sequence = (await getSiteProjectSequence()).flatMap(({ project: p, number }) =>
       p.visibility === 'public' ? [{ number, ...resolvePublicSummary(p, locale, dict) }] : [],
     )
     const index = sequence.findIndex((p) => p.id === project.id)

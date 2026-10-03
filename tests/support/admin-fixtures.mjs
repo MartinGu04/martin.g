@@ -29,4 +29,6 @@ export const ADMIN_E2E_ENV = Object.freeze({
   SUPABASE_PUBLISHABLE_KEY: PUBLISHABLE_KEY,
   SUPABASE_SECRET_KEY: SECRET_KEY,
   ADMIN_USER_ID: ADMIN.id,
+  // The fake's stand-in for a Vercel Deploy Hook (src/lib/projects/publish.ts).
+  VERCEL_DEPLOY_HOOK_URL: `${FAKE_URL}/__deploy-hook`,
 })

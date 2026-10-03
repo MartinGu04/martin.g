@@ -111,7 +111,22 @@ changing case-study components. Images can be art directed per tier (`art`) and 
 URL approved for visitors (ON has one; המחלבה deliberately has none).
 
 Project media lives in `src/assets/` (sanitized, metadata-free sources) and is referenced
-from each project module. Alt text, captions and player labels written in Phase 4 live in
+from each project module.
+
+**Confidential covers (Phase 8C).** Confidential work shows generated abstract geometry
+(`AbstractCover`). One explicit exception: `confidential-01` may carry an
+`ApprovedInterfaceCover`, its single approved portfolio image
+(`src/assets/confidential/confidential-01-interface.webp`), supplied by Martin already fully
+anonymized: all text unreadable, no names, numbers, dates, identifiers or product mark, no
+recoverable operational information, no metadata. No original or intermediate screenshot
+ever enters the repository. The exception is held four ways: the `ConfidentialProject`
+type admits that cover for the id `confidential-01` only (`INTERFACE_COVER_EXCEPTION`),
+`resolveConfidentialSummary` throws for any other id, a unit test requires the asset
+directory to hold that one file with its pinned SHA-256 and no metadata, and its alt text
+is generic in both locales. Shown with `object-fit: cover`, a focal point and its aspect
+ratio kept, and at most a 1.03 hover zoom (only where hover exists and motion is not
+reduced); no parallax. Each confidential card is one real project: `confidential-02`
+stays a separate project with its abstract cover. Alt text, captions and player labels written in Phase 4 live in
 `src/i18n/dictionaries/showcase.ts` (approved).
 
 **Case studies (Phase 5).** A case study is a composition, not a block template: each world
@@ -386,6 +401,65 @@ tests/support/fake-supabase-server.mjs` and the values in `admin-fixtures.mjs`),
    the project's current Supabase plan (the advisor's warning about it is expected); the
    one account's password is long, unique and from a password manager instead.
 
+## Project editor (Phase 8C)
+
+`/admin/projects` lists every registered project once; `/admin/projects/<id>` edits its
+localized text. A project stays one entity: its id and every shared property (media, order,
+visibility and publication state, live URL, years, disciplines, technical configuration)
+live in the code registry (`src/content/projects`) and are shown read-only. The editor owns
+only the fields the schema localizes and the site shows per project: the **title** and the
+**short description** (the category line comes from the shared disciplines, and projects
+have no per-project long description or call to action, so there is nothing else to edit).
+
+```
+editor (HE | EN) ── Save <language> ──> saveProjectCopy ── requireAdmin() ──> upsert one row
+                                                                            (project, locale)
+Publish to the site ──> publishSite ── requireAdmin() ──> Vercel Deploy Hook ──> Production
+                                                                                  build reads
+                                                                                  every row
+```
+
+- **Storage.** `public.project_translations`
+  (`supabase/migrations/20261003152740_project_translations.sql`): one row per
+  `(project_id, locale)`, `locale` is `he` or `en`, `title` 1 to 120 and `summary` 1 to 500
+  characters, non-blank. The access model of `leads`: RLS enabled and forced, no policies,
+  nothing for browser roles, `service_role` with select, insert, update and delete only.
+  A locale without a row shows the code's copy.
+- **Hebrew and English never overwrite each other.** The HE | EN switch (a compact
+  segmented control; plain links without JavaScript) changes only which language's fields
+  are shown: both languages' unsaved text stays in the page while switching. Save sends the
+  shown language alone, and the action upserts exactly that `(project, locale)` row, so
+  saving English cannot change Hebrew, or the reverse. The Hebrew fields are `lang="he"`,
+  `dir="rtl"`; the English ones `lang="en"`, `dir="ltr"`. Each language shows its state,
+  `HE ✓` or `EN • Missing`, and `Unsaved` while its text differs from what is stored. A
+  language never edited before starts from the site's current text, so nothing is lost.
+  If the saved text cannot be read, the editor shows the code's text read-only rather
+  than let a save be based on it.
+- **Validation** (`src/lib/projects/copy-rules.ts`, shared by the browser and the action):
+  values are cleaned as Contact cleans them (NFC, no control or bidi override characters,
+  one line, trimmed), then required and bounded as the table's checks are.
+- **Reaching the public site.** Public pages stay statically generated: a build reads every
+  row once (`loadSiteTranslations`, without `no-store`, so the pages stay static) and
+  `src/content/saved-copy.ts` lays each row over its project's copy in its own locale only.
+  Saved text therefore reaches visitors only through a Production build, where the leak
+  check and the built-HTML policy run on it: text that could identify confidential work
+  fails the deployment and never goes live. **A Vercel Production build fails closed when
+  the table cannot be read** (an unreachable database, or the migration not yet applied),
+  rather than silently publish the code's copy over Martin's edits; Preview and local
+  builds fall back to the code's copy with a warning. The release gate still reads the
+  review state in the code: copy saved here does not approve a project marked `draft`.
+- **Publishing.** "Publish to the site" calls the Vercel Deploy Hook in
+  `VERCEL_DEPLOY_HOOK_URL` (a secret; https on `api.vercel.com` only). Without it, saved
+  text goes live with the next deployment.
+
+**Manual setup (by Martin, once):**
+
+1. Apply the migration to the Production project through the normal migration workflow
+   (`supabase db push`, or the SQL editor with the file's contents), **before merging**:
+   a Production build fails until the table exists.
+2. Vercel, Project Settings, Git, Deploy Hooks: create a hook for the production branch;
+   set its URL as `VERCEL_DEPLOY_HOOK_URL` (Production, Sensitive).
+
 ## Privacy (Phase 6 audit, revised in Phase 8)
 
 What the site actually does, which `/[locale]/privacy` states (and must keep stating):
@@ -602,6 +676,8 @@ them for the launch (Phase 7); the post-merge checklist verifies each one on the
     for Supabase Auth only) and `ADMIN_USER_ID` (the UUID of Martin's Supabase Auth user).
     Both are required once the admin ships (Phase 8B). Production only: Preview gets none
     of the Supabase variables.
+  - `VERCEL_DEPLOY_HOOK_URL` (Sensitive, optional; Phase 8C): the production branch's Deploy
+    Hook, which the project editor's "Publish to the site" calls. Production only.
   - `LEAK_CHECK_TERMS_B64` (Sensitive, Production and Preview; see README.md).
 - **Firewall rate limit** (Firewall, Configure, a custom rule). Phase 7 limited every
   `POST` (5 requests per 60 seconds, keyed by IP, answered 429), which was right while
@@ -648,7 +724,10 @@ runs `scripts/production-simulation.mjs` (also `pnpm build:production-simulation
 5. `pnpm build` with the Hebrew site card treated as pending
    (`RELEASE_GATE_SIMULATE_PENDING_SITE_CARDS=he`, a test-only switch that can only add
    pending cards): must fail with the artwork gate's message naming it.
-6. `pnpm build` with the complete dummy configuration: must succeed (the real leak check
+6. `pnpm build` whose read of the project editor's saved copy is refused: must fail
+   closed with the content layer's message (the expected refusal is recorded in its own
+   guard log).
+7. `pnpm build` with the complete dummy configuration: must succeed (the real leak check
    and the built-HTML policy included, which refuses a prerendered admin page); the
    browser output (`.next/static` and the prerendered pages and payloads) must not contain
    the dummy Resend key, Supabase URL, host, secret or publishable key, or admin id; then
@@ -659,10 +738,12 @@ runs `scripts/production-simulation.mjs` (also `pnpm build:production-simulation
    a 404, and no page carrying a server-only value; the admin: `/admin` and a lead's
    address redirect to `/admin/login` (307), every admin response `noindex` and private,
    the login page configured and `noindex`, and the sitemap without it. With no session,
-   the admin makes no request to Supabase at all (the guard would record one).
+   the admin makes no request to Supabase at all (the guard would record one). Each
+   locale's home page and ON case study show that locale's synthetic saved title, never
+   the other's (`SIMULATED_TRANSLATIONS`).
 
 Copy awaiting review: the configuration gates run before the copy gate, so cases 1 to 5 are
-decided whatever the copy's state. If case 6 is refused only for draft copy, it is built
+decided whatever the copy's state. If case 7 is refused only for draft copy, it is built
 again with the explicit, logged `ALLOW_DRAFT_COPY_IN_PRODUCTION=1` so every other check
 still runs, and the run then fails anyway, naming the copy: Vercel Production would refuse
 the build until Martin approves it.
@@ -678,7 +759,10 @@ action (only a visitor's submission does), the server is only sent GETs, and
 `scripts/delivery-guard.mjs`, preloaded into every Node process, refuses and records any
 request to the Resend or Telegram APIs, to any Supabase host (`*.supabase.co`, `.com`,
 `.in`) and to the host `SUPABASE_URL` names; the run fails if the guard did not load or if
-a request was attempted. A unit test runs the real Supabase client under the guard to prove
+a request was attempted. One read is answered instead of refused: the build's
+`GET /rest/v1/project_translations` on `SUPABASE_URL`'s host, which the guard answers
+itself with synthetic rows (`MG_SIMULATED_TRANSLATIONS`), without any network; any other
+method, path or host is refused as before, and the run fails if that read never happened. A unit test runs the real Supabase client under the guard to prove
 it is stopped. Unit tests (`tests/unit/production-simulation.test.ts`) cover the
 environment, the gates' messages for each case, and the guard.
 
@@ -691,6 +775,7 @@ environment, the gates' messages for each case, and the guard.
 | `assertContactDelivery` (`src/lib/contact/notifiers.ts`)         | requires the three Resend variables                               | simulation cases 1, 5 and 6, unit                               |
 | `assertLeadStorage` (`src/lib/leads/config.ts`)                  | requires `SUPABASE_URL` and an `sb_secret_` `SUPABASE_SECRET_KEY` | simulation cases 2, 5 and 6, unit                               |
 | `assertAdminConfiguration` (`src/lib/admin/config.ts`)           | requires `SUPABASE_PUBLISHABLE_KEY` and a UUID `ADMIN_USER_ID`    | simulation cases 3, 5 and 6, unit                               |
+| `loadSiteTranslations` (`src/lib/projects/translations.ts`)      | fails the build when the saved project copy cannot be read        | simulation case 6 (and 7, served), unit                         |
 | `siteUrl` (`src/lib/site.ts`)                                    | requires an https `SITE_URL`; previews use their own URL          | simulation cases 4 and 5; the preview branch by unit tests only |
 | `adminAuthConfig` (`VERCEL`)                                     | the admin's session cookies are `Secure`                          | unit                                                            |
 | `isIndexable`, `robots.ts`, `securityHeaders` (`next.config.ts`) | crawlable, sitemap, HSTS, `upgrade-insecure-requests`, no noindex | simulation (served), unit                                       |
@@ -735,4 +820,6 @@ No application code reads `NODE_ENV`.
 - Phase 8: Leads (8A: Supabase as the durable record of Contact inquiries, Resend as the
   notification; `service_role` hardened to select, insert, update and delete; privacy
   wording approved. 8B: the private admin CRM, Supabase Auth with one authorized user,
-  lead notes; the migration applied and the firewall scoped to Contact)
+  lead notes; the migration applied and the firewall scoped to Contact. 8C: one card per
+  confidential project, `confidential-01` with its approved anonymized image; the admin's
+  HE | EN project editor)

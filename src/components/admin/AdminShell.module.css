@@ -134,10 +134,12 @@
     }
   }
 
-  /* Small phones: one section only, and the wordmark already leads to it. */
+  /* Small phones: the sections take their own line under the identity. */
   @media (width < 30rem) {
     .nav {
-      display: none;
+      order: 3;
+      inline-size: 100%;
+      gap: var(--space-5);
     }
   }
 

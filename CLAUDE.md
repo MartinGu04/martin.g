@@ -24,7 +24,10 @@ This repository is **public**. Read README.md → Confidentiality and docs/ARCHI
   on `data-loop` elements (paused offscreen, none with reduced motion); slow, restrained,
   real content only.
 - Defense Systems (confidential work): sanitized aliases and generated abstract geometry
-  only; never classified, warning, clearance or dossier language or styling.
+  only; never classified, warning, clearance or dossier language or styling. One explicit
+  exception: `confidential-01` may show its one approved, fully anonymized portfolio image
+  (`src/assets/confidential/`, pinned by hash). Never add originals, intermediate
+  screenshots or any other confidential image.
 - Commit messages: no Claude session URLs or other session links (public breadcrumbs).
 - Navigation: no placeholder or dead destinations. Contact, Privacy and Accessibility exist
   since Phase 6.

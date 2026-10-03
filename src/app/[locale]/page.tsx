@@ -10,7 +10,7 @@ import { showcaseCopy } from '@/i18n/dictionaries/showcase'
 import { contactCopy } from '@/i18n/dictionaries/contact'
 import { trustHref } from '@/lib/trust'
 import { capabilityProof, type Evidence } from '@/content/capabilities'
-import { getProjectSequence } from '@/content/registry'
+import { getSiteProjectSequence } from '@/content/saved-copy'
 import { onMedia } from '@/content/projects/on'
 import { miMaMoMedia } from '@/content/projects/mi-ma-mo'
 import { thread } from '@/content/worlds'
@@ -60,7 +60,7 @@ export default async function HomePage({ params }: PageProps<'/[locale]'>) {
   const dict = getDictionary(locale)
   const copy = homeCopy[locale]
   const showcase = showcaseCopy[locale]
-  const sequence = getProjectSequence()
+  const sequence = await getSiteProjectSequence()
 
   const work = sequence.flatMap(({ project, number }) =>
     project.visibility === 'public'
