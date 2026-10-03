@@ -6,7 +6,10 @@ decision changes.
 ## Principles
 
 - Statically generated. Server Components by default; client components only for
-  interaction or motion (today: `LocaleSwitch`, the locale not-found boundary).
+  interaction or motion (today: `LocaleSwitch`; the locale not-found boundary;
+  `ContactExperience`, the inquiry form's in-place validation, sending and outcome over its
+  server action; `PreviewVideo`, the preview player's own play and pause control; and
+  `MotionController` and `HeaderWorld`, observers that render nothing).
 - Content is typed TypeScript, loaded on the server, flattened to one locale before it
   reaches components. A page never carries the other locale's copy.
 - English (LTR) and Hebrew (RTL) are equal from day one.
@@ -33,10 +36,12 @@ src/
   lib/                     site URL and metadata helpers, CSS var typing, navigation,
                            contact (validation, spam, dedupe, notifiers, server action)
   styles/                  layers, tokens, fonts, reset, base, typography, layout, motion
-scripts/                   leak-check, lint-policy, setup-hooks
+scripts/                   leak-check, lint-policy, setup-hooks, brand-icons (`pnpm brand:icons`)
 tests/unit                 Vitest (content, i18n, tokens, grid, policy, leak check)
-tests/e2e                  Playwright (routing, direction, axe, confidential, brand, headers)
+tests/e2e                  Playwright (routing, direction, axe, confidential, brand, headers);
+                           a setup project warms the optimized images before the tests run
 .githooks/                 pre-commit, commit-msg, pre-push
+film/                      the brand film, a separate Remotion package (see Brand film)
 ```
 
 ## Locales
@@ -112,9 +117,11 @@ release gate refuses a Vercel production build meanwhile. See docs/CASE-STUDIES.
 excluded from the site's TypeScript, ESLint and build). It renders the MARTIN.G brand film in
 two native cuts, Desktop 16:9 and Mobile 9:16, from one cue table shared by picture and
 sound (`film/src/config/timeline.ts`); the soundtrack is synthesized by `film/audio/build.py`.
-It reuses the site's approved sources (brand marks, project media, fonts) by copying them
-at build time, so no asset exists twice in Git, and it follows the same confidentiality,
-brand-mark and copy rules. Renders are never committed. See film/README.md.
+It keeps its own PNG copies of the approved brand marks (symbol, wordmark and lockup, their
+black ink turned white on transparent for the dark film) in `film/brand`; the site's
+approved project media (`src/assets/work`) and fonts (`src/fonts`) are copied at build time
+(`pnpm assets` in `film/`), so they never exist twice in Git. It follows the same
+confidentiality, brand-mark and copy rules. Renders are never committed. See film/README.md.
 
 ## Contact (Phase 6)
 
