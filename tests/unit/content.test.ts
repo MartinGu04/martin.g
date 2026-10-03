@@ -194,6 +194,35 @@ describe('confidential projects', () => {
     expect(dictionaries.en.messages.work.confidentialNote).toMatch(/omitted or obscured/)
   })
 
+  it('describe confidential-02 neutrally, as its own project with its abstract visual', () => {
+    const project = confidential.find((p) => p.id === 'confidential-02')!
+    expect(project.title).toEqual({
+      en: 'Infrastructure Management System',
+      he: 'מערכת לניהול תשתיות',
+    })
+    expect(project.summary.he).toBe(
+      'כלי פנימי לריכוז מידע טכני, תיאום תהליכים ובקרה על רכיבי מערכת.',
+    )
+    expect(project.review).toEqual({ en: 'approved', he: 'approved' })
+    expect(project.cover).toEqual({ kind: 'abstract', pattern: 'lines' })
+    const text = [...Object.values(project.title), ...Object.values(project.summary)]
+      .join(' ')
+      .toLowerCase()
+    for (const term of [
+      'confidential',
+      'operational',
+      'security',
+      'defense',
+      'classified',
+      'חסוי',
+      'תפעולי',
+      'אבטחה',
+      'ביטחוני',
+      'מסווג',
+    ])
+      expect(text, term).not.toContain(term)
+  })
+
   it('describe confidential-01 neutrally, with generic alt text, in both locales', () => {
     const project = confidential.find((p) => p.id === 'confidential-01')!
     expect(project.title.he).toBe('מערכת לניהול תהליכים')

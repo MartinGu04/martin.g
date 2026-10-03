@@ -13,9 +13,10 @@ import interfaceImage from '@/assets/confidential/confidential-01-interface.webp
  */
 
 /*
- * Copy (Phase 8C): Martin's own wording in both languages, approved, neutral by design (no
- * classified, confidential, compartmentalized, secret, military, operational or security
- * terms). The alt text is generic: it never names the system or what it is for.
+ * Copy (Phase 8C): Martin's own wording in both languages for both projects, approved,
+ * neutral by design (no classified, confidential, compartmentalized, secret, military,
+ * operational or security terms). The alt text is generic: it never names the system or
+ * what it is for.
  */
 export const confidential01: ConfidentialProject = {
   id: 'confidential-01',
@@ -47,10 +48,10 @@ export const confidential02: ConfidentialProject = {
   order: 4,
   status: 'published',
   review: { en: 'approved', he: 'approved' },
-  title: { en: 'Confidential Operational Platform', he: 'פלטפורמה תפעולית חסויה' },
+  title: { en: 'Infrastructure Management System', he: 'מערכת לניהול תשתיות' },
   summary: {
-    en: 'Operational tooling developed for a security environment.',
-    he: 'כלים תפעוליים שפותחו עבור סביבת אבטחה.',
+    en: 'An internal tool for consolidating technical information, coordinating workflows, and monitoring system components.',
+    he: 'כלי פנימי לריכוז מידע טכני, תיאום תהליכים ובקרה על רכיבי מערכת.',
   },
   disciplines: ['product-design', 'system-design', 'engineering'],
   cover: { kind: 'abstract', pattern: 'lines' },

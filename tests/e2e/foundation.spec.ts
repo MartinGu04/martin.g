@@ -245,10 +245,13 @@ test.describe('confidential work', () => {
     const titles = page.locator('#confidential h3')
     await expect(titles).toHaveText([
       'Process Management System',
-      'Confidential Operational Platform',
+      'Infrastructure Management System',
     ])
     await page.goto('/he')
-    await expect(page.locator('#confidential h3').first()).toHaveText('מערכת לניהול תהליכים')
+    await expect(page.locator('#confidential h3')).toHaveText([
+      'מערכת לניהול תהליכים',
+      'מערכת לניהול תשתיות',
+    ])
     await expect(page.locator('#confidential img')).toHaveAttribute(
       'alt',
       'ממשק מערכת פנימית עם פרטים מטושטשים',
