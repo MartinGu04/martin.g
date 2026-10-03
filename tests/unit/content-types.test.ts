@@ -30,6 +30,19 @@ export const withStory: ConfidentialProject = { ...base, story: [] }
 export const withClient: ConfidentialProject = { ...base, client: 'x' }
 // @ts-expect-error confidential covers are abstract, never imagery
 export const withImageCover: ConfidentialProject = { ...base, cover: { kind: 'image' } }
+const approvedCover = {
+  kind: 'approved-interface',
+  src: { src: '/x.webp', width: 16, height: 9 },
+  alt: { en: 'Blurred interface', he: 'ממשק מטושטש' },
+} as const
+// @ts-expect-error only confidential-01 may show its approved interface image
+export const otherWithInterface: ConfidentialProject = { ...base, cover: approvedCover }
+// The one exception, by id.
+export const exceptionWithInterface: ConfidentialProject = {
+  ...base,
+  id: 'confidential-01',
+  cover: approvedCover,
+}
 // @ts-expect-error every locale is required
 export const missingLocale: ConfidentialProject = { ...base, title: { en: 'Only English' } }
 

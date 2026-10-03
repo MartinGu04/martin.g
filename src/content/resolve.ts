@@ -1,7 +1,15 @@
 import 'server-only'
 import type { Locale } from '@/i18n/config'
 import type { Dictionary } from '@/i18n/dictionaries'
-import type { ConfidentialProject, ExternalUrl, ProjectYears, PublicProject } from './schema'
+import type { StaticImageData } from 'next/image'
+import {
+  INTERFACE_COVER_EXCEPTION,
+  type AbstractCover,
+  type ConfidentialProject,
+  type ExternalUrl,
+  type ProjectYears,
+  type PublicProject,
+} from './schema'
 
 /*
  * Flattens localized content to a single locale on the server. Only these view models
@@ -19,13 +27,36 @@ export interface PublicProjectSummary {
   liveHref?: ExternalUrl
 }
 
+export type ConfidentialCoverView =
+  | { kind: 'abstract'; pattern: AbstractCover['pattern'] }
+  | {
+      kind: 'approved-interface'
+      src: StaticImageData
+      alt: string
+      focal: { x: number; y: number }
+    }
+
 export interface ConfidentialProjectSummary {
   id: string
   title: string
   summary: string
   disciplines: string[]
   years?: string
-  pattern: ConfidentialProject['cover']['pattern']
+  cover: ConfidentialCoverView
+}
+
+function confidentialCover(project: ConfidentialProject, locale: Locale): ConfidentialCoverView {
+  const cover = project.cover
+  if (cover.kind === 'abstract') return { kind: 'abstract', pattern: cover.pattern }
+  // The type allows it for confidential-01 only; this keeps it so at runtime as well.
+  if (project.id !== INTERFACE_COVER_EXCEPTION)
+    throw new Error(`[content] Only ${INTERFACE_COVER_EXCEPTION} may show an interface image.`)
+  return {
+    kind: 'approved-interface',
+    src: cover.src,
+    alt: cover.alt[locale],
+    focal: cover.focal ?? { x: 0.5, y: 0.5 },
+  }
 }
 
 export function formatYears(years: ProjectYears | undefined, dict: Dictionary): string | undefined {
@@ -63,7 +94,7 @@ export function resolveConfidentialSummary(
     title: project.title[locale],
     summary: project.summary[locale],
     disciplines: project.disciplines.map((d) => dict.disciplines[d]),
-    pattern: project.cover.pattern,
+    cover: confidentialCover(project, locale),
     ...(years ? { years } : {}),
   }
 }

@@ -176,6 +176,41 @@
     background-position: right top;
   }
 
+  /*
+   * The approved interface (confidential-01 only): the real product's structure, every
+   * detail already blurred in the pixels. A tighter frame than the image's own 16:9, the
+   * working table kept in view (object-position from the focal point), and a shorter
+   * edge fade than the geometry's, so the interface stays legible as a structure.
+   */
+  .shot {
+    position: relative;
+    overflow: hidden;
+    background: var(--surface-0);
+  }
+
+  .shotImage {
+    object-fit: cover;
+  }
+
+  .interface::after {
+    background-image: linear-gradient(to right, transparent 78%, var(--surface-1) 100%);
+  }
+
+  :root[dir='rtl'] .interface::after {
+    background-image: linear-gradient(to left, transparent 78%, var(--surface-1) 100%);
+  }
+
+  /* A very slight zoom under the pointer, only where motion is welcome. */
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .shotImage {
+      transition: scale var(--dur-cinematic) var(--ease-out);
+    }
+
+    .item:hover .shotImage {
+      scale: 1.03;
+    }
+  }
+
   /* A quiet response to the pointer: a little more geometry, a brighter index rule. */
   @media (hover: hover) {
     .item:hover .cover::after {

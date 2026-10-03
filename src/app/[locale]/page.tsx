@@ -101,7 +101,12 @@ export default async function HomePage({ params }: PageProps<'/[locale]'>) {
       title: dict.work.confidentialTitle,
       line: showcase.chapters.defense,
       accent: thread.defense,
-      preview: { kind: 'diagram', pattern: firstConfidential?.pattern ?? 'grid' },
+      // The bridge previews this chapter with geometry only, whatever the covers are.
+      preview: {
+        kind: 'diagram',
+        pattern:
+          firstConfidential?.cover.kind === 'abstract' ? firstConfidential.cover.pattern : 'grid',
+      },
     },
   ]
 

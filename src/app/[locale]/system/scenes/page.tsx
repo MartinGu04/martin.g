@@ -257,7 +257,9 @@ export default async function ScenesPage({ params }: PageProps<'/[locale]/system
           <ul role="list" className={`col-full ${styles.confList}`}>
             {confidential.map((project) => (
               <li key={project.id} className={styles.confItem}>
-                <AbstractCover pattern={project.pattern} />
+                <AbstractCover
+                  pattern={project.cover.kind === 'abstract' ? project.cover.pattern : 'grid'}
+                />
                 <IndexNumber value={project.number} className="t-label muted" />
                 <h3 className="t-heading-2">{project.title}</h3>
                 <p className="t-body muted">{project.summary}</p>

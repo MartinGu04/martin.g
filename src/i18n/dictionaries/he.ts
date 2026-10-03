@@ -6,7 +6,8 @@ import type { Dictionary } from './en'
  * It is not approved production copy: Martin reviews and approves all Hebrew,
  * and production builds refuse draft copy (src/i18n/release-gate.ts).
  */
-export const heReview: ReviewStatus = 'approved'
+// Draft (Phase 8C): the Defense Systems note changed, now that one interface is shown blurred.
+export const heReview: ReviewStatus = 'draft'
 
 export const he: Dictionary = {
   site: {
@@ -29,7 +30,8 @@ export const he: Dictionary = {
   work: {
     selectedTitle: 'עבודות נבחרות',
     confidentialTitle: 'מערכות ביטחוניות',
-    confidentialNote: 'מערכות תפעוליות שנבנו לסביבה ביטחונית. פרטים מזהים וממשקים הושמטו במכוון.',
+    confidentialNote:
+      'מערכות תפעוליות שנבנו לסביבה ביטחונית. פרטים מזהים הושמטו במכוון, וממשק שמוצג כאן מטושטש במלואו.',
     viewProject: 'לפרויקט',
     visitLiveSite: 'לאתר החי',
   },

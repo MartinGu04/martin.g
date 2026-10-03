@@ -196,11 +196,10 @@ export interface PublicProject extends ProjectCore {
  * tests/unit/content.test.ts rejects any key outside the allowlist at runtime.
  * Never place a real name, client, location or identifying detail in these objects.
  */
-export interface ConfidentialProject extends ProjectCore {
+interface ConfidentialCore extends ProjectCore {
   visibility: 'confidential'
   /** Omit entirely when even the year could identify the work. */
   years?: ProjectYears
-  cover: { kind: 'abstract'; pattern: 'grid' | 'lines' | 'field' }
   slug?: never
   href?: never
   links?: never
@@ -210,6 +209,43 @@ export interface ConfidentialProject extends ProjectCore {
   theme?: never
   client?: never
 }
+
+/** The default for confidential work: generated abstract geometry, never imagery. */
+export interface AbstractCover {
+  kind: 'abstract'
+  pattern: 'grid' | 'lines' | 'field'
+}
+
+/**
+ * The one exception to abstract-only covers: the single final portfolio image Martin
+ * supplied and approved for confidential-01, fully anonymized in its pixels (no readable
+ * text, names, numbers, dates, identifiers, product name or logo). Never an original
+ * screenshot or an intermediate derived from the real system. The asset's hash is pinned
+ * in tests/unit/content.test.ts, so replacing it is a deliberate, reviewed change.
+ */
+export interface ApprovedInterfaceCover {
+  kind: 'approved-interface'
+  src: StaticImageData
+  /** Generic in every locale: never a name, a product or anything the image could show. */
+  alt: Localized
+  /** Crop anchor (0..1) for the tighter frame. */
+  focal?: { x: number; y: number }
+}
+
+/** The only confidential project allowed an approved interface cover. */
+export const INTERFACE_COVER_EXCEPTION = 'confidential-01'
+
+/**
+ * Confidential work is a closed shape: no route, no link, no media field and no story.
+ * Covers are abstract, except that confidential-01 (and only it, by type) may show its
+ * approved anonymized interface image.
+ */
+export type ConfidentialProject =
+  | (ConfidentialCore & { cover: AbstractCover })
+  | (ConfidentialCore & {
+      id: typeof INTERFACE_COVER_EXCEPTION
+      cover: AbstractCover | ApprovedInterfaceCover
+    })
 
 export type Project = PublicProject | ConfidentialProject
 

@@ -1,7 +1,7 @@
-import type { ConfidentialProject } from '@/content/schema'
+import type { AbstractCover as AbstractCoverSpec } from '@/content/schema'
 import styles from './SystemDiagram.module.css'
 
-type Pattern = ConfidentialProject['cover']['pattern']
+type Pattern = AbstractCoverSpec['pattern']
 
 const W = 640
 const H = 280

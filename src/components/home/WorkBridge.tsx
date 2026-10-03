@@ -1,6 +1,6 @@
 import Image, { type StaticImageData } from 'next/image'
 import type { Dictionary } from '@/i18n/dictionaries'
-import type { ConfidentialProject, HexColor } from '@/content/schema'
+import type { AbstractCover, HexColor } from '@/content/schema'
 import type { StyleWithVars } from '@/lib/css'
 import { worlds } from '@/content/worlds'
 import { Grid } from '@/components/layout/Grid'
@@ -25,7 +25,7 @@ export interface WorkChapter {
   /** A small glimpse of the world: a real crop, or the abstract geometry for Defense. */
   preview:
     | { kind: 'image'; src: StaticImageData; position?: string }
-    | { kind: 'diagram'; pattern: ConfidentialProject['cover']['pattern'] }
+    | { kind: 'diagram'; pattern: AbstractCover['pattern'] }
 }
 
 /**

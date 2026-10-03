@@ -210,7 +210,16 @@ test.describe('confidential work', () => {
     await expect(section.getByRole('link')).toHaveCount(0)
     await expect(section.getByText('03', { exact: true })).toBeVisible()
     await expect(section.getByText('04', { exact: true })).toBeVisible()
-    await expect(section.locator('img, video, picture, iframe')).toHaveCount(0)
+    // One project, one card: only confidential-01 shows its approved, blurred interface.
+    await expect(section.locator('video, iframe')).toHaveCount(0)
+    const images = section.locator('img')
+    await expect(images).toHaveCount(1)
+    await expect(images).toHaveAttribute(
+      'alt',
+      'The system’s interface, with all text and details blurred.',
+    )
+    await expect(section.getByRole('listitem').first().locator('img')).toHaveCount(1)
+    await expect(section.getByRole('listitem').nth(1).locator('img')).toHaveCount(0)
   })
 
   test('is framed as defense systems, truthfully, in both locales', async ({ page }) => {
@@ -238,9 +247,15 @@ test.describe('confidential work', () => {
     await page.goto('/en')
     const titles = page.locator('#confidential h3')
     await expect(titles).toHaveText([
-      'Confidential Operational System',
+      'Process Management System',
       'Confidential Operational Platform',
     ])
+    await page.goto('/he')
+    await expect(page.locator('#confidential h3').first()).toHaveText('מערכת לניהול תהליכים')
+    await expect(page.locator('#confidential img')).toHaveAttribute(
+      'alt',
+      'ממשק המערכת, כשכל הטקסט והפרטים בו מטושטשים.',
+    )
   })
 
   test('continues the project numbering after routed work', async ({ page }) => {

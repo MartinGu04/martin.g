@@ -166,12 +166,24 @@ test.describe('real project showcase', () => {
     else await expect(productFrame).toBeVisible()
   })
 
-  test('Defense Systems stays text and generated geometry only', async ({ page }) => {
+  test('Defense Systems: geometry, plus only the one approved blurred interface', async ({
+    page,
+  }) => {
     for (const locale of ['en', 'he']) {
       await page.goto(`/${locale}`)
       const scene = page.locator('#confidential')
-      await expect(scene.locator('img, picture, video, svg image')).toHaveCount(0)
+      await expect(scene.locator('picture, video, svg image')).toHaveCount(0)
       await expect(scene.locator('a')).toHaveCount(0)
+      // The approved asset only: optimized from its one file, never another image.
+      const images = scene.locator('img')
+      await expect(images).toHaveCount(1)
+      const src = decodeURIComponent((await images.getAttribute('src')) ?? '')
+      expect(src).toMatch(/confidential-01-interface\.[0-9a-z]+\.webp/)
+      // A tighter frame, cover-cropped, nothing in it focusable.
+      const fit = await images.evaluate((img) => getComputedStyle(img).objectFit)
+      expect(fit).toBe('cover')
+      // The other card keeps its generated geometry.
+      await expect(scene.getByRole('listitem').nth(1).locator('svg')).not.toHaveCount(0)
     }
   })
 })
