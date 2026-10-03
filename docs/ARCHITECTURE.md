@@ -167,9 +167,9 @@ extended into one calm form, statically generated like every page.
   beside the copy release gate; the error names only the missing variables), so the only
   conversion path can never ship as a dead end. Telegram alone does not satisfy it: the
   privacy page names Resend. Preview builds answer "unavailable" until configured.
-- **Still to configure** (not in the repository): the variables and the rate-limit rule in
-  Production configuration (Vercel), below. Turning Telegram on means updating the privacy
-  copy first.
+- **Configured outside the repository** (Phase 7, by Martin): the variables and the
+  rate-limit rule in Production configuration (Vercel), below; verified after the merge.
+  Turning Telegram on means updating the privacy copy first.
 
 ## Privacy (Phase 6 audit)
 
@@ -178,7 +178,7 @@ the contact form's fields (required: name, email, project description; optional:
 project type, business or project name, link, timeline), delivered by email through Resend; hosting on Vercel with its
 ordinary request logs; one first-party cookie, `NEXT_LOCALE`, set only by the language
 switch (one year); the Enable menu's script from `cdn.enable.co.il` (and whatever it
-stores in the browser); no analytics (Phase 7 adds Vercel Web Analytics: update the page
+stores in the browser); no analytics (adding Vercel Web Analytics later means updating the page
 first); fonts, images and video self-hosted; no embeds; external links open without a
 referrer.
 
@@ -358,7 +358,8 @@ is the Vercel production deployment. Tested in `tests/unit/seo.test.ts` and
 
 ## Production configuration (Vercel)
 
-The repository cannot set these; they are made in the Vercel project.
+The repository cannot set these; they are made in the Vercel project. Martin configured
+them for the launch (Phase 7); the post-merge checklist verifies each one on the live site.
 
 - **Domains.** `martin-g.dev` is the production domain. `www.martin-g.dev` is added too and
   set to redirect to `martin-g.dev` (permanent, 308). DNS records as Vercel's Domains page
@@ -454,5 +455,6 @@ No application code reads `NODE_ENV`.
 - Phase 5: Case studies (5A ON and 5B המחלבה: merged, copy approved)
 - Phase 6: Trust, accessibility and conversion (contact, privacy, accessibility, Enable;
   copy approved)
-- Phase 7: Launch hardening (7A.1 launch audit and search and social metadata; 7A.2
-  production domain and security headers)
+- Phase 7: Launch hardening (7A.1 search and social metadata; 7A.2 production domain,
+  security headers and the CI production simulation; 7A.3 approved social cards and the
+  artwork release gate; 7A.4 performance audit and launch QA; 7A.5 release candidate)
