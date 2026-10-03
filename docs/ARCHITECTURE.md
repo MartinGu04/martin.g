@@ -212,6 +212,32 @@ configuration is changed.
   `preload="none"`, never autoplays, and the file is requested only when a visitor presses
   play (tested in `tests/e2e/showcase.spec.ts`). The homepage never requests it. It is not
   an initial-load cost.
+- **Launch audit (Phase 7A.4).** Lighthouse 12 on a production-mode build (local
+  `next start`, warm image cache), HE and EN home, HE Contact, both case studies:
+  - Desktop: 100 / 100 / 100 / 100 (performance, accessibility, best practices, SEO) on
+    every page; LCP 0.6 to 0.8s, CLS 0.
+  - Mobile, Lighthouse's default simulated throttling: performance 91 to 99, the rest 100;
+    LCP 2.1 to 3.4s. The simulation charges later script work to LCP ("render delay"). With
+    the same throttling applied for real (Lighthouse `--throttling-method=devtools`, or a
+    PerformanceObserver under 4x CPU and slow 4G) LCP is 1.8 to 2.3s and equals first
+    contentful paint: the first-view content paints at once and nothing waits for
+    hydration. The motion system never hides a page's heading or LCP element.
+  - About 187 KB of gzipped JavaScript per page (the framework and React, about 156 KB,
+    and the site's small client components); total blocking time 0 to 250ms. The homepage
+    HTML is 40 KB gzipped (267 KB raw, more than half of it the inline RSC payload Next
+    streams with every page). A page carries only its own locale's copy.
+  - Fonts: both families are preloaded on every page (Archivo 61 KB, Noto Sans Hebrew
+    12 KB; English pages show Hebrew too, in the המחלבה name), `font-display: swap`, CLS 0.
+  - Images: WebP through the optimizer; a cold encode takes up to 0.2s per variant (once
+    per variant per deployment). `sizes` follow measured rendered widths; Lighthouse's
+    remaining "properly size images" notes are crops of larger assets (the lens shows a
+    region of the full image) and reuse of a larger copy already in the browser's cache.
+  - Not changed, deliberately: the approved scene transitions and line draws animate
+    `clip-path`, `background-size` and `stroke-dashoffset` (Lighthouse lists them as
+    non-composited); the ambient loops run only while their scene is visible; the
+    PreviewVideo chunk (about 6 KB gzipped) also loads on the homepage because
+    `MediaFrame` imports it. Best practices drops to 96 in a sandbox where the Enable
+    script cannot load (a console error); its real cost must be measured on a deployment.
 
 ## Analytics
 

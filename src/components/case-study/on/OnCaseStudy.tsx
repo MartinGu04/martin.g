@@ -112,7 +112,8 @@ export function OnCaseStudy({ locale, dict, showcase, copy, project, next }: OnC
               <Image
                 src={onMedia.mark.src}
                 alt={project.title}
-                sizes="(width >= 75rem) 18rem, 12rem"
+                // Measured: 1.92 x the mark's clamped height (OnCaseStudy.module.css .mark).
+                sizes="(width >= 75rem) 16.5rem, (width >= 48rem) 13.5rem, 8.75rem"
                 loading="eager"
                 className={styles.mark}
               />
