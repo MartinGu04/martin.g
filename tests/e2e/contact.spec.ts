@@ -1,5 +1,6 @@
 import AxeBuilder from '@axe-core/playwright'
-import { expect, test, type Page } from '@playwright/test'
+import type { Page } from '@playwright/test'
+import { expect, test } from '../support/test'
 import { openForLayout, openRendered } from '../support/navigation'
 import { deliveredTo, storedLeads, uniqueEmail } from '../support/outbox'
 

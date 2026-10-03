@@ -313,6 +313,12 @@ frame), `SystemDiagram` (generated, abstract system geometry for confidential wo
   (the one a visitor can act on; the current one is already the page's language) and drops
   the divider. Labels never wrap, keep 44px targets and clear the symbol (tested in both
   languages at 390, 360, 320 and 320 at 400% zoom).
+- Film: where the brand film can play, a button between Contact and the language switch,
+  styled as the navigation, led by a small play mark drawn in the text color (media marks
+  are not mirrored). On phones (under 768px) the mark alone stands for the label, as the
+  symbol stands for the wordmark (the label stays its accessible name, a 24px target at
+  least), and the language switch shows only the other language's code at every phone
+  width, so the row still fits (tested at 320 to 1280 in both languages).
 - Language switch: codes stay Latin and in `EN / HE` order in both directions; the current
   language has `aria-current`; accessible names start with the visible code ("HE עברית").
 - Footer: rule, wordmark, positioning and principle, copyright, and one labelled navigation:
@@ -366,7 +372,8 @@ no-preference)` for scroll-driven transitions; `html[data-motion]` for reveals, 
 - Reduced motion collapses all durations, removes distances, scale, parallax, drift and
   transitions, and shows every scene in its final state.
 - The hero is one frame with three short timed beats (identity, positioning, principle),
-  masks that fill backwards only; nothing in it waits for scrolling.
+  masks that fill backwards only; nothing in it waits for scrolling. After the brand intro
+  the beats play once more as its layer dissolves (docs/ARCHITECTURE.md, "Brand intro").
 - Hover effects exist only under `(hover: hover) and (pointer: fine)`; keyboard focus gets
   the same state plus the focus ring.
 

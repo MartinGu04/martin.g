@@ -1,4 +1,5 @@
-import { expect, test, type Page } from '@playwright/test'
+import type { Page } from '@playwright/test'
+import { expect, test } from '../support/test'
 import { openRendered } from '../support/navigation'
 
 /** Scrolls so the scene containing `selector` sits just under the header. */

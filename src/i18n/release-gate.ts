@@ -9,6 +9,7 @@ import { caseMiMaMoReview } from './dictionaries/case-mi-ma-mo'
 import { contactReview } from './dictionaries/contact'
 import { privacyReview } from './dictionaries/privacy'
 import { accessibilityReview } from './dictionaries/accessibility'
+import { introReview } from './dictionaries/intro'
 import { getAllProjectsForChecks } from '@/content/registry'
 import { siteCards } from '@/lib/social'
 
@@ -25,6 +26,7 @@ export function findDraftCopy(): string[] {
     if (contactReview[locale] === 'draft') drafts.push(`contact:${locale}`)
     if (privacyReview[locale] === 'draft') drafts.push(`privacy:${locale}`)
     if (accessibilityReview[locale] === 'draft') drafts.push(`accessibility:${locale}`)
+    if (introReview[locale] === 'draft') drafts.push(`intro:${locale}`)
   }
   for (const project of getAllProjectsForChecks()) {
     if (project.status !== 'published') continue

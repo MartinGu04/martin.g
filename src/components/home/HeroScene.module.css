@@ -130,9 +130,45 @@
     }
   }
 
+  /*
+   * After the brand film (BrandIntro): the arrival already played beneath the film, so it
+   * plays once more as the film's layer lifts, and the film's last black hands over to
+   * the hero's first beat. Same keyframes under another name, which restarts them; the
+   * layout and the settled frame are unchanged.
+   */
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    :root:is([data-intro='out'], [data-intro='done']) .identity,
+    :root:is([data-intro='out'], [data-intro='done']) .positioning,
+    :root:is([data-intro='out'], [data-intro='done']) .statement {
+      animation-name: hero-rise-again;
+    }
+
+    :root:is([data-intro='out'], [data-intro='done']) .cue {
+      animation-name: hero-fade-again;
+    }
+  }
+
   @keyframes hero-fade {
     from {
       opacity: 0;
+    }
+  }
+
+  @keyframes hero-fade-again {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes hero-rise-again {
+    from {
+      clip-path: inset(0 -5% 100% -5%);
+      translate: 0 0.35em;
+    }
+
+    to {
+      clip-path: inset(-20% -5% -30% -5%);
+      translate: 0 0;
     }
   }
 

@@ -10,7 +10,9 @@ decision changes.
   `ContactExperience`, the inquiry form's in-place validation, sending and outcome over its
   server action; `PreviewVideo`, the preview player's own play and pause control;
   `MotionController` and `HeaderWorld`, observers that render nothing; and, in the private
-  admin, `LoginForm`, `StatusForm` and `NoteForm`, forms over Server Actions).
+  admin, `LoginForm`, `StatusForm` and `NoteForm`, forms over Server Actions). Two inline
+  scripts run before the first paint, outside React: the motion head script and the brand
+  intro (see Brand intro).
 - Content is typed TypeScript, loaded on the server, flattened to one locale before it
   reaches components. A page never carries the other locale's copy.
 - English (LTR) and Hebrew (RTL) are equal from day one.
@@ -34,7 +36,8 @@ src/
   components/              brand, layout (grid, rule, header, footer), nav, type, theme, media,
                            motion, project, home, scene, case-study (shared primitives and
                            one composition per case study, e.g. case-study/on), contact,
-                           trust (Privacy and Accessibility), a11y (the Enable menu), admin
+                           trust (Privacy and Accessibility), a11y (the Enable menu), admin,
+                           intro (the brand film as the site's opening)
   fonts/                   self-hosted OFL fonts and licenses
   lib/                     site URL, indexing and metadata helpers, social cards, structured
                            data, CSS var typing, navigation, contact (validation, spam,
@@ -152,7 +155,80 @@ It keeps its own PNG copies of the approved brand marks (symbol, wordmark and lo
 black ink turned white on transparent for the dark film) in `film/brand`; the site's
 approved project media (`src/assets/work`) and fonts (`src/fonts`) are copied at build time
 (`pnpm assets` in `film/`), so they never exist twice in Git. It follows the same
-confidentiality, brand-mark and copy rules. Renders are never committed. See film/README.md.
+confidentiality, brand-mark and copy rules. Renders are never committed, with one
+exception: the two approved final cuts the site plays as its intro (below). See
+film/README.md.
+
+## Brand intro
+
+The approved final cuts of the brand film open the site, once per browser session
+(`src/components/intro`). It is part of the site, not a page: there is no route, and the
+homepage renders normally beneath it.
+
+- **Assets.** `public/media/brand-film/martin-g-film-desktop.mp4` (1920 by 1080, 44.5s,
+  about 20.6 MB) and `martin-g-film-mobile.mp4` (1080 by 1920, its own vertical edit, 35s,
+  about 18.7 MB): the approved renders' H.264 video streams copied bit for bit (never
+  re-encoded), with the soundtrack the intro never plays and the container's metadata
+  removed, the movie header first so playback starts from the first bytes
+  (`tests/unit/intro.test.ts`). No original, master or intermediate render is in the
+  repository.
+- **Hosting, evaluated.** Served by the site itself from `public/`, which Vercel delivers
+  from its CDN with range requests. A separate store (Vercel Blob or another CDN) would
+  keep about 39 MB out of Git, but would add a media origin to the CSP and contradict the
+  privacy page ("served by this website itself"); the files are final and change rarely,
+  so the repository carries them once. If they are ever replaced often, move them to a
+  store, list its origin in `media-src`, and update the privacy copy first.
+- **When.** Only when the first page load of a session is the homepage (`/he` or `/en`, no
+  section anchor). That first load, whatever the page, records the session in
+  `sessionStorage` (`mg:intro`), so a refresh, an internal navigation or a later load of
+  the homepage never plays it again; a new tab or browser session may. Never with reduced
+  motion, without scripting, with Save-Data or on a 2G connection, in a background tab, or
+  in a browser that cannot play H.264 (`canPlayType`): those visitors get no layer, no
+  `<video>` and no request.
+- **How.** One inline script, first in `<body>` (`BrandIntro`, `intro-script.ts`), so the
+  layer is in place before anything beneath it paints and the film starts without waiting
+  for hydration. It chooses the edit by orientation (`(orientation: portrait)`) and
+  requests only that file; builds a modal `<dialog>` outside React's tree (React 19 skips
+  foreign elements in `<body>` while hydrating), so the page beneath is inert while the
+  film plays; and plays the film muted, inline, without native controls, picture in
+  picture or remote playback. The film covers the screen while that crops at most about
+  6% a side (10% for the vertical edit, whose captions keep clear of its edges), and is
+  shown whole on its own black beyond that.
+- **Way out.** Skip (a small, quiet button at the closing corner, `t-label`, 44px target,
+  the standard focus ring; reached with Tab, the layer itself holds focus on arrival) and
+  Escape lift it at once (600ms). An error, a refused autoplay, no first frame within
+  2.5s, a picture frozen for 4s, or reduced motion switched on lift it too. Wheel, touch
+  and scroll keys never scroll the page beneath.
+- **Handover.** Both edits cut to black after MAKE IT REAL. (desktop at 43s, mobile at
+  34s); there the layer dissolves (1100ms) into the homepage's own dark surface, and the
+  hero's three arrival beats play once more as it lifts, so the film hands over to the
+  hero's first beat (`HeroScene.module.css`, keyed to `html[data-intro]`, which reads
+  `on`, `out`, then `done`). The layer is then removed from the document and its video
+  released. Nothing beneath moves: no layout shift, and a classic scrollbar beside the
+  film is painted black rather than hidden.
+- **Performance.** The video is never the LCP element (the hero's text paints first and
+  stays the LCP, measured in Chromium), nothing waits for it, and the server HTML carries
+  only the script (under 4 KB, under 2 KB compressed, on every page). Muted autoplaying video is requested at the browser's low
+  media priority; skipping or lifting aborts the rest of the download.
+- **On demand.** The header's Film control (`Film` / `סרט`, a button in the primary
+  navigation) plays the same film again through the same player, on any page and as often
+  as asked, even after the automatic intro. A replay never reads or clears the session's
+  record, so the automatic intro stays spent; closing it returns focus to Film. The
+  control exists only where the film can play: the script marks `html[data-brand-film]`
+  before the header paints (scripting, no reduced motion, a browser that decodes it), so
+  it never appears late or shifts the row, and it is never a dead control.
+- **Copy** (`src/i18n/dictionaries/intro.ts`, approved): Skip `Skip` / `דלג`, Film `Film` /
+  `סרט`. The accessibility statement describes the intro (muted, at most once per session
+  on entering the homepage, Skip or Escape, never with reduced motion) beside the ON
+  preview.
+- **Tests.** `tests/e2e/intro.spec.ts` (fresh session, refresh, navigation, new session,
+  the edit per screen at six viewports, Skip by pointer and keyboard, Escape, Hebrew, axe,
+  reduced motion, no scripting, every failure, no layout shift; the header's Film control:
+  replays after the intro, the session untouched, Skip, Escape, keyboard, both languages,
+  one header row at six widths). The suite's Chromium has
+  no H.264 decoder, so these tests answer the film URLs with tiny synthetic VP9 films
+  (`tests/support/intro-films`); every other test starts with the intro already seen
+  (`tests/support/test.ts`).
 
 ## Contact (Phase 6)
 
@@ -501,7 +577,7 @@ configuration is changed.
 ## Performance notes
 
 - **The ON preview film** (`public/media/on/film-preview.mp4`, about 2.3 MB) belongs to
-  the ON case study, not to the MARTIN.G brand film (which is not on the site). It is an
+  the ON case study, not to the MARTIN.G brand film (the site's intro, see Brand intro). It is an
   on-demand asset: the `<video>` exists only once the player has hydrated, has
   `preload="none"`, never autoplays, and the file is requested only when a visitor presses
   play (tested in `tests/e2e/showcase.spec.ts`). The homepage never requests it. It is not
@@ -547,7 +623,8 @@ non-clickable and route-less.
 
 ## Navigation
 
-Header: Work, About, Contact and the language switch. Footer: the same, plus Privacy and
+Header: Work, About, Contact, Film (a button that plays the brand film again, where it can
+play; see Brand intro) and the language switch. Footer: Work, About, Contact, plus Privacy and
 Accessibility, in a labelled navigation. About is the homepage's About scene (`#about`),
 reached from any page; there is no About page. No placeholder or dead links (tested).
 

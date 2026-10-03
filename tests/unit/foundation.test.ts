@@ -76,8 +76,9 @@ describe('release gate', () => {
 
   it('finds no copy awaiting review', () => {
     // Every published dictionary and project is approved in both locales, the Phase 8C
-    // Internal Systems wording and confidential-01's copy and alt text included. Anything
-    // marked 'draft' again would appear here, and a Vercel production build would refuse it.
+    // Internal Systems wording, confidential-01's copy and alt text, and the brand intro's
+    // labels included. Anything marked 'draft' again would appear here, and a Vercel
+    // production build would refuse it.
     expect(findDraftCopy()).toEqual([])
   })
 
