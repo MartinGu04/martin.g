@@ -74,11 +74,11 @@ describe('metadata', () => {
 describe('release gate', () => {
   afterEach(() => vi.unstubAllEnvs())
 
-  it('finds only the Phase 8 privacy wording awaiting review', () => {
-    // Every other published dictionary is approved in both locales. The privacy page's
-    // Phase 8 storage wording awaits Martin's review, so a Vercel production build refuses
-    // it until then; approving it empties this list again.
-    expect(findDraftCopy().sort()).toEqual(['privacy:en', 'privacy:he'])
+  it('finds no copy awaiting review', () => {
+    // Every published dictionary is approved in both locales, the Phase 6 contact and
+    // accessibility copy and the Phase 8 privacy wording included. Any dictionary marked
+    // 'draft' again would appear here, and a Vercel production build would refuse it.
+    expect(findDraftCopy()).toEqual([])
   })
 
   it('refuses synthetic draft copy in Vercel production builds only', () => {

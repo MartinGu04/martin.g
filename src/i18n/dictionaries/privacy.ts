@@ -17,13 +17,12 @@ import type { TrustPageCopy } from './legal'
  *   - self-hosted fonts, images and video; no embeds; external links without a referrer
  *
  * If the Telegram notifier (src/lib/contact/notifiers.ts) is turned on, or analytics are
- * added, this copy must say so before it ships. Approved by Martin in both locales in
- * Phase 6; the Phase 8 storage wording ("When you send a message", "Other services") is a
- * draft awaiting his review, so the release gate refuses a production build until then.
+ * added, this copy must say so before it ships. Approved by Martin in both locales, the
+ * Phase 8 storage wording ("When you send a message", "Other services") included.
  */
 export const privacyReview: Localized<ReviewStatus> = {
-  en: 'draft',
-  he: 'draft',
+  en: 'approved',
+  he: 'approved',
 }
 
 export const privacyCopy: Localized<TrustPageCopy> = {
@@ -49,7 +48,7 @@ export const privacyCopy: Localized<TrustPageCopy> = {
         body: [
           'The contact form asks for your name, your email address and a few words about the project. You may also add a phone number, the kind of project, a business or project name, a relevant link and when you would like to start.',
           'Your message is used only to reply to you and to talk about the project. It is not added to a mailing list, sold or shared for marketing.',
-          'Your message is stored securely in a private database hosted by Supabase, and a copy is delivered to me by email through Resend, an email delivery service. It is stored without your IP address or any other information about your device, and kept for as long as it is needed to handle your inquiry.',
+          'Your message is stored in a private database hosted by Supabase, and a copy is delivered to me by email through Resend, an email delivery service. It is stored without your IP address or other information about your device, and kept for as long as needed to handle your inquiry.',
           'The form also uses a hidden field and a basic timing check to reduce automated spam. This information is not used to identify you.',
         ],
       },
@@ -115,7 +114,7 @@ export const privacyCopy: Localized<TrustPageCopy> = {
         body: [
           'טופס יצירת הקשר מבקש שם, כתובת אימייל וכמה מילים על הפרויקט. אפשר להוסיף גם מספר טלפון, את סוג הפרויקט, שם של עסק או פרויקט, קישור רלוונטי ומתי תרצו להתחיל.',
           'ההודעה משמשת רק כדי לחזור אליכם ולדבר על הפרויקט. היא לא מצורפת לרשימת תפוצה, לא נמכרת ולא מועברת לצורכי שיווק.',
-          'ההודעה נשמרת באופן מאובטח במסד נתונים פרטי שמתארח ב־Supabase, ועותק שלה מגיע אליי באימייל דרך Resend, שירות לשליחת אימיילים. היא נשמרת בלי כתובת ה־IP שלכם ובלי מידע אחר על המכשיר שלכם, כל עוד היא נדרשת לטיפול בפנייה.',
+          'ההודעה נשמרת במסד נתונים פרטי שמתארח ב־Supabase, ועותק שלה מגיע אליי באימייל דרך Resend, שירות לשליחת אימיילים. היא נשמרת בלי כתובת ה־IP שלכם ובלי מידע אחר על המכשיר שלכם, ונשמרת כל עוד היא נדרשת לצורך טיפול בפנייה.',
           'הטופס משתמש גם בשדה נסתר ובבדיקת זמן בסיסית כדי לצמצם ספאם אוטומטי. המידע הזה לא משמש לזיהוי שלכם.',
         ],
       },

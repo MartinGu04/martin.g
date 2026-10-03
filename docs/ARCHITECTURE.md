@@ -224,8 +224,13 @@ Supabase is the source of truth for Contact inquiries; Resend only notifies.
   only, never logged, never in the repository, never in browser output. Publishable keys
   and the legacy `service_role` JWT are refused by the configuration check.
 - **Access model** (`supabase/migrations/20261003105852_leads.sql`). RLS enabled and
-  forced; every privilege revoked from `public`, `anon` and `authenticated`; `select`,
-  `insert`, `update` and `delete` granted to `service_role`. Deliberately **no RLS
+  forced; every privilege revoked from `public`, `anon`, `authenticated` and `service_role`
+  (Supabase's default privileges would otherwise give each of them everything on a new
+  table), then `select`, `insert`, `update` and `delete` granted to `service_role` and
+  nothing more: no `truncate`, `references`, `trigger` or `maintain`. The live table was
+  hardened to exactly this (Phase 8A); its ACL reads
+  `postgres=arwdDxtm/postgres, service_role=arwd/postgres`, which the migration reproduces
+  on a fresh database (`tests/unit/leads-migration.test.ts`). Deliberately **no RLS
   policies**: a policy can only add access, and no browser role is meant to have any. With
   RLS forced and no policy, any role without `BYPASSRLS`, including one given a grant by
   mistake, sees and changes nothing; `service_role` bypasses RLS by design.
@@ -235,10 +240,12 @@ id` in one request, so concurrent submissions of one inquiry on several instance
   the server sets `updated_at` when it records the notification.
 - **Migrations.** The table was provisioned in the Supabase dashboard before the
   repository integration. The migration records that schema exactly (verified against the
-  live catalog: columns, defaults, constraints, indexes, comment, RLS, privileges) and is
-  additive and idempotent: it never drops or rewrites, so running it against the existing
-  table changes nothing. It is not pushed to the existing project; Martin marks it applied
-  there with `supabase migration repair --status applied 20261003105852`. New schema
+  live catalog: columns, defaults, constraints, indexes, comment, RLS, privileges as
+  hardened) and is idempotent: it never drops or rewrites data, so running it against the
+  existing table changes nothing. It is never pushed to the existing project: its version
+  is marked applied there instead (`supabase link --project-ref <ref>`, then
+  `supabase migration repair --status applied 20261003105852 --linked`), so the migration
+  history matches without running the table creation. New schema
   changes are new migrations (`supabase migration new`), reviewed, then `supabase db push`.
 - **Local and tests.** `CONTACT_LEADS_FILE` stores leads in a local JSON file shaped like
   the table, for development and the e2e suite; it is refused on Vercel. Unit tests run the
@@ -494,7 +501,7 @@ Copy awaiting review: the configuration gates run before the copy gate, so cases
 decided whatever the copy's state. If case 5 is refused only for draft copy, it is built
 again with the explicit, logged `ALLOW_DRAFT_COPY_IN_PRODUCTION=1` so every other check
 still runs, and the run then fails anyway, naming the copy: Vercel Production would refuse
-the build until Martin approves it (as for the Phase 8 privacy wording).
+the build until Martin approves it.
 
 Its values are CI-only dummies (`SITE_URL=https://production-simulation.example`, a fake
 Resend key, `.example` addresses, `SUPABASE_URL=https://leads.production-simulation.example`
@@ -559,4 +566,5 @@ No application code reads `NODE_ENV`.
   security headers and the CI production simulation; 7A.3 approved social cards and the
   artwork release gate; 7A.4 performance audit and launch QA; 7A.5 release candidate)
 - Phase 8: Leads (8A: Supabase as the durable record of Contact inquiries, Resend as the
-  notification; privacy wording awaiting Martin's review)
+  notification; `service_role` hardened to select, insert, update and delete; privacy
+  wording approved)

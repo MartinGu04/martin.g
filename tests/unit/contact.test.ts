@@ -145,14 +145,26 @@ describe('Phase 6 copy', () => {
       expect(text).not.toMatch(/\b\d+\s*(days?|months?|years?)\b.*(delet|kept|stored)/i)
       expect(text).not.toMatch(/automatically deleted|deleted automatically|נמחקת אוטומטית/i)
     }
-    expect(privacyCopy.en.sections[1]!.body.join(' ')).toContain(
-      'stored without your IP address or any other information about your device',
-    )
   })
 
-  it('keeps new privacy wording a draft until Martin approves it', () => {
-    // Phase 8 changed the storage wording; it must not reach production unreviewed.
-    expect(privacyReview).toEqual({ en: 'draft', he: 'draft' })
+  it('carries Martin’s approved Phase 8 storage wording, verbatim, and is approved', () => {
+    const items = (locale: 'en' | 'he') =>
+      privacyCopy[locale].sections.flatMap((s) => [...s.body, ...(s.list ?? [])])
+    expect(items('en')).toEqual(
+      expect.arrayContaining([
+        'Your message is stored in a private database hosted by Supabase, and a copy is delivered to me by email through Resend, an email delivery service. It is stored without your IP address or other information about your device, and kept for as long as needed to handle your inquiry.',
+        'Supabase hosts the private database where messages from the contact form are stored.',
+        'Resend delivers a copy of each message from the contact form to my inbox.',
+      ]),
+    )
+    expect(items('he')).toEqual(
+      expect.arrayContaining([
+        'ההודעה נשמרת במסד נתונים פרטי שמתארח ב־Supabase, ועותק שלה מגיע אליי באימייל דרך Resend, שירות לשליחת אימיילים. היא נשמרת בלי כתובת ה־IP שלכם ובלי מידע אחר על המכשיר שלכם, ונשמרת כל עוד היא נדרשת לצורך טיפול בפנייה.',
+        'Supabase מארחת את מסד הנתונים הפרטי שבו נשמרות ההודעות מטופס יצירת הקשר.',
+        'Resend מעבירה עותק של כל הודעה מטופס יצירת הקשר לתיבת הדואר שלי.',
+      ]),
+    )
+    expect(privacyReview).toEqual({ en: 'approved', he: 'approved' })
   })
 
   it('shows errors legibly on the contact page’s graphite world', () => {

@@ -3,14 +3,14 @@
 --
 -- The remote table was provisioned before the repository integration. This migration
 -- records that schema exactly (columns, defaults, constraints, indexes, comment, row level
--- security and privileges) so it can be reproduced. It is additive and idempotent: it never
--- drops, truncates or rewrites anything, so running it against the existing table changes
--- nothing. Mark it as applied there instead of pushing it:
+-- security and privileges, as hardened) so it can be reproduced. It never drops, truncates
+-- or rewrites data and is idempotent: run against the existing table it changes nothing.
+-- Never push it to that project; mark it as applied there instead:
 --   supabase migration repair --status applied 20261003105852
 --
 -- Access model: server only. The website's server is the only client, through the
--- service_role (the sb_secret_... key, never in the browser). Browser roles (anon,
--- authenticated) have no table privileges at all.
+-- service_role (the sb_secret_... key, never in the browser), which holds select, insert,
+-- update and delete only. Browser roles (anon, authenticated) have no table privileges.
 --
 -- Deliberately no RLS policies. RLS is enabled and forced so that any role without
 -- BYPASSRLS, including a future grant made by mistake, sees and writes no rows: with no
@@ -70,11 +70,14 @@ create index if not exists leads_email_idx on public.leads using btree (lower(em
 alter table public.leads enable row level security;
 alter table public.leads force row level security;
 
--- Supabase's default privileges grant new public tables to anon and authenticated: revoke
--- them explicitly, together with anything granted to every role through public.
+-- Supabase's default privileges grant every privilege on new public tables to anon,
+-- authenticated and service_role: revoke them all explicitly, together with anything
+-- granted to every role through public.
 revoke all on table public.leads from public;
 revoke all on table public.leads from anon;
 revoke all on table public.leads from authenticated;
+revoke all on table public.leads from service_role;
 
--- The server's role: exactly what the Contact action and handling the leads need.
+-- The server's role: exactly what the Contact action and handling the leads need, and no
+-- more (no truncate, references, trigger or maintain), as hardened on the live table.
 grant select, insert, update, delete on table public.leads to service_role;

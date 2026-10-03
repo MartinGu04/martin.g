@@ -147,13 +147,13 @@ describe('production simulation cases', () => {
     try {
       vi.stubEnv('VERCEL_ENV', 'production')
       vi.stubEnv('ALLOW_DRAFT_COPY_IN_PRODUCTION', '')
-      assertReleasableCopy(['privacy:en', 'privacy:he'])
+      assertReleasableCopy(['dictionary:synthetic', 'privacy:synthetic'])
     } catch (error) {
       message = (error as Error).message
     } finally {
       vi.unstubAllEnvs()
     }
-    expect(message.match(DRAFT_COPY)?.[1]).toBe('privacy:en, privacy:he')
+    expect(message.match(DRAFT_COPY)?.[1]).toBe('dictionary:synthetic, privacy:synthetic')
   })
 
   it('without SITE_URL, the origin refuses with the message the build must show', () => {
