@@ -1,0 +1,103 @@
+@layer components {
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-weight: 600;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+
+  .glyph {
+    flex: none;
+    inline-size: 0.625rem;
+    block-size: 0.625rem;
+    border-radius: 50%;
+  }
+
+  /* New: the amber of the Contact thread, a filled dot. */
+  .new {
+    color: var(--accent);
+  }
+
+  .glyph-new {
+    background: currentColor;
+  }
+
+  /* In progress: full text color, a ring half filled. */
+  .active {
+    color: var(--text);
+  }
+
+  .glyph-active {
+    border: 1.5px solid currentColor;
+    background: linear-gradient(to top, currentColor 50%, transparent 50%);
+  }
+
+  /* Won: the quiet sage, a check. */
+  .won {
+    color: var(--accent-2);
+  }
+
+  .glyph-won {
+    inline-size: 0.375rem;
+    block-size: 0.6875rem;
+    border-radius: 0;
+    border-block-end: 2px solid currentColor;
+    border-inline-end: 2px solid currentColor;
+    transform: translateY(-0.125rem) rotate(45deg);
+  }
+
+  /* Lost: receded, a bar. */
+  .lost {
+    color: var(--text-muted);
+  }
+
+  .glyph-lost {
+    block-size: 2px;
+    border-radius: 0;
+    background: currentColor;
+  }
+
+  .notify-sent {
+    color: var(--text-muted);
+  }
+
+  .glyph-notify-sent {
+    border: 1.5px solid currentColor;
+  }
+
+  .notify-pending {
+    color: var(--text);
+  }
+
+  .glyph-notify-pending {
+    border: 1.5px dashed currentColor;
+  }
+
+  /* A failed email: the alert color, outlined, so it reads at a glance. */
+  .notify-failed {
+    padding-block: 0.125rem;
+    padding-inline: var(--space-2);
+    border: var(--hairline) solid var(--error);
+    color: var(--error);
+  }
+
+  .glyph-notify-failed {
+    border-radius: 0;
+    background: currentColor;
+    clip-path: polygon(50% 0, 100% 100%, 0 100%);
+  }
+
+  .quiet {
+    font-weight: 400;
+  }
+
+  @media (forced-colors: active) {
+    .glyph-new,
+    .glyph-lost,
+    .glyph-notify-failed {
+      background: CanvasText;
+    }
+  }
+}

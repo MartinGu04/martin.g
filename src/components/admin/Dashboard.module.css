@@ -1,0 +1,327 @@
+@layer components {
+  /* ---------------------------------------------------------------- */
+  /* Summary                                                          */
+  /* ---------------------------------------------------------------- */
+  .summary {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--hairline);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    background: var(--line);
+    box-shadow: 0 0 0 var(--hairline) var(--line);
+  }
+
+  @media (width >= 60rem) {
+    .summary {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  .card {
+    position: relative;
+    display: grid;
+    align-content: start;
+    gap: var(--space-2);
+    block-size: 100%;
+    padding: var(--space-4) var(--space-5) var(--space-5);
+    background: var(--surface-1);
+    text-decoration-line: none;
+  }
+
+  .card:hover,
+  .card:focus-visible {
+    text-decoration-line: none;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .card:hover {
+      background: color-mix(in srgb, var(--text) 4%, var(--surface-1));
+    }
+  }
+
+  .card:focus-visible {
+    outline-offset: -2px;
+  }
+
+  /* The active filter: a rule along the top edge, and the label says nothing new. */
+  .card[aria-current='true'] {
+    box-shadow: inset 0 3px 0 var(--text);
+  }
+
+  .cardLabel {
+    color: var(--text-muted);
+  }
+
+  .cardValue {
+    font-family: var(--font-display);
+    font-size: var(--heading-2-size);
+    font-weight: 700;
+    font-stretch: 112%;
+    line-height: 1;
+  }
+
+  .accent .cardValue {
+    color: var(--accent);
+  }
+
+  .alert .cardValue {
+    color: var(--error);
+  }
+
+  .cardDetail {
+    color: var(--text-muted);
+  }
+
+  /* ---------------------------------------------------------------- */
+  /* Filters                                                          */
+  /* ---------------------------------------------------------------- */
+  /* Phones: search across, then the three choices and Apply two by two. */
+  .filters {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
+    align-items: end;
+    margin-block: var(--space-6) var(--space-5);
+  }
+
+  .search {
+    grid-column: 1 / -1;
+  }
+
+  @media (width >= 40rem) {
+    .filters {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .search {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (width >= 75rem) {
+    .filters {
+      grid-template-columns: minmax(16rem, 2fr) repeat(3, minmax(10rem, 1fr)) auto;
+    }
+
+    .search {
+      grid-column: auto;
+    }
+  }
+
+  .filterActions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+  }
+
+  .clear {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 2.75rem;
+    color: var(--text-muted);
+    text-decoration-line: underline;
+    text-decoration-color: var(--line-strong);
+  }
+
+  /* ---------------------------------------------------------------- */
+  /* The list                                                         */
+  /* ---------------------------------------------------------------- */
+  .tableWrap {
+    border-block-start: var(--hairline) solid var(--line-strong);
+  }
+
+  .table {
+    inline-size: 100%;
+    border-collapse: collapse;
+  }
+
+  .table th {
+    padding-block: var(--space-3);
+    padding-inline: var(--space-3);
+    border-block-end: var(--hairline) solid var(--line);
+    color: var(--text-muted);
+    font-size: var(--label-size);
+    font-weight: var(--label-weight);
+    letter-spacing: var(--label-tracking);
+    text-align: start;
+    text-transform: var(--label-transform);
+    white-space: nowrap;
+  }
+
+  .table td {
+    padding-block: var(--space-3);
+    padding-inline: var(--space-3);
+    border-block-end: var(--hairline) solid var(--line);
+    vertical-align: middle;
+  }
+
+  /* The first column carries a 3px leading edge on every row (transparent unless the
+     lead is new), so names stay aligned whichever rows are new. */
+  .table th:first-child {
+    padding-inline-start: calc(var(--space-3) + 3px);
+  }
+
+  .table td:first-child {
+    border-inline-start: 3px solid transparent;
+  }
+
+  /* A row opens its lead: the name is the link, stretched over the whole row. */
+  .row {
+    position: relative;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .row:hover {
+      background: color-mix(in srgb, var(--text) 3%, transparent);
+    }
+
+    .row:hover .rowLink {
+      text-decoration-line: underline;
+    }
+  }
+
+  .row:focus-within {
+    background: color-mix(in srgb, var(--text) 3%, transparent);
+  }
+
+  .rowLink {
+    font-weight: 600;
+    overflow-wrap: anywhere;
+  }
+
+  .rowLink::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  /* New leads carry the amber along their leading edge. */
+  .table .rowNew td:first-child {
+    border-inline-start-color: var(--accent);
+  }
+
+  .rowLost {
+    color: var(--text-muted);
+  }
+
+  .lead {
+    min-inline-size: 12rem;
+  }
+
+  /* Names in either script line up at the column's start. */
+  .rowLink,
+  .secondary {
+    text-align: match-parent;
+  }
+
+  .secondary {
+    display: block;
+    color: var(--text-muted);
+    overflow-wrap: anywhere;
+  }
+
+  .email {
+    overflow-wrap: anywhere;
+  }
+
+  .date {
+    white-space: nowrap;
+  }
+
+  .badgeCell {
+    white-space: nowrap;
+  }
+
+  .none {
+    color: var(--text-muted);
+  }
+
+  /* Phones and narrow windows: each lead becomes a compact card, labels inline. */
+  @media (width < 64rem) {
+    .table thead {
+      position: absolute;
+      inline-size: 1px;
+      block-size: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+    }
+
+    .table,
+    .table tbody,
+    .row,
+    .table td {
+      display: block;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: var(--space-1) var(--space-4);
+      padding-block: var(--space-4);
+      border-block-end: var(--hairline) solid var(--line);
+    }
+
+    .table td {
+      padding: 0;
+      border: 0;
+    }
+
+    .table td:first-child {
+      padding-inline-start: var(--space-3);
+      border-inline-start: 3px solid transparent;
+    }
+
+    .lead {
+      grid-column: 1 / -1;
+      min-inline-size: 0;
+    }
+
+    .table td[data-label] {
+      grid-column: 1 / -1;
+      color: var(--text-muted);
+    }
+
+    .table td[data-label]::before {
+      content: attr(data-label) ': ';
+    }
+
+    .badgeCell {
+      grid-row: auto;
+      margin-block-start: var(--space-2);
+    }
+
+    .badgeCell + .badgeCell {
+      justify-self: end;
+    }
+  }
+
+  /* ---------------------------------------------------------------- */
+  /* Pagination                                                       */
+  /* ---------------------------------------------------------------- */
+  .pagination {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    margin-block-start: var(--space-5);
+  }
+
+  .range,
+  .pageOf {
+    margin: 0;
+    color: var(--text-muted);
+  }
+
+  .pageLinks {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+  }
+
+  .summarySection {
+    margin-block-start: var(--space-5);
+  }
+}

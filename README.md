@@ -104,7 +104,8 @@ Two different things, never to be confused:
 1. **CI production simulation** (`pnpm build:production-simulation`, the CI job
    "Production simulation build"). Real `pnpm build`s with `VERCEL=1` and
    `VERCEL_ENV=production`, so every production-only guard runs before a merge: a build
-   without Contact delivery, without lead storage (Supabase) or without `SITE_URL` must
+   without Contact delivery, without lead storage (Supabase), without the admin's
+   configuration or without `SITE_URL` must
    fail, and one with the complete configuration must build, serve and pass its checks. It
    uses CI-only dummy values on the reserved `.example` domain
    (`scripts/production-simulation.mjs`), never credentials, and a network guard proves no
@@ -114,10 +115,18 @@ Two different things, never to be confused:
    `pnpm test:e2e`. Locally, the leak check needs `LEAK_CHECK_TERMS_B64` (your own, or a
    synthetic term encoded with `pnpm leak:encode`).
 2. **Real Vercel Production configuration**: the domain, `SITE_URL=https://martin-g.dev`,
-   the Resend credentials, the Supabase URL and secret key, and the firewall rule, set only
-   in the Vercel project. See
+   the Resend credentials, the Supabase URL, secret and publishable keys, the admin's user
+   id, and the firewall rule, set only in the Vercel project. See
    [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), "Production configuration (Vercel)". CI
    never sees them.
+
+## Admin
+
+`/admin` is Martin's private CRM for the leads (Phase 8B): Supabase Auth with exactly one
+authorized user (`ADMIN_USER_ID`), server-side only, never indexed or cached. See
+[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), "Admin CRM (Phase 8B)", for the model, the
+manual Supabase setup and the firewall change it requires. Locally, its tests run against
+a fake Supabase (`tests/support/fake-supabase-server.mjs`); nothing touches the real one.
 
 ## Copy review
 

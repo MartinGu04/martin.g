@@ -366,7 +366,8 @@ describe('the server-only boundary', () => {
     for (const file of walk(path.join(root, 'src')).filter((f) => /\.tsx?$/.test(f))) {
       const source = readFileSync(file, 'utf8')
       if (!/^['"]use client['"]/m.test(source)) continue
-      expect(source, file).not.toMatch(/@\/lib\/leads|@supabase\//)
+      // The table types and constants (database.ts) are pure; nothing else may be imported.
+      expect(source, file).not.toMatch(/@\/lib\/leads\/(?!database')|@supabase\//)
     }
   })
 

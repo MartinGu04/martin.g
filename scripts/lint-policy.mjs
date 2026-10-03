@@ -17,6 +17,7 @@
  *   invisible-chars  no raw zero-width or bidi control characters in source (Trojan Source)
  *   server-config    (--built) what a browser receives (static assets, prerendered pages and
  *                    payloads) carries no Supabase client, key, project host or variable
+ *   admin-dynamic    (--built) no admin page is prerendered: lead data is never in the build
  */
 import { spawnSync } from 'node:child_process'
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
@@ -362,6 +363,15 @@ export function runBuilt(root) {
     const source = readFileSync(file, 'utf8')
     for (const p of [...checkEmDash(source), ...checkBrowserOutput(source)])
       problems.push({ file: path.relative(root, file), ...p })
+  }
+  // The private admin renders per request (it reads the session), never at build time.
+  for (const file of walk(appDir).filter((f) => /^admin(\/|\.|$)/.test(path.relative(appDir, f)))) {
+    problems.push({
+      file: path.relative(root, file),
+      line: 1,
+      rule: 'admin-dynamic',
+      message: 'an admin page was prerendered; admin pages must render per request',
+    })
   }
   for (const file of walk(path.join(root, '.next', 'static')).filter((f) =>
     /\.(js|css|json|txt)$/.test(f),

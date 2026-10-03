@@ -8,8 +8,9 @@ decision changes.
 - Statically generated. Server Components by default; client components only for
   interaction or motion (today: `LocaleSwitch`; the locale not-found boundary;
   `ContactExperience`, the inquiry form's in-place validation, sending and outcome over its
-  server action; `PreviewVideo`, the preview player's own play and pause control; and
-  `MotionController` and `HeaderWorld`, observers that render nothing).
+  server action; `PreviewVideo`, the preview player's own play and pause control;
+  `MotionController` and `HeaderWorld`, observers that render nothing; and, in the private
+  admin, `LoginForm`, `StatusForm` and `NoteForm`, forms over Server Actions).
 - Content is typed TypeScript, loaded on the server, flattened to one locale before it
   reaches components. A page never carries the other locale's copy.
 - English (LTR) and Hebrew (RTL) are equal from day one.
@@ -24,6 +25,8 @@ src/
   app/
     [locale]/              root layout: <html lang dir>; home; work/[slug]; contact; privacy;
                            accessibility; not-found
+    admin/                 the private admin (Phase 8B), its own root layout, unlocalized:
+                           login; the leads; leads/[id]; not-found
     global-not-found.tsx   every 404, server-rendered: in the URL's locale, else bilingual
     sitemap.ts robots.ts manifest.ts icon.svg icon.png apple-icon.png favicon.ico
   i18n/                    config, negotiation, dictionaries, release gate
@@ -31,20 +34,25 @@ src/
   components/              brand, layout (grid, rule, header, footer), nav, type, theme, media,
                            motion, project, home, scene, case-study (shared primitives and
                            one composition per case study, e.g. case-study/on), contact,
-                           trust (Privacy and Accessibility), a11y (the Enable menu)
+                           trust (Privacy and Accessibility), a11y (the Enable menu), admin
   fonts/                   self-hosted OFL fonts and licenses
   lib/                     site URL, indexing and metadata helpers, social cards, structured
                            data, CSS var typing, navigation, contact (validation, spam,
                            dedupe key, notifiers, server action), leads (server-only Supabase
-                           client, configuration, lead repository)
+                           client, configuration, lead repository), admin (configuration,
+                           auth, requireAdmin, proxy branch, CRM data layer, view logic,
+                           Server Actions)
   styles/                  layers, tokens, fonts, reset, base, typography, layout, motion
 scripts/                   leak-check, lint-policy, setup-hooks, brand-icons (`pnpm brand:icons`),
                            og-cards (`pnpm brand:og`, the social cards),
                            production-simulation and its delivery-guard (see Production
                            simulation)
-supabase/                  Supabase CLI config and migrations (the leads table)
+supabase/                  Supabase CLI config and migrations (leads; lead_notes, Phase 8B)
 tests/unit                 Vitest (content, i18n, tokens, grid, policy, leak check, metadata,
-                           headers, production simulation)
+                           headers, production simulation, contact and leads, admin, migrations
+                           on Postgres)
+tests/support              fakes and fixtures: a fake Supabase (Auth and the Data API) for the
+                           admin's unit and e2e tests, synthetic users and leads
 tests/e2e                  Playwright (routing, direction, axe, confidential, brand, headers,
                            search and social metadata);
                            a setup project warms the optimized images before the tests run
@@ -248,8 +256,132 @@ id` in one request, so concurrent submissions of one inquiry on several instance
   history matches without running the table creation. New schema
   changes are new migrations (`supabase migration new`), reviewed, then `supabase db push`.
 - **Local and tests.** `CONTACT_LEADS_FILE` stores leads in a local JSON file shaped like
-  the table, for development and the e2e suite; it is refused on Vercel. Unit tests run the
-  real client against a fake Data API. CI never uses the real database.
+  the table, for local development; it is refused on Vercel. Unit tests run the real client
+  against a fake Data API; the e2e suite runs the site against a local fake Supabase (see
+  Admin CRM below). CI never uses the real database.
+
+## Admin CRM (Phase 8B)
+
+A private `/admin` where Martin manages the real leads without opening Supabase: an internal
+application, not part of the public bilingual portfolio. English, left to right, its own
+root layout (`src/app/admin/layout.tsx`) with none of the site's navigation, motion or
+third-party scripts.
+
+```
+browser ── form POST ──> Server Action ── requireAdmin() ──> Supabase Auth (publishable key)
+                                 │                              proves who it is
+                                 │   user.id === ADMIN_USER_ID  authorizes Martin only
+                                 └──> CRM data layer ──────────> Supabase Data API (secret key)
+                                                                 reads and writes the tables
+```
+
+- **The browser has no direct database or Supabase access.** There is no browser Supabase
+  client, no key in any page or bundle, and no `NEXT_PUBLIC_` variable. Sign-in is a Server
+  Action calling Supabase Auth on the server; every page is rendered on the server.
+- **Authentication** (`src/lib/admin/session.ts`): Supabase Auth, email and password, with
+  `@supabase/ssr` (pinned exactly) keeping the session in cookies. The cookies are scoped to
+  `/admin` (never sent with a public page's request), `httpOnly` (no script reads them; there
+  is no browser client), `SameSite=Lax`, and `Secure` on Vercel. That client holds the
+  publishable key (`SUPABASE_PUBLISHABLE_KEY`, deliberately server-side), which can sign in,
+  read and refresh a session and sign out, and nothing else: browser roles have no
+  privileges on the tables. No sign-up, no social login, no password reset in this phase.
+- **Authorization: exactly one user.** `requireAdmin()` (`src/lib/admin/auth.ts`) is the
+  single boundary. Every protected page and every mutating Server Action calls it first:
+  (1) a valid Supabase Auth user, confirmed by the auth server (`getUser()`, never a cookie
+  alone), and (2) `user.id === ADMIN_USER_ID`. Never an email address, never
+  `user_metadata`. Anyone else is redirected to `/admin/login` before anything is read; a
+  signed-in user who is not the admin is signed out. Sign-in refusals all read the same
+  ("That email and password combination did not work."), so the page never tells whether
+  an account exists; a real account that is not the admin is signed out at once and gets
+  the same answer.
+- **Elevated data access, separately** (`src/lib/admin/crm.ts`). After `requireAdmin()`, the
+  CRM operations (list leads, get a lead, update a status, list notes, add a note) use the
+  same server-only secret client as lead storage (`SUPABASE_SECRET_KEY`). Supabase Auth
+  proves who Martin is, `ADMIN_USER_ID` authorizes him, and the secret client performs the
+  operation; neither the key nor the client ever reaches a browser. The CRM layer is
+  separate from the Contact action's lead repository, which only stores new inquiries.
+- **The proxy** (`src/proxy.ts`, `src/lib/admin/proxy.ts`). `/admin` and `/admin/...` are
+  the one deliberate exception to locale routing: never redirected into `/he` or `/en`. Only
+  there the session is read and refreshed (a Server Component cannot write cookies), page
+  loads without the admin are redirected to `/admin/login`, a session that is not the
+  admin's is signed out and its cookies cleared, and the private headers are set. It is
+  defense in depth, not the boundary: pages and actions call `requireAdmin()` themselves.
+  Server Action POSTs are not redirected by the proxy; the action's own `requireAdmin()`
+  redirects. Public routes never reach this code and stay statically generated.
+- **Private by default.** Every admin page renders per request (`dynamic = 'force-dynamic'`;
+  it reads the session), so no lead data is ever generated at build time, cached or in the
+  build output (`lint-policy --built` fails if an admin page is prerendered). Every admin
+  response carries `X-Robots-Tag: noindex, nofollow`, `Cache-Control: private, no-store,
+max-age=0` and `Referrer-Policy: no-referrer` (next.config.ts and the proxy), every page
+  a `noindex, nofollow` robots meta, and the sitemap never lists it. A lead's name is not
+  put in the page title (browser history). Logs carry a step and a code only, never an
+  email address, a lead's content or a secret.
+- **Dashboard** (`/admin`): real counts only (New; In progress = contacted + talking +
+  proposal sent; Won; Notification issues = email failed or pending), each a shortcut to
+  its filter; no trends or percentages (there is no history yet). The leads newest first:
+  name and business, email, project kind, language, received time (Israel time), status
+  and notification, each status with its label and its own shape, never color alone. Rows
+  open the lead. Filters (status, in progress, language, notification) and search (name,
+  email, phone, business, description) are a plain GET form, so every view has an address
+  and works without JavaScript. **The bound:** the dashboard reads the newest 1,000 leads
+  (`LEAD_FETCH_LIMIT`) in one query and filters, searches and pages them on the server
+  (`src/lib/admin/leads-view.ts`, 25 per page); search text is compared as text and never
+  becomes a PostgREST filter. Past 1,000 leads the page says so, and server-side queries
+  replace the bounded fetch.
+- **Lead** (`/admin/leads/[id]`): the complete inquiry (contact, project, message), the CRM
+  state (status, notification and its time, last update), and actions: an email link, a
+  phone link when given, the website when given (only an http(s) URL Contact already
+  normalized, opened in a new tab with `noopener noreferrer nofollow`). Inquiry fields and
+  notes are always rendered as text, never as HTML.
+- **Status** (`updateLeadStatus`): validated against the typed list (`new`, `contacted`,
+  `talking`, `proposal_sent`, `won`, `lost`), sets `updated_at`. No optimistic state: the
+  page shows what the database holds. Errors never carry a database detail.
+- **Notes** (`lead_notes`, `supabase/migrations/20261003122041_lead_notes.sql`): `id`,
+  `lead_id` (foreign key to `leads`, `on delete cascade`), `body` (plain text, not blank, at
+  most 4,000 characters, enforced by a check constraint and by the action, which cleans it
+  like an inquiry's message), `created_at`, `updated_at`; an index on
+  `(lead_id, created_at desc)`, which also covers the foreign key. Shown newest first. Add
+  only in this phase (no editing or deleting). The same access model as `leads`: RLS
+  enabled and forced, no policies by design, all privileges revoked from `public`, `anon`,
+  `authenticated` and `service_role`, then `select`, `insert`, `update` and `delete` granted
+  to `service_role`. The migration is additive, idempotent and adds `lead_notes` only; it
+  is verified on Postgres in CI (`tests/unit/migrations-postgres.test.ts`: privileges, RLS,
+  the foreign key and its cascade, the constraints, a re-run). **Not yet applied to the
+  live project**: after review, with the normal workflow (`supabase db push`, migration
+  history being in sync since Phase 8A).
+- **Design.** The MARTIN.G system set for daily use: the brand's black and a raised
+  graphite, bone text, the Contact thread's amber for new leads and the primary action, a
+  quiet sage for won leads, the type roles at working sizes (no display headlines), the
+  Contact form's controls, hairline structure. Desktop first; under 64rem the table becomes
+  compact cards. No animation.
+- **Accessibility.** Labels on every control, a skip link, visible focus, errors announced
+  and focused, status never by color alone, 44px targets, no horizontal scroll at 320px,
+  axe clean (tested in `tests/e2e/admin.spec.ts`).
+- **Tests and local runs.** No test or CI job touches the real project. Unit tests
+  (`tests/unit/admin.test.ts`) and the e2e suite run the real `@supabase/ssr` and supabase-js
+  code against `tests/support/fake-supabase-server.mjs`, a local fake of Supabase Auth and
+  the Data API subset the site uses, with synthetic keys, users and leads
+  (`tests/support/admin-fixtures.mjs`); the e2e suite starts it next to the site, and Contact
+  submissions are stored there too. It enforces the security model that matters: only the
+  secret key reaches the tables, a session ends at sign-out, notes need a lead.
+- **Preview.** Preview never receives the Production `SUPABASE_SECRET_KEY` (nor its
+  publishable key or `ADMIN_USER_ID`), so its admin says "not configured" and shows nothing.
+  To try the admin with data: locally against the fake (`node
+tests/support/fake-supabase-server.mjs` and the values in `admin-fixtures.mjs`), or on a
+  Preview connected to a separate, non-production Supabase project with its own keys and
+  synthetic leads. Never connect Preview to the Production database.
+
+**Manual Supabase Auth setup (by Martin, once, before the admin ships):**
+
+1. Authentication, Sign In / Providers: keep **Email** enabled; **turn off "Allow new users
+   to sign up"**; no social providers. Confirm email can stay on.
+2. Authentication, Users, **Add user**, "Create new user": Martin's email and a strong,
+   unique password (a password manager), "Auto Confirm User" on. No other users.
+3. Copy that user's **UID**: it is `ADMIN_USER_ID`.
+4. Project Settings, API Keys: copy the **publishable key** (`sb_publishable_...`) for
+   `SUPABASE_PUBLISHABLE_KEY`. The secret key is already `SUPABASE_SECRET_KEY`.
+5. Optional hardening: Authentication, Attack Protection (leaked-password protection and
+   CAPTCHA are not needed for one account); keep the default sign-in rate limits.
 
 ## Privacy (Phase 6 audit, revised in Phase 8)
 
@@ -415,6 +547,9 @@ is the Vercel production deployment. Tested in `tests/unit/seo.test.ts` and
 | `Permissions-Policy`         | camera, microphone, geolocation, payment, usb, browsing-topics all `()` | the retired `interest-cohort` token was removed                |
 | `X-Robots-Tag`               | `noindex, nofollow`                                                     | every build except production                                  |
 
+- **The private admin** (`/admin`, every deployment, `adminHeaders` and the admin proxy):
+  `X-Robots-Tag: noindex, nofollow`, `Cache-Control: private, no-store, max-age=0` and
+  `Referrer-Policy: no-referrer`, over the baseline above (see Admin CRM).
 - **HSTS.** Two years with `includeSubDomains`, production only (an http localhost ignores
   it, and previews live on Vercel's own domain). The `.dev` top-level domain is on the
   browsers' HSTS preload list, so every `martin-g.dev` host is https only already; there is
@@ -460,17 +595,31 @@ them for the launch (Phase 7); the post-merge checklist verifies each one on the
     adds its own variables (for example `NEXT_PUBLIC_SUPABASE_*`) must not be connected:
     `lint-policy` forbids `NEXT_PUBLIC_` in the code, but Vercel would still expose such a
     variable to builds.
+  - `SUPABASE_PUBLISHABLE_KEY` (the project's publishable key, `sb_publishable_...`; used
+    for Supabase Auth only) and `ADMIN_USER_ID` (the UUID of Martin's Supabase Auth user).
+    Both are required once the admin ships (Phase 8B). Production only: Preview gets none
+    of the Supabase variables.
   - `LEAK_CHECK_TERMS_B64` (Sensitive, Production and Preview; see README.md).
-- **Firewall rate limit** (Firewall, Configure, add a custom rule):
-  - Name: `Contact form rate limit`
-  - If: `Request Method` equals `POST`, and `Request Path` is any of `/he/contact`,
-    `/en/contact` (or matches the expression `^/(he|en)/contact$`)
-  - Then: Rate limit, fixed window, 60 seconds, 5 requests, keyed by IP; when exceeded:
-    Too Many Requests (429)
-  - Recommended: drop the path condition and apply the same limit to every `POST`. The
-    inquiry is the site's only `POST`, and Next also accepts a server action's `POST` on
-    other page paths, so a path-only rule can be stepped around.
-  - Publish, then check the rule's log while sending one real inquiry from each locale.
+- **Firewall rate limit** (Firewall, Configure, a custom rule). Live today (Phase 7): every
+  `POST`, 5 requests per 60 seconds, keyed by IP, answered 429. That was right while Contact
+  was the site's only `POST`.
+  - **REQUIRED before the Phase 8B merge:** the admin's Server Actions are `POST`s too
+    (sign in, status, notes, sign out), and five per minute would lock Martin out of his
+    own CRM. Scope the rule to Contact submissions only:
+    - Name: `Contact form rate limit`
+    - If: `Request Method` equals `POST`, and `Request Path` is any of `/he/contact`,
+      `/en/contact` (or matches the expression `^/(he|en)/contact$`)
+    - Then: Rate limit, fixed window, 60 seconds, 5 requests, keyed by IP; when exceeded:
+      Too Many Requests (429)
+  - Known gap of a path-scoped rule: Next accepts a Server Action's `POST` on any page
+    path, so the Contact action could be posted to another public page outside the rule.
+    The application's own spam protection (trap field, fill time, dedupe) stays in place
+    either way. To close the gap, the expression can instead cover every `POST` whose path
+    does not start with `/admin` (`not (Request Path starts with /admin)`).
+  - Recommended, separately: a rule for `POST` to `/admin/login`, for example 10 requests
+    per 60 seconds keyed by IP, on top of Supabase Auth's own sign-in rate limits.
+  - Publish, then check the rule's log while sending one real inquiry from each locale and
+    using the admin.
 - **Deployment protection.** Keep Vercel Authentication on for Preview deployments.
 
 ## Production simulation (CI)
@@ -484,29 +633,36 @@ runs `scripts/production-simulation.mjs` (also `pnpm build:production-simulation
    the contact gate's message naming them.
 2. `pnpm build` without `SUPABASE_URL` and `SUPABASE_SECRET_KEY`: must fail with the lead
    storage gate's message naming them.
-3. `pnpm build` without `SITE_URL`: must fail with the origin's message.
-4. `pnpm build` with the Hebrew site card treated as pending
+3. `pnpm build` without `SUPABASE_PUBLISHABLE_KEY` and `ADMIN_USER_ID`: must fail with the
+   admin gate's message naming them.
+4. `pnpm build` without `SITE_URL`: must fail with the origin's message.
+5. `pnpm build` with the Hebrew site card treated as pending
    (`RELEASE_GATE_SIMULATE_PENDING_SITE_CARDS=he`, a test-only switch that can only add
    pending cards): must fail with the artwork gate's message naming it.
-5. `pnpm build` with the complete dummy configuration: must succeed (the real leak check
-   and the built-HTML policy included); the browser output (`.next/static` and the
-   prerendered pages and payloads) must not contain the dummy Resend key, Supabase URL,
-   host or secret key; then `next start` with the same environment and
+6. `pnpm build` with the complete dummy configuration: must succeed (the real leak check
+   and the built-HTML policy included, which refuses a prerendered admin page); the
+   browser output (`.next/static` and the prerendered pages and payloads) must not contain
+   the dummy Resend key, Supabase URL, host, secret or publishable key, or admin id; then
+   `next start` with the same environment and
    GET-only checks: the redirect to `/he`, canonical and Open Graph URLs, structured data,
    each locale's site card and the case-study image, robots.txt and every sitemap URL on the simulated origin, HSTS,
    `upgrade-insecure-requests` and no `X-Robots-Tag`, no robots meta, and the specimen as
-   a 404, and no page carrying a server-only value.
+   a 404, and no page carrying a server-only value; the admin: `/admin` and a lead's
+   address redirect to `/admin/login` (307), every admin response `noindex` and private,
+   the login page configured and `noindex`, and the sitemap without it. With no session,
+   the admin makes no request to Supabase at all (the guard would record one).
 
-Copy awaiting review: the configuration gates run before the copy gate, so cases 1 to 4 are
-decided whatever the copy's state. If case 5 is refused only for draft copy, it is built
+Copy awaiting review: the configuration gates run before the copy gate, so cases 1 to 5 are
+decided whatever the copy's state. If case 6 is refused only for draft copy, it is built
 again with the explicit, logged `ALLOW_DRAFT_COPY_IN_PRODUCTION=1` so every other check
 still runs, and the run then fails anyway, naming the copy: Vercel Production would refuse
 the build until Martin approves it.
 
 Its values are CI-only dummies (`SITE_URL=https://production-simulation.example`, a fake
 Resend key, `.example` addresses, `SUPABASE_URL=https://leads.production-simulation.example`
-and a fake `sb_secret_` key). Inherited `SITE_URL`, Resend, Supabase (any variable naming
-it, and `POSTGRES_*`), Telegram, outbox, lead file, fill-time, draft-copy override and
+a fake `sb_secret_` and `sb_publishable_` key, and a synthetic `ADMIN_USER_ID`). Inherited
+`SITE_URL`, Resend, Supabase (any variable naming it, and `POSTGRES_*`), `ADMIN_USER_ID`,
+Telegram, outbox, lead file, fill-time, draft-copy override and
 simulated pending artwork variables are removed first, so neither real credentials nor test
 shortcuts can reach it. Nothing can be delivered or stored: a build never runs the server
 action (only a visitor's submission does), the server is only sent GETs, and
@@ -522,10 +678,12 @@ environment, the gates' messages for each case, and the guard.
 | Guard                                                            | Production-only behavior                                          | Exercised by                                                    |
 | ---------------------------------------------------------------- | ----------------------------------------------------------------- | --------------------------------------------------------------- |
 | `assertReleasableCopy` (`src/i18n/release-gate.ts`)              | refuses draft copy; `ALLOW_DRAFT_COPY_IN_PRODUCTION=1` overrides  | simulation (override removed), unit                             |
-| `assertReleasableArtwork` (`src/i18n/release-gate.ts`)           | refuses a site card marked `'pending'`; no override               | simulation case 3, unit                                         |
-| `assertContactDelivery` (`src/lib/contact/notifiers.ts`)         | requires the three Resend variables                               | simulation cases 1, 4 and 5, unit                               |
-| `assertLeadStorage` (`src/lib/leads/config.ts`)                  | requires `SUPABASE_URL` and an `sb_secret_` `SUPABASE_SECRET_KEY` | simulation cases 2, 4 and 5, unit                               |
-| `siteUrl` (`src/lib/site.ts`)                                    | requires an https `SITE_URL`; previews use their own URL          | simulation cases 3 and 4; the preview branch by unit tests only |
+| `assertReleasableArtwork` (`src/i18n/release-gate.ts`)           | refuses a site card marked `'pending'`; no override               | simulation case 5, unit                                         |
+| `assertContactDelivery` (`src/lib/contact/notifiers.ts`)         | requires the three Resend variables                               | simulation cases 1, 5 and 6, unit                               |
+| `assertLeadStorage` (`src/lib/leads/config.ts`)                  | requires `SUPABASE_URL` and an `sb_secret_` `SUPABASE_SECRET_KEY` | simulation cases 2, 5 and 6, unit                               |
+| `assertAdminConfiguration` (`src/lib/admin/config.ts`)           | requires `SUPABASE_PUBLISHABLE_KEY` and a UUID `ADMIN_USER_ID`    | simulation cases 3, 5 and 6, unit                               |
+| `siteUrl` (`src/lib/site.ts`)                                    | requires an https `SITE_URL`; previews use their own URL          | simulation cases 4 and 5; the preview branch by unit tests only |
+| `adminAuthConfig` (`VERCEL`)                                     | the admin's session cookies are `Secure`                          | unit                                                            |
 | `isIndexable`, `robots.ts`, `securityHeaders` (`next.config.ts`) | crawlable, sitemap, HSTS, `upgrade-insecure-requests`, no noindex | simulation (served), unit                                       |
 | `isSpecimenEnabled` (`src/lib/specimen.ts`)                      | the specimen is a 404                                             | simulation (served); e2e covers the other side                  |
 | `configuredNotifiers` (`VERCEL`)                                 | the e2e outbox is refused on Vercel                               | unit (a runtime path: the simulation never submits)             |
@@ -567,4 +725,5 @@ No application code reads `NODE_ENV`.
   artwork release gate; 7A.4 performance audit and launch QA; 7A.5 release candidate)
 - Phase 8: Leads (8A: Supabase as the durable record of Contact inquiries, Resend as the
   notification; `service_role` hardened to select, insert, update and delete; privacy
-  wording approved)
+  wording approved. 8B: the private admin CRM, Supabase Auth with one authorized user,
+  lead notes; the `lead_notes` migration and the firewall change await review)

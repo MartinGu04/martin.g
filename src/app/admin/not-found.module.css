@@ -1,0 +1,30 @@
+@layer components {
+  .page {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    place-items: center;
+    min-block-size: 100svh;
+    padding: var(--space-5);
+  }
+
+  .panel {
+    display: grid;
+    gap: var(--space-3);
+    inline-size: min(100%, 25rem);
+  }
+
+  .panel h1,
+  .panel p {
+    margin: 0;
+  }
+
+  .code {
+    color: var(--text-muted);
+  }
+
+  .link {
+    justify-self: start;
+    text-decoration-line: underline;
+    text-decoration-color: var(--line-strong);
+  }
+}

@@ -9,6 +9,7 @@ import { contactCopy } from '@/i18n/dictionaries/contact'
 import { homeCopy } from '@/i18n/dictionaries/home'
 import { assertContactDelivery } from '@/lib/contact/notifiers'
 import { assertLeadStorage } from '@/lib/leads/config'
+import { assertAdminConfiguration } from '@/lib/admin/config'
 import { openGraphLocales, siteUrl } from '@/lib/site'
 import { brandSurface } from '@/lib/theme'
 import { SkipLink } from '@/components/layout/SkipLink'
@@ -24,6 +25,7 @@ export function generateStaticParams() {
   // Configuration first, so a missing variable is named even while copy awaits approval.
   assertContactDelivery()
   assertLeadStorage()
+  assertAdminConfiguration()
   // A production build without its canonical origin fails here, before any page renders.
   siteUrl()
   assertReleasableArtwork()

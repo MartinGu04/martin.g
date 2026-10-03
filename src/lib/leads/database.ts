@@ -1,7 +1,8 @@
 /*
- * The `public.leads` table as the Supabase client sees it, in the shape `supabase gen types`
- * produces, kept to the one table the site uses. The schema itself is
- * supabase/migrations/20261003105852_leads.sql; change both together.
+ * The `public.leads` and `public.lead_notes` tables as the Supabase client sees them, in
+ * the shape `supabase gen types` produces, kept to the tables the site uses. The schemas
+ * are supabase/migrations/20261003105852_leads.sql and 20261003122041_lead_notes.sql;
+ * change both together.
  */
 
 export const leadStatuses = ['new', 'contacted', 'talking', 'proposal_sent', 'won', 'lost'] as const
@@ -38,6 +39,20 @@ export type LeadInsert = Omit<LeadRow, Optional> & Partial<Pick<LeadRow, Optiona
 
 export type LeadUpdate = Partial<LeadRow>
 
+/** Private CRM notes (Phase 8B): plain text, never HTML. */
+export const NOTE_MAX_LENGTH = 4000
+
+export type LeadNoteRow = {
+  id: string
+  lead_id: string
+  body: string
+  created_at: string
+  updated_at: string
+}
+
+export type LeadNoteInsert = Pick<LeadNoteRow, 'lead_id' | 'body'> &
+  Partial<Pick<LeadNoteRow, 'id' | 'created_at' | 'updated_at'>>
+
 export type Database = {
   public: {
     Tables: {
@@ -46,6 +61,20 @@ export type Database = {
         Insert: LeadInsert
         Update: LeadUpdate
         Relationships: []
+      }
+      lead_notes: {
+        Row: LeadNoteRow
+        Insert: LeadNoteInsert
+        Update: Partial<LeadNoteRow>
+        Relationships: [
+          {
+            foreignKeyName: 'lead_notes_lead_id_fkey'
+            columns: ['lead_id']
+            isOneToOne: false
+            referencedRelation: 'leads'
+            referencedColumns: ['id']
+          },
+        ]
       }
     }
     Views: { [_ in never]: never }

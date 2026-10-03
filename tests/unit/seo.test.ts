@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import nextConfig, { securityHeaders } from '../../next.config'
+import nextConfig, { securityHeaders, adminHeaders } from '../../next.config'
 import robots from '@/app/robots'
 import sitemap from '@/app/sitemap'
 import manifest from '@/app/manifest'
@@ -205,10 +205,22 @@ describe('security headers', () => {
   it('apply to every path, by deployment', async () => {
     vi.stubEnv('VERCEL_ENV', 'production')
     const production = (await nextConfig.headers?.()) ?? []
-    expect(production).toEqual([{ source: '/:path*', headers: securityHeaders(true) }])
+    const admin = [
+      { source: '/admin', headers: adminHeaders },
+      { source: '/admin/:path*', headers: adminHeaders },
+    ]
+    expect(production).toEqual([{ source: '/:path*', headers: securityHeaders(true) }, ...admin])
     vi.stubEnv('VERCEL_ENV', 'preview')
     const preview = (await nextConfig.headers?.()) ?? []
-    expect(preview).toEqual([{ source: '/:path*', headers: securityHeaders(false) }])
+    expect(preview).toEqual([{ source: '/:path*', headers: securityHeaders(false) }, ...admin])
+  })
+
+  it('keep the private admin out of indexes and caches, in every deployment', () => {
+    expect(Object.fromEntries(adminHeaders.map((h) => [h.key, h.value]))).toEqual({
+      'X-Robots-Tag': 'noindex, nofollow',
+      'Cache-Control': 'private, no-store, max-age=0',
+      'Referrer-Policy': 'no-referrer',
+    })
   })
 
   it('production is https only, subdomains included, and indexable', () => {

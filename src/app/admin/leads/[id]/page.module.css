@@ -1,0 +1,222 @@
+@layer components {
+  .back {
+    margin: 0 0 var(--space-5);
+  }
+
+  .back a {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-block-size: 2.75rem;
+    color: var(--text-muted);
+  }
+
+  /* Desktop: the inquiry reads on the left; the CRM work sits on the right. */
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-6) var(--space-8);
+  }
+
+  @media (width >= 64rem) {
+    .layout {
+      grid-template-columns: minmax(0, 1fr) minmax(20rem, 26rem);
+      grid-template-areas:
+        'header header'
+        'main side';
+    }
+
+    .header {
+      grid-area: header;
+    }
+
+    .main {
+      grid-area: main;
+    }
+
+    .side {
+      grid-area: side;
+    }
+  }
+
+  .header {
+    display: grid;
+    gap: var(--space-4);
+    padding-block-end: var(--space-5);
+    border-block-end: var(--hairline) solid var(--line-strong);
+  }
+
+  .titles {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .name {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .meta {
+    margin: 0;
+    color: var(--text-muted);
+  }
+
+  .badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3) var(--space-5);
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .action {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-block-size: 2.75rem;
+    max-inline-size: 100%;
+    padding-inline: var(--space-4);
+    border: var(--hairline) solid var(--control-border);
+    font-size: var(--small-size);
+    font-weight: 600;
+    overflow-wrap: anywhere;
+  }
+
+  .action span {
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .action:hover {
+      border-color: var(--text);
+    }
+  }
+
+  .main,
+  .side {
+    display: grid;
+    align-content: start;
+    gap: var(--space-6);
+    min-inline-size: 0;
+  }
+
+  .section {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .sectionTitle {
+    margin: 0;
+    color: var(--text-muted);
+  }
+
+  .panel {
+    display: grid;
+    gap: var(--space-4);
+    padding: var(--space-5);
+    background: var(--surface-1);
+    box-shadow: inset 0 0 0 var(--hairline) var(--line);
+  }
+
+  .fields {
+    display: grid;
+    margin: 0;
+  }
+
+  .field {
+    display: grid;
+    grid-template-columns: minmax(7rem, 11rem) minmax(0, 1fr);
+    gap: var(--space-4);
+    padding-block: var(--space-3);
+    border-block-end: var(--hairline) solid var(--line);
+  }
+
+  .field:last-child {
+    border-block-end: 0;
+  }
+
+  @media (width < 30rem) {
+    .field {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-1);
+    }
+  }
+
+  .term {
+    color: var(--text-muted);
+    align-self: baseline;
+  }
+
+  .value {
+    margin: 0;
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .none {
+    color: var(--text-muted);
+  }
+
+  .link {
+    text-decoration-line: underline;
+    text-decoration-color: var(--line-strong);
+    overflow-wrap: anywhere;
+  }
+
+  /* The message as written: line breaks kept, a readable measure. */
+  .message {
+    margin: 0;
+    max-inline-size: var(--measure-text);
+    padding: var(--space-5);
+    background: var(--surface-1);
+    box-shadow: inset 0 0 0 var(--hairline) var(--line);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  .notes {
+    display: grid;
+    gap: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-block-start: var(--hairline) solid var(--line);
+  }
+
+  .noteItem {
+    display: grid;
+    gap: var(--space-1);
+    padding-block: var(--space-3);
+    border-block-end: var(--hairline) solid var(--line);
+  }
+
+  .noteTime {
+    color: var(--text-muted);
+  }
+
+  .noteBody {
+    margin: 0;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  .notice {
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-6) var(--space-5);
+    border-inline-start: 3px solid var(--error);
+    background: var(--surface-1);
+  }
+
+  .notice p {
+    margin: 0;
+  }
+}
