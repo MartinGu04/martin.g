@@ -1,6 +1,7 @@
 import AxeBuilder from '@axe-core/playwright'
 import { createServerClient } from '@supabase/ssr'
-import { expect, test, type BrowserContext, type Page } from '@playwright/test'
+import type { BrowserContext, Page } from '@playwright/test'
+import { expect, test } from '../support/test'
 import { ADMIN, FAKE_URL, OTHER, PUBLISHABLE_KEY, SECRET_KEY } from '../support/admin-fixtures.mjs'
 
 /*

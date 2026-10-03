@@ -1,0 +1,115 @@
+@layer components {
+  /*
+   * The brand film's layer: a modal <dialog> (the page beneath is inert while it plays)
+   * built by intro-script.ts, full screen, on the film's own black, so the first frame,
+   * the cut to black after MAKE IT REAL. and the layer itself are one surface. It exists
+   * only while the intro runs; html[data-intro] is 'on', then 'out' while it fades, then
+   * 'done' once it has been removed.
+   */
+  .intro {
+    position: fixed;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    max-inline-size: none;
+    max-block-size: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    background: var(--shade);
+    color: var(--text);
+    /* No panning or pinching on the film: a touch here never scrolls the page beneath. */
+    touch-action: none;
+    user-select: none;
+    transition: opacity var(--dur-cinematic) var(--ease-scene);
+  }
+
+  .intro::backdrop {
+    background: transparent;
+  }
+
+  /* The cinematic dissolve belongs to the film's own ending; Skip and every failure lift
+     the layer at once, in the standard reveal duration. */
+  .intro:is([data-exit='skip'], [data-exit='fail']) {
+    transition-duration: var(--dur-standard);
+    transition-timing-function: var(--ease-out);
+  }
+
+  :root[data-intro='out'] .intro {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* While the film plays, a classic scrollbar beside it is painted in the film's black
+     (its width never changes, so lifting the layer shifts nothing). */
+  :root:has(.intro) {
+    scrollbar-color: var(--shade) var(--shade);
+  }
+
+  /*
+   * Each edit fills its screen: the wide film on landscape screens, the vertical film on
+   * portrait ones. Cropping stays small (at most about 6% a side for the wide film, 10% for
+   * the vertical one, whose captions keep clear of its edges); beyond that the whole
+   * frame is shown on the same black, whose edges the film's vignette already meets.
+   */
+  .film {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+    pointer-events: none;
+  }
+
+  @media (aspect-ratio < 8 / 5), (aspect-ratio > 2 / 1) {
+    .intro[data-film='landscape'] .film {
+      object-fit: contain;
+    }
+  }
+
+  @media (aspect-ratio < 9 / 20) {
+    .intro[data-film='portrait'] .film {
+      object-fit: contain;
+    }
+  }
+
+  /* Skip: small, quiet, out of the film's way in the closing corner, never a call to action. */
+  .skip {
+    position: absolute;
+    inset-block-end: var(--space-5);
+    inset-inline-end: var(--space-5);
+    min-block-size: 2.75rem;
+    min-inline-size: 2.75rem;
+    padding-inline: var(--space-3);
+    border: 0;
+    background: none;
+    color: var(--text-muted);
+    text-shadow: 0 0 0.75em var(--shade);
+    cursor: pointer;
+    transition: color var(--dur-micro) var(--ease-out);
+  }
+
+  .skip:focus-visible {
+    color: var(--text);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .skip:hover {
+      color: var(--text);
+    }
+  }
+
+  @media (width >= 48rem) {
+    .skip {
+      inset-block-end: var(--space-6);
+      inset-inline-end: var(--space-6);
+    }
+  }
+
+  @media print {
+    .intro {
+      display: none;
+    }
+  }
+}

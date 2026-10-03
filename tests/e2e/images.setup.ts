@@ -1,10 +1,5 @@
-import {
-  expect,
-  test as setup,
-  type Browser,
-  type BrowserContextOptions,
-  type Page,
-} from '@playwright/test'
+import type { Browser, BrowserContextOptions, Page } from '@playwright/test'
+import { expect, test as setup } from '../support/test'
 
 /*
  * Warms Next's image optimizer before any test runs (the `setup` project in

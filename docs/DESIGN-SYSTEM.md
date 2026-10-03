@@ -366,7 +366,8 @@ no-preference)` for scroll-driven transitions; `html[data-motion]` for reveals, 
 - Reduced motion collapses all durations, removes distances, scale, parallax, drift and
   transitions, and shows every scene in its final state.
 - The hero is one frame with three short timed beats (identity, positioning, principle),
-  masks that fill backwards only; nothing in it waits for scrolling.
+  masks that fill backwards only; nothing in it waits for scrolling. After the brand intro
+  the beats play once more as its layer dissolves (docs/ARCHITECTURE.md, "Brand intro").
 - Hover effects exist only under `(hover: hover) and (pointer: fine)`; keyboard focus gets
   the same state plus the focus ring.
 

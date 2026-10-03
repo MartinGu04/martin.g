@@ -15,7 +15,9 @@ This repository is **public**. Read README.md → Confidentiality and docs/ARCHI
 - Project media: only supplied, approved assets, sanitized in the pixels before they enter the
   repo (no names, insignia or personal schedules); originals stay outside the repo. Video is
   only ever a watermarked preview, never the master, played by `PreviewVideo` (no native
-  controls). Live-site links only for URLs approved for public visitors.
+  controls). Live-site links only for URLs approved for public visitors. The one other video
+  is the MARTIN.G brand film's two approved final cuts, played only by `BrandIntro`
+  (muted, no native controls; docs/ARCHITECTURE.md, "Brand intro").
 - CSS: logical properties only; read semantic color tokens, not palette constants. Use the
   type-role classes and named grid placements in docs/DESIGN-SYSTEM.md. No `ch` units for
   measures (the Hebrew face has no "0" glyph). Never render a brand mark below its minimum.

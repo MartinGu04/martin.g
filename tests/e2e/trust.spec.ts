@@ -1,4 +1,5 @@
-import { expect, test, type BrowserContext, type Page } from '@playwright/test'
+import type { BrowserContext, Page } from '@playwright/test'
+import { expect, test } from '../support/test'
 import { openRendered } from '../support/navigation'
 
 const ENABLE_SRC = 'https://cdn.enable.co.il/licenses/enable-L56389fiq4mpysr4-0926-83906/init.js'

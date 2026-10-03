@@ -18,6 +18,7 @@ import { SiteFooter } from '@/components/layout/SiteFooter'
 import { MotionController } from '@/components/motion/MotionController'
 import { motionHeadScript } from '@/components/motion/motion-script'
 import { EnableWidget } from '@/components/a11y/EnableWidget'
+import { BrandIntro } from '@/components/intro/BrandIntro'
 
 export const dynamicParams = false
 
@@ -77,6 +78,8 @@ export default async function LocaleLayout({ children, params }: LayoutProps<'/[
         <script dangerouslySetInnerHTML={{ __html: motionHeadScript }} />
       </head>
       <body>
+        {/* First in <body>: the brand film's layer must be in place before the page paints. */}
+        <BrandIntro locale={locale} name={dict.site.name} />
         <SkipLink label={dict.a11y.skipToContent} />
         <SiteHeader locale={locale} dict={dict} labels={labels} />
         <main id="main" tabIndex={-1}>

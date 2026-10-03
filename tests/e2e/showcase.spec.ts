@@ -1,4 +1,5 @@
-import { expect, test, type Page } from '@playwright/test'
+import type { Page } from '@playwright/test'
+import { expect, test } from '../support/test'
 import { openRendered } from '../support/navigation'
 
 /** Walks the whole page so lazy images load and reveals settle, then returns to the top. */
