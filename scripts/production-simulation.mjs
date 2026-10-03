@@ -5,21 +5,23 @@
  *
  *   node scripts/production-simulation.mjs      (or: pnpm build:production-simulation)
  *
- * Every production-only branch that can run at build time runs here: the copy release gate,
- * the contact delivery gate, the required canonical origin, the specimen's absence, robots
- * and indexing, and the production-only security headers. Cases:
+ * Every production-only branch that can run at build time runs here: the copy and social
+ * artwork release gates, the contact delivery gate, the required canonical origin, the
+ * specimen's absence, robots and indexing, and the production-only security headers. Cases:
  *
  *   1. without Contact delivery    the build must fail, naming the missing variables
  *   2. without SITE_URL            the build must fail, asking for the origin
- *   3. complete                    the build must succeed (leak check and built-HTML policy
+ *   3. a site card pending         the build must fail, naming the card awaiting approval
+ *   4. complete                    the build must succeed (leak check and built-HTML policy
  *                                  included); the built server is then started and checked
  *
  * Values are CI-only dummies on the reserved `.example` domain, never real credentials:
- * any real SITE_URL, Resend, Telegram, outbox or draft-copy override inherited from the
- * environment is removed first. The build never sends anything (delivery happens only when
- * a visitor submits the form, and the smoke checks make GET requests only); to prove it,
- * scripts/delivery-guard.mjs is preloaded into every process and refuses and records any
- * request to the Resend or Telegram APIs, and the run fails if one was attempted.
+ * any real SITE_URL, Resend, Telegram, outbox, draft-copy override or simulated pending
+ * artwork inherited from the environment is removed first. The build never sends anything
+ * (delivery happens only when a visitor submits the form, and the smoke checks make GET
+ * requests only); to prove it, scripts/delivery-guard.mjs is preloaded into every process
+ * and refuses and records any request to the Resend or Telegram APIs, and the run fails if
+ * one was attempted.
  *
  * The leak check is untouched: `pnpm build` runs it with VERCEL=1, so it fails closed
  * without LEAK_CHECK_TERMS_B64 (the real secret in CI). It leaves .next as a production
@@ -55,6 +57,7 @@ export const STRIPPED = Object.freeze([
   'CONTACT_OUTBOX_FILE',
   'CONTACT_MIN_FILL_MS',
   'ALLOW_DRAFT_COPY_IN_PRODUCTION',
+  'RELEASE_GATE_SIMULATE_PENDING_SITE_CARDS',
   'VERCEL_URL',
   'VERCEL_BRANCH_URL',
   'VERCEL_PROJECT_PRODUCTION_URL',
@@ -99,6 +102,13 @@ export const CASES = Object.freeze([
     name: 'refuses a production build without SITE_URL',
     overrides: { SITE_URL: undefined },
     expectFailure: [/\[site\] A production build needs SITE_URL/],
+  },
+  {
+    // The cards in the repository are approved; this marks the Hebrew one pending, as a
+    // new render awaiting review would be (src/i18n/release-gate.ts).
+    name: 'refuses a production build with a site card awaiting approval',
+    overrides: { RELEASE_GATE_SIMULATE_PENDING_SITE_CARDS: 'he' },
+    expectFailure: [/\[release-gate\] Social artwork awaiting approval: site-card:he\./],
   },
   { name: 'builds with the complete dummy configuration', overrides: {} },
 ])

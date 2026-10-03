@@ -4,6 +4,7 @@ import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { assertContactDelivery, configuredNotifiers } from '@/lib/contact/notifiers'
+import { assertReleasableArtwork, findPendingArtwork } from '@/i18n/release-gate'
 import { isSpecimenEnabled } from '@/lib/specimen'
 import { isIndexable, siteUrl } from '@/lib/site'
 import { DELIVERY_HOSTS, guardedFetch } from '../../scripts/delivery-guard.mjs'
@@ -85,6 +86,20 @@ describe('production simulation cases', () => {
   it('without SITE_URL, the origin refuses with the message the build must show', () => {
     const testCase = CASES.find((c) => c.name.includes('SITE_URL'))!
     expect(() => siteUrl(env('SITE_URL'))).toThrow(testCase.expectFailure![0])
+  })
+
+  it('with a site card pending, the artwork gate refuses with the message the build must show', () => {
+    const testCase = CASES.find((c) => c.name.includes('awaiting approval'))!
+    const caseEnv = env('awaiting approval')
+    expect(() => assertReleasableArtwork(findPendingArtwork(caseEnv), caseEnv)).toThrow(
+      testCase.expectFailure![0],
+    )
+    // The complete configuration carries no simulated pending card.
+    const complete = simulationEnv(
+      { ...inherited, RELEASE_GATE_SIMULATE_PENDING_SITE_CARDS: 'he,en' },
+      { overrides: {} },
+    )
+    expect(findPendingArtwork(complete)).toEqual([])
   })
 
   it('ends with the complete configuration, which must build', () => {

@@ -4,7 +4,7 @@ import '@/styles/global.css'
 import { fontVariables } from '@/styles/fonts'
 import { directionOf, isLocale, locales } from '@/i18n/config'
 import { getDictionary } from '@/i18n/get-dictionary'
-import { assertReleasableCopy } from '@/i18n/release-gate'
+import { assertReleasableArtwork, assertReleasableCopy } from '@/i18n/release-gate'
 import { contactCopy } from '@/i18n/dictionaries/contact'
 import { homeCopy } from '@/i18n/dictionaries/home'
 import { assertContactDelivery } from '@/lib/contact/notifiers'
@@ -21,6 +21,7 @@ export const dynamicParams = false
 
 export function generateStaticParams() {
   assertReleasableCopy()
+  assertReleasableArtwork()
   assertContactDelivery()
   // A production build without its canonical origin fails here, before any page renders.
   siteUrl()

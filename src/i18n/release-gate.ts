@@ -10,6 +10,7 @@ import { contactReview } from './dictionaries/contact'
 import { privacyReview } from './dictionaries/privacy'
 import { accessibilityReview } from './dictionaries/accessibility'
 import { getAllProjectsForChecks } from '@/content/registry'
+import { siteCards } from '@/lib/social'
 
 /** Lists every piece of copy still marked 'draft'. */
 export function findDraftCopy(): string[] {
@@ -47,4 +48,36 @@ export function assertReleasableCopy(drafts = findDraftCopy()): void {
     throw new Error(`[release-gate] ${summary}. Approve the copy before a production build.`)
   }
   if (isProduction) console.warn(`[release-gate] OVERRIDDEN. ${summary}`)
+}
+
+/**
+ * Test-only, for the production simulation (scripts/production-simulation.mjs): a comma
+ * separated list of locales whose site card is treated as pending. It can only make a
+ * build refuse, never let one through.
+ */
+export const SIMULATE_PENDING_SITE_CARDS = 'RELEASE_GATE_SIMULATE_PENDING_SITE_CARDS'
+
+/** Lists every required social card still awaiting Martin's visual approval. */
+export function findPendingArtwork(
+  env: Record<string, string | undefined> = process.env,
+): string[] {
+  const simulated = (env[SIMULATE_PENDING_SITE_CARDS] ?? '').split(',').map((l) => l.trim())
+  return locales
+    .filter((locale) => siteCards.review[locale] !== 'approved' || simulated.includes(locale))
+    .map((locale) => `site-card:${locale}`)
+}
+
+/**
+ * Social artwork reaches production only once approved: a Vercel production build fails
+ * while a required site card is 'pending'. Preview and local builds render pending artwork
+ * for review. There is no override.
+ */
+export function assertReleasableArtwork(
+  pending = findPendingArtwork(),
+  env: Record<string, string | undefined> = process.env,
+): void {
+  if (pending.length === 0 || env.VERCEL_ENV !== 'production') return
+  throw new Error(
+    `[release-gate] Social artwork awaiting approval: ${pending.join(', ')}. Approve it before a production build.`,
+  )
 }

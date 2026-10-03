@@ -267,9 +267,13 @@ reached from any page; there is no About page. No placeholder or dead links (tes
   gets a new URL, which platforms that cache previews by URL pick up), with its exact size
   and the alt text "MARTIN.G: " plus the principle, the hero heading's own pattern. The
   render is deterministic for a given Chromium build; a unit test keeps the card's words
-  equal to the dictionaries' and the files at 1200 by 630 without metadata. Visual status:
-  `siteCards.status` is `'pending'` until Martin approves the artwork (it does not gate
-  builds). See docs/DESIGN-SYSTEM.md, "Social cards".
+  equal to the dictionaries' and the files at 1200 by 630 without metadata. See
+  docs/DESIGN-SYSTEM.md, "Social cards".
+- **Artwork approval.** `siteCards.review` holds Martin's visual approval per locale; both
+  cards are `'approved'` (Phase 7A.3). A new or changed render is marked `'pending'` until
+  Martin approves it: preview and local builds render it for review, and a Vercel production
+  build refuses it (`assertReleasableArtwork`, `src/i18n/release-gate.ts`, beside the copy
+  gate; no override). The production simulation proves the refusal.
 - **Indexing.** Only the Vercel production deployment is indexable (`isIndexable()`).
   Every other build (preview, local, CI) sends `X-Robots-Tag: noindex, nofollow`
   (next.config.ts) and a robots.txt that disallows everything; production's robots.txt
@@ -362,16 +366,19 @@ runs `scripts/production-simulation.mjs` (also `pnpm build:production-simulation
 1. `pnpm build` as Vercel Production without the three Resend variables: must fail with
    the contact gate's message naming them.
 2. `pnpm build` without `SITE_URL`: must fail with the origin's message.
-3. `pnpm build` with the complete dummy configuration: must succeed (the real leak check
+3. `pnpm build` with the Hebrew site card treated as pending
+   (`RELEASE_GATE_SIMULATE_PENDING_SITE_CARDS=he`, a test-only switch that can only add
+   pending cards): must fail with the artwork gate's message naming it.
+4. `pnpm build` with the complete dummy configuration: must succeed (the real leak check
    and the built-HTML policy included), then `next start` with the same environment and
    GET-only checks: the redirect to `/he`, canonical and Open Graph URLs, structured data,
-   the case-study image, robots.txt and every sitemap URL on the simulated origin, HSTS,
+   each locale's site card and the case-study image, robots.txt and every sitemap URL on the simulated origin, HSTS,
    `upgrade-insecure-requests` and no `X-Robots-Tag`, no robots meta, and the specimen as
    a 404.
 
 Its values are CI-only dummies (`SITE_URL=https://production-simulation.example`, a fake
 Resend key, `.example` addresses). Inherited `SITE_URL`, Resend, Telegram, outbox,
-fill-time and draft-copy override variables are removed first, so neither real
+fill-time, draft-copy override and simulated pending artwork variables are removed first, so neither real
 credentials nor test shortcuts can reach it. Nothing can be delivered: a build never runs
 the server action (only a visitor's submission does), the server is only sent GETs, and
 `scripts/delivery-guard.mjs`, preloaded into every Node process, refuses and records any
@@ -384,6 +391,7 @@ environment, the gates' messages for each case, and the guard.
 | Guard                                                            | Production-only behavior                                          | Exercised by                                                    |
 | ---------------------------------------------------------------- | ----------------------------------------------------------------- | --------------------------------------------------------------- |
 | `assertReleasableCopy` (`src/i18n/release-gate.ts`)              | refuses draft copy; `ALLOW_DRAFT_COPY_IN_PRODUCTION=1` overrides  | simulation (override removed), unit                             |
+| `assertReleasableArtwork` (`src/i18n/release-gate.ts`)           | refuses a site card marked `'pending'`; no override               | simulation case 3, unit                                         |
 | `assertContactDelivery` (`src/lib/contact/notifiers.ts`)         | requires the three Resend variables                               | simulation cases 1 and 3, unit                                  |
 | `siteUrl` (`src/lib/site.ts`)                                    | requires an https `SITE_URL`; previews use their own URL          | simulation cases 2 and 3; the preview branch by unit tests only |
 | `isIndexable`, `robots.ts`, `securityHeaders` (`next.config.ts`) | crawlable, sitemap, HSTS, `upgrade-insecure-requests`, no noindex | simulation (served), unit                                       |
@@ -407,9 +415,8 @@ No application code reads `NODE_ENV`.
   headers): either per-route hashes generated after the build, or nonces with per-request
   rendering, measured against the static trade-off.
 - **CSP reporting.** A `report-to` endpoint once there is somewhere to send reports.
-- **Social artwork approval.** The site cards (Phase 7A.3) await Martin's visual approval;
-  then `siteCards.status` becomes `'approved'`. Optional later: dedicated case-study cards
-  at 1200 by 630 (today's case-study images are 1.61:1 and 1.84:1, which platforms crop).
+- **Case-study cards (optional).** Dedicated 1200 by 630 cards for ON and המחלבה (today's
+  case-study images are 1.61:1 and 1.84:1, which platforms crop).
 
 ## Phases
 

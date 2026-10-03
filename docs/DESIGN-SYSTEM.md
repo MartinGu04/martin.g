@@ -286,8 +286,9 @@ frame), `SystemDiagram` (generated, abstract system geometry for confidential wo
   `icon.png` 512, `apple-icon.png` 180 (full bleed; iOS rounds it), and for the web app
   manifest (`src/app/manifest.ts`) `public/icons/icon-192.png`, `icon-512.png` and
   `maskable-512.png` (full bleed, symbol inside the 80% safe zone).
-- **Social cards** (`pnpm brand:og`, `scripts/og-cards.mjs`; Phase 7A.3, awaiting Martin's
-  visual approval): 1200 by 630, one per locale, the homepage hero in miniature. Cinematic
+- **Social cards** (`pnpm brand:og`, `scripts/og-cards.mjs`; Phase 7A.3, approved by
+  Martin; a new render is `'pending'` and kept out of production until Martin approves it):
+  1200 by 630, one per locale, the homepage hero in miniature. Cinematic
   black, one warm key light falling from above the inline-start third into shade, the grid
   drawn only inside the light, registration marks in the outer margin, the approved lockup
   in bone at 176px tall at the inline-start top (never mirrored: in Hebrew it moves to the

@@ -119,6 +119,8 @@ Two different things, never to be confused:
 Hebrew copy is written or approved by Martin and never auto-translated. Every dictionary and
 project carries a review status. **Vercel production builds fail while any published copy is
 marked `draft`** (`src/i18n/release-gate.ts`); preview and local builds are unaffected.
+The same gate refuses social artwork (the site's Open Graph cards) still marked `pending`
+rather than `approved` (`siteCards.review` in `src/lib/social.ts`), with no override.
 
 ## More
 
