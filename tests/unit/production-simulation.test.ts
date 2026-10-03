@@ -201,6 +201,8 @@ describe('production simulation cases', () => {
     expect(testCase).toMatchObject({ expectBlocked: true })
     const caseEnv = env('saved project copy')
     expect(caseEnv.MG_SIMULATED_TRANSLATIONS).toBeUndefined()
+    // It must reach the read, which comes after the copy gate.
+    expect(caseEnv.ALLOW_DRAFT_COPY_IN_PRODUCTION).toBe('1')
     const { loadSiteTranslations, resetSiteTranslations } =
       await import('@/lib/projects/translations')
     // What the guard does to the read when it has no synthetic rows: refuse it.

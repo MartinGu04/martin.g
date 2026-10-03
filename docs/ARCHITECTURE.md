@@ -726,7 +726,8 @@ runs `scripts/production-simulation.mjs` (also `pnpm build:production-simulation
    pending cards): must fail with the artwork gate's message naming it.
 6. `pnpm build` whose read of the project editor's saved copy is refused: must fail
    closed with the content layer's message (the expected refusal is recorded in its own
-   guard log).
+   guard log). The read comes after the copy gate, so this case alone sets the logged
+   draft-copy override, to reach it whatever the copy's state.
 7. `pnpm build` with the complete dummy configuration: must succeed (the real leak check
    and the built-HTML policy included, which refuses a prerendered admin page); the
    browser output (`.next/static` and the prerendered pages and payloads) must not contain

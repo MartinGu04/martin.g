@@ -186,9 +186,11 @@ export const CASES = Object.freeze([
   {
     // Without the guard's synthetic rows the read is refused, as an unreachable database
     // or a missing table would refuse it. The refusal is expected here, so it is recorded
-    // in the case's own guard log.
+    // in the case's own guard log. The read happens while pages are generated, after the
+    // copy gate, so this case alone sets the logged draft-copy override: the case must
+    // reach the read whatever the copy's review state.
     name: 'refuses a production build when the saved project copy cannot be read',
-    overrides: { MG_SIMULATED_TRANSLATIONS: undefined },
+    overrides: { MG_SIMULATED_TRANSLATIONS: undefined, ALLOW_DRAFT_COPY_IN_PRODUCTION: '1' },
     expectFailure: [/\[content\] Project translations could not be read \(\w+\)/],
     expectBlocked: true,
   },
