@@ -346,9 +346,11 @@ max-age=0` and `Referrer-Policy: no-referrer` (next.config.ts and the proxy), ev
   `authenticated` and `service_role`, then `select`, `insert`, `update` and `delete` granted
   to `service_role`. The migration is additive, idempotent and adds `lead_notes` only; it
   is verified on Postgres in CI (`tests/unit/migrations-postgres.test.ts`: privileges, RLS,
-  the foreign key and its cascade, the constraints, a re-run). **Not yet applied to the
-  live project**: after review, with the normal workflow (`supabase db push`, migration
-  history being in sync since Phase 8A).
+  the foreign key and its cascade, the constraints, a re-run). **Applied to the live
+  project** after review with the normal workflow (`supabase db push`); both migrations
+  are in the remote history, and the live table was verified to match: RLS enabled and
+  forced, no policies, no access for `anon` or `authenticated`, `service_role` with select,
+  insert, update and delete only, the cascading foreign key and the index.
 - **Design.** The MARTIN.G system set for daily use: the brand's black and a raised
   graphite, bone text, the Contact thread's amber for new leads and the primary action, a
   quiet sage for won leads, the type roles at working sizes (no display headlines), the
@@ -371,7 +373,7 @@ tests/support/fake-supabase-server.mjs` and the values in `admin-fixtures.mjs`),
   Preview connected to a separate, non-production Supabase project with its own keys and
   synthetic leads. Never connect Preview to the Production database.
 
-**Manual Supabase Auth setup (by Martin, once, before the admin ships):**
+**Manual Supabase Auth setup (by Martin, once; done for Phase 8B):**
 
 1. Authentication, Sign In / Providers: keep **Email** enabled; **turn off "Allow new users
    to sign up"**; no social providers. Confirm email can stay on.
@@ -380,8 +382,9 @@ tests/support/fake-supabase-server.mjs` and the values in `admin-fixtures.mjs`),
 3. Copy that user's **UID**: it is `ADMIN_USER_ID`.
 4. Project Settings, API Keys: copy the **publishable key** (`sb_publishable_...`) for
    `SUPABASE_PUBLISHABLE_KEY`. The secret key is already `SUPABASE_SECRET_KEY`.
-5. Optional hardening: Authentication, Attack Protection (leaked-password protection and
-   CAPTCHA are not needed for one account); keep the default sign-in rate limits.
+5. Keep the default sign-in rate limits. Leaked-password protection is not available on
+   the project's current Supabase plan (the advisor's warning about it is expected); the
+   one account's password is long, unique and from a password manager instead.
 
 ## Privacy (Phase 6 audit, revised in Phase 8)
 
@@ -600,12 +603,12 @@ them for the launch (Phase 7); the post-merge checklist verifies each one on the
     Both are required once the admin ships (Phase 8B). Production only: Preview gets none
     of the Supabase variables.
   - `LEAK_CHECK_TERMS_B64` (Sensitive, Production and Preview; see README.md).
-- **Firewall rate limit** (Firewall, Configure, a custom rule). Live today (Phase 7): every
-  `POST`, 5 requests per 60 seconds, keyed by IP, answered 429. That was right while Contact
-  was the site's only `POST`.
-  - **REQUIRED before the Phase 8B merge:** the admin's Server Actions are `POST`s too
-    (sign in, status, notes, sign out), and five per minute would lock Martin out of his
-    own CRM. Scope the rule to Contact submissions only:
+- **Firewall rate limit** (Firewall, Configure, a custom rule). Phase 7 limited every
+  `POST` (5 requests per 60 seconds, keyed by IP, answered 429), which was right while
+  Contact was the site's only `POST`.
+  - **Since Phase 8B (configured before the merge):** the admin's Server Actions are
+    `POST`s too (sign in, status, notes, sign out), and five per minute would lock Martin
+    out of his own CRM, so the rule is scoped to Contact submissions only:
     - Name: `Contact form rate limit`
     - If: `Request Method` equals `POST`, and `Request Path` is any of `/he/contact`,
       `/en/contact` (or matches the expression `^/(he|en)/contact$`)
@@ -616,8 +619,14 @@ them for the launch (Phase 7); the post-merge checklist verifies each one on the
     The application's own spam protection (trap field, fill time, dedupe) stays in place
     either way. To close the gap, the expression can instead cover every `POST` whose path
     does not start with `/admin` (`not (Request Path starts with /admin)`).
-  - Recommended, separately: a rule for `POST` to `/admin/login`, for example 10 requests
-    per 60 seconds keyed by IP, on top of Supabase Auth's own sign-in rate limits.
+  - **Vercel Free allows one rate-limit rule**, and it is the Contact rule, so there is no
+    firewall rule for `/admin/login`. Sign-in is protected instead by Supabase Auth's own
+    sign-in rate limits, one account with a long, unique password, sign-up turned off, and
+    answers that never tell whether an account exists. Note that sign-ins reach Supabase
+    from Vercel's servers, so Supabase's per-IP limits count Vercel's addresses: under a
+    flood they would slow every sign-in, the admin's included, rather than lock the
+    account. A `/admin/login` rule (for example 10 `POST`s per 60 seconds keyed by IP) is
+    the first addition if the plan ever allows a second rule.
   - Publish, then check the rule's log while sending one real inquiry from each locale and
     using the admin.
 - **Deployment protection.** Keep Vercel Authentication on for Preview deployments.
@@ -726,4 +735,4 @@ No application code reads `NODE_ENV`.
 - Phase 8: Leads (8A: Supabase as the durable record of Contact inquiries, Resend as the
   notification; `service_role` hardened to select, insert, update and delete; privacy
   wording approved. 8B: the private admin CRM, Supabase Auth with one authorized user,
-  lead notes; the `lead_notes` migration and the firewall change await review)
+  lead notes; the migration applied and the firewall scoped to Contact)
