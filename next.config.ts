@@ -57,7 +57,11 @@ const nextConfig: NextConfig = {
     globalNotFound: true,
   },
   async headers() {
-    return [{ source: '/:path*', headers: securityHeaders }]
+    // Only the Vercel production deployment may be indexed (isIndexable in src/lib/site.ts,
+    // which robots.ts follows too); previews, local and CI builds tell crawlers not to.
+    const indexable = process.env.VERCEL_ENV === 'production'
+    const robotsHeaders = indexable ? [] : [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }]
+    return [{ source: '/:path*', headers: [...securityHeaders, ...robotsHeaders] }]
   },
 }
 

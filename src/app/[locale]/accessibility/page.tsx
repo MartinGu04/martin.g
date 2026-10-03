@@ -1,8 +1,9 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { isLocale } from '@/i18n/config'
+import { getDictionary } from '@/i18n/get-dictionary'
 import { accessibilityCopy } from '@/i18n/dictionaries/accessibility'
-import { localeAlternates } from '@/lib/site'
+import { pageMetadata } from '@/lib/site'
 import { TrustPage } from '@/components/trust/TrustPage'
 
 export async function generateMetadata({
@@ -11,11 +12,13 @@ export async function generateMetadata({
   const { locale } = await params
   if (!isLocale(locale)) return {}
   const { seo } = accessibilityCopy[locale]
-  return {
+  return pageMetadata({
+    locale,
+    path: '/accessibility',
     title: seo.title,
     description: seo.description,
-    alternates: localeAlternates(locale, '/accessibility'),
-  }
+    siteName: getDictionary(locale).site.name,
+  })
 }
 
 /** Accessibility (Phase 6). Copy: src/i18n/dictionaries/accessibility.ts (draft until approved). */

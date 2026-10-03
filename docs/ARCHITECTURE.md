@@ -33,12 +33,14 @@ src/
                            one composition per case study, e.g. case-study/on), contact,
                            trust (Privacy and Accessibility), a11y (the Enable menu)
   fonts/                   self-hosted OFL fonts and licenses
-  lib/                     site URL and metadata helpers, CSS var typing, navigation,
-                           contact (validation, spam, dedupe, notifiers, server action)
+  lib/                     site URL, indexing and metadata helpers, structured data, CSS var
+                           typing, navigation, contact (validation, spam, dedupe, notifiers,
+                           server action)
   styles/                  layers, tokens, fonts, reset, base, typography, layout, motion
 scripts/                   leak-check, lint-policy, setup-hooks, brand-icons (`pnpm brand:icons`)
 tests/unit                 Vitest (content, i18n, tokens, grid, policy, leak check)
-tests/e2e                  Playwright (routing, direction, axe, confidential, brand, headers);
+tests/e2e                  Playwright (routing, direction, axe, confidential, brand, headers,
+                           search and social metadata);
                            a setup project warms the optimized images before the tests run
 .githooks/                 pre-commit, commit-msg, pre-push
 film/                      the brand film, a separate Remotion package (see Brand film)
@@ -215,6 +217,42 @@ Header: Work, About, Contact and the language switch. Footer: the same, plus Pri
 Accessibility, in a labelled navigation. About is the homepage's About scene (`#about`),
 reached from any page; there is no About page. No placeholder or dead links (tested).
 
+## Search and social metadata (Phase 7A.1)
+
+- **Origin.** `siteUrl()` (`src/lib/site.ts`) is the one source of absolute URLs:
+  `SITE_URL` (an origin only, validated), else Vercel's `VERCEL_PROJECT_PRODUCTION_URL`
+  (the shortest production custom domain, else the vercel.app domain), else
+  `http://localhost:3000`. A Vercel production build refuses an origin that is not https or
+  is localhost. No domain is hardcoded.
+- **Per page.** Every indexable page builds its metadata with `pageMetadata()`: title (the
+  layout's template adds ` · MARTIN.G`; the homepage's is the brand name alone),
+  description, a self-referencing canonical URL, `en`, `he` and `x-default` (Hebrew)
+  alternates, and a complete Open Graph block (URL equal to the canonical, `og:locale` and
+  `og:locale:alternate`, site name, `website` or `article`, an image when there is one).
+  Next derives the Twitter card from it: `summary_large_image` with an image, `summary`
+  without. The layout carries only site-wide defaults (metadataBase, title template,
+  description, Open Graph site name and locale), never a canonical URL, so a page without
+  its own metadata (the noindex specimen) claims no other page's address.
+- **Social images.** Case studies use an approved project asset (ON: the live site's
+  opening screen; המחלבה: the dashboard) with its localized alt. The homepage, Contact,
+  Privacy and Accessibility have no image yet: dedicated Open Graph artwork has not been
+  supplied, and none is generated in its place. When it arrives (approved, sanitized,
+  1200 by 630), it is passed as `image` to `pageMetadata()` from those pages.
+- **Indexing.** Only the Vercel production deployment is indexable (`isIndexable()`).
+  Every other build (preview, local, CI) sends `X-Robots-Tag: noindex, nofollow`
+  (next.config.ts) and a robots.txt that disallows everything; production's robots.txt
+  allows everything and names the sitemap. The sitemap lists only public routes (home, each
+  public case study, Contact, Privacy, Accessibility) in both locales with their
+  alternates. The specimen is a 404 in production and noindex elsewhere; 404 pages are
+  noindex; confidential work has no routes.
+- **Structured data.** The homepage carries one JSON-LD block (`src/lib/structured-data.ts`):
+  `WebSite` (so search engines can show "MARTIN.G" as the site name) and `Person`, built
+  only from approved copy already on the page. No ratings, clients, awards or claims. It is
+  a data block, not a script, so the CSP is unchanged.
+- **Tests.** `tests/unit/seo.test.ts` (origin validation, indexing, robots, sitemap,
+  metadata shape, structured data) and `tests/e2e/seo.spec.ts` (every sitemap page as
+  built: status, lang, title, description, canonical, alternates, Open Graph, card type).
+
 ## Launch hardening backlog
 
 - **CSP review.** Foundation uses a static CSP with `'unsafe-inline'` for scripts and
@@ -223,6 +261,11 @@ reached from any page; there is no About page. No placeholder or dead links (tes
   nonces only if the static trade-off is acceptable), and narrow the Enable origins
   (Phase 6) to exactly what the menu requests, as observed on a deployment. Contact needs
   no browser origin: delivery is server to server.
+- **Domain.** Set `SITE_URL` on Vercel (Production) to the final origin, with the apex or
+  `www` choice made and the other redirecting to it; then add HSTS (without
+  `includeSubDomains` or preload until every subdomain is known to be https).
+- **Social artwork.** Dedicated Open Graph images for the homepage and the Phase 6 pages,
+  per locale or language-neutral (see Search and social metadata).
 
 ## Phases
 
@@ -234,4 +277,4 @@ reached from any page; there is no About page. No placeholder or dead links (tes
 - Phase 5: Case studies (5A ON and 5B המחלבה: merged, copy approved)
 - Phase 6: Trust, accessibility and conversion (contact, privacy, accessibility, Enable;
   copy approved)
-- Phase 7: Launch hardening
+- Phase 7: Launch hardening (7A.1 launch audit and search and social metadata)

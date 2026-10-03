@@ -1,8 +1,9 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { isLocale } from '@/i18n/config'
+import { getDictionary } from '@/i18n/get-dictionary'
 import { privacyCopy } from '@/i18n/dictionaries/privacy'
-import { localeAlternates } from '@/lib/site'
+import { pageMetadata } from '@/lib/site'
 import { TrustPage } from '@/components/trust/TrustPage'
 
 export async function generateMetadata({
@@ -11,11 +12,13 @@ export async function generateMetadata({
   const { locale } = await params
   if (!isLocale(locale)) return {}
   const { seo } = privacyCopy[locale]
-  return {
+  return pageMetadata({
+    locale,
+    path: '/privacy',
     title: seo.title,
     description: seo.description,
-    alternates: localeAlternates(locale, '/privacy'),
-  }
+    siteName: getDictionary(locale).site.name,
+  })
 }
 
 /** Privacy (Phase 6). Copy: src/i18n/dictionaries/privacy.ts (draft until approved). */
