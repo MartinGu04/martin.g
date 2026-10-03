@@ -1,6 +1,8 @@
 # MARTIN.G
 
-Digital products, systems & experiences. From problem to product.
+**Digital products, systems & experiences. From problem to product.**
+
+[**Explore MARTIN.G → mgusin.dev**](https://mgusin.dev)
 
 Bilingual (English LTR, Hebrew RTL) portfolio and product brand for Martin Gusin.
 Next.js App Router, TypeScript, statically generated, deployed on Vercel.
