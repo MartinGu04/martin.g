@@ -178,7 +178,7 @@ test.describe('real project showcase', () => {
       const images = scene.locator('img')
       await expect(images).toHaveCount(1)
       const src = decodeURIComponent((await images.getAttribute('src')) ?? '')
-      expect(src).toMatch(/confidential-01-interface\.[0-9a-z]+\.webp/)
+      expect(src).toMatch(/\/_next\/static\/media\/confidential-01-interface\.[\w-]+\.webp&/)
       // A tighter frame, cover-cropped, nothing in it focusable.
       const fit = await images.evaluate((img) => getComputedStyle(img).objectFit)
       expect(fit).toBe('cover')
