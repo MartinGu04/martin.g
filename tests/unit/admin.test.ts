@@ -660,6 +660,23 @@ describe('admin security boundaries', () => {
       expect(example).toMatch(new RegExp(`^${name}=$`, 'm'))
   })
 
+  it('fails a build that prerendered an admin page, never one that compiled its code', async () => {
+    const { findPrerenderedAdmin } = await import('../../scripts/lint-policy.mjs')
+    expect(
+      findPrerenderedAdmin([
+        'admin/page.js',
+        'admin/page/build-manifest.json',
+        'admin/leads/[id]/page.js',
+        'admin/login/page_client-reference-manifest.js',
+        'en/contact.html',
+        'en/contact.rsc',
+      ]),
+    ).toEqual([])
+    expect(
+      findPrerenderedAdmin(['admin.html', 'admin.rsc', 'admin/login.html', 'admin/login.meta']),
+    ).toEqual(['admin.html', 'admin.rsc', 'admin/login.html', 'admin/login.meta'])
+  })
+
   it('keeps the admin palette legible', () => {
     expect(themeIssues(adminTheme)).toEqual([])
   })

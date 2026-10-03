@@ -57,6 +57,20 @@ const BROWSER_SERVER_CONFIG = [
   /[a-z0-9-]+\.supabase\.(?:co|com|in)\b/,
 ]
 
+/**
+ * Prerendered output (HTML, RSC payloads, route bodies and their metadata) for any admin
+ * route, among paths relative to .next/server/app. Compiled route modules (page.js and
+ * their manifests) are code, not output, and are expected for every dynamic route.
+ *
+ * @param {string[]} relativePaths
+ * @returns {string[]}
+ */
+export function findPrerenderedAdmin(relativePaths) {
+  return relativePaths
+    .map((p) => p.split(path.sep).join('/'))
+    .filter((p) => /^admin(\/|\.)/.test(p) && /\.(html|rsc|body|meta)$/.test(p))
+}
+
 /** @returns {{line: number, rule: string, message: string}[]} */
 export function checkBrowserOutput(source) {
   const out = []
@@ -365,9 +379,9 @@ export function runBuilt(root) {
       problems.push({ file: path.relative(root, file), ...p })
   }
   // The private admin renders per request (it reads the session), never at build time.
-  for (const file of walk(appDir).filter((f) => /^admin(\/|\.|$)/.test(path.relative(appDir, f)))) {
+  for (const file of findPrerenderedAdmin(walk(appDir).map((f) => path.relative(appDir, f)))) {
     problems.push({
-      file: path.relative(root, file),
+      file: path.relative(root, path.join(appDir, file)),
       line: 1,
       rule: 'admin-dynamic',
       message: 'an admin page was prerendered; admin pages must render per request',
