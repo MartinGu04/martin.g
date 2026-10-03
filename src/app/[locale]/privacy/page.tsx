@@ -4,6 +4,7 @@ import { isLocale } from '@/i18n/config'
 import { getDictionary } from '@/i18n/get-dictionary'
 import { privacyCopy } from '@/i18n/dictionaries/privacy'
 import { pageMetadata } from '@/lib/site'
+import { siteSocialImage } from '@/lib/social'
 import { TrustPage } from '@/components/trust/TrustPage'
 
 export async function generateMetadata({
@@ -12,12 +13,15 @@ export async function generateMetadata({
   const { locale } = await params
   if (!isLocale(locale)) return {}
   const { seo } = privacyCopy[locale]
+  const { site } = getDictionary(locale)
   return pageMetadata({
     locale,
     path: '/privacy',
     title: seo.title,
     description: seo.description,
-    siteName: getDictionary(locale).site.name,
+    siteName: site.name,
+    // No artwork of its own: the locale's site card.
+    image: siteSocialImage(locale, site),
   })
 }
 

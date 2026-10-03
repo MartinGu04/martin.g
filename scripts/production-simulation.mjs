@@ -152,6 +152,14 @@ export async function smokeChecks(base, origin = SIMULATION.SITE_URL) {
     caseStudy.includes(`<meta property="og:image" content="${origin}/_next/static/media/`),
     'the case study image is not on the origin',
   )
+  for (const locale of ['he', 'en']) {
+    const html = await (await get(`/${locale}`)).text()
+    const card = html.match(/<meta property="og:image" content="([^"]+)"/)?.[1] ?? ''
+    expect(
+      card.startsWith(`${origin}/_next/static/media/martin-g-${locale}.`),
+      `/${locale}: the social card is not the ${locale} card on the origin`,
+    )
+  }
 
   const robots = await (await get('/robots.txt')).text()
   expect(/User-Agent: \*\s+Allow: \//.test(robots), 'robots.txt does not allow crawling')
@@ -241,7 +249,9 @@ async function main() {
           const problems = await smokeChecks(server.base)
           if (problems.length > 0) failures.push(`${testCase.name}:\n  ${problems.join('\n  ')}`)
           else
-            console.log('  built, served and checked: origin, robots, sitemap, headers, specimen')
+            console.log(
+              '  built, served and checked: origin, social cards, robots, sitemap, headers, specimen',
+            )
         } finally {
           server.stop()
         }

@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { isLocale } from '@/i18n/config'
 import { pageMetadata, siteUrl } from '@/lib/site'
+import { siteSocialImage } from '@/lib/social'
 import { homeStructuredData, serializeJsonLd } from '@/lib/structured-data'
 import { getDictionary } from '@/i18n/get-dictionary'
 import { homeCopy } from '@/i18n/dictionaries/home'
@@ -34,6 +35,7 @@ export async function generateMetadata({ params }: PageProps<'/[locale]'>): Prom
     title: { absolute: site.title },
     description: site.description,
     siteName: site.name,
+    image: siteSocialImage(locale, site),
   })
 }
 

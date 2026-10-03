@@ -33,11 +33,12 @@ src/
                            one composition per case study, e.g. case-study/on), contact,
                            trust (Privacy and Accessibility), a11y (the Enable menu)
   fonts/                   self-hosted OFL fonts and licenses
-  lib/                     site URL, indexing and metadata helpers, structured data, CSS var
-                           typing, navigation, contact (validation, spam, dedupe, notifiers,
-                           server action)
+  lib/                     site URL, indexing and metadata helpers, social cards, structured
+                           data, CSS var typing, navigation, contact (validation, spam,
+                           dedupe, notifiers, server action)
   styles/                  layers, tokens, fonts, reset, base, typography, layout, motion
 scripts/                   leak-check, lint-policy, setup-hooks, brand-icons (`pnpm brand:icons`),
+                           og-cards (`pnpm brand:og`, the social cards),
                            production-simulation and its delivery-guard (see Production
                            simulation)
 tests/unit                 Vitest (content, i18n, tokens, grid, policy, leak check, metadata,
@@ -253,10 +254,22 @@ reached from any page; there is no About page. No placeholder or dead links (tes
   description, Open Graph site name and locale), never a canonical URL, so a page without
   its own metadata (the noindex specimen) claims no other page's address.
 - **Social images.** Case studies use an approved project asset (ON: the live site's
-  opening screen; המחלבה: the dashboard) with its localized alt. The homepage, Contact,
-  Privacy and Accessibility have no image yet: dedicated Open Graph artwork has not been
-  supplied, and none is generated in its place. When it arrives (approved, sanitized,
-  1200 by 630), it is passed as `image` to `pageMetadata()` from those pages.
+  opening screen; המחלבה: the dashboard) with its localized alt. The homepage uses the
+  locale's site card (Phase 7A.3, below), and so do Contact, Privacy and Accessibility,
+  which have no artwork of their own: `siteSocialImage()` (`src/lib/social.ts`), passed as
+  `image` to `pageMetadata()`.
+- **Site cards (Phase 7A.3).** `src/assets/social/martin-g-he.png` and `martin-g-en.png`,
+  1200 by 630, rendered by `pnpm brand:og` (`scripts/og-cards.mjs`, Chromium through
+  Playwright, as `pnpm brand:icons`) from the approved lockup, copied verbatim, the site's
+  own fonts and the approved principle (`site.principle`: "מבעיה למוצר." / "From problem
+  to product."), with `martin-g.dev` as a footer label. No project, confidential or
+  external material. Imported, so each is served from a content-hashed URL (a new render
+  gets a new URL, which platforms that cache previews by URL pick up), with its exact size
+  and the alt text "MARTIN.G: " plus the principle, the hero heading's own pattern. The
+  render is deterministic for a given Chromium build; a unit test keeps the card's words
+  equal to the dictionaries' and the files at 1200 by 630 without metadata. Visual status:
+  `siteCards.status` is `'pending'` until Martin approves the artwork (it does not gate
+  builds). See docs/DESIGN-SYSTEM.md, "Social cards".
 - **Indexing.** Only the Vercel production deployment is indexable (`isIndexable()`).
   Every other build (preview, local, CI) sends `X-Robots-Tag: noindex, nofollow`
   (next.config.ts) and a robots.txt that disallows everything; production's robots.txt
@@ -394,8 +407,9 @@ No application code reads `NODE_ENV`.
   headers): either per-route hashes generated after the build, or nonces with per-request
   rendering, measured against the static trade-off.
 - **CSP reporting.** A `report-to` endpoint once there is somewhere to send reports.
-- **Social artwork.** Dedicated Open Graph images for the homepage and the Phase 6 pages,
-  per locale or language-neutral (see Search and social metadata).
+- **Social artwork approval.** The site cards (Phase 7A.3) await Martin's visual approval;
+  then `siteCards.status` becomes `'approved'`. Optional later: dedicated case-study cards
+  at 1200 by 630 (today's case-study images are 1.61:1 and 1.84:1, which platforms crop).
 
 ## Phases
 

@@ -286,6 +286,15 @@ frame), `SystemDiagram` (generated, abstract system geometry for confidential wo
   `icon.png` 512, `apple-icon.png` 180 (full bleed; iOS rounds it), and for the web app
   manifest (`src/app/manifest.ts`) `public/icons/icon-192.png`, `icon-512.png` and
   `maskable-512.png` (full bleed, symbol inside the 80% safe zone).
+- **Social cards** (`pnpm brand:og`, `scripts/og-cards.mjs`; Phase 7A.3, awaiting Martin's
+  visual approval): 1200 by 630, one per locale, the homepage hero in miniature. Cinematic
+  black, one warm key light falling from above the inline-start third into shade, the grid
+  drawn only inside the light, registration marks in the outer margin, the approved lockup
+  in bone at 176px tall at the inline-start top (never mirrored: in Hebrew it moves to the
+  right, unchanged), the principle set as the hero sets it (Archivo 800 at 125% width,
+  -0.045em, two lines; Noto Sans Hebrew 900, one line), and `martin-g.dev` as a muted label
+  after a hairline at the foot. Content keeps 88px inline and 72px block margins, so 2:1
+  crops lose nothing. No grain (noise would multiply the file size); no other mark.
 - Never distort, recolor with gradients, outline, add effects, or use the marks as
   decoration or loaders.
 

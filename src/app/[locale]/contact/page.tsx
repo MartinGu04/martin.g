@@ -4,6 +4,7 @@ import { isLocale } from '@/i18n/config'
 import { getDictionary } from '@/i18n/get-dictionary'
 import { contactCopy } from '@/i18n/dictionaries/contact'
 import { pageMetadata } from '@/lib/site'
+import { siteSocialImage } from '@/lib/social'
 import { trustHref } from '@/lib/trust'
 import { worlds } from '@/content/worlds'
 import { Grid } from '@/components/layout/Grid'
@@ -17,12 +18,15 @@ export async function generateMetadata({
   const { locale } = await params
   if (!isLocale(locale)) return {}
   const { seo } = contactCopy[locale]
+  const { site } = getDictionary(locale)
   return pageMetadata({
     locale,
     path: '/contact',
     title: seo.title,
     description: seo.description,
-    siteName: getDictionary(locale).site.name,
+    siteName: site.name,
+    // No artwork of its own: the locale's site card.
+    image: siteSocialImage(locale, site),
   })
 }
 

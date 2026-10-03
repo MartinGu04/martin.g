@@ -125,6 +125,58 @@ test.describe('search and social metadata', () => {
     }
   })
 
+  test('each locale shares its own site card; case studies keep their own image', async ({
+    page,
+    request,
+  }) => {
+    const cards: Record<string, string> = {}
+    for (const [locale, alt] of [
+      ['he', 'MARTIN.G: מבעיה למוצר.'],
+      ['en', 'MARTIN.G: From problem to product.'],
+    ] as const) {
+      for (const pagePath of ['', '/contact', '/privacy', '/accessibility']) {
+        const url = `/${locale}${pagePath}`
+        await page.goto(url)
+        const og = (property: string) =>
+          page.locator(`meta[property="og:${property}"]`).getAttribute('content')
+        const image = (await og('image'))!
+        expect(image, url).toMatch(
+          new RegExp(`/_next/static/media/martin-g-${locale}\\.[\\w-]+\\.png$`),
+        )
+        expect(await og('image:width'), url).toBe('1200')
+        expect(await og('image:height'), url).toBe('630')
+        expect(await og('image:alt'), url).toBe(alt)
+        await expect(page.locator('meta[name="twitter:card"]'), url).toHaveAttribute(
+          'content',
+          'summary_large_image',
+        )
+        await expect(page.locator('meta[name="twitter:image"]'), url).toHaveAttribute(
+          'content',
+          image,
+        )
+        cards[locale] ??= image
+        expect(image, url).toBe(cards[locale])
+      }
+      const response = await request.get(new URL(cards[locale]!).pathname)
+      expect(response.status()).toBe(200)
+      expect(response.headers()['content-type']).toBe('image/png')
+      const png = await response.body()
+      expect([png.readUInt32BE(16), png.readUInt32BE(20)]).toEqual([1200, 630])
+    }
+    expect(cards.he).not.toBe(cards.en)
+
+    for (const [url, source] of [
+      ['/he/work/on', /site-home/],
+      ['/en/work/mi-ma-mo', /dashboard/],
+    ] as const) {
+      await page.goto(url)
+      await expect(page.locator('meta[property="og:image"]'), url).toHaveAttribute(
+        'content',
+        source,
+      )
+    }
+  })
+
   test('theme-color matches the page background and the manifest', async ({ page, request }) => {
     // The served value. Once running, HeaderWorld retints it to each scene's --surface-0.
     const html = await (await request.get('/he/contact')).text()
