@@ -75,9 +75,9 @@ describe('release gate', () => {
   afterEach(() => vi.unstubAllEnvs())
 
   it('finds no copy awaiting review', () => {
-    // Every published dictionary is approved in both locales, the Phase 6 contact, privacy
-    // and accessibility copy included. Any dictionary marked 'draft' again would appear
-    // here, and a Vercel production build would refuse it.
+    // Every published dictionary is approved in both locales, the Phase 6 contact and
+    // accessibility copy and the Phase 8 privacy wording included. Any dictionary marked
+    // 'draft' again would appear here, and a Vercel production build would refuse it.
     expect(findDraftCopy()).toEqual([])
   })
 

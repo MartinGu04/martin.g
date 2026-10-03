@@ -6,7 +6,7 @@ import { EM_DASH } from '../../scripts/lint-policy.mjs'
 import { contrast } from '../support/contrast'
 import { locales } from '@/i18n/config'
 import { contactCopy, projectKinds, timelines } from '@/i18n/dictionaries/contact'
-import { privacyCopy } from '@/i18n/dictionaries/privacy'
+import { privacyCopy, privacyReview } from '@/i18n/dictionaries/privacy'
 import { accessibilityCopy } from '@/i18n/dictionaries/accessibility'
 import { worlds } from '@/content/worlds'
 import {
@@ -19,7 +19,7 @@ import {
   type ContactValues,
 } from '@/lib/contact/validate'
 import { isLikelySpam, minFillMs } from '@/lib/contact/spam'
-import { claim, resetDedupe, settle } from '@/lib/contact/dedupe'
+import { dedupeKey } from '@/lib/contact/dedupe'
 import {
   assertContactDelivery,
   configuredNotifiers,
@@ -110,7 +110,14 @@ describe('Phase 6 copy', () => {
 
   it('names every service the site actually uses on the privacy page', () => {
     const items = privacyCopy.en.sections.flatMap((s) => [...s.body, ...(s.list ?? [])]).join(' ')
-    for (const service of ['Vercel', 'Resend', 'Enable', 'cdn.enable.co.il', 'NEXT_LOCALE'])
+    for (const service of [
+      'Vercel',
+      'Supabase',
+      'Resend',
+      'Enable',
+      'cdn.enable.co.il',
+      'NEXT_LOCALE',
+    ])
       expect(items).toContain(service)
     expect(items).toMatch(/no analytics/i)
     // The form's fields, as they are now.
@@ -124,6 +131,40 @@ describe('Phase 6 copy', () => {
     const he = privacyCopy.he.sections.flatMap((s) => s.body).join(' ')
     expect(he).toContain('שם, כתובת אימייל וכמה מילים על הפרויקט')
     expect(he).toContain('מספר טלפון')
+  })
+
+  it('describes stored inquiries as they are now (Phase 8), with no invented retention', () => {
+    for (const locale of locales) {
+      const text = privacyCopy[locale].sections
+        .flatMap((s) => [...s.body, ...(s.list ?? [])])
+        .join(' ')
+      expect(text).toContain('Supabase')
+      expect(text).toContain('Resend')
+      // The no-database architecture is gone; no period or automatic deletion is claimed.
+      expect(text).not.toMatch(/does not keep messages in a database|לא שומר הודעות במסד נתונים/)
+      expect(text).not.toMatch(/\b\d+\s*(days?|months?|years?)\b.*(delet|kept|stored)/i)
+      expect(text).not.toMatch(/automatically deleted|deleted automatically|נמחקת אוטומטית/i)
+    }
+  })
+
+  it('carries Martin’s approved Phase 8 storage wording, verbatim, and is approved', () => {
+    const items = (locale: 'en' | 'he') =>
+      privacyCopy[locale].sections.flatMap((s) => [...s.body, ...(s.list ?? [])])
+    expect(items('en')).toEqual(
+      expect.arrayContaining([
+        'Your message is stored in a private database hosted by Supabase, and a copy is delivered to me by email through Resend, an email delivery service. It is stored without your IP address or other information about your device, and kept for as long as needed to handle your inquiry.',
+        'Supabase hosts the private database where messages from the contact form are stored.',
+        'Resend delivers a copy of each message from the contact form to my inbox.',
+      ]),
+    )
+    expect(items('he')).toEqual(
+      expect.arrayContaining([
+        'ההודעה נשמרת במסד נתונים פרטי שמתארח ב־Supabase, ועותק שלה מגיע אליי באימייל דרך Resend, שירות לשליחת אימיילים. היא נשמרת בלי כתובת ה־IP שלכם ובלי מידע אחר על המכשיר שלכם, ונשמרת כל עוד היא נדרשת לצורך טיפול בפנייה.',
+        'Supabase מארחת את מסד הנתונים הפרטי שבו נשמרות ההודעות מטופס יצירת הקשר.',
+        'Resend מעבירה עותק של כל הודעה מטופס יצירת הקשר לתיבת הדואר שלי.',
+      ]),
+    )
+    expect(privacyReview).toEqual({ en: 'approved', he: 'approved' })
   })
 
   it('shows errors legibly on the contact page’s graphite world', () => {
@@ -264,15 +305,19 @@ describe('spam and duplicate protection', () => {
     expect(minFillMs({ CONTACT_MIN_FILL_MS: '-5' })).toBe(3000)
   })
 
-  it('delivers one key once, and again only after a failure', () => {
-    resetDedupe()
-    expect(claim('k', 0)).toBe(true)
-    expect(claim('k', 1)).toBe(false)
-    settle('k', false, 2)
-    expect(claim('k', 3)).toBe(true)
-    settle('k', true, 4)
-    expect(claim('k', 5)).toBe(false)
-    expect(claim('k', 4 + 11 * 60 * 1000)).toBe(true)
+  it('keys an inquiry by its submission id, or without one by sender and message', () => {
+    const id = 'a1b2c3d4-e5f6-4711-9abc-def012345678'
+    expect(dedupeKey(id, valid)).toBe(`id:${id}`)
+    const hashed = dedupeKey('', valid)
+    expect(hashed).toMatch(/^hash:[0-9a-f]{64}$/)
+    expect(dedupeKey('', { ...valid })).toBe(hashed)
+    expect(dedupeKey('', { ...valid, description: 'Another message' })).not.toBe(hashed)
+    // A malformed id is not trusted as a key.
+    expect(dedupeKey('short', valid)).toBe(hashed)
+    expect(dedupeKey('x'.repeat(65), valid)).toBe(hashed)
+    // Within the column's limit.
+    expect(dedupeKey('a'.repeat(64), valid).length).toBeLessThanOrEqual(96)
+    expect(hashed.length).toBeLessThanOrEqual(96)
   })
 })
 
@@ -356,15 +401,27 @@ describe('delivery boundary', () => {
 describe('the server action', () => {
   let dir: string
   beforeEach(() => {
-    resetDedupe()
     dir = mkdtempSync(path.join(tmpdir(), 'contact-'))
     vi.stubEnv('CONTACT_MIN_FILL_MS', '0')
+    // The local lead store (a file); Supabase itself is covered in contact-leads.test.ts.
+    vi.stubEnv('CONTACT_LEADS_FILE', path.join(dir, 'leads.json'))
   })
   afterEach(() => {
     vi.unstubAllEnvs()
     vi.unstubAllGlobals()
     vi.restoreAllMocks()
   })
+
+  const leads = () => {
+    try {
+      return JSON.parse(readFileSync(path.join(dir, 'leads.json'), 'utf8')) as Record<
+        string,
+        unknown
+      >[]
+    } catch {
+      return []
+    }
+  }
 
   const outbox = () => {
     try {
@@ -384,11 +441,13 @@ describe('the server action', () => {
     expect(Object.keys(state.errors ?? {})).toEqual(['email', 'phone', 'description'])
     expect(state.values?.name).toBe('Dana')
     expect(outbox()).toEqual([])
+    expect(leads()).toEqual([])
   })
 
   it('answers unavailable without a configured notifier, without logging the inquiry', async () => {
     const error = vi.spyOn(console, 'error').mockImplementation(() => {})
     const state = await sendInquiry(initialContactState, form(valid))
+    expect(leads()).toEqual([])
     expect(state.status).toBe('unavailable')
     expect(state.values?.email).toBe(valid.email)
     const logged = error.mock.calls.flat().join(' ')
@@ -407,6 +466,8 @@ describe('the server action', () => {
     expect((await sendInquiry(initialContactState, data)).status).toBe('sent')
     expect(outbox()).toHaveLength(1)
     expect(JSON.parse(outbox()[0]!).values.email).toBe(valid.email)
+    expect(leads()).toHaveLength(1)
+    expect(leads()[0]).toMatchObject({ locale: 'en', notification_status: 'sent' })
   })
 
   it('treats the same message without an id (no JavaScript) as one inquiry', async () => {
@@ -414,6 +475,7 @@ describe('the server action', () => {
     await sendInquiry(initialContactState, form(valid))
     await sendInquiry(initialContactState, form(valid))
     expect(outbox()).toHaveLength(1)
+    expect(leads()).toHaveLength(1)
   })
 
   it('answers spam like a delivery and delivers nothing', async () => {
@@ -426,23 +488,16 @@ describe('the server action', () => {
     )
     expect([trapped.status, instant.status]).toEqual(['sent', 'sent'])
     expect(outbox()).toEqual([])
+    expect(leads()).toEqual([])
   })
 
-  it('reports a failed delivery without internal details, and allows a retry', async () => {
+  it('sends the Resend message plain text, with the visitor as reply-to', async () => {
     vi.stubEnv('RESEND_API_KEY', 'secret-key')
     vi.stubEnv('CONTACT_EMAIL_TO', 'to@example.com')
     vi.stubEnv('CONTACT_EMAIL_FROM', 'from@example.com')
-    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
-    const fetchMock = vi.fn(async () => new Response('upstream detail', { status: 502 }))
+    const fetchMock = vi.fn(async () => new Response('{}', { status: 200 }))
     vi.stubGlobal('fetch', fetchMock)
     const data = form({ ...valid, submission: 'retry-0000-0000-0000-000000000001' })
-    const failed = await sendInquiry(initialContactState, data)
-    expect(failed).toEqual({ status: 'failed', values: expect.objectContaining(valid) })
-    expect(JSON.stringify(failed)).not.toContain('upstream detail')
-    expect(error.mock.calls.flat().join(' ')).toMatch(/resend delivery failed \(502\)/)
-    expect(error.mock.calls.flat().join(' ')).not.toContain('secret-key')
-
-    fetchMock.mockImplementation(async () => new Response('{}', { status: 200 }))
     expect((await sendInquiry(initialContactState, data)).status).toBe('sent')
     const [url, init] = fetchMock.mock.calls.at(-1) as unknown as [string, RequestInit]
     expect(url).toBe('https://api.resend.com/emails')

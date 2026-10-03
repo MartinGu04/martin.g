@@ -5,9 +5,11 @@ import { contactCopy } from '@/i18n/dictionaries/contact'
 import { isProjectKind, isTimeline, normalizeLink, type ContactValues } from './validate'
 
 /*
- * Where an inquiry goes. No database: each inquiry is handed to the configured notifiers
- * and kept nowhere else. Credentials are server-side environment variables only (never
- * NEXT_PUBLIC_), read at request time, and never echoed in errors or logs.
+ * How Martin hears of an inquiry. The durable record is the lead in Supabase
+ * (src/lib/leads), stored before any notifier runs; a notification is only a message about
+ * it, and its failure never loses the inquiry. Credentials are server-side environment
+ * variables only (never NEXT_PUBLIC_), read at request time, and never echoed in errors or
+ * logs.
  *
  *   Resend (email, the primary channel)   RESEND_API_KEY, CONTACT_EMAIL_TO, CONTACT_EMAIL_FROM
  *   Telegram (an optional phone ping)     TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID

@@ -1,0 +1,12 @@
+# Supabase CLI configuration for this repository: the migration workflow for the `leads`
+# table (supabase/migrations) and an optional local stack (`supabase start`). Every
+# setting not listed here keeps the CLI's default. No credential or project reference
+# lives in this file; link a project with `supabase link` (stored in the ignored .temp).
+project_id = "martin-g"
+
+[db]
+major_version = 17
+
+[db.seed]
+# No seed data: leads are real inquiries only.
+enabled = false

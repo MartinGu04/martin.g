@@ -2,12 +2,14 @@ import type { Localized, ReviewStatus } from '../config'
 import type { TrustPageCopy } from './legal'
 
 /**
- * The privacy page (Phase 6). It describes only what the site actually does, audited in
- * Phase 6 (docs/ARCHITECTURE.md, "Privacy"):
+ * The privacy page (Phase 6, revised in Phase 8). It describes only what the site actually
+ * does (docs/ARCHITECTURE.md, "Privacy"):
  *
  *   - the contact form's fields (required: name, email, project description; optional:
- *     phone, project type, business or project name, link, timeline); delivery by email
- *     through Resend; no database
+ *     phone, project type, business or project name, link, timeline); each inquiry stored
+ *     in a private Supabase database (the fields, the site's language and the time; no IP
+ *     address, user agent, cookie or other device data) and a copy emailed through Resend;
+ *     no retention period is stated and nothing is deleted automatically
  *   - Vercel hosting and its ordinary request logs
  *   - one first-party cookie, NEXT_LOCALE, set only by the language switch (one year)
  *   - the Enable accessibility menu, loaded from cdn.enable.co.il
@@ -15,7 +17,8 @@ import type { TrustPageCopy } from './legal'
  *   - self-hosted fonts, images and video; no embeds; external links without a referrer
  *
  * If the Telegram notifier (src/lib/contact/notifiers.ts) is turned on, or analytics are
- * added, this copy must say so before it ships. Approved by Martin in both locales.
+ * added, this copy must say so before it ships. Approved by Martin in both locales, the
+ * Phase 8 storage wording ("When you send a message", "Other services") included.
  */
 export const privacyReview: Localized<ReviewStatus> = {
   en: 'approved',
@@ -45,7 +48,7 @@ export const privacyCopy: Localized<TrustPageCopy> = {
         body: [
           'The contact form asks for your name, your email address and a few words about the project. You may also add a phone number, the kind of project, a business or project name, a relevant link and when you would like to start.',
           'Your message is used only to reply to you and to talk about the project. It is not added to a mailing list, sold or shared for marketing.',
-          'The website does not keep messages in a database. Each message is delivered to me by email through Resend, an email delivery service, and remains in my inbox for as long as it is needed for the conversation.',
+          'Your message is stored in a private database hosted by Supabase, and a copy is delivered to me by email through Resend, an email delivery service. It is stored without your IP address or other information about your device, and kept for as long as needed to handle your inquiry.',
           'The form also uses a hidden field and a basic timing check to reduce automated spam. This information is not used to identify you.',
         ],
       },
@@ -73,7 +76,8 @@ export const privacyCopy: Localized<TrustPageCopy> = {
         body: ['A few services are part of how the website works:'],
         list: [
           'Vercel hosts the website and delivers its pages.',
-          'Resend delivers messages from the contact form to my inbox.',
+          'Supabase hosts the private database where messages from the contact form are stored.',
+          'Resend delivers a copy of each message from the contact form to my inbox.',
           'Enable provides the accessibility menu. Its script loads from Enable’s servers (cdn.enable.co.il), so your browser connects to them, and they receive the technical data of that request, such as your IP address.',
           'Fonts, images and the video preview are served by this website itself. There are no embedded videos, maps or social media widgets.',
           'Links to other websites, such as a project’s live site, open in a new tab without passing along the address of the page you came from. The other website’s own privacy policy applies there.',
@@ -110,7 +114,7 @@ export const privacyCopy: Localized<TrustPageCopy> = {
         body: [
           'טופס יצירת הקשר מבקש שם, כתובת אימייל וכמה מילים על הפרויקט. אפשר להוסיף גם מספר טלפון, את סוג הפרויקט, שם של עסק או פרויקט, קישור רלוונטי ומתי תרצו להתחיל.',
           'ההודעה משמשת רק כדי לחזור אליכם ולדבר על הפרויקט. היא לא מצורפת לרשימת תפוצה, לא נמכרת ולא מועברת לצורכי שיווק.',
-          'האתר לא שומר הודעות במסד נתונים. כל הודעה מגיעה אליי באימייל דרך Resend, שירות לשליחת אימיילים, ונשארת בתיבת הדואר שלי כל עוד היא נדרשת לצורך ההתכתבות.',
+          'ההודעה נשמרת במסד נתונים פרטי שמתארח ב־Supabase, ועותק שלה מגיע אליי באימייל דרך Resend, שירות לשליחת אימיילים. היא נשמרת בלי כתובת ה־IP שלכם ובלי מידע אחר על המכשיר שלכם, ונשמרת כל עוד היא נדרשת לצורך טיפול בפנייה.',
           'הטופס משתמש גם בשדה נסתר ובבדיקת זמן בסיסית כדי לצמצם ספאם אוטומטי. המידע הזה לא משמש לזיהוי שלכם.',
         ],
       },
@@ -138,7 +142,8 @@ export const privacyCopy: Localized<TrustPageCopy> = {
         body: ['כמה שירותים הם חלק מהאופן שבו האתר עובד:'],
         list: [
           'Vercel מארחת את האתר ומגישה את העמודים שלו.',
-          'Resend מעבירה את ההודעות מטופס יצירת הקשר לתיבת הדואר שלי.',
+          'Supabase מארחת את מסד הנתונים הפרטי שבו נשמרות ההודעות מטופס יצירת הקשר.',
+          'Resend מעבירה עותק של כל הודעה מטופס יצירת הקשר לתיבת הדואר שלי.',
           'Enable מספקת את תפריט הנגישות. הסקריפט שלה נטען מהשרתים של Enable (cdn.enable.co.il), כך שהדפדפן שלכם מתחבר אליהם, והם מקבלים את המידע הטכני של הבקשה הזאת, כמו כתובת ה־IP.',
           'הגופנים, התמונות ותצוגת הווידאו מוגשים מהאתר עצמו. אין באתר סרטונים מוטמעים, מפות או רכיבים של רשתות חברתיות.',
           'קישורים לאתרים אחרים, כמו אתר חי של פרויקט, נפתחים בלשונית חדשה בלי להעביר אליהם את כתובת העמוד שממנו יצאתם. מדיניות הפרטיות של אותו אתר חלה על השימוש בו.',

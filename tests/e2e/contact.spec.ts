@@ -1,7 +1,7 @@
 import AxeBuilder from '@axe-core/playwright'
 import { expect, test, type Page } from '@playwright/test'
 import { openForLayout, openRendered } from '../support/navigation'
-import { deliveredTo, uniqueEmail } from '../support/outbox'
+import { deliveredTo, storedLeads, uniqueEmail } from '../support/outbox'
 
 const description = 'A clear website for a new studio that explains what we offer.'
 
@@ -198,8 +198,9 @@ test.describe('project inquiry page', () => {
     await phone.fill('+972 50 123 4567')
     await expect(phone).not.toHaveAttribute('aria-invalid')
 
-    // Nothing was sent.
+    // Nothing was sent or stored.
     expect(deliveredTo('dana@example.com')).toEqual([])
+    expect(storedLeads('dana@example.com')).toEqual([])
   })
 
   test('completes with the keyboard alone, and announces the result', async ({
@@ -260,6 +261,45 @@ test.describe('project inquiry page', () => {
       timeline: 'asap',
     })
     expect(entry!.locale).toBe('en')
+
+    // Stored first, as the durable record: blank optional fields are null, and the
+    // notification is recorded as sent. Nothing about the request is stored.
+    await expect.poll(() => storedLeads(email)[0]?.notification_status).toBe('sent')
+    const [lead] = storedLeads(email)
+    expect(lead).toMatchObject({
+      locale: 'en',
+      name: 'Dana Example',
+      email,
+      phone: '050-1234567',
+      kind: 'landing',
+      description,
+      business: null,
+      link: null,
+      timeline: 'asap',
+      status: 'new',
+    })
+    expect(lead!.notification_sent_at).toEqual(expect.any(String))
+    expect(lead!.dedupe_key).toMatch(/^id:/)
+    expect(Object.keys(lead!).sort()).toEqual(
+      [
+        'business',
+        'created_at',
+        'dedupe_key',
+        'description',
+        'email',
+        'id',
+        'kind',
+        'link',
+        'locale',
+        'name',
+        'notification_sent_at',
+        'notification_status',
+        'phone',
+        'status',
+        'timeline',
+        'updated_at',
+      ].sort(),
+    )
   })
 
   test('one inquiry is sent once, however often the action is pressed', async ({ page }) => {
@@ -286,6 +326,8 @@ test.describe('project inquiry page', () => {
     await page.waitForTimeout(500)
     expect(deliveredTo(email)).toHaveLength(1)
     expect(deliveredTo(email)[0]!.locale).toBe('he')
+    expect(storedLeads(email)).toHaveLength(1)
+    expect(storedLeads(email)[0]!.locale).toBe('he')
   })
 
   test('a lost connection keeps every value and offers a clear retry', async ({ page }) => {
@@ -385,6 +427,9 @@ test.describe('project inquiry without JavaScript', () => {
     await expect(page.locator('form')).toHaveCount(0)
     await expect.poll(() => deliveredTo(email).length).toBe(1)
     expect(deliveredTo(email)[0]!.values).toMatchObject({ phone: '+972 50 123 4567', description })
+    // Without JavaScript there is no submission id: the key is the sender and message.
+    expect(storedLeads(email)).toHaveLength(1)
+    expect(storedLeads(email)[0]!.dedupe_key).toMatch(/^hash:[0-9a-f]{64}$/)
   })
 
   test('shows the server’s errors with the values kept', async ({ page }) => {
@@ -407,6 +452,7 @@ test.describe('project inquiry without JavaScript', () => {
     await expect(page.locator('#contact-description')).toHaveValue(description)
     await expect(page.locator('#contact-phone')).toHaveValue('אפשר להתקשר')
     expect(deliveredTo(email)).toEqual([])
+    expect(storedLeads(email)).toEqual([])
   })
 })
 

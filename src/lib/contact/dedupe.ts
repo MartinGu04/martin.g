@@ -1,37 +1,23 @@
+import { createHash } from 'node:crypto'
+import type { ContactValues } from './validate'
+
 /*
- * Duplicate-submit protection on the server: one inquiry is delivered once, however often
- * it is sent (a double click, a resent form without JavaScript, a retry after a slow
- * answer). Keys live in memory for ten minutes, per server instance: a best effort that
- * needs no database. The form's own guard (one submission at a time) comes first.
+ * Duplicate-submit protection: one inquiry is stored and notified once, however often it is
+ * sent (a double click, a resent form without JavaScript, a retry after a slow answer, two
+ * server instances at once, a restart). The key is the lead's `dedupe_key`, which the
+ * database holds unique (src/lib/leads), so the first submission wins everywhere and every
+ * repeat is answered as already received. The form's own guard (one submission at a time)
+ * comes first.
  */
-const TTL_MS = 10 * 60 * 1000
-const MAX_KEYS = 500
 
-type Entry = { state: 'pending' | 'sent'; at: number }
-const seen = new Map<string, Entry>()
+const SUBMISSION_ID = /^[a-z0-9-]{16,64}$/i
 
-function prune(now: number) {
-  for (const [key, entry] of seen) {
-    if (now - entry.at > TTL_MS || seen.size > MAX_KEYS) seen.delete(key)
-    else break
-  }
-}
-
-/** Claims a key for delivery. False when it is already being delivered or was delivered. */
-export function claim(key: string, now = Date.now()): boolean {
-  prune(now)
-  const entry = seen.get(key)
-  if (entry && now - entry.at <= TTL_MS) return false
-  seen.set(key, { state: 'pending', at: now })
-  return true
-}
-
-export function settle(key: string, delivered: boolean, now = Date.now()) {
-  if (delivered) seen.set(key, { state: 'sent', at: now })
-  else seen.delete(key)
-}
-
-/** Tests only. */
-export function resetDedupe() {
-  seen.clear()
+/**
+ * `id:<submission id>` from the form's random id, or, without JavaScript (no id), a hash of
+ * the sender and the message, so the same sender and message count as one inquiry. At most
+ * 69 characters (the column allows 96).
+ */
+export function dedupeKey(id: string, values: Pick<ContactValues, 'email' | 'description'>) {
+  if (SUBMISSION_ID.test(id)) return `id:${id}`
+  return `hash:${createHash('sha256').update(`${values.email}\n${values.description}`).digest('hex')}`
 }
