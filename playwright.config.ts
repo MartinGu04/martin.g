@@ -27,8 +27,15 @@ export default defineConfig({
     trace: 'retain-on-failure',
   },
   projects: [
-    { name: 'desktop', use: { ...devices['Desktop Chrome'], launchOptions } },
-    { name: 'mobile', use: { ...devices['Pixel 7'], launchOptions } },
+    // Encodes every optimized image the suite requests, at each project's devices, before
+    // any test runs: a fresh server encodes on first request (tests/e2e/images.setup.ts).
+    { name: 'setup', testMatch: /images\.setup\.ts$/, use: { launchOptions } },
+    {
+      name: 'desktop',
+      use: { ...devices['Desktop Chrome'], launchOptions },
+      dependencies: ['setup'],
+    },
+    { name: 'mobile', use: { ...devices['Pixel 7'], launchOptions }, dependencies: ['setup'] },
   ],
   webServer: {
     // Tests run against the production build (`pnpm build` first).
