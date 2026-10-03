@@ -218,6 +218,29 @@ test.describe('preview film', () => {
     await expect.poll(() => video.evaluate((v: HTMLVideoElement) => v.paused)).toBe(true)
   })
 
+  test('is an on-demand asset: fetched only once a visitor plays it', async ({ page }) => {
+    const media: string[] = []
+    page.on('request', (r) => {
+      if (/\.(mp4|webm)(\?|$)/.test(r.url())) media.push(r.url())
+    })
+    // The homepage never requests it.
+    await page.goto('/en')
+    await page.waitForLoadState('networkidle')
+    expect(media).toEqual([])
+
+    // The ON case study: not on load, not when the player scrolls into view.
+    await page.goto('/en/work/on')
+    const video = page.locator('video')
+    await video.scrollIntoViewIfNeeded()
+    await page.waitForLoadState('networkidle')
+    expect(media).toEqual([])
+    expect(await video.evaluate((v: HTMLVideoElement) => v.buffered.length)).toBe(0)
+
+    await page.getByRole('button', { name: 'Play the brand film preview' }).click()
+    await expect.poll(() => media.length).toBeGreaterThan(0)
+    expect(media.every((url) => new URL(url).pathname === '/media/on/film-preview.mp4')).toBe(true)
+  })
+
   test('without JavaScript there is a poster and no video, so no native controls', async ({
     browser,
     request,

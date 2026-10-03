@@ -104,6 +104,56 @@ test.describe('search and social metadata', () => {
     }
   })
 
+  test('the homepage has a search title in each locale; the visible hero is unchanged', async ({
+    page,
+  }) => {
+    for (const [locale, title] of [
+      ['he', 'MARTIN.G · בניית מוצרים דיגיטליים'],
+      ['en', 'MARTIN.G · Product Builder'],
+    ] as const) {
+      await page.goto(`/${locale}`)
+      await expect(page).toHaveTitle(title)
+      await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', title)
+      await expect(page.locator('meta[name="twitter:title"]')).toHaveAttribute('content', title)
+      // The title is metadata only: it never appears in the page itself.
+      expect(await page.locator('body').innerText()).not.toContain(title)
+      // The site's name in structured data stays the brand alone.
+      const data = JSON.parse(
+        (await page.locator('script[type="application/ld+json"]').textContent()) ?? '',
+      )
+      expect(data['@graph'][0].name).toBe('MARTIN.G')
+    }
+  })
+
+  test('theme-color matches the page background and the manifest', async ({ page, request }) => {
+    // The served value. Once running, HeaderWorld retints it to each scene's --surface-0.
+    const html = await (await request.get('/he/contact')).text()
+    expect(html).toContain('<meta name="theme-color" content="#060606"/>')
+    await page.goto('/he/contact')
+    const background = await page.evaluate(() => getComputedStyle(document.body).backgroundColor)
+    expect(background).toBe('rgb(6, 6, 6)')
+    const manifest = await (await request.get('/manifest.webmanifest')).json()
+    expect(manifest).toMatchObject({ theme_color: '#060606', background_color: '#060606' })
+  })
+
+  test('security headers outside production: baseline, no HSTS, no upgrade', async ({
+    request,
+  }) => {
+    for (const pagePath of ['/he', '/en/work/on', '/sitemap.xml']) {
+      const headers = (await request.get(pagePath)).headers()
+      expect(headers['x-content-type-options'], pagePath).toBe('nosniff')
+      expect(headers['referrer-policy'], pagePath).toBe('strict-origin-when-cross-origin')
+      expect(headers['x-frame-options'], pagePath).toBe('DENY')
+      expect(headers['cross-origin-opener-policy'], pagePath).toBe('same-origin')
+      expect(headers['permissions-policy'], pagePath).toContain('browsing-topics=()')
+      expect(headers['permissions-policy'], pagePath).not.toContain('interest-cohort')
+      expect(headers['strict-transport-security'], pagePath).toBeUndefined()
+      expect(headers['content-security-policy'], pagePath).not.toContain(
+        'upgrade-insecure-requests',
+      )
+    }
+  })
+
   test('the noindex specimen claims no canonical URL of another page', async ({ page }) => {
     await page.goto('/he/system')
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/)

@@ -4,45 +4,52 @@ import { defaultLocale, localeMeta, locales, type Locale } from '@/i18n/config'
 type Env = Record<string, string | undefined>
 
 /**
- * The canonical origin for metadata, the sitemap and robots.txt. Server-side only; never
- * exposed through NEXT_PUBLIC_ variables.
+ * The origin of every absolute URL: canonical URLs, hreflang alternates, Open Graph URLs
+ * and images, the sitemap, robots.txt and structured data. Server-side only; never exposed
+ * through NEXT_PUBLIC_ variables. No domain is written in the code.
  *
- * `SITE_URL` pins it (an origin such as https://example.com, nothing after it). Without
- * it, Vercel's `VERCEL_PROJECT_PRODUCTION_URL` is used: the project's shortest production
- * custom domain, or its vercel.app domain while it has none. Local and CI builds fall back
- * to http://localhost:3000. A Vercel production build refuses anything but an https
- * origin that is not localhost, so canonical URLs can never point at a development host.
+ * - Vercel production: `SITE_URL`, required (https://martin-g.dev, set in the Vercel
+ *   project for the Production environment only). It must be an https origin that is not
+ *   localhost; anything else fails the build, so the production site can never publish
+ *   another host as its canonical address.
+ * - Vercel preview: the deployment's own branch URL (or its unique URL). `SITE_URL` is
+ *   ignored here, so a preview, which is noindex, never claims the production domain or
+ *   points its social images at files production may not have.
+ * - Local, CI and `vercel dev`: `SITE_URL` when set, else http://localhost:3000.
  */
 export function siteUrl(env: Env = process.env): URL {
-  const url = resolveSiteUrl(env)
   if (env.VERCEL_ENV === 'production') {
+    if (!env.SITE_URL?.trim()) {
+      throw new Error('[site] A production build needs SITE_URL (the canonical https origin).')
+    }
+    const url = parseSiteUrl(env.SITE_URL)
     if (url.protocol !== 'https:' || url.hostname === 'localhost') {
       throw new Error(`[site] A production build needs an https site origin, not ${url.origin}.`)
     }
+    return url
   }
-  return url
+  if (env.VERCEL_ENV === 'preview') {
+    const host = env.VERCEL_BRANCH_URL || env.VERCEL_URL
+    if (host) return new URL(`https://${host}`)
+  }
+  const explicit = env.SITE_URL?.trim()
+  return explicit ? parseSiteUrl(explicit) : new URL('http://localhost:3000')
 }
 
-function resolveSiteUrl(env: Env): URL {
-  const explicit = env.SITE_URL?.trim()
-  if (explicit) {
-    let url: URL
-    try {
-      url = new URL(explicit)
-    } catch {
-      throw new Error('[site] SITE_URL is not a valid URL.')
-    }
-    if (url.protocol !== 'https:' && url.protocol !== 'http:') {
-      throw new Error('[site] SITE_URL must be an http(s) URL.')
-    }
-    if (url.username || url.password || url.pathname !== '/' || url.search || url.hash) {
-      throw new Error('[site] SITE_URL must be an origin only, such as https://example.com.')
-    }
-    return new URL(url.origin)
+function parseSiteUrl(value: string): URL {
+  let url: URL
+  try {
+    url = new URL(value.trim())
+  } catch {
+    throw new Error('[site] SITE_URL is not a valid URL.')
   }
-  const vercel = env.VERCEL_PROJECT_PRODUCTION_URL
-  if (vercel) return new URL(`https://${vercel}`)
-  return new URL('http://localhost:3000')
+  if (url.protocol !== 'https:' && url.protocol !== 'http:') {
+    throw new Error('[site] SITE_URL must be an http(s) URL.')
+  }
+  if (url.username || url.password || url.pathname !== '/' || url.search || url.hash) {
+    throw new Error('[site] SITE_URL must be an origin only, such as https://example.com.')
+  }
+  return new URL(url.origin)
 }
 
 /**

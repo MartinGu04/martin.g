@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: PageProps<'/[locale]'>): Prom
   return pageMetadata({
     locale,
     path: '',
-    title: { absolute: site.name },
+    title: { absolute: site.title },
     description: site.description,
     siteName: site.name,
   })

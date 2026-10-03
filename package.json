@@ -11,6 +11,7 @@
     "prepare": "node scripts/setup-hooks.mjs",
     "dev": "next dev",
     "build": "next build && node scripts/leak-check.mjs build && node scripts/lint-policy.mjs --built",
+    "build:production-simulation": "node scripts/production-simulation.mjs",
     "start": "next start",
     "typecheck": "next typegen && tsc --noEmit",
     "lint": "eslint . && node scripts/lint-policy.mjs",

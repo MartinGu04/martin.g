@@ -152,15 +152,25 @@ export function configuredNotifiers(env: Env = process.env): ContactNotifier[] {
   return notifiers
 }
 
+/** The variables Resend delivery needs; a production build requires all three. */
+export const RESEND_VARIABLES = [
+  'RESEND_API_KEY',
+  'CONTACT_EMAIL_TO',
+  'CONTACT_EMAIL_FROM',
+] as const
+
 /**
  * A production deployment must be able to deliver, or the site's only conversion path
- * would be a dead end: a Vercel production build fails without a configured notifier.
- * Preview and local builds only build; their form answers "unavailable" until configured.
+ * would be a dead end: a Vercel production build fails unless Resend, the channel the
+ * privacy page names, is configured (Telegram alone does not count). The error names the
+ * missing variables, never a value. Preview and local builds only build; their form
+ * answers "unavailable" until configured.
  */
 export function assertContactDelivery(env: Env = process.env): void {
   if (env.VERCEL_ENV !== 'production') return
-  if (configuredNotifiers(env).length > 0) return
+  const missing = RESEND_VARIABLES.filter((name) => !env[name]?.trim())
+  if (missing.length === 0) return
   throw new Error(
-    '[contact] No delivery configured for the contact form. Set RESEND_API_KEY, CONTACT_EMAIL_TO and CONTACT_EMAIL_FROM (docs/ARCHITECTURE.md, "Contact").',
+    `[contact] No delivery configured for the contact form. Missing: ${missing.join(', ')} (docs/ARCHITECTURE.md, "Contact").`,
   )
 }

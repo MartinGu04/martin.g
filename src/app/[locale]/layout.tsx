@@ -9,6 +9,7 @@ import { contactCopy } from '@/i18n/dictionaries/contact'
 import { homeCopy } from '@/i18n/dictionaries/home'
 import { assertContactDelivery } from '@/lib/contact/notifiers'
 import { openGraphLocales, siteUrl } from '@/lib/site'
+import { brandSurface } from '@/lib/theme'
 import { SkipLink } from '@/components/layout/SkipLink'
 import { SiteHeader } from '@/components/layout/SiteHeader'
 import { SiteFooter } from '@/components/layout/SiteFooter'
@@ -21,11 +22,13 @@ export const dynamicParams = false
 export function generateStaticParams() {
   assertReleasableCopy()
   assertContactDelivery()
+  // A production build without its canonical origin fails here, before any page renders.
+  siteUrl()
   return locales.map((locale) => ({ locale }))
 }
 
 export const viewport: Viewport = {
-  themeColor: '#0b0b0b',
+  themeColor: brandSurface,
   colorScheme: 'dark',
 }
 

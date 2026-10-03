@@ -21,18 +21,19 @@ Requirements: Node 22.18+ and pnpm 10 (`packageManager` is pinned).
 
 ## Scripts
 
-| Script              | What it does                                                         |
-| ------------------- | -------------------------------------------------------------------- |
-| `pnpm dev`          | Development server                                                   |
-| `pnpm build`        | `next build`, then the build-output leak check and built-HTML policy |
-| `pnpm typecheck`    | Route type generation and `tsc --noEmit` (strict)                    |
-| `pnpm lint`         | ESLint and the project policy checks (`scripts/lint-policy.mjs`)     |
-| `pnpm test`         | Unit tests (Vitest)                                                  |
-| `pnpm test:e2e`     | Playwright against the production build (run `pnpm build` first)     |
-| `pnpm check`        | Typecheck, lint, format check and unit tests                         |
-| `pnpm leak:files`   | Leak check of tracked and untracked files and their paths            |
-| `pnpm leak:history` | Leak check of every Git object, commit message and ref name          |
-| `pnpm leak:encode`  | Encode a terms list from stdin into the base64 configuration value   |
+| Script                             | What it does                                                         |
+| ---------------------------------- | -------------------------------------------------------------------- |
+| `pnpm dev`                         | Development server                                                   |
+| `pnpm build`                       | `next build`, then the build-output leak check and built-HTML policy |
+| `pnpm typecheck`                   | Route type generation and `tsc --noEmit` (strict)                    |
+| `pnpm lint`                        | ESLint and the project policy checks (`scripts/lint-policy.mjs`)     |
+| `pnpm test`                        | Unit tests (Vitest)                                                  |
+| `pnpm test:e2e`                    | Playwright against the production build (run `pnpm build` first)     |
+| `pnpm check`                       | Typecheck, lint, format check and unit tests                         |
+| `pnpm build:production-simulation` | Real builds as Vercel Production with CI-only dummy values (below)   |
+| `pnpm leak:files`                  | Leak check of tracked and untracked files and their paths            |
+| `pnpm leak:history`                | Leak check of every Git object, commit message and ref name          |
+| `pnpm leak:encode`                 | Encode a terms list from stdin into the base64 configuration value   |
 
 ## Confidentiality
 
@@ -93,6 +94,25 @@ Put the printed value in:
   **Sensitive**, for Production and Preview
 
 If a confidential term is ever committed or pushed, treat it as disclosed.
+
+## Production configuration
+
+Two different things, never to be confused:
+
+1. **CI production simulation** (`pnpm build:production-simulation`, the CI job
+   "Production simulation build"). Real `pnpm build`s with `VERCEL=1` and
+   `VERCEL_ENV=production`, so every production-only guard runs before a merge: a build
+   without Contact delivery or without `SITE_URL` must fail, and one with the complete
+   configuration must build, serve and pass its checks. It uses CI-only dummy values on the
+   reserved `.example` domain (`scripts/production-simulation.mjs`), never credentials, and
+   a guard proves no delivery request is ever made. Its only secret is the leak-check
+   blocklist. It leaves `.next` as a production build: run `pnpm build` before
+   `pnpm test:e2e`. Locally, the leak check needs `LEAK_CHECK_TERMS_B64` (your own, or a
+   synthetic term encoded with `pnpm leak:encode`).
+2. **Real Vercel Production configuration**: the domain, `SITE_URL=https://martin-g.dev`,
+   the Resend credentials and the firewall rule, set only in the Vercel project. See
+   [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), "Production configuration (Vercel)". CI
+   never sees them.
 
 ## Copy review
 
