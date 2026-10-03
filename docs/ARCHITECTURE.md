@@ -35,12 +35,14 @@ src/
   fonts/                   self-hosted OFL fonts and licenses
   lib/                     site URL, indexing and metadata helpers, social cards, structured
                            data, CSS var typing, navigation, contact (validation, spam,
-                           dedupe, notifiers, server action)
+                           dedupe key, notifiers, server action), leads (server-only Supabase
+                           client, configuration, lead repository)
   styles/                  layers, tokens, fonts, reset, base, typography, layout, motion
 scripts/                   leak-check, lint-policy, setup-hooks, brand-icons (`pnpm brand:icons`),
                            og-cards (`pnpm brand:og`, the social cards),
                            production-simulation and its delivery-guard (see Production
                            simulation)
+supabase/                  Supabase CLI config and migrations (the leads table)
 tests/unit                 Vitest (content, i18n, tokens, grid, policy, leak check, metadata,
                            headers, production simulation)
 tests/e2e                  Playwright (routing, direction, axe, confidential, brand, headers,
@@ -153,29 +155,103 @@ extended into one calm form, statically generated like every page.
 - **Spam** (`spam.ts`): a trap field nobody sees or reaches, and the time the form was open
   (under 3s is software; set in the browser, so without JavaScript only the trap applies).
   Spam is answered like a delivery and never delivered. No CAPTCHA.
-- **Duplicates.** The form allows one submission at a time (`aria-disabled` while sending);
-  the server delivers one submission id (or, without JavaScript, one sender and description)
-  once per ten minutes, in memory per instance (`dedupe.ts`).
+- **Duplicates.** The form allows one submission at a time (`aria-disabled` while sending).
+  The server keys an inquiry by its submission id (`id:<id>`) or, without JavaScript, by a
+  hash of the sender and description (`hash:<sha256>`) (`dedupe.ts`). Since Phase 8 the key
+  is the lead's `dedupe_key`, unique in the database, so one inquiry is stored and notified
+  once across retries, server instances and restarts, and a repeat is answered as received.
+- **Flow (Phase 8).** Contact form → server cleaning, validation and spam checks → the lead
+  stored in Supabase (the durable record, see Leads below) → the notification through
+  Resend → the lead marked `notification_status = 'sent'` (with `notification_sent_at`) or
+  `'failed'`. Spam and invalid submissions are never stored or sent.
 - **Delivery** (`notifiers.ts`): a `ContactNotifier` interface. Resend (email) is the
   primary channel; Telegram (a phone ping) is optional; an outbox file serves the e2e tests
   and is refused on Vercel. Plain text only, the visitor's email as reply-to, credentials
   in server-side environment variables (`.env.example`), never logged. Logs name only the
-  notifier and status of a failure, never the inquiry. **No database**: an inquiry exists
-  only in the delivered message.
+  notifier and status of a failure, never the inquiry. A notification is a message about a
+  stored lead, not the record: its failure never loses the inquiry.
+- **What the visitor is told.**
+
+  | Outcome                                        | Answer        | Stored / notified           |
+  | ---------------------------------------------- | ------------- | --------------------------- |
+  | Spam (trap or instant post)                    | `sent`        | no / no                     |
+  | Invalid                                        | `invalid`     | no / no                     |
+  | Storage or notification not configured         | `unavailable` | no / no                     |
+  | Storage fails (error or no connection)         | `failed`      | no / no; values kept, retry |
+  | Stored, notified                               | `sent`        | yes, `sent` / yes           |
+  | Stored, notification fails                     | `sent`        | yes, `failed` / no          |
+  | Stored, recording the notification state fails | `sent`        | yes, `pending` / as it went |
+  | Same dedupe key already stored                 | `sent`        | unchanged / no              |
+
+  Once the lead is stored the inquiry has reached MARTIN.G, so the visitor sees the
+  success state even if the email fails: asking them to resend would only produce a
+  duplicate. Martin finds every stored lead in Supabase, including those whose
+  `notification_status` is `'failed'` or still `'pending'`. When storage fails nothing is
+  emailed, so a retry never yields a second email for one lead. Tested in
+  `tests/unit/contact-leads.test.ts` (the real Supabase client and Resend notifier against
+  a fake at the fetch boundary) and `tests/e2e/contact.spec.ts` (a local lead file).
+
 - **Release.** A Vercel production build fails unless Resend is configured, all three of
-  `RESEND_API_KEY`, `CONTACT_EMAIL_TO` and `CONTACT_EMAIL_FROM` (`assertContactDelivery`,
-  beside the copy release gate; the error names only the missing variables), so the only
-  conversion path can never ship as a dead end. Telegram alone does not satisfy it: the
-  privacy page names Resend. Preview builds answer "unavailable" until configured.
+  `RESEND_API_KEY`, `CONTACT_EMAIL_TO` and `CONTACT_EMAIL_FROM` (`assertContactDelivery`),
+  and unless lead storage is, `SUPABASE_URL` and `SUPABASE_SECRET_KEY` with a secret API key
+  (`assertLeadStorage`). The errors name only the variables, never a value, so the only
+  conversion path can never ship as a dead end or without its record. These configuration
+  gates run before the copy and artwork release gates. Telegram alone does not satisfy
+  delivery: the privacy page names Resend. Preview and local builds are unaffected and
+  their form answers "unavailable" until both storage and a notifier are configured.
 - **Configured outside the repository** (Phase 7, by Martin): the variables and the
   rate-limit rule in Production configuration (Vercel), below; verified after the merge.
   Turning Telegram on means updating the privacy copy first.
 
-## Privacy (Phase 6 audit)
+## Leads (Supabase, Phase 8)
+
+Supabase is the source of truth for Contact inquiries; Resend only notifies.
+
+- **Project.** A dedicated Supabase project, `martin-g`, in `eu-central-1` (Frankfurt). One
+  table, `public.leads`: the inquiry's fields (blank optional fields are `null`), `locale`,
+  `created_at`, `updated_at`, the pipeline `status` (`new`, `contacted`, `talking`,
+  `proposal_sent`, `won`, `lost`; `new` on insert), the unique `dedupe_key`, and
+  `notification_status` (`pending`, `sent`, `failed`) with `notification_sent_at`. Indexes
+  on `created_at`, `(status, created_at)` and `lower(email)`. Nothing about the request is
+  stored: no IP address, user agent, cookie or fingerprint.
+- **Server only.** The browser never talks to Supabase: there is no browser client, no
+  publishable key in the site and no `NEXT_PUBLIC_` variable. The Contact server action
+  stores leads through `src/lib/leads` (every module `server-only`), with
+  `@supabase/supabase-js` itself (not an SSR client, so no visitor session or cookie can
+  reach it) and no auth state (`persistSession`, `autoRefreshToken`, `detectSessionInUrl`
+  all off). It authenticates with a **secret API key** (`sb_secret_...`), which acts as
+  `service_role` and bypasses row level security; it is a server-side environment variable
+  only, never logged, never in the repository, never in browser output. Publishable keys
+  and the legacy `service_role` JWT are refused by the configuration check.
+- **Access model** (`supabase/migrations/20261003105852_leads.sql`). RLS enabled and
+  forced; every privilege revoked from `public`, `anon` and `authenticated`; `select`,
+  `insert`, `update` and `delete` granted to `service_role`. Deliberately **no RLS
+  policies**: a policy can only add access, and no browser role is meant to have any. With
+  RLS forced and no policy, any role without `BYPASSRLS`, including one given a grant by
+  mistake, sees and changes nothing; `service_role` bypasses RLS by design.
+- **Idempotency.** The insert is `INSERT ... ON CONFLICT (dedupe_key) DO NOTHING RETURNING
+id` in one request, so concurrent submissions of one inquiry on several instances still
+  produce one row; an empty result means "already received". The table has no trigger:
+  the server sets `updated_at` when it records the notification.
+- **Migrations.** The table was provisioned in the Supabase dashboard before the
+  repository integration. The migration records that schema exactly (verified against the
+  live catalog: columns, defaults, constraints, indexes, comment, RLS, privileges) and is
+  additive and idempotent: it never drops or rewrites, so running it against the existing
+  table changes nothing. It is not pushed to the existing project; Martin marks it applied
+  there with `supabase migration repair --status applied 20261003105852`. New schema
+  changes are new migrations (`supabase migration new`), reviewed, then `supabase db push`.
+- **Local and tests.** `CONTACT_LEADS_FILE` stores leads in a local JSON file shaped like
+  the table, for development and the e2e suite; it is refused on Vercel. Unit tests run the
+  real client against a fake Data API. CI never uses the real database.
+
+## Privacy (Phase 6 audit, revised in Phase 8)
 
 What the site actually does, which `/[locale]/privacy` states (and must keep stating):
 the contact form's fields (required: name, email, project description; optional: phone,
-project type, business or project name, link, timeline), delivered by email through Resend; hosting on Vercel with its
+project type, business or project name, link, timeline), stored in a private Supabase
+database without the IP address or other device data, with a copy emailed through Resend
+(no retention period is stated and nothing is deleted automatically; a person can ask for
+deletion through the contact page); hosting on Vercel with its
 ordinary request logs; one first-party cookie, `NEXT_LOCALE`, set only by the language
 switch (one year); the Enable menu's script from `cdn.enable.co.il` (and whatever it
 stores in the browser); no analytics (adding Vercel Web Analytics later means updating the page
@@ -370,6 +446,13 @@ them for the launch (Phase 7); the post-merge checklist verifies each one on the
     `CONTACT_EMAIL_FROM` (a sender on a domain verified in Resend, for example
     `MARTIN.G <contact@martin-g.dev>` once `martin-g.dev` is verified there with the SPF and
     DKIM records Resend lists). All three are required.
+  - `SUPABASE_URL` (the `martin-g` project's API URL, `https://<project-ref>.supabase.co`)
+    and `SUPABASE_SECRET_KEY` (Sensitive; a secret API key, `sb_secret_...`, created for
+    this site in the project's API Keys settings). Both are required (Phase 8).
+    Never a `NEXT_PUBLIC_` variable, never the publishable key. A Supabase integration that
+    adds its own variables (for example `NEXT_PUBLIC_SUPABASE_*`) must not be connected:
+    `lint-policy` forbids `NEXT_PUBLIC_` in the code, but Vercel would still expose such a
+    variable to builds.
   - `LEAK_CHECK_TERMS_B64` (Sensitive, Production and Preview; see README.md).
 - **Firewall rate limit** (Firewall, Configure, add a custom rule):
   - Name: `Contact form rate limit`
@@ -392,25 +475,39 @@ runs `scripts/production-simulation.mjs` (also `pnpm build:production-simulation
 
 1. `pnpm build` as Vercel Production without the three Resend variables: must fail with
    the contact gate's message naming them.
-2. `pnpm build` without `SITE_URL`: must fail with the origin's message.
-3. `pnpm build` with the Hebrew site card treated as pending
+2. `pnpm build` without `SUPABASE_URL` and `SUPABASE_SECRET_KEY`: must fail with the lead
+   storage gate's message naming them.
+3. `pnpm build` without `SITE_URL`: must fail with the origin's message.
+4. `pnpm build` with the Hebrew site card treated as pending
    (`RELEASE_GATE_SIMULATE_PENDING_SITE_CARDS=he`, a test-only switch that can only add
    pending cards): must fail with the artwork gate's message naming it.
-4. `pnpm build` with the complete dummy configuration: must succeed (the real leak check
-   and the built-HTML policy included), then `next start` with the same environment and
+5. `pnpm build` with the complete dummy configuration: must succeed (the real leak check
+   and the built-HTML policy included); the browser output (`.next/static` and the
+   prerendered pages and payloads) must not contain the dummy Resend key, Supabase URL,
+   host or secret key; then `next start` with the same environment and
    GET-only checks: the redirect to `/he`, canonical and Open Graph URLs, structured data,
    each locale's site card and the case-study image, robots.txt and every sitemap URL on the simulated origin, HSTS,
    `upgrade-insecure-requests` and no `X-Robots-Tag`, no robots meta, and the specimen as
-   a 404.
+   a 404, and no page carrying a server-only value.
+
+Copy awaiting review: the configuration gates run before the copy gate, so cases 1 to 4 are
+decided whatever the copy's state. If case 5 is refused only for draft copy, it is built
+again with the explicit, logged `ALLOW_DRAFT_COPY_IN_PRODUCTION=1` so every other check
+still runs, and the run then fails anyway, naming the copy: Vercel Production would refuse
+the build until Martin approves it (as for the Phase 8 privacy wording).
 
 Its values are CI-only dummies (`SITE_URL=https://production-simulation.example`, a fake
-Resend key, `.example` addresses). Inherited `SITE_URL`, Resend, Telegram, outbox,
-fill-time, draft-copy override and simulated pending artwork variables are removed first, so neither real
-credentials nor test shortcuts can reach it. Nothing can be delivered: a build never runs
-the server action (only a visitor's submission does), the server is only sent GETs, and
+Resend key, `.example` addresses, `SUPABASE_URL=https://leads.production-simulation.example`
+and a fake `sb_secret_` key). Inherited `SITE_URL`, Resend, Supabase (any variable naming
+it, and `POSTGRES_*`), Telegram, outbox, lead file, fill-time, draft-copy override and
+simulated pending artwork variables are removed first, so neither real credentials nor test
+shortcuts can reach it. Nothing can be delivered or stored: a build never runs the server
+action (only a visitor's submission does), the server is only sent GETs, and
 `scripts/delivery-guard.mjs`, preloaded into every Node process, refuses and records any
-request to the Resend or Telegram APIs; the run fails if the guard did not load or if a
-request was attempted. Unit tests (`tests/unit/production-simulation.test.ts`) cover the
+request to the Resend or Telegram APIs, to any Supabase host (`*.supabase.co`, `.com`,
+`.in`) and to the host `SUPABASE_URL` names; the run fails if the guard did not load or if
+a request was attempted. A unit test runs the real Supabase client under the guard to prove
+it is stopped. Unit tests (`tests/unit/production-simulation.test.ts`) cover the
 environment, the gates' messages for each case, and the guard.
 
 **Environment-dependent guards**, and what exercises them:
@@ -419,11 +516,13 @@ environment, the gates' messages for each case, and the guard.
 | ---------------------------------------------------------------- | ----------------------------------------------------------------- | --------------------------------------------------------------- |
 | `assertReleasableCopy` (`src/i18n/release-gate.ts`)              | refuses draft copy; `ALLOW_DRAFT_COPY_IN_PRODUCTION=1` overrides  | simulation (override removed), unit                             |
 | `assertReleasableArtwork` (`src/i18n/release-gate.ts`)           | refuses a site card marked `'pending'`; no override               | simulation case 3, unit                                         |
-| `assertContactDelivery` (`src/lib/contact/notifiers.ts`)         | requires the three Resend variables                               | simulation cases 1 and 3, unit                                  |
-| `siteUrl` (`src/lib/site.ts`)                                    | requires an https `SITE_URL`; previews use their own URL          | simulation cases 2 and 3; the preview branch by unit tests only |
+| `assertContactDelivery` (`src/lib/contact/notifiers.ts`)         | requires the three Resend variables                               | simulation cases 1, 4 and 5, unit                               |
+| `assertLeadStorage` (`src/lib/leads/config.ts`)                  | requires `SUPABASE_URL` and an `sb_secret_` `SUPABASE_SECRET_KEY` | simulation cases 2, 4 and 5, unit                               |
+| `siteUrl` (`src/lib/site.ts`)                                    | requires an https `SITE_URL`; previews use their own URL          | simulation cases 3 and 4; the preview branch by unit tests only |
 | `isIndexable`, `robots.ts`, `securityHeaders` (`next.config.ts`) | crawlable, sitemap, HSTS, `upgrade-insecure-requests`, no noindex | simulation (served), unit                                       |
 | `isSpecimenEnabled` (`src/lib/specimen.ts`)                      | the specimen is a 404                                             | simulation (served); e2e covers the other side                  |
 | `configuredNotifiers` (`VERCEL`)                                 | the e2e outbox is refused on Vercel                               | unit (a runtime path: the simulation never submits)             |
+| `configuredLeadRepository` (`VERCEL`)                            | the local lead file is refused on Vercel                          | unit (a runtime path: the simulation never submits)             |
 | `minFillMs` (`CONTACT_MIN_FILL_MS`)                              | none: a runtime override the e2e suite uses                       | unit; must never be set on Vercel                               |
 | leak check `isCi` (`CI`, `VERCEL`, `GITHUB_ACTIONS`)             | fails closed without the blocklist                                | every CI job and the simulation                                 |
 | `lint-policy` hooks check, `setup-hooks` (`CI`, `VERCEL`)        | skipped where Git hooks do not apply                              | every CI job                                                    |
@@ -437,7 +536,8 @@ No application code reads `NODE_ENV`.
   Revisit once Vercel Web Analytics is in place: tighten `script-src` (hashes, SRI, or
   nonces only if the static trade-off is acceptable), and narrow the Enable origins
   (Phase 6) to exactly what the menu requests, as observed on a deployment. Contact needs
-  no browser origin: delivery is server to server.
+  no browser origin: delivery and lead storage are server to server, so `connect-src`
+  never lists Supabase.
 - **Script hashes or nonces.** Removing `'unsafe-inline'` from `script-src` (see Security
   headers): either per-route hashes generated after the build, or nonces with per-request
   rendering, measured against the static trade-off.
@@ -458,3 +558,5 @@ No application code reads `NODE_ENV`.
 - Phase 7: Launch hardening (7A.1 search and social metadata; 7A.2 production domain,
   security headers and the CI production simulation; 7A.3 approved social cards and the
   artwork release gate; 7A.4 performance audit and launch QA; 7A.5 release candidate)
+- Phase 8: Leads (8A: Supabase as the durable record of Contact inquiries, Resend as the
+  notification; privacy wording awaiting Martin's review)

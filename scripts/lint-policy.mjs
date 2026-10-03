@@ -15,6 +15,8 @@
  *   image-metadata   raster images carry no EXIF/XMP/IPTC/text metadata
  *   hooks            locally, core.hooksPath points at .githooks
  *   invisible-chars  no raw zero-width or bidi control characters in source (Trojan Source)
+ *   server-config    (--built) what a browser receives (static assets, prerendered pages and
+ *                    payloads) carries no Supabase client, key, project host or variable
  */
 import { spawnSync } from 'node:child_process'
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
@@ -41,6 +43,34 @@ const PHYSICAL_JSX = [
   /\bborder(?:Top|Bottom)(?:Left|Right)Radius\b/,
   /\b(?:textAlign|float|clear)\s*:\s*['"](?:left|right)['"]/,
 ]
+
+/**
+ * Markers of Supabase configuration or of its client in browser output. Leads are stored
+ * only by the server (src/lib/leads); the browser never talks to Supabase.
+ */
+const BROWSER_SERVER_CONFIG = [
+  /sb_secret_/,
+  /sb_publishable_/,
+  /SUPABASE_[A-Z_]+/,
+  /supabase-js/,
+  /[a-z0-9-]+\.supabase\.(?:co|com|in)\b/,
+]
+
+/** @returns {{line: number, rule: string, message: string}[]} */
+export function checkBrowserOutput(source) {
+  const out = []
+  for (const pattern of BROWSER_SERVER_CONFIG) {
+    const match = source.match(pattern)
+    if (match) {
+      out.push({
+        line: source.slice(0, match.index).split('\n').length,
+        rule: 'server-config',
+        message: `browser output carries server-only Supabase configuration (${pattern.source})`,
+      })
+    }
+  }
+  return out
+}
 
 /** @returns {{line: number, rule: string, message: string}[]} */
 export function checkCss(source) {
@@ -285,7 +315,7 @@ export function runSource(root, env = process.env) {
     report(file, checkInvisibleChars(source))
   }
 
-  for (const dir of ['scripts', 'tests', 'docs', '.githooks', '.github']) {
+  for (const dir of ['scripts', 'tests', 'docs', '.githooks', '.github', 'supabase']) {
     for (const file of walk(path.join(root, dir))) {
       report(file, checkInvisibleChars(readFileSync(file, 'utf8')))
     }
@@ -311,6 +341,7 @@ export function runSource(root, env = process.env) {
     '.env.example',
     'vercel.json',
     ...walk(path.join(root, '.github')).map((f) => path.relative(root, f)),
+    ...walk(path.join(root, 'supabase')).map((f) => path.relative(root, f)),
   ]) {
     const file = path.join(root, rel)
     if (existsSync(file) && statSync(file).isFile())
@@ -328,7 +359,14 @@ export function runBuilt(root) {
   const problems = []
   const appDir = path.join(root, '.next', 'server', 'app')
   for (const file of walk(appDir).filter((f) => f.endsWith('.html') || f.endsWith('.rsc'))) {
-    checkEmDash(readFileSync(file, 'utf8')).forEach((p) =>
+    const source = readFileSync(file, 'utf8')
+    for (const p of [...checkEmDash(source), ...checkBrowserOutput(source)])
+      problems.push({ file: path.relative(root, file), ...p })
+  }
+  for (const file of walk(path.join(root, '.next', 'static')).filter((f) =>
+    /\.(js|css|json|txt)$/.test(f),
+  )) {
+    checkBrowserOutput(readFileSync(file, 'utf8')).forEach((p) =>
       problems.push({ file: path.relative(root, file), ...p }),
     )
   }

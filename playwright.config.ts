@@ -15,6 +15,9 @@ const launchOptions = executablePath ? { executablePath, args } : { args }
 // Contact form submissions are delivered to this file instead of a real service
 // (src/lib/contact/notifiers.ts, the outbox notifier). Tests read it back.
 process.env.E2E_OUTBOX ??= path.join(tmpdir(), `martin-g-e2e-outbox-${PORT}.jsonl`)
+// Leads are stored in this file instead of Supabase (src/lib/leads/repository.ts, the file
+// store, refused on Vercel). Tests read it back; the suite never reaches a real database.
+process.env.E2E_LEADS ??= path.join(tmpdir(), `martin-g-e2e-leads-${PORT}.json`)
 
 export default defineConfig({
   testDir: 'tests/e2e',
@@ -45,6 +48,7 @@ export default defineConfig({
     timeout: 60_000,
     env: {
       CONTACT_OUTBOX_FILE: process.env.E2E_OUTBOX,
+      CONTACT_LEADS_FILE: process.env.E2E_LEADS,
       // People take seconds; tests fill the form at once. The timing check is unit tested.
       CONTACT_MIN_FILL_MS: '0',
     },

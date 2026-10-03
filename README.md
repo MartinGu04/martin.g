@@ -2,7 +2,7 @@
 
 **Digital products, systems & experiences. From problem to product.**
 
-[**Explore MARTIN.G → mgusin.dev**](https://mgusin.dev)
+[**Explore MARTIN.G → martin-g.dev**](https://martin-g.dev)
 
 Bilingual (English LTR, Hebrew RTL) portfolio and product brand for Martin Gusin.
 Next.js App Router, TypeScript, statically generated, deployed on Vercel.
@@ -104,15 +104,18 @@ Two different things, never to be confused:
 1. **CI production simulation** (`pnpm build:production-simulation`, the CI job
    "Production simulation build"). Real `pnpm build`s with `VERCEL=1` and
    `VERCEL_ENV=production`, so every production-only guard runs before a merge: a build
-   without Contact delivery or without `SITE_URL` must fail, and one with the complete
-   configuration must build, serve and pass its checks. It uses CI-only dummy values on the
-   reserved `.example` domain (`scripts/production-simulation.mjs`), never credentials, and
-   a guard proves no delivery request is ever made. Its only secret is the leak-check
-   blocklist. It leaves `.next` as a production build: run `pnpm build` before
+   without Contact delivery, without lead storage (Supabase) or without `SITE_URL` must
+   fail, and one with the complete configuration must build, serve and pass its checks. It
+   uses CI-only dummy values on the reserved `.example` domain
+   (`scripts/production-simulation.mjs`), never credentials, and a network guard proves no
+   request ever reaches Resend, Telegram or Supabase (so no build can store a lead). While
+   any copy awaits review it still runs every check, then fails, naming the copy. Its only
+   secret is the leak-check blocklist. It leaves `.next` as a production build: run `pnpm build` before
    `pnpm test:e2e`. Locally, the leak check needs `LEAK_CHECK_TERMS_B64` (your own, or a
    synthetic term encoded with `pnpm leak:encode`).
 2. **Real Vercel Production configuration**: the domain, `SITE_URL=https://martin-g.dev`,
-   the Resend credentials and the firewall rule, set only in the Vercel project. See
+   the Resend credentials, the Supabase URL and secret key, and the firewall rule, set only
+   in the Vercel project. See
    [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), "Production configuration (Vercel)". CI
    never sees them.
 

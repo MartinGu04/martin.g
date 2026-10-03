@@ -1,14 +1,33 @@
 import { spawnSync } from 'node:child_process'
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { assertContactDelivery, configuredNotifiers } from '@/lib/contact/notifiers'
-import { assertReleasableArtwork, findPendingArtwork } from '@/i18n/release-gate'
+import { assertLeadStorage, leadStoreConfig } from '@/lib/leads/config'
+import { configuredLeadRepository } from '@/lib/leads/repository'
+import {
+  assertReleasableArtwork,
+  assertReleasableCopy,
+  findPendingArtwork,
+} from '@/i18n/release-gate'
 import { isSpecimenEnabled } from '@/lib/specimen'
 import { isIndexable, siteUrl } from '@/lib/site'
-import { DELIVERY_HOSTS, guardedFetch } from '../../scripts/delivery-guard.mjs'
-import { CASES, SIMULATION, STRIPPED, simulationEnv } from '../../scripts/production-simulation.mjs'
+import {
+  DELIVERY_HOSTS,
+  configuredDatabaseHost,
+  guardedFetch,
+  isGuardedHost,
+} from '../../scripts/delivery-guard.mjs'
+import {
+  CASES,
+  DRAFT_COPY,
+  SERVER_ONLY_VALUES,
+  SIMULATION,
+  STRIPPED,
+  browserOutputLeaks,
+  simulationEnv,
+} from '../../scripts/production-simulation.mjs'
 
 // Synthetic stand-ins for configuration a runner might carry. None of it is real.
 const inherited = {
@@ -22,6 +41,12 @@ const inherited = {
   TELEGRAM_BOT_TOKEN: 'synthetic-token',
   TELEGRAM_CHAT_ID: '1',
   CONTACT_OUTBOX_FILE: '/tmp/synthetic-outbox.jsonl',
+  CONTACT_LEADS_FILE: '/tmp/synthetic-leads.json',
+  SUPABASE_URL: 'https://synthetic-real-project.supabase.co',
+  SUPABASE_SECRET_KEY: 'sb_secret_synthetic-real-key',
+  SUPABASE_SERVICE_ROLE_KEY: 'synthetic-real-service-role',
+  NEXT_PUBLIC_SUPABASE_URL: 'https://synthetic-real-project.supabase.co',
+  POSTGRES_URL: 'postgres://synthetic-real@db.example/postgres',
   ALLOW_DRAFT_COPY_IN_PRODUCTION: '1',
 }
 
@@ -41,15 +66,30 @@ describe('production simulation environment', () => {
     }
     expect(env.RESEND_API_KEY).toBe(SIMULATION.RESEND_API_KEY)
     expect(env.RESEND_API_KEY).toMatch(/not_a_real_key/)
+    expect(new URL(env.SUPABASE_URL!).hostname).toBe('leads.production-simulation.example')
+    expect(env.SUPABASE_SECRET_KEY).toBe('sb_secret_ci_simulation_not_a_real_key')
   })
 
   it('never carries inherited credentials, the outbox or the draft-copy override', () => {
     for (const value of Object.values(env)) {
       expect(value).not.toMatch(/synthetic-real|synthetic-token|synthetic-outbox/)
     }
-    for (const name of ['TELEGRAM_BOT_TOKEN', 'TELEGRAM_CHAT_ID', 'CONTACT_OUTBOX_FILE']) {
+    for (const name of [
+      'TELEGRAM_BOT_TOKEN',
+      'TELEGRAM_CHAT_ID',
+      'CONTACT_OUTBOX_FILE',
+      'CONTACT_LEADS_FILE',
+      'SUPABASE_SERVICE_ROLE_KEY',
+      'NEXT_PUBLIC_SUPABASE_URL',
+      'POSTGRES_URL',
+    ]) {
       expect(env[name], name).toBeUndefined()
     }
+    expect(
+      Object.keys(env)
+        .filter((name) => name.includes('SUPABASE'))
+        .sort(),
+    ).toEqual(['SUPABASE_SECRET_KEY', 'SUPABASE_URL'])
     expect(env.ALLOW_DRAFT_COPY_IN_PRODUCTION).toBeUndefined()
     expect(STRIPPED).toContain('ALLOW_DRAFT_COPY_IN_PRODUCTION')
   })
@@ -66,6 +106,15 @@ describe('production simulation environment', () => {
     expect(() => assertContactDelivery(env)).not.toThrow()
     expect(configuredNotifiers(env).map((n) => n.name)).toEqual(['resend'])
   })
+
+  it('satisfies the lead storage gate with Supabase, never the local file', () => {
+    expect(() => assertLeadStorage(env)).not.toThrow()
+    expect(leadStoreConfig(env)?.url).toBe('https://leads.production-simulation.example')
+    expect(configuredLeadRepository(env)?.name).toBe('supabase')
+    // The network guard refuses the dummy project, so it can never be reached.
+    expect(configuredDatabaseHost(env)).toBe('leads.production-simulation.example')
+    expect(isGuardedHost(configuredDatabaseHost(env), configuredDatabaseHost(env))).toBe(true)
+  })
 })
 
 describe('production simulation cases', () => {
@@ -81,6 +130,30 @@ describe('production simulation cases', () => {
       message = (error as Error).message
     }
     for (const pattern of testCase.expectFailure!) expect(message).toMatch(pattern)
+  })
+
+  it('without lead storage, the gate refuses with the message the build must show', () => {
+    const testCase = CASES.find((c) => c.name.includes('lead storage'))!
+    const caseEnv = env('lead storage')
+    expect(caseEnv.SUPABASE_URL).toBeUndefined()
+    expect(caseEnv.SUPABASE_SECRET_KEY).toBeUndefined()
+    // Every other gate is satisfied, so this one names the reason.
+    expect(() => assertContactDelivery(caseEnv)).not.toThrow()
+    expect(() => assertLeadStorage(caseEnv)).toThrow(testCase.expectFailure![0])
+  })
+
+  it('recognizes the copy gate’s refusal, so draft copy can never pass unnoticed', () => {
+    let message = ''
+    try {
+      vi.stubEnv('VERCEL_ENV', 'production')
+      vi.stubEnv('ALLOW_DRAFT_COPY_IN_PRODUCTION', '')
+      assertReleasableCopy(['privacy:en', 'privacy:he'])
+    } catch (error) {
+      message = (error as Error).message
+    } finally {
+      vi.unstubAllEnvs()
+    }
+    expect(message.match(DRAFT_COPY)?.[1]).toBe('privacy:en, privacy:he')
   })
 
   it('without SITE_URL, the origin refuses with the message the build must show', () => {
@@ -130,6 +203,87 @@ describe('delivery guard', () => {
       'blocked api.resend.com',
     ])
     expect(calls).toEqual(['http://localhost:3000/he'])
+  })
+
+  it('refuses Supabase and the configured database host', async () => {
+    const recorded: string[] = []
+    const passthrough = async () => new Response('ok')
+    const guarded = guardedFetch(
+      passthrough,
+      (line: string) => recorded.push(line),
+      'leads.production-simulation.example',
+    )
+    for (const url of [
+      'https://synthetic.supabase.co/rest/v1/leads',
+      'https://api.supabase.com/v1/projects',
+      'https://synthetic.supabase.in/rest/v1/leads',
+      'https://leads.production-simulation.example/rest/v1/leads',
+    ])
+      await expect(guarded(url, { method: 'POST' })).rejects.toThrow(/delivery-guard/)
+    expect(recorded).toEqual([
+      'blocked synthetic.supabase.co',
+      'blocked api.supabase.com',
+      'blocked synthetic.supabase.in',
+      'blocked leads.production-simulation.example',
+    ])
+    expect(isGuardedHost('notsupabase.co')).toBe(false)
+    expect(isGuardedHost('example.com')).toBe(false)
+  })
+
+  it('stops the real Supabase client in a preloaded process, so no lead can be stored', () => {
+    const dir = mkdtempSync(path.join(tmpdir(), 'mg-guard-test-'))
+    try {
+      const log = path.join(dir, 'guard.log')
+      const env = simulationEnv({ PATH: process.env.PATH }, { guardLog: log })
+      const script = `
+        import { createClient } from '@supabase/supabase-js'
+        const client = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SECRET_KEY, {
+          auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+        })
+        const { data, error } = await client.from('leads').insert({ name: 'synthetic' }).select('id')
+        console.log(JSON.stringify({ data, refused: /delivery-guard/.test(String(error?.message)) }))
+      `
+      const result = spawnSync(process.execPath, ['--input-type=module', '-e', script], {
+        cwd: path.resolve(__dirname, '../..'),
+        env: env as NodeJS.ProcessEnv,
+        encoding: 'utf8',
+      })
+      expect(result.status, result.stderr).toBe(0)
+      expect(JSON.parse(result.stdout.trim().split('\n').at(-1)!)).toEqual({
+        data: null,
+        refused: true,
+      })
+      expect(readFileSync(log, 'utf8')).toContain('blocked leads.production-simulation.example')
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
+    }
+  })
+})
+
+describe('browser output check', () => {
+  it('finds the server-only dummy values in static assets and prerendered pages', () => {
+    const dir = mkdtempSync(path.join(tmpdir(), 'mg-browser-output-'))
+    try {
+      mkdirSync(path.join(dir, 'static', 'chunks'), { recursive: true })
+      mkdirSync(path.join(dir, 'server', 'app'), { recursive: true })
+      writeFileSync(path.join(dir, 'static', 'chunks', 'clean.js'), 'console.log(1)')
+      writeFileSync(path.join(dir, 'server', 'app', 'en.html'), '<p>Privacy: Supabase</p>')
+      expect(browserOutputLeaks(dir)).toEqual([])
+      writeFileSync(
+        path.join(dir, 'static', 'chunks', 'leaky.js'),
+        `fetch("${SIMULATION.SUPABASE_URL}", {headers:{apikey:"${SIMULATION.SUPABASE_SECRET_KEY}"}})`,
+      )
+      const problems = browserOutputLeaks(dir)
+      expect(problems).toContain(
+        `${path.join('static', 'chunks', 'leaky.js')} carries SUPABASE_SECRET_KEY`,
+      )
+      expect(problems).toContain(
+        `${path.join('static', 'chunks', 'leaky.js')} carries SUPABASE_URL`,
+      )
+      expect(SERVER_ONLY_VALUES.map(([name]) => name)).toContain('RESEND_API_KEY')
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
+    }
   })
 
   it('is active in a preloaded Node process and records a refused delivery', () => {
