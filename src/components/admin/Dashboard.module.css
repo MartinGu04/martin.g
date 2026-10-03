@@ -210,14 +210,14 @@
     min-inline-size: 12rem;
   }
 
-  /* Names in either script line up at the column's start. */
-  .rowLink,
-  .secondary {
-    text-align: match-parent;
+  /* Names in either script keep their own direction (dir="auto") yet line up at the
+     column's start: each line shrinks to its text and sits at the start. */
+  .names {
+    display: grid;
+    justify-items: start;
   }
 
   .secondary {
-    display: block;
     color: var(--text-muted);
     overflow-wrap: anywhere;
   }

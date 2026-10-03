@@ -198,18 +198,20 @@ export function LeadTable({ page }: { page: Page<LeadListRow> }) {
               data-status={lead.status}
             >
               <td className={styles.lead}>
-                <Link
-                  href={`/admin/leads/${lead.id}` as Route}
-                  className={styles.rowLink}
-                  dir="auto"
-                >
-                  {lead.name}
-                </Link>
-                {lead.business ? (
-                  <span className={`t-small ${styles.secondary}`} dir="auto">
-                    {lead.business}
-                  </span>
-                ) : null}
+                <div className={styles.names}>
+                  <Link
+                    href={`/admin/leads/${lead.id}` as Route}
+                    className={styles.rowLink}
+                    dir="auto"
+                  >
+                    {lead.name}
+                  </Link>
+                  {lead.business ? (
+                    <span className={`t-small ${styles.secondary}`} dir="auto">
+                      {lead.business}
+                    </span>
+                  ) : null}
+                </div>
               </td>
               <td className={`t-small ${styles.email}`} data-label="Email">
                 <span dir="ltr">{lead.email}</span>

@@ -134,6 +134,13 @@
     }
   }
 
+  /* Small phones: one section only, and the wordmark already leads to it. */
+  @media (width < 30rem) {
+    .nav {
+      display: none;
+    }
+  }
+
   .main {
     max-inline-size: var(--admin-max);
     margin-inline: auto;
