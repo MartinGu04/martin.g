@@ -1,5 +1,9 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { isLocale } from '@/i18n/config'
+import { pageMetadata, siteUrl } from '@/lib/site'
+import { siteSocialImage } from '@/lib/social'
+import { homeStructuredData, serializeJsonLd } from '@/lib/structured-data'
 import { getDictionary } from '@/i18n/get-dictionary'
 import { homeCopy } from '@/i18n/dictionaries/home'
 import { showcaseCopy } from '@/i18n/dictionaries/showcase'
@@ -20,6 +24,20 @@ import { ProcessStage } from '@/components/home/ProcessStage'
 import { Capabilities, type Capability } from '@/components/home/Capabilities'
 import { AboutScene } from '@/components/home/AboutScene'
 import { ContactScene } from '@/components/home/ContactScene'
+
+export async function generateMetadata({ params }: PageProps<'/[locale]'>): Promise<Metadata> {
+  const { locale } = await params
+  if (!isLocale(locale)) return {}
+  const { site } = getDictionary(locale)
+  return pageMetadata({
+    locale,
+    path: '',
+    title: { absolute: site.title },
+    description: site.description,
+    siteName: site.name,
+    image: siteSocialImage(locale, site),
+  })
+}
 
 /**
  * The homepage as one continuous sequence of scenes (docs/HOMEPAGE.md): identity, then
@@ -99,8 +117,20 @@ export default async function HomePage({ params }: PageProps<'/[locale]'>) {
     evidence: evidence.map((place) => proof[place]),
   }))
 
+  const structuredData = homeStructuredData({
+    locale,
+    origin: siteUrl(),
+    siteName: dict.site.name,
+    description: dict.site.description,
+    person: { name: copy.about.name, role: copy.about.role },
+  })
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(structuredData) }}
+      />
       <HeroScene dict={dict} name={copy.about.name} role={copy.about.role} />
 
       <section id="work" aria-labelledby="work-title">

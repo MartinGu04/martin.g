@@ -15,6 +15,13 @@ export function contrastRatio(a: HexColor, b: HexColor): number {
   return (hi + 0.05) / (lo + 0.05)
 }
 
+/**
+ * The brand's page background, --mg-black (--surface-0 in src/styles/tokens.css), for the
+ * places CSS cannot reach: the theme-color meta and the web app manifest. A unit test keeps
+ * it equal to the token. HeaderWorld then follows each scene's --surface-0 while scrolling.
+ */
+export const brandSurface: HexColor = '#060606'
+
 const HEX = /^#[0-9a-fA-F]{6}$/
 
 /**

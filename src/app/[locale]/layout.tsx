@@ -2,13 +2,14 @@ import type { Metadata, Viewport } from 'next'
 import { notFound } from 'next/navigation'
 import '@/styles/global.css'
 import { fontVariables } from '@/styles/fonts'
-import { directionOf, isLocale, localeMeta, locales } from '@/i18n/config'
+import { directionOf, isLocale, locales } from '@/i18n/config'
 import { getDictionary } from '@/i18n/get-dictionary'
-import { assertReleasableCopy } from '@/i18n/release-gate'
+import { assertReleasableArtwork, assertReleasableCopy } from '@/i18n/release-gate'
 import { contactCopy } from '@/i18n/dictionaries/contact'
 import { homeCopy } from '@/i18n/dictionaries/home'
 import { assertContactDelivery } from '@/lib/contact/notifiers'
-import { localeAlternates, siteUrl } from '@/lib/site'
+import { openGraphLocales, siteUrl } from '@/lib/site'
+import { brandSurface } from '@/lib/theme'
 import { SkipLink } from '@/components/layout/SkipLink'
 import { SiteHeader } from '@/components/layout/SiteHeader'
 import { SiteFooter } from '@/components/layout/SiteFooter'
@@ -20,12 +21,15 @@ export const dynamicParams = false
 
 export function generateStaticParams() {
   assertReleasableCopy()
+  assertReleasableArtwork()
   assertContactDelivery()
+  // A production build without its canonical origin fails here, before any page renders.
+  siteUrl()
   return locales.map((locale) => ({ locale }))
 }
 
 export const viewport: Viewport = {
-  themeColor: '#0b0b0b',
+  themeColor: brandSurface,
   colorScheme: 'dark',
 }
 
@@ -33,14 +37,16 @@ export async function generateMetadata({ params }: LayoutProps<'/[locale]'>): Pr
   const { locale } = await params
   if (!isLocale(locale)) return {}
   const dict = getDictionary(locale)
+  // Site-wide defaults only. Canonical URLs and complete Open Graph blocks belong to each
+  // indexable page (pageMetadata in src/lib/site.ts), so a page without its own metadata
+  // (the noindex specimen) never inherits the homepage's canonical URL.
   return {
     metadataBase: siteUrl(),
     title: { default: dict.site.name, template: `%s · ${dict.site.name}` },
     description: dict.site.description,
-    alternates: localeAlternates(locale, ''),
     openGraph: {
       siteName: dict.site.name,
-      locale: localeMeta[locale].ogLocale,
+      ...openGraphLocales(locale),
       type: 'website',
     },
   }

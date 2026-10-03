@@ -6,6 +6,8 @@ export const enReview: ReviewStatus = 'approved'
 export const en = {
   site: {
     name: 'MARTIN.G',
+    /** The homepage's search and share title (not shown on the page). */
+    title: 'MARTIN.G · Product Builder',
     positioning: 'Digital products, systems & experiences.',
     principle: 'From problem to product.',
     description:

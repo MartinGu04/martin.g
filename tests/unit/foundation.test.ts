@@ -1,7 +1,13 @@
 import { readFileSync } from 'node:fs'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cellVars } from '@/components/layout/Grid'
-import { assertReleasableCopy, findDraftCopy } from '@/i18n/release-gate'
+import {
+  assertReleasableArtwork,
+  assertReleasableCopy,
+  findDraftCopy,
+  findPendingArtwork,
+} from '@/i18n/release-gate'
+import { siteCards } from '@/lib/social'
 import { localeAlternates } from '@/lib/site'
 import {
   checkCss,
@@ -88,6 +94,36 @@ describe('release gate', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     expect(() => assertReleasableCopy(drafts)).not.toThrow()
     expect(warn).toHaveBeenCalled()
+  })
+
+  it('finds no social artwork awaiting approval: both site cards are approved', () => {
+    expect(siteCards.review).toEqual({ en: 'approved', he: 'approved' })
+    expect(findPendingArtwork({})).toEqual([])
+  })
+
+  it('refuses pending social artwork in Vercel production builds only, with no override', () => {
+    const pending = ['site-card:he']
+    expect(() => assertReleasableArtwork(pending, {})).not.toThrow()
+    expect(() => assertReleasableArtwork(pending, { VERCEL_ENV: 'preview' })).not.toThrow()
+    expect(() => assertReleasableArtwork(pending, { VERCEL_ENV: 'production' })).toThrow(
+      '[release-gate] Social artwork awaiting approval: site-card:he. Approve it before a production build.',
+    )
+    expect(() =>
+      assertReleasableArtwork(pending, {
+        VERCEL_ENV: 'production',
+        ALLOW_DRAFT_COPY_IN_PRODUCTION: '1',
+      }),
+    ).toThrow(/Social artwork awaiting approval/)
+    expect(() => assertReleasableArtwork([], { VERCEL_ENV: 'production' })).not.toThrow()
+  })
+
+  it('the simulation switch can only add pending cards', () => {
+    const simulate = (value: string) =>
+      findPendingArtwork({ RELEASE_GATE_SIMULATE_PENDING_SITE_CARDS: value })
+    expect(simulate('he')).toEqual(['site-card:he'])
+    expect(simulate('en, he')).toEqual(['site-card:en', 'site-card:he'])
+    expect(simulate('')).toEqual([])
+    expect(simulate('synthetic')).toEqual([])
   })
 })
 

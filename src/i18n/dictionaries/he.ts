@@ -11,6 +11,7 @@ export const heReview: ReviewStatus = 'approved'
 export const he: Dictionary = {
   site: {
     name: 'MARTIN.G',
+    title: 'MARTIN.G · בניית מוצרים דיגיטליים',
     positioning: 'מוצרים דיגיטליים, מערכות וחוויות.',
     principle: 'מבעיה למוצר.',
     description: 'מוצרים דיגיטליים, מערכות וחוויות מאת Martin Gusin. מבעיה למוצר.',

@@ -95,3 +95,26 @@ jobs:
             playwright-report/
             test-results/
           retention-days: 7
+
+  production-simulation:
+    name: Production simulation build
+    runs-on: ubuntu-latest
+    env:
+      # The real leak-check secret: the simulated builds run the leak check with VERCEL=1,
+      # so it fails closed without it. No other secret is given to this job. Contact
+      # delivery and the site origin use CI-only dummy values set by the script itself
+      # (scripts/production-simulation.mjs), never production credentials.
+      LEAK_CHECK_TERMS_B64: ${{ secrets.LEAK_CHECK_TERMS_B64 }}
+      NEXT_TELEMETRY_DISABLED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # Real `pnpm build`s with VERCEL=1 and VERCEL_ENV=production: refused without Contact
+      # delivery, refused without SITE_URL, then built, served and checked with the dummy
+      # configuration, with a guard proving no delivery request is ever made.
+      - run: pnpm build:production-simulation

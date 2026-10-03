@@ -1,8 +1,10 @@
 import type { Metadata, Route } from 'next'
 import { notFound } from 'next/navigation'
 import { isLocale } from '@/i18n/config'
+import { getDictionary } from '@/i18n/get-dictionary'
 import { contactCopy } from '@/i18n/dictionaries/contact'
-import { localeAlternates } from '@/lib/site'
+import { pageMetadata } from '@/lib/site'
+import { siteSocialImage } from '@/lib/social'
 import { trustHref } from '@/lib/trust'
 import { worlds } from '@/content/worlds'
 import { Grid } from '@/components/layout/Grid'
@@ -16,11 +18,16 @@ export async function generateMetadata({
   const { locale } = await params
   if (!isLocale(locale)) return {}
   const { seo } = contactCopy[locale]
-  return {
+  const { site } = getDictionary(locale)
+  return pageMetadata({
+    locale,
+    path: '/contact',
     title: seo.title,
     description: seo.description,
-    alternates: localeAlternates(locale, '/contact'),
-  }
+    siteName: site.name,
+    // No artwork of its own: the locale's site card.
+    image: siteSocialImage(locale, site),
+  })
 }
 
 /**

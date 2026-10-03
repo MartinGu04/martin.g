@@ -11,6 +11,7 @@
     "prepare": "node scripts/setup-hooks.mjs",
     "dev": "next dev",
     "build": "next build && node scripts/leak-check.mjs build && node scripts/lint-policy.mjs --built",
+    "build:production-simulation": "node scripts/production-simulation.mjs",
     "start": "next start",
     "typecheck": "next typegen && tsc --noEmit",
     "lint": "eslint . && node scripts/lint-policy.mjs",
@@ -22,6 +23,7 @@
     "leak:history": "node scripts/leak-check.mjs history",
     "leak:encode": "node scripts/leak-check.mjs encode",
     "brand:icons": "node scripts/brand-icons.mjs",
+    "brand:og": "node scripts/og-cards.mjs",
     "check": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm test"
   },
   "dependencies": {

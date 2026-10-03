@@ -72,7 +72,8 @@ export function OnWorld({ project, dict, showcase, locale }: OnWorldProps) {
               <Image
                 src={onMedia.mark.src}
                 alt={project.title}
-                sizes="(width >= 75rem) 14rem, 10rem"
+                // Measured: 1.92 x the mark's clamped height (OnWorld.module.css .mark).
+                sizes="(width >= 75rem) 10.75rem, (width >= 48rem) 9.5rem, 6.5rem"
                 className={styles.mark}
               />
             </Link>
@@ -103,7 +104,8 @@ export function OnWorld({ project, dict, showcase, locale }: OnWorldProps) {
               media={onMedia.stage}
               locale={locale}
               motion="drift"
-              sizes="(width >= 75rem) 30vw, (width >= 48rem) 50vw, 100vw"
+              // Measured rendered widths: about 36vw, 58vw and 90vw by tier.
+              sizes="(width >= 75rem) 36vw, (width >= 48rem) 58vw, 92vw"
             />
           </div>
           <div className={styles.proof}>

@@ -1,13 +1,13 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { isLocale, localeMeta, type Locale } from '@/i18n/config'
+import { isLocale, type Locale } from '@/i18n/config'
 import { getDictionary } from '@/i18n/get-dictionary'
 import { getProjectSequence, getPublicProject, getPublicProjects } from '@/content/registry'
 import { formatYears, resolvePublicSummary } from '@/content/resolve'
 import type { PublicProject } from '@/content/schema'
 import { onMedia } from '@/content/projects/on'
 import { miMaMoMedia } from '@/content/projects/mi-ma-mo'
-import { localeAlternates } from '@/lib/site'
+import { pageMetadata } from '@/lib/site'
 import { Grid } from '@/components/layout/Grid'
 import { Eyebrow } from '@/components/type/Eyebrow'
 import { Ltr } from '@/components/type/Ltr'
@@ -57,39 +57,26 @@ export async function generateMetadata({
   const { locale, slug } = await params
   const project = getPublicProject(slug)
   if (!isLocale(locale) || !project) return {}
-  const alternates = localeAlternates(locale, `/work/${project.id}`)
+  const page = { locale, path: `/work/${project.id}`, siteName: getDictionary(locale).site.name }
   if (!hasCaseStudy(project.id)) {
-    return {
+    return pageMetadata({
+      ...page,
       title: project.seo.title[locale],
       description: project.seo.description[locale],
-      alternates,
-    }
+    })
   }
   const { seo, image } = caseStudies[project.id]
-  const { title, description } = seo(locale)
-  const dict = getDictionary(locale)
-  return {
-    title,
-    description,
-    alternates,
-    // The layout's Open Graph block is replaced, not merged, so it is restated here.
-    openGraph: {
-      title,
-      description,
-      siteName: dict.site.name,
-      locale: localeMeta[locale].ogLocale,
-      type: 'article',
-      url: `/${locale}/work/${project.id}`,
-      images: [
-        {
-          url: image.src.src,
-          width: image.src.width,
-          height: image.src.height,
-          alt: image.alt[locale],
-        },
-      ],
+  return pageMetadata({
+    ...page,
+    ...seo(locale),
+    type: 'article',
+    image: {
+      url: image.src.src,
+      width: image.src.width,
+      height: image.src.height,
+      alt: image.alt[locale],
     },
-  }
+  })
 }
 
 export default async function ProjectPage({ params }: PageProps<'/[locale]/work/[slug]'>) {

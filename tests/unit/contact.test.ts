@@ -303,6 +303,29 @@ describe('delivery boundary', () => {
     ).not.toThrow()
   })
 
+  it('requires Resend in production, naming only the missing variables', () => {
+    expect(() =>
+      assertContactDelivery({
+        VERCEL_ENV: 'production',
+        TELEGRAM_BOT_TOKEN: 'synthetic-token',
+        TELEGRAM_CHAT_ID: '1',
+      }),
+    ).toThrow(/Missing: RESEND_API_KEY, CONTACT_EMAIL_TO, CONTACT_EMAIL_FROM/)
+    let message = ''
+    try {
+      assertContactDelivery({
+        VERCEL_ENV: 'production',
+        RESEND_API_KEY: 'synthetic-secret-key',
+        CONTACT_EMAIL_TO: ' ',
+        CONTACT_EMAIL_FROM: 'c@d.co',
+      })
+    } catch (error) {
+      message = (error as Error).message
+    }
+    expect(message).toMatch(/Missing: CONTACT_EMAIL_TO \(/)
+    expect(message).not.toContain('synthetic-secret-key')
+  })
+
   it('formats a plain-text message with a header-safe subject', () => {
     const inquiry = {
       values: {
