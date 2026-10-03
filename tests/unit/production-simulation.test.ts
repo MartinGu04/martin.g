@@ -5,6 +5,7 @@ import path from 'node:path'
 import { describe, expect, it, vi } from 'vitest'
 import { assertContactDelivery, configuredNotifiers } from '@/lib/contact/notifiers'
 import { assertLeadStorage, leadStoreConfig } from '@/lib/leads/config'
+import { adminAuthConfig, assertAdminConfiguration } from '@/lib/admin/config'
 import { configuredLeadRepository } from '@/lib/leads/repository'
 import {
   assertReleasableArtwork,
@@ -47,6 +48,8 @@ const inherited = {
   SUPABASE_SERVICE_ROLE_KEY: 'synthetic-real-service-role',
   NEXT_PUBLIC_SUPABASE_URL: 'https://synthetic-real-project.supabase.co',
   POSTGRES_URL: 'postgres://synthetic-real@db.example/postgres',
+  SUPABASE_PUBLISHABLE_KEY: 'sb_publishable_synthetic-real-key',
+  ADMIN_USER_ID: '11111111-1111-4111-8111-111111111111',
   ALLOW_DRAFT_COPY_IN_PRODUCTION: '1',
 }
 
@@ -89,7 +92,10 @@ describe('production simulation environment', () => {
       Object.keys(env)
         .filter((name) => name.includes('SUPABASE'))
         .sort(),
-    ).toEqual(['SUPABASE_SECRET_KEY', 'SUPABASE_URL'])
+    ).toEqual(['SUPABASE_PUBLISHABLE_KEY', 'SUPABASE_SECRET_KEY', 'SUPABASE_URL'])
+    expect(env.SUPABASE_PUBLISHABLE_KEY).toBe('sb_publishable_ci_simulation_not_a_real_key')
+    expect(env.ADMIN_USER_ID).toBe(SIMULATION.ADMIN_USER_ID)
+    expect(env.ADMIN_USER_ID).not.toBe(inherited.ADMIN_USER_ID)
     expect(env.ALLOW_DRAFT_COPY_IN_PRODUCTION).toBeUndefined()
     expect(STRIPPED).toContain('ALLOW_DRAFT_COPY_IN_PRODUCTION')
   })
@@ -140,6 +146,19 @@ describe('production simulation cases', () => {
     // Every other gate is satisfied, so this one names the reason.
     expect(() => assertContactDelivery(caseEnv)).not.toThrow()
     expect(() => assertLeadStorage(caseEnv)).toThrow(testCase.expectFailure![0])
+  })
+
+  it("without the admin's configuration, the gate refuses with the message the build must show", () => {
+    const testCase = CASES.find((c) => c.name.includes("admin's configuration"))!
+    const caseEnv = env("admin's configuration")
+    expect(caseEnv.SUPABASE_PUBLISHABLE_KEY).toBeUndefined()
+    expect(caseEnv.ADMIN_USER_ID).toBeUndefined()
+    expect(() => assertLeadStorage(caseEnv)).not.toThrow()
+    expect(() => assertAdminConfiguration(caseEnv)).toThrow(testCase.expectFailure![0])
+    // The complete configuration satisfies it, with synthetic values only.
+    const complete = simulationEnv(inherited, { overrides: {} })
+    expect(() => assertAdminConfiguration(complete)).not.toThrow()
+    expect(adminAuthConfig(complete)?.url).toBe('https://leads.production-simulation.example')
   })
 
   it('recognizes the copy gate’s refusal, so draft copy can never pass unnoticed', () => {

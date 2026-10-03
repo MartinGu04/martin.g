@@ -1,0 +1,161 @@
+/*
+ * The admin's controls, in the Contact form's grammar (a raised surface, a 3:1 boundary,
+ * no radius, the system's focus ring), set denser for daily use. Text stays at 16px in
+ * fields, so phones never zoom in.
+ */
+@layer components {
+  .field {
+    display: grid;
+    gap: var(--space-2);
+    min-inline-size: 0;
+  }
+
+  .label {
+    color: var(--text-muted);
+  }
+
+  .control {
+    inline-size: 100%;
+    min-block-size: 2.75rem;
+    padding-block: var(--space-2);
+    padding-inline: var(--space-3);
+    border: var(--hairline) solid var(--control-border);
+    border-radius: var(--radius-0);
+    background: var(--surface-1);
+    color: var(--text);
+    font-size: var(--body-size);
+    line-height: 1.4;
+  }
+
+  .control::placeholder {
+    color: var(--text-muted);
+    opacity: 1;
+  }
+
+  select.control {
+    appearance: none;
+    padding-inline-end: var(--space-7);
+    background-image:
+      linear-gradient(45deg, transparent 50%, var(--text-muted) 50%),
+      linear-gradient(135deg, var(--text-muted) 50%, transparent 50%);
+    background-position:
+      calc(100% - 1.125rem) 55%,
+      calc(100% - 0.8125rem) 55%;
+    background-size: 0.3125rem 0.3125rem;
+    background-repeat: no-repeat;
+  }
+
+  select.control:dir(rtl) {
+    background-position:
+      0.8125rem 55%,
+      1.125rem 55%;
+  }
+
+  .area {
+    min-block-size: 7rem;
+    resize: block;
+    line-height: var(--body-leading);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .control:hover {
+      border-color: var(--text-muted);
+    }
+  }
+
+  .control:focus-visible {
+    border-color: var(--text);
+    outline-offset: 2px;
+  }
+
+  .control[aria-invalid='true'] {
+    border-color: var(--error);
+    border-inline-start-width: 4px;
+  }
+
+  .primary,
+  .secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    min-block-size: 2.75rem;
+    padding-inline: var(--space-5);
+    border-radius: var(--radius-0);
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    text-decoration-line: none;
+  }
+
+  /* The one action on a surface: the amber. */
+  .primary {
+    border: var(--hairline) solid var(--accent);
+    background: var(--accent);
+    color: var(--surface-0);
+  }
+
+  .secondary {
+    border: var(--hairline) solid var(--control-border);
+    background: transparent;
+    color: var(--text);
+  }
+
+  .primary:hover,
+  .primary:focus-visible,
+  .secondary:hover,
+  .secondary:focus-visible {
+    text-decoration-line: none;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .secondary:hover {
+      border-color: var(--text);
+    }
+
+    .primary:hover {
+      filter: brightness(1.08);
+    }
+  }
+
+  .primary[aria-disabled='true'],
+  .secondary[aria-disabled='true'] {
+    cursor: progress;
+    opacity: 0.7;
+  }
+
+  /* Feedback: a text message with a mark of its own, never color alone. */
+  .message {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    margin: 0;
+  }
+
+  .message:empty {
+    display: none;
+  }
+
+  .success::before,
+  .error::before {
+    flex: none;
+    font-weight: 700;
+  }
+
+  .success {
+    color: var(--text);
+  }
+
+  .success::before {
+    content: '\2713';
+    color: var(--accent-2);
+  }
+
+  .error {
+    color: var(--error);
+  }
+
+  .error::before {
+    content: '!';
+  }
+}

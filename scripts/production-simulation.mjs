@@ -12,14 +12,17 @@
  *
  *   1. without Contact delivery    the build must fail, naming the missing variables
  *   2. without lead storage        the build must fail, naming the Supabase variables
- *   3. without SITE_URL            the build must fail, asking for the origin
- *   4. a site card pending         the build must fail, naming the card awaiting approval
- *   5. complete                    the build must succeed (leak check and built-HTML policy
+ *   3. without the admin's         the build must fail, naming SUPABASE_PUBLISHABLE_KEY
+ *      configuration               and ADMIN_USER_ID
+ *   4. without SITE_URL            the build must fail, asking for the origin
+ *   5. a site card pending         the build must fail, naming the card awaiting approval
+ *   6. complete                    the build must succeed (leak check and built-HTML policy
  *                                  included); its browser output must carry none of the
  *                                  server configuration; the built server is then started
- *                                  and checked
+ *                                  and checked, the admin included (it must send a visitor
+ *                                  to sign in, privately, without any request to Supabase)
  *
- * Copy awaiting review: the copy gate runs after the configuration gates, so cases 1 to 4
+ * Copy awaiting review: the copy gate runs after the configuration gates, so cases 1 to 5
  * are decided while copy is still draft. If the complete build is refused only for draft
  * copy, it is built again with the explicit, logged override so every other check still
  * runs, and the run then fails anyway, naming the copy: a real Production deployment would
@@ -55,6 +58,8 @@ export const SIMULATION = Object.freeze({
   CONTACT_EMAIL_FROM: 'MARTIN.G <sender@production-simulation.example>',
   SUPABASE_URL: 'https://leads.production-simulation.example',
   SUPABASE_SECRET_KEY: 'sb_secret_ci_simulation_not_a_real_key',
+  SUPABASE_PUBLISHABLE_KEY: 'sb_publishable_ci_simulation_not_a_real_key',
+  ADMIN_USER_ID: '00000000-0000-4000-8000-00000000c1c1',
   NEXT_TELEMETRY_DISABLED: '1',
 })
 
@@ -66,6 +71,8 @@ export const STRIPPED = Object.freeze([
   'CONTACT_EMAIL_FROM',
   'SUPABASE_URL',
   'SUPABASE_SECRET_KEY',
+  'SUPABASE_PUBLISHABLE_KEY',
+  'ADMIN_USER_ID',
   'TELEGRAM_BOT_TOKEN',
   'TELEGRAM_CHAT_ID',
   'CONTACT_OUTBOX_FILE',
@@ -128,6 +135,13 @@ export const CASES = Object.freeze([
     ],
   },
   {
+    name: "refuses a production build without the admin's configuration",
+    overrides: { SUPABASE_PUBLISHABLE_KEY: undefined, ADMIN_USER_ID: undefined },
+    expectFailure: [
+      /\[admin\] The admin is not configured: SUPABASE_PUBLISHABLE_KEY is missing; ADMIN_USER_ID is missing/,
+    ],
+  },
+  {
     name: 'refuses a production build without SITE_URL',
     overrides: { SITE_URL: undefined },
     expectFailure: [/\[site\] A production build needs SITE_URL/],
@@ -151,6 +165,8 @@ export const SERVER_ONLY_VALUES = Object.freeze([
   ['RESEND_API_KEY', SIMULATION.RESEND_API_KEY],
   ['SUPABASE_URL', SIMULATION.SUPABASE_URL],
   ['SUPABASE_SECRET_KEY', SIMULATION.SUPABASE_SECRET_KEY],
+  ['SUPABASE_PUBLISHABLE_KEY', SIMULATION.SUPABASE_PUBLISHABLE_KEY],
+  ['ADMIN_USER_ID', SIMULATION.ADMIN_USER_ID],
   ['the Supabase host', new URL(SIMULATION.SUPABASE_URL).hostname],
 ])
 
@@ -259,6 +275,28 @@ export async function smokeChecks(base, origin = SIMULATION.SITE_URL) {
   )
   expect(!sitemap.includes('/system'), 'the sitemap lists the specimen')
 
+  expect(!sitemap.includes('/admin'), 'the sitemap lists the admin')
+
+  // The admin: a visitor without a session is sent to sign in before anything renders,
+  // and every admin response is private. No request reaches Supabase (the guard).
+  for (const p of ['/admin', '/admin/leads/00000000-0000-4000-8000-000000000001']) {
+    const response = await get(p)
+    expect(response.status === 307, `${p} answers ${response.status}, not 307`)
+    expect(response.headers.get('location') === '/admin/login', `${p} does not go to sign in`)
+    expect(response.headers.get('x-robots-tag') === 'noindex, nofollow', `${p}: not noindex`)
+    expect(/private/.test(response.headers.get('cache-control') ?? ''), `${p}: cacheable`)
+  }
+  const login = await get('/admin/login')
+  expect(login.status === 200, `/admin/login answers ${login.status}`)
+  expect(login.headers.get('x-robots-tag') === 'noindex, nofollow', '/admin/login: not noindex')
+  expect(/no-store/.test(login.headers.get('cache-control') ?? ''), '/admin/login: cacheable')
+  const loginHtml = await login.text()
+  expect(
+    /<meta name="robots" content="noindex, nofollow/.test(loginHtml),
+    '/admin/login: no robots meta',
+  )
+  expect(!loginHtml.includes('not configured'), '/admin/login: the admin is not configured')
+
   for (const p of ['/he/system', '/en/system/scenes']) {
     const response = await get(p)
     expect(response.status === 404, `${p} answers ${response.status}, not 404 in production`)
@@ -352,7 +390,7 @@ async function main() {
         if (problems.length > 0) failures.push(`${testCase.name}:\n  ${problems.join('\n  ')}`)
         else
           console.log(
-            '  built, served and checked: origin, social cards, robots, sitemap, headers, specimen',
+            '  built, served and checked: origin, social cards, robots, sitemap, headers, specimen, admin',
           )
       } finally {
         server.stop()

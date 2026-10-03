@@ -1,0 +1,154 @@
+@layer components {
+  .header,
+  .main {
+    --admin-max: 92rem;
+    --admin-margin: clamp(1rem, 0.5rem + 2.5vw, 3rem);
+  }
+
+  .skip {
+    position: fixed;
+    inset-block-start: var(--space-3);
+    inset-inline-start: var(--space-3);
+    z-index: var(--z-skip);
+    padding: var(--space-3) var(--space-4);
+    background: var(--text);
+    color: var(--surface-0);
+    transform: translateY(calc(-100% - var(--space-5)));
+  }
+
+  .skip:focus-visible {
+    transform: none;
+  }
+
+  .header {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: var(--z-header);
+    background: var(--surface-0);
+    border-block-end: var(--hairline) solid var(--line);
+  }
+
+  .bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-6);
+    max-inline-size: var(--admin-max);
+    margin-inline: auto;
+    padding-block: var(--space-3);
+    padding-inline: var(--admin-margin);
+  }
+
+  .identity {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-block-size: 2.75rem;
+    text-decoration-line: none;
+  }
+
+  .identity:hover,
+  .identity:focus-visible {
+    text-decoration-line: none;
+  }
+
+  .badge {
+    padding-block: var(--space-1);
+    padding-inline: var(--space-2);
+    border: var(--hairline) solid var(--line-strong);
+    color: var(--text-muted);
+  }
+
+  .nav {
+    display: flex;
+    gap: var(--space-4);
+  }
+
+  .navLink {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 2.75rem;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+
+  .navLink[aria-current='page'] {
+    color: var(--text);
+    text-decoration-line: underline;
+    text-decoration-color: var(--accent);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.5em;
+  }
+
+  .session {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    margin-inline-start: auto;
+    min-inline-size: 0;
+  }
+
+  .who {
+    overflow: hidden;
+    color: var(--text-muted);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .signOut {
+    min-block-size: 2.75rem;
+    padding-inline: var(--space-4);
+    border: var(--hairline) solid var(--control-border);
+    background: transparent;
+    color: var(--text);
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .signOut:hover {
+      border-color: var(--text);
+    }
+  }
+
+  /* Phones: one line; the address gives way to the actions. */
+  @media (width < 40rem) {
+    .bar {
+      gap: var(--space-2) var(--space-4);
+    }
+
+    .identity {
+      gap: var(--space-2);
+    }
+
+    .session {
+      gap: var(--space-2);
+    }
+
+    .signOut {
+      padding-inline: var(--space-3);
+    }
+
+    .who {
+      display: none;
+    }
+  }
+
+  /* Small phones: one section only, and the wordmark already leads to it. */
+  @media (width < 30rem) {
+    .nav {
+      display: none;
+    }
+  }
+
+  .main {
+    max-inline-size: var(--admin-max);
+    margin-inline: auto;
+    padding-block: var(--space-6) var(--space-9);
+    padding-inline: var(--admin-margin);
+  }
+
+  .main:focus {
+    outline: none;
+  }
+}

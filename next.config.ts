@@ -57,6 +57,12 @@ export function securityHeaders(production: boolean) {
   ]
 }
 
+export const adminHeaders = [
+  { key: 'X-Robots-Tag', value: 'noindex, nofollow' },
+  { key: 'Cache-Control', value: 'private, no-store, max-age=0' },
+  { key: 'Referrer-Policy', value: 'no-referrer' },
+]
+
 const nextConfig: NextConfig = {
   // Security requirement: never ship browser source maps to production.
   // Enforced by scripts/lint-policy.mjs, which fails if this line changes.
@@ -80,7 +86,13 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     const production = process.env.VERCEL_ENV === 'production'
-    return [{ source: '/:path*', headers: securityHeaders(production) }]
+    return [
+      { source: '/:path*', headers: securityHeaders(production) },
+      // The private admin (Phase 8B), in every environment: never indexed or cached, and no
+      // referrer to a lead's website. The admin proxy sets the same (src/lib/admin/proxy.ts).
+      { source: '/admin', headers: adminHeaders },
+      { source: '/admin/:path*', headers: adminHeaders },
+    ]
   },
 }
 

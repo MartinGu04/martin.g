@@ -1,6 +1,7 @@
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { defineConfig, devices } from '@playwright/test'
+import { ADMIN_E2E_ENV, FAKE_PORT } from './tests/support/admin-fixtures.mjs'
 
 const PORT = Number(process.env.E2E_PORT ?? 3100)
 // Optional: a preinstalled Chromium when the bundled browser version is unavailable.
@@ -15,8 +16,9 @@ const launchOptions = executablePath ? { executablePath, args } : { args }
 // Contact form submissions are delivered to this file instead of a real service
 // (src/lib/contact/notifiers.ts, the outbox notifier). Tests read it back.
 process.env.E2E_OUTBOX ??= path.join(tmpdir(), `martin-g-e2e-outbox-${PORT}.jsonl`)
-// Leads are stored in this file instead of Supabase (src/lib/leads/repository.ts, the file
-// store, refused on Vercel). Tests read it back; the suite never reaches a real database.
+// Supabase is a local fake (tests/support/fake-supabase-server.mjs): Auth for the admin, and
+// the leads and notes tables. It writes the leads to this file, which tests read back. The
+// suite never reaches a real Supabase project, and its keys and users are synthetic.
 process.env.E2E_LEADS ??= path.join(tmpdir(), `martin-g-e2e-leads-${PORT}.json`)
 
 export default defineConfig({
@@ -40,17 +42,26 @@ export default defineConfig({
     },
     { name: 'mobile', use: { ...devices['Pixel 7'], launchOptions }, dependencies: ['setup'] },
   ],
-  webServer: {
-    // Tests run against the production build (`pnpm build` first).
-    command: `pnpm exec next start -p ${PORT}`,
-    url: `http://localhost:${PORT}/en`,
-    reuseExistingServer: !process.env.CI,
-    timeout: 60_000,
-    env: {
-      CONTACT_OUTBOX_FILE: process.env.E2E_OUTBOX,
-      CONTACT_LEADS_FILE: process.env.E2E_LEADS,
-      // People take seconds; tests fill the form at once. The timing check is unit tested.
-      CONTACT_MIN_FILL_MS: '0',
+  webServer: [
+    {
+      command: 'node tests/support/fake-supabase-server.mjs',
+      url: `http://127.0.0.1:${FAKE_PORT}/__health`,
+      reuseExistingServer: !process.env.CI,
+      timeout: 30_000,
+      env: { E2E_LEADS: process.env.E2E_LEADS, FAKE_SUPABASE_PORT: String(FAKE_PORT) },
     },
-  },
+    {
+      // Tests run against the production build (`pnpm build` first).
+      command: `pnpm exec next start -p ${PORT}`,
+      url: `http://localhost:${PORT}/en`,
+      reuseExistingServer: !process.env.CI,
+      timeout: 60_000,
+      env: {
+        CONTACT_OUTBOX_FILE: process.env.E2E_OUTBOX,
+        // People take seconds; tests fill the form at once. The timing check is unit tested.
+        CONTACT_MIN_FILL_MS: '0',
+        ...ADMIN_E2E_ENV,
+      },
+    },
+  ],
 })
